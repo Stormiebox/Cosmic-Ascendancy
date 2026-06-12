@@ -17,8 +17,12 @@ local function applyToEntity(entityId)
     local entity = Entity(entityId)
     if not entity then return end
     
-    -- Only apply to ships/stations owned by this player
-    if entity.factionIndex ~= Player().index then return end
+    -- Apply to ships/stations owned by the player, OR their alliance!
+    local ownerIndex = entity.factionIndex
+    if ownerIndex ~= Player().index then
+        local allianceIndex = Player().allianceIndex
+        if not allianceIndex or ownerIndex ~= allianceIndex then return end
+    end
     
     if not entity:hasScript("data/scripts/entity/ascendancyglobalbuff.lua") then
         entity:addScript("data/scripts/entity/ascendancyglobalbuff.lua")
@@ -27,6 +31,15 @@ end
 
 function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
     local entities = {Sector():getEntitiesByFaction(playerIndex)}
+    
+    local p = Player(playerIndex)
+    if p and p.allianceIndex then
+        local allianceEntities = {Sector():getEntitiesByFaction(p.allianceIndex)}
+        for _, e in pairs(allianceEntities) do
+            table.insert(entities, e)
+        end
+    end
+    
     for _, entity in pairs(entities) do
         applyToEntity(entity.id)
     end

@@ -4,8 +4,12 @@ local CosmicAscendancyServer = {}
 
 function CosmicAscendancyServer.initialize()
     if onServer() then
-        Galaxy():addScriptOnce("galaxy/ascendancykeepalive.lua")
         Server():registerCallback("onPlayerLogIn", "onPlayerLogIn")
+    
+        -- Start the Cosmic Ascendancy Sector Keep-Alive Engine
+        if not Galaxy():hasScript("galaxy/ascendancykeepalive.lua") then
+            Galaxy():addScript("galaxy/ascendancykeepalive.lua")
+        end
     end
 end
 

@@ -101,6 +101,10 @@ function AscendancyGlobalBuff.onDestroyed()
     AscendancyGlobalBuff.removeBuffs()
 end
 
+function AscendancyGlobalBuff.onRemove()
+    AscendancyGlobalBuff.removeBuffs()
+end
+
 function AscendancyGlobalBuff.secure()
     return {appliedTier = appliedTier}
 end

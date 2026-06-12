@@ -24,3 +24,9 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 *   **Cosmic War**: Deeply integrated with `CosmicWarBridge` to fetch War Heat for dynamic toll scaling, siege attackers, and Forge weapon multipliers.
 *   **Cosmic Overhaul**: Requires standard Overhaul progression limits.
 *   **Cosmic Chronicles**: Adds lore and weight to the massive empire capital milestones.
+
+### Bug Fixes & Compliance
+*   **Keep-Alive Engine**: Built a dedicated background galaxy script (`ascendancykeepalive.lua`) to ensure the server physically holds beacon sectors in memory instead of unloading them.
+*   **Alliance Buff Injection**: Patched the player synchronization script so that Alliance defense fleets properly inherit the global Ascendant stats when jumping into a sector.
+*   **Stat Bloat Safety**: Added `onRemove` callback safety nets to prevent players from keeping permanent stat bloat if the beacon is destroyed or the mod is uninstalled.
+*   **Asynchronous Forge Safety**: Ensured the forge utilizes server-side global playtime to prevent duplication exploits and allow crafting to continue gracefully while players are offline or during server restarts.

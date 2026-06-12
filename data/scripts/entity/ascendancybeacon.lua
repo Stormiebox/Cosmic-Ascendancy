@@ -301,6 +301,13 @@ end
 function AscendancyBeacon.updateServer(timeStep)
     if not active then return end
     
+    -- Ping the galaxy to keep sector alive
+    local owner = Faction(Entity().factionIndex)
+    if owner then
+        local x, y = Sector():getCoordinates()
+        Galaxy():sendCallback("onAscendancyBeaconPing", Entity().id.string, owner.index, x, y)
+    end
+    
     local now = Server().playtime
     if now - lastUpkeepTime >= UPKEEP_INTERVAL then
         -- Time to pay!
