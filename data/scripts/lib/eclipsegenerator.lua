@@ -128,6 +128,7 @@ function EclipseGenerator.createShip(position, planType)
         ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 37.5) -- +3750% Shields
         ship:addMultiplyableFactor(StatsBonuses.Damage, 5.0) -- +500% Damage
         ship:addMultiplyableFactor(StatsBonuses.ArmedTurrets, 75.0) -- +75 Turrets
+        ship:addScriptOnce("entity/eclipse_boss_scaling.lua")
     end
 
     Boarding(ship).boardable = false
@@ -211,6 +212,7 @@ function EclipseGenerator.createStation(position)
     
     station:addMultiplyableFactor(StatsBonuses.ShieldDurability, 50.0) 
     station:addMultiplyableFactor(StatsBonuses.Damage, 5.0) 
+    station:addScriptOnce("entity/eclipse_boss_scaling.lua")
     
     Boarding(station).boardable = false
     

@@ -8,6 +8,7 @@ local Placer = include("placer")
 
 local cv_success, cv_news = pcall(require, "cosmicvaultnews")
 local cw_success, cw_bridge = pcall(require, "cosmicwarbridge")
+local fleet_success, cv_fleet = pcall(require, "cosmicvaultfleet")
 
 -- namespace AscendancySiege
 AscendancySiege = {}
@@ -85,6 +86,9 @@ function AscendancySiege.spawnFleet()
         ship:addScript("ai/patrol.lua")
         ship:setValue("is_ascendancy_siege", true)
         table.insert(attackers, ship.id.string)
+        if fleet_success and cv_fleet.orderAttackEnemies then
+            cv_fleet.orderAttackEnemies(ship.index, true)
+        end
     end
     
     -- Spawn Standard Fleet
@@ -102,6 +106,9 @@ function AscendancySiege.spawnFleet()
         ship:addScript("ai/patrol.lua")
         ship:setValue("is_ascendancy_siege", true)
         table.insert(attackers, ship.id.string)
+        if fleet_success and cv_fleet.orderAttackEnemies then
+            cv_fleet.orderAttackEnemies(ship.index, true)
+        end
     end
     
     Placer.resolveIntersections()

@@ -5,6 +5,8 @@ include("stringutility")
 local EclipseGenerator = include("eclipsegenerator")
 local Placer = include ("placer")
 
+local cv_success, cv_fleet = pcall(require, "cosmicvaultfleet")
+
 local minute = 0
 
 if onServer() then
@@ -72,6 +74,15 @@ function createEnemies()
     end
 
     Placer.resolveIntersections(spawned)
+    
+    if cv_success and cv_fleet.orderAttackEnemies then
+        for _, ship in pairs(spawned) do
+            if valid(ship) then
+                cv_fleet.orderAttackEnemies(ship.index, true)
+            end
+        end
+    end
+    
     AlertAbsentPlayers(ChatMessageType.Warning, "The Eclipse has invaded sector \\s(%1%:%2%)!"%_t, sector:getCoordinates())
 end
 

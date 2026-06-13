@@ -105,3 +105,11 @@ Upon the destruction of the Guardian, a massive shockwave ripples through subspa
 ### Relentless Mechanics
 The Eclipse does not stay in one place. They actively hunt players globally, periodically spawning massive invasion fleets directly into player-occupied sectors. Furthermore, any newly generated sector has a chance to be pre-conquered, housing an Eclipse Citadel.
 Their weapons are forcibly overridden to Tech 52 (Max), with completely maxed stats. If *Cosmic Starfall* is installed, they will indiscriminately use those apocalyptic weapons against you.
+
+
+## Latest Additions & Integrations
+
+- **Eclipse Strongholds**: Conquered unexplored sectors now have a 25% chance of spawning as fully fortified Eclipse Strongholds.
+- **Multiplayer Boss Scaling**: Implemented dynamic `applyPermanentFactor` scaling. Harbingers and Citadels now inherently gain +100% Shield and +50% Damage per additional player in the sector.
+- **Vault Fleet Integration**: Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.
+- **The Eclipse Oblivion Engine**: Added an apocalyptic new roaming superboss. It actively hunts populated sectors, obliterates everything, dynamically broadcasts via Galactic News, and rewards the galaxy's defenders with 5 Billion credits and maximum-tier loot! (Also includes a 'Stormbox Protocol' lore Easter Egg).

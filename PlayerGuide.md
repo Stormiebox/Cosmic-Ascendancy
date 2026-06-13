@@ -57,3 +57,11 @@ The Eclipse fly massive black-and-red geometric structures:
 
 ### How to Prepare
 Their weaponry is hard-capped at Tech Level 52 with 100% accuracy and massively boosted damage. If your server is running *Cosmic Starfall*, The Eclipse will use those weapons too. You **must** utilize Ascendant Subsystems and Ascendant Beacons to survive their invasions. They will periodically ambush you wherever you are in the galaxy.
+
+
+## Latest Additions & Integrations
+
+- **Eclipse Strongholds**: Conquered unexplored sectors now have a 25% chance of spawning as fully fortified Eclipse Strongholds.
+- **Multiplayer Boss Scaling**: Implemented dynamic `applyPermanentFactor` scaling. Harbingers and Citadels now inherently gain +100% Shield and +50% Damage per additional player in the sector.
+- **Vault Fleet Integration**: Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.
+- **The Eclipse Oblivion Engine**: Added an apocalyptic new roaming superboss. It actively hunts populated sectors, obliterates everything, dynamically broadcasts via Galactic News, and rewards the galaxy's defenders with 5 Billion credits and maximum-tier loot! (Also includes a 'Stormbox Protocol' lore Easter Egg).

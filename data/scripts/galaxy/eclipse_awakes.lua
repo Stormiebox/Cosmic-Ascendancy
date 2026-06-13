@@ -9,7 +9,73 @@ function EclipseAwakes.getUpdateInterval()
 end
 
 function EclipseAwakes.initialize()
+    local server = Server()
+    server:registerCallback("onSectorGenerated", "onSectorGenerated")
 end
+
+function EclipseAwakes.onSectorGenerated(x, y, regular)
+    if not regular then return end
+    
+    local server = Server()
+    if not server:getValue("eclipse_fully_awake") then return end
+    
+    -- Only generate inside the barrier
+    local d2 = x*x + y*y
+    if d2 > 150 * 150 then return end
+    
+    -- 25% chance to be an Eclipse Stronghold
+    local seed = server.seed
+    local random = Random(Seed(seed + x + y))
+    
+    if random:getFloat() < 0.25 then
+        local EclipseGenerator = include("eclipsegenerator")
+        local Placer = include("placer")
+        local SectorTurretGenerator = include("sectorturretgenerator")
+        
+        local sector = Sector()
+        sector.name = "Eclipse Stronghold"%_T
+        
+        -- Wipe any existing generated structures since this is Eclipse territory now
+        local entities = {sector:getEntities()}
+        for _, entity in pairs(entities) do
+            if entity.type == EntityType.Station or entity.type == EntityType.Ship then
+                sector:deleteEntity(entity)
+            end
+        end
+
+        local spawned = {}
+        
+        -- Center Citadel
+        local citadel = EclipseGenerator.createStation(Matrix())
+        table.insert(spawned, citadel)
+        
+        -- Spawn defending fleet
+        local numDefenders = math.random(5, 8)
+        local dir = normalize(vec3(random:getFloat(-1, 1), random:getFloat(-1, 1), random:getFloat(-1, 1)))
+        local up = vec3(0, 1, 0)
+        local right = normalize(cross(dir, up))
+        local pos = dir * 500
+        
+        for i = 1, numDefenders do
+            local shipPos = MatrixLookUpPosition(-dir, up, pos + right * random:getFloat(-200, 200))
+            local r = random:getFloat()
+            local ship
+            if r < 0.2 then
+                ship = EclipseGenerator.createCarrier(shipPos)
+            elseif r < 0.5 then
+                ship = EclipseGenerator.createAssassin(shipPos)
+            elseif r < 0.8 then
+                ship = EclipseGenerator.createArtillery(shipPos)
+            else
+                ship = EclipseGenerator.createShip(shipPos, "pyramid")
+            end
+            table.insert(spawned, ship)
+        end
+        
+        Placer.resolveIntersections(spawned)
+    end
+end
+
 
 function EclipseAwakes.updateServer(timeStep)
     local server = Server()
@@ -48,6 +114,7 @@ function EclipseAwakes.updateServer(timeStep)
             if not server:getValue("eclipse_fully_awake") then
                 server:setValue("eclipse_fully_awake", true)
                 server:broadcastChatMessage("The Eclipse", 2, "Your ignorance has doomed this galaxy. We are The Eclipse. You will be erased."%_T)
+                Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_roaming_boss.lua")
             end
         end
     end
