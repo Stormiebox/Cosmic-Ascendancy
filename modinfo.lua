@@ -44,6 +44,9 @@ meta =
     -- },
     dependencies = {
         { id = "3727542782", min = "1.0", max = "*.*" }, -- Cosmic Vault
+        { id = "3732507615", min = "1.0", max = "*.*" }, -- Cosmic Chronicles
+        { id = "3315794988", min = "1.0", max = "*.*" }, -- Cosmic Overhaul
+        { id = "3727544356", min = "1.0", max = "*.*" }, -- Cosmic War
         { id = "Avorion",    min = "1.0",   max = "*.*" }
     },
 
