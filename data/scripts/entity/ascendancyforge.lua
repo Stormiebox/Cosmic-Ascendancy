@@ -32,6 +32,7 @@ local weaponChoices = {
 }
 
 function AscendancyForge.interactionPossible(playerIndex, option)
+    if not Player(playerIndex):getValue("ca_forge_unlocked") then return false end
     return checkEntityInteractionPermissions(Entity(), AlliancePrivilege.ManageStations)
 end
 

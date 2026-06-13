@@ -6,6 +6,7 @@ local cv_success, cv_buffs = pcall(require, "cosmicvaultbuffs")
 AscendancyPlayer = {}
 
 function AscendancyPlayer.initialize()
+    if onServer() then Player():addScriptOnce("data/scripts/player/background/ca_campaign_controller.lua") end
     if onServer() then
         Player():registerCallback("onSectorEntered", "onSectorEntered")
         Player():registerCallback("onShipBuilt", "onShipBuilt")

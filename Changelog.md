@@ -12,6 +12,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 The ultimate endgame expansion for the Cosmic Series has arrived. Establish your empire's permanent capital, generate immense wealth, forge god-tier weaponry, and defend against gargantuan sieges!
 
 ### Added
+
+### Story Campaign
+- **New Campaign: The Eclipse Awakening**: A massive, epic 3-part storyline that automatically triggers when you interact with the Adventurer or Hermit near the galactic core.
+- **The Ascendant Forge Unlock**: The Ascendant Forge is now securely locked behind the completion of the new story campaign.
+- **New Artifact: The Eclipse Bane**: A legendary reward for completing the campaign. Grants massive bonuses to Hull, Shields, Turret Slots, Jump Range, and Damage.
+
 - **Eclipse Strongholds**: Conquered unexplored sectors now have a 25% chance of spawning as fully fortified Eclipse Strongholds.
 - **Multiplayer Boss Scaling**: Implemented dynamic `applyPermanentFactor` scaling. Harbingers and Citadels now inherently gain +100% Shield and +50% Damage per additional player in the sector.
 - **Vault Fleet Integration**: Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.

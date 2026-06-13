@@ -65,3 +65,12 @@ Their weaponry is hard-capped at Tech Level 52 with 100% accuracy and massively 
 - **Multiplayer Boss Scaling**: Implemented dynamic `applyPermanentFactor` scaling. Harbingers and Citadels now inherently gain +100% Shield and +50% Damage per additional player in the sector.
 - **Vault Fleet Integration**: Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.
 - **The Eclipse Oblivion Engine**: Added an apocalyptic new roaming superboss. It actively hunts populated sectors, obliterates everything, dynamically broadcasts via Galactic News, and rewards the galaxy's defenders with 5 Billion credits and maximum-tier loot! (Also includes a 'Stormbox Protocol' lore Easter Egg).
+
+
+## The Eclipse Awakening Campaign
+Cosmic Ascendancy introduces a massive, multi-part endgame campaign focusing on the awakening of the ancient **Eclipse** faction. 
+Once you defeat the Wormhole Guardian and breach the core, locate the Hermit or Adventurer to begin the quest.
+
+*   **Story Missions**: Experience 3 epic structured missions (Investigation, Resource Gathering, and a massive Boss Defense).
+*   **Unlock the Forge**: Completing the campaign is the *only* way to unlock blueprints for the Ascendant Forge.
+*   **The Eclipse Bane**: Upon defeating the final Vanguard Dreadnought, you are rewarded with **The Eclipse Bane** subsystem, granting +50% Hull, +50% Shields, +5 Turret Slots, +5 Jump Range, and +25% Global Damage.
