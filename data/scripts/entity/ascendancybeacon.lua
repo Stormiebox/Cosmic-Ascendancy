@@ -163,6 +163,7 @@ function AscendancyBeacon.onEntityEntered(entityId)
     Sector():broadcastChatMessage("Ascendancy Beacon"%_t, 3, string.format("Collected %s Credits from %s", createMonetaryString(finalToll), entity.translatedTitle or "Ship"))
 end
 
+callable(AscendancyBeacon, "toggleBeacon")
 function AscendancyBeacon.toggleBeacon()
     if not onServer() then return end
     local owner = Faction(Entity().factionIndex)
@@ -248,6 +249,7 @@ function AscendancyBeacon.deactivate()
     AscendancyBeacon.sync()
 end
 
+callable(AscendancyBeacon, "upgradeTier")
 function AscendancyBeacon.upgradeTier()
     if not onServer() then return end
     if not active then return end

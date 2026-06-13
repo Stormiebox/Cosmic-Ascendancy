@@ -41,9 +41,10 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 *   **Cosmic Chronicles**: Adds lore and weight to the massive empire capital milestones.
 
 ### Bug Fixes & Compliance
+- **Multiplayer Network Synchronization:** Fixed a silent networking bug where the Ascendancy Beacon UI buttons (Toggle Beacon, Upgrade Tier) would not respond on Dedicated Servers because the server-side functions were missing `callable()` declarations.
+- **Infinite Spawns Prevention:** Replaced `addScript` with `addScriptOnce` in `ascendancybeacon.lua` so the Eclipse Siege script doesn't inject multiple times into the same sector upon reloading, which caused exponential enemy spawns.
 - **Performance & TPS Optimization:** Drastically reduced server load during late-game scenarios. Injected a hardcoded `getUpdateInterval` throttle (1.0s) into the 3 main story missions (`ca_story1_awakening`, `ca_story2_forge`, `ca_story3_vanguard`) to stop them from polling the sector 60 times a second.
 - **Deterministic Fixes:** Removed `math.random` from `ascendancysiege.lua`, preventing massive multiplayer desyncs during the Eclipse Vanguard invasions.
-- **Galaxy Engine Initialization:** Fixed a critical structural issue where `server.lua` was placed in the wrong directory (`scripts/server/` instead of `scripts/galaxy/`). The Eclipse Awakening events will now correctly hook into newly generated sectors and spawn Eclipse Citadels as originally intended.
 *   **Keep-Alive Engine**: Built a dedicated background galaxy script (`ascendancykeepalive.lua`) to ensure the server physically holds beacon sectors in memory instead of unloading them.
 *   **Alliance Buff Injection**: Patched the player synchronization script so that Alliance defense fleets properly inherit the global Ascendant stats when jumping into a sector.
 *   **Stat Bloat Safety**: Added `onRemove` callback safety nets to prevent players from keeping permanent stat bloat if the beacon is destroyed or the mod is uninstalled.
