@@ -25,7 +25,7 @@ Your capital generates immense wealth and power, which naturally attracts danger
 *   **Rewards**: Defeating the siege drops a massive explosion of Legendary and Exotic weapons!
 
 ## 5. The Stellar Forge
-The ultimate resource sink. Interact with your beacon and select "Stellar Forge". Here, you can exchange **Billions of Credits** to asynchronously craft a custom, God-Tier weapon.
+The ultimate resource sink. Interact with your beacon and select "Stellar Forge". Here, you can exchange **Billions of Credits** to asynchronously craft a custom, God-Tier weapon or Relic Subsystem.
 The forge runs in real-time, taking **24 Hours** to complete.
 
 **Wartime Innovation (Pro Tip):**
@@ -33,3 +33,27 @@ The weapons crafted at the forge receive insane damage multipliers. These multip
 1.  **Core Proximity**: Forging weapons at the Galactic Core yields a +200% damage bonus!
 2.  **War Heat**: Forging a weapon while your empire is currently fighting a massive, intense war yields up to an additional +150% damage bonus! 
 By combining these, you can forge an apocalyptic super-weapon!
+
+## 6. Ascendant Subsystems (Living Relics)
+In the Forge, you can also craft 4 unique Subsystems: the War-Drive, Aegis Matrix, Slipstream Core, and Omni-Sensor.
+Unlike normal subsystems, these are **Living Relics**. They do not have permanent stats. When equipped, they continuously scan your current sector and the empire's active War Heat. 
+If you take a Living Relic into the Galactic Core while fighting a massive war, its stats will dynamically multiply by up to **7.5x**, allowing you to stack up to +75 Armed Turrets or +3750% Shields on a single ship! If you retreat to the outer rim in peacetime, the relic will power back down.
+
+
+---
+
+## 4. The Eclipse: Surviving the Endgame
+
+Do not let your guard down once the Wormhole Guardian falls. Its death breaks an ancient seal, unleashing **The Eclipse**. 
+
+### The 10-Minute Warning
+You will receive server-wide warnings when the seal breaks. You have exactly 10 minutes to prepare your fleets. After that, The Eclipse will begin hunting you permanently.
+
+### What You Face
+The Eclipse fly massive black-and-red geometric structures:
+- **Nullifiers (Pyramids)**
+- **Obliterators (Monoliths)**
+- **Harbingers (Obelisks):** Warning. These bosses utilize the same Living Relic multipliers as your Forge subsystems. They are extraordinarily difficult to kill.
+
+### How to Prepare
+Their weaponry is hard-capped at Tech Level 52 with 100% accuracy and massively boosted damage. If your server is running *Cosmic Starfall*, The Eclipse will use those weapons too. You **must** utilize Ascendant Subsystems and Ascendant Beacons to survive their invasions. They will periodically ambush you wherever you are in the galaxy.

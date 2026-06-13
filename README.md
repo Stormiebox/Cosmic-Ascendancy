@@ -17,7 +17,10 @@ Since your Capital Sector is permanently loaded, you act as the gatekeeper. Any 
 Because your Capital generates immense wealth and power, it draws the attention of the galaxy's most dangerous elements. Every 3 to 6 hours of playtime, a gargantuan invasion fleet will siege your Capital! You must build heavy planetary defenses to survive.
 
 ### 5. The Stellar Forge
-Exchange billions of credits and your rarest ores to asynchronously craft custom, God-Tier weaponry over real-world days. Crafting weapons during heavy wars near the Galactic Core provides exponential "Wartime Innovation" multipliers!
+Exchange billions of credits and your rarest ores to asynchronously craft custom, God-Tier weaponry or Subsystems over real-world days. Crafting weapons during heavy wars near the Galactic Core provides exponential "Wartime Innovation" multipliers!
+
+### 6. Ascendant Subsystems (Living Relics)
+The Stellar Forge can also construct 4 game-breaking subsystems (War-Drive, Aegis Matrix, Slipstream Core, and Omni-Sensor). These are "Living Relics" that dynamically multiply their power up to 7.5x based on your current Core Proximity and the Empire's War Heat!
 
 ## Dependencies
 This mod requires the following Cosmic Series mods to function:
@@ -28,3 +31,6 @@ This mod requires the following Cosmic Series mods to function:
 
 ## Limits
 To ensure server stability and balance, players and alliances are strictly limited to maintaining **3 Active Beacons** simultaneously.
+
+### 🌌 The Ultimate Endgame
+The death of the Xsotan Wormhole Guardian is no longer the end of your journey. It triggers the awakening of **The Eclipse**—an ancient, ravenous faction of black-Avorion geometric horrors that will ruthlessly hunt players across the galaxy and conquer unexplored sectors.

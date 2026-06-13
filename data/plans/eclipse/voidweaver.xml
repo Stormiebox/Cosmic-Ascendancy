@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ship_design>
+  <plan accumulateHealth="true" convex="false">
+    <item parent="-1" index="0">
+      <block lx="-3" ly="-3" lz="-3" ux="3" uy="3" uz="3" index="23" material="6" look="0" up="3" color="ffff0000" />
+    </item>
+    <item parent="0" index="1">
+      <block lx="-2" ly="-2" lz="-2" ux="2" uy="2" uz="2" index="17" material="6" look="0" up="3" color="ffff0000" />
+    </item>
+    <item parent="0" index="2">
+      <block lx="-10" ly="-10" lz="-10" ux="10" uy="-8" uz="-8" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="3">
+      <block lx="-10" ly="8" lz="-10" ux="10" uy="10" uz="-8" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="4">
+      <block lx="-10" ly="-10" lz="8" ux="10" uy="-8" uz="10" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="5">
+      <block lx="-10" ly="8" lz="8" ux="10" uy="10" uz="10" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="6">
+      <block lx="-10" ly="-10" lz="-10" ux="-8" uy="10" uz="-8" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="7">
+      <block lx="8" ly="-10" lz="-10" ux="10" uy="10" uz="-8" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="8">
+      <block lx="-10" ly="-10" lz="8" ux="-8" uy="10" uz="10" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="9">
+      <block lx="8" ly="-10" lz="8" ux="10" uy="10" uz="10" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="10">
+      <block lx="-10" ly="-10" lz="-10" ux="-8" uy="-8" uz="10" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="11">
+      <block lx="8" ly="-10" lz="-10" ux="10" uy="-8" uz="10" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="12">
+      <block lx="-10" ly="8" lz="-10" ux="-8" uy="10" uz="10" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="13">
+      <block lx="8" ly="8" lz="-10" ux="10" uy="10" uz="10" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="14">
+      <block lx="-8" ly="-8" lz="-8" ux="8" uy="-7" uz="8" index="6" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="15">
+      <block lx="-8" ly="7" lz="-8" ux="8" uy="8" uz="8" index="6" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="0" index="16">
+      <block lx="-10" ly="-10" lz="-10" ux="10" uy="10" uz="-9.5" index="10" material="6" look="0" up="3" color="ffff0000" />
+    </item>
+  </plan>
+</ship_design>

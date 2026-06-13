@@ -25,6 +25,10 @@ local weaponChoices = {
     {name = "Ascendant Tesla", value = 15},
     {name = "Ascendant Lightning", value = 14},
     {name = "Ascendant Pulse Cannon", value = 17},
+    {name = "Ascendant War-Drive", value = "data/scripts/systems/ascendantwardrive.lua"},
+    {name = "Ascendant Aegis Matrix", value = "data/scripts/systems/ascendantaegis.lua"},
+    {name = "Ascendant Slipstream Core", value = "data/scripts/systems/ascendantslipstream.lua"},
+    {name = "Ascendant Omni-Sensor", value = "data/scripts/systems/ascendantomnisensor.lua"},
 }
 
 function AscendancyForge.interactionPossible(playerIndex, option)
@@ -187,44 +191,51 @@ function AscendancyForge.claimWeapon()
     local owner = Faction(Entity().factionIndex)
     if not owner then return end
     
-    -- Generate God-Tier Weapon
-    local rarity = Rarity(5) -- Legendary
-    local material = Material(6) -- Avorion
-    local dps = 15000
-    
-    -- Use highest possible tech
-    local turret = TurretGenerator.generateSeeded(random():createSeed(), selectedType, dps, 52, rarity, material, true)
-    
-    -- Compute Multipliers
-    local x, y = Sector():getCoordinates()
-    local distBonus = 1.0 + (math.max(0, 500 - length(vec2(x, y))) / 250) -- +200% at core
-    
-    local warBonus = 1.0
-    if cw_success and cw_bridge.getFactionWarHeat then
-        local heat = cw_bridge.getFactionWarHeat(owner.index)
-        if heat > 0 then
-            warBonus = 1.0 + (heat * 1.5) -- Up to +150% during massive wars
+    if type(selectedType) == "string" then
+        -- Construct Living Relic Subsystem
+        local system = SystemUpgradeTemplate(selectedType, Rarity(5), random():createSeed())
+        owner:getInventory():add(system)
+        owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. system.name .. "!")
+    else
+        -- Generate God-Tier Weapon
+        local rarity = Rarity(5) -- Legendary
+        local material = Material(6) -- Avorion
+        local dps = 15000
+        
+        -- Use highest possible tech
+        local turret = TurretGenerator.generateSeeded(random():createSeed(), selectedType, dps, 52, rarity, material, true)
+        
+        -- Compute Multipliers
+        local x, y = Sector():getCoordinates()
+        local distBonus = 1.0 + (math.max(0, 500 - length(vec2(x, y))) / 250) -- +200% at core
+        
+        local warBonus = 1.0
+        if cw_success and cw_bridge.getFactionWarHeat then
+            local heat = cw_bridge.getFactionWarHeat(owner.index)
+            if heat > 0 then
+                warBonus = 1.0 + (heat * 1.5) -- Up to +150% during massive wars
+            end
         end
+        
+        local finalMult = 3.0 * distBonus * warBonus
+        
+        -- Inject custom properties
+        local weapons = {turret:getWeapons()}
+        turret:clearWeapons()
+        for _, w in pairs(weapons) do
+            w.damage = w.damage * finalMult
+            w.reach = math.min(30000, w.reach * 2.0)
+            turret:addWeapon(w)
+        end
+        
+        turret.title = "Ascendant " .. turret.title
+        turret.coaxial = false -- Ensure it can be mounted normally or coaxially if user wants, but we'll leave it as normal
+        turret.slots = 1 -- Reduce slot cost as a supreme benefit
+        
+        -- Give to player
+        owner:getInventory():add(turret)
+        owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. turret.title .. "!")
     end
-    
-    local finalMult = 3.0 * distBonus * warBonus
-    
-    -- Inject custom properties
-    local weapons = {turret:getWeapons()}
-    turret:clearWeapons()
-    for _, w in pairs(weapons) do
-        w.damage = w.damage * finalMult
-        w.reach = math.min(30000, w.reach * 2.0)
-        turret:addWeapon(w)
-    end
-    
-    turret.title = "Ascendant " .. turret.title
-    turret.coaxial = false -- Ensure it can be mounted normally or coaxially if user wants, but we'll leave it as normal
-    turret.slots = 1 -- Reduce slot cost as a supreme benefit
-    
-    -- Give to player
-    owner:getInventory():add(turret)
-    owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. turret.title .. "!")
     
     hasCompletedItem = false
     isForging = false

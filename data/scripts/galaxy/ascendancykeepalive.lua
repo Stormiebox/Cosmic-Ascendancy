@@ -8,7 +8,6 @@ function AscendancyKeepAlive.initialize()
     if onServer() then
         -- Register to listen for Ascendancy Beacon pings from any sector
         Galaxy():registerCallback("onAscendancyBeaconPing", "onAscendancyBeaconPing")
-        print("[Cosmic Ascendancy] Keep-Alive Engine Initialized.")
     end
 end
 

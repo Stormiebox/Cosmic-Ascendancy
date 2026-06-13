@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ship_design>
+  <plan accumulateHealth="true" convex="false">
+    <item parent="-1" index="0">
+      <block lx="-2" ly="-5" lz="-2" ux="2" uy="5" uz="2" index="23" material="6" look="0" up="3" color="ffff0000" />
+    </item>
+    <item parent="0" index="1">
+      <block lx="-1" ly="-4" lz="-1" ux="1" uy="4" uz="1" index="17" material="6" look="0" up="3" color="ffff0000" />
+    </item>
+    <item parent="0" index="2">
+      <block lx="-4" ly="-8" lz="-4" ux="4" uy="8" uz="4" index="1" material="6" look="0" up="3" color="ff111111" />
+    </item>
+    <item parent="1" index="3">
+      <block lx="-4.1" ly="-8.1" lz="-4.1" ux="4.1" uy="8.1" uz="4.1" index="5" material="6" look="0" up="3" color="ff050505" />
+    </item>
+    <item parent="1" index="4">
+      <block lx="-2" ly="-4" lz="-4.35" ux="2" uy="4" uz="-3.85" index="10" material="6" look="0" up="3" color="ffff0000" />
+    </item>
+    <item parent="1" index="5">
+      <block lx="3.95" ly="-2" lz="-2" ux="4.45" uy="2" uz="2" index="11" material="6" look="0" up="3" color="ffff0000" />
+    </item>
+    <item parent="1" index="6">
+      <block lx="-4.45" ly="-2" lz="-2" ux="-3.95" uy="2" uz="2" index="11" material="6" look="0" up="3" color="ffff0000" />
+    </item>
+  </plan>
+</ship_design>
