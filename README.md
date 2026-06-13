@@ -1,36 +1,30 @@
-# Cosmic Ascendancy
+# 🌌 Cosmic Ascendancy
 
-**Cosmic Ascendancy** is the ultimate endgame expansion for the Avorion Cosmic Series. It introduces a massive, permanent sector simulation mechanic via the **Ascendancy Beacon**, allowing players to establish true Capital Sectors for their empires.
+*The ultimate endgame campaign and crisis simulation.*
 
-## Core Features
+## 📖 Overview
+Following the destruction of the Wormhole Guardian, a darker, ancient adversary awakens: The Eclipse. Cosmic Ascendancy introduces an epic endgame narrative campaign where you must track a mysterious distress signal, uncover the truth behind The Eclipse, and unlock the Ascendancy Forge to craft the weapons needed to survive.
 
-### 1. Permanent Sector Simulation (Keep-Alive)
-Building an Ascendancy Beacon forces the sector to stay loaded 24/7. This means factories will continuously produce goods, traders will constantly flow in and out, and the sector will remain a bustling hub of activity even while you are completely offline!
+## ✨ Features
+<details>
+<summary><b>Click to expand features</b></summary>
 
-### 2. Global Ascendant Buffs
-Upgrading your Beacon from Tier 1 to Tier 5 unlocks account-wide, global buffs. No matter where you are in the galaxy, every single ship in your fleet will receive massive multipliers to their Hull, Shields, and Damage.
+- **The Eclipse:** A terrifying endgame crisis faction that invades from the core outward.
+- **Story Campaign:** A fully-voiced, multi-stage epic narrative questline.
+- **The Ascendancy Forge:** Craft Ascendant-tier technologies by sacrificing vast resources.
+- **Dynamic Strongholds:** Eclipse Citadels naturally spawn and conquer sectors.
+</details>
 
-### 3. The Grand Toll
-Since your Capital Sector is permanently loaded, you act as the gatekeeper. Any AI faction or NPC merchant jumping into your sector is automatically charged an Entry Tax (scaling up to 500,000 Credits per ship). Through integration with `Cosmic War`, factions currently engaged in heavy warfare will pay an additional **Wartime Premium** for seeking safe harbor in your territory.
+## ⚙️ Requirements
+- Avorion v2.0+
+- Dependencies: **Cosmic Vault, Cosmic Starfall**
 
-### 4. Capital Sieges
-Because your Capital generates immense wealth and power, it draws the attention of the galaxy's most dangerous elements. Every 3 to 6 hours of playtime, a gargantuan invasion fleet will siege your Capital! You must build heavy planetary defenses to survive.
+## 🚀 Installation
+1. Place the folder in:
+   - **Windows:** `%AppData%\Avorion\mods\`
+   - **Linux:** `~/.avorion/mods/`
+2. Enable **Cosmic Ascendancy** in **Settings -> Mods**.
+3. Restart Avorion when prompted.
 
-### 5. The Stellar Forge
-Exchange billions of credits and your rarest ores to asynchronously craft custom, God-Tier weaponry or Subsystems over real-world days. Crafting weapons during heavy wars near the Galactic Core provides exponential "Wartime Innovation" multipliers!
-
-### 6. Ascendant Subsystems (Living Relics)
-The Stellar Forge can also construct 4 game-breaking subsystems (War-Drive, Aegis Matrix, Slipstream Core, and Omni-Sensor). These are "Living Relics" that dynamically multiply their power up to 7.5x based on your current Core Proximity and the Empire's War Heat!
-
-## Dependencies
-This mod requires the following Cosmic Series mods to function:
-*   **Cosmic Vault**
-*   **Cosmic Overhaul**
-*   **Cosmic War**
-*   **Cosmic Chronicles**
-
-## Limits
-To ensure server stability and balance, players and alliances are strictly limited to maintaining **3 Active Beacons** simultaneously.
-
-### 🌌 The Ultimate Endgame
-The death of the Xsotan Wormhole Guardian is no longer the end of your journey. It triggers the awakening of **The Eclipse**—an ancient, ravenous faction of black-Avorion geometric horrors that will ruthlessly hunt players across the galaxy and conquer unexplored sectors.
+## 📚 Documentation
+For detailed mechanics, guides, and lore, please refer to the in-game **Cosmic Codex**, or check the included `WIKI.md` and `PLAYER_GUIDE.md` files.
