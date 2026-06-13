@@ -3,6 +3,11 @@ package.path = package.path .. ";data/scripts/?.lua"
 
 include("structuredmission")
 
+function getUpdateInterval()
+    return 1.0
+end
+
+
 mission._Name = "The Vanguard Assault"
 mission._Debug = 0
 
