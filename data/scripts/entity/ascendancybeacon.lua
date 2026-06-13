@@ -26,7 +26,7 @@ function AscendancyBeacon.initialize()
         Sector():registerCallback("onEntityEntered", "onEntityEntered")
         lastUpkeepTime = Server().playtime
         lastSiegeTime = Server().playtime
-        nextSiegeInterval = math.random(3, 6) * 3600 -- 3 to 6 hours
+        nextSiegeInterval = random():getInt(3, 6) * 3600 -- 3 to 6 hours
     end
 end
 
@@ -330,7 +330,7 @@ function AscendancyBeacon.updateServer(timeStep)
     
     if now > lastSiegeTime + nextSiegeInterval then
         lastSiegeTime = now
-        nextSiegeInterval = math.random(3, 6) * 3600
+        nextSiegeInterval = random():getInt(3, 6) * 3600
         
         local owner = Faction(Entity().factionIndex)
         if owner then
@@ -413,5 +413,5 @@ function AscendancyBeacon.restore(data)
     currentTier = data.currentTier or 1
     lastUpkeepTime = data.lastUpkeepTime or Server().playtime
     lastSiegeTime = data.lastSiegeTime or Server().playtime
-    nextSiegeInterval = data.nextSiegeInterval or math.random(3, 6) * 3600
+    nextSiegeInterval = data.nextSiegeInterval or random():getInt(3, 6) * 3600
 end

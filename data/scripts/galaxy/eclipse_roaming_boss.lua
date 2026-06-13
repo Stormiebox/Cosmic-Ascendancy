@@ -76,7 +76,7 @@ function EclipseRoamingBoss.update(timeStep)
                 runSectorCode(coords.x, coords.y, true, code, "run")
 
                 data.currentlyAttackedSector = nil
-                data.countDown = math.random(35, 45) * 60 
+                data.countDown = random():getInt(35, 45) * 60 
             end
         else
             local coords = self.calculateNextAttackedSector()

@@ -50,7 +50,7 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
         table.insert(spawned, citadel)
         
         -- Spawn defending fleet
-        local numDefenders = math.random(5, 8)
+        local numDefenders = random():getInt(5, 8)
         local dir = normalize(vec3(random:getFloat(-1, 1), random:getFloat(-1, 1), random:getFloat(-1, 1)))
         local up = vec3(0, 1, 0)
         local right = normalize(cross(dir, up))
@@ -124,7 +124,7 @@ function EclipseAwakes.updateServer(timeStep)
         EclipseAwakes.invasionTimer = EclipseAwakes.invasionTimer + timeStep
         
         -- Every 25 to 45 minutes, attempt an invasion
-        if EclipseAwakes.invasionTimer > math.random(25, 45) * 60 then
+        if EclipseAwakes.invasionTimer > random():getInt(25, 45) * 60 then
             EclipseAwakes.invasionTimer = 0
             EclipseAwakes.triggerInvasion()
         end
@@ -135,7 +135,7 @@ function EclipseAwakes.triggerInvasion()
     local players = {Server():getPlayers()}
     for _, player in pairs(players) do
         -- 60% chance to invade a player's sector
-        if math.random() > 0.4 then
+        if random():getFloat(0, 1) > 0.4 then
             player:addScript("data/scripts/player/events/eclipseinvasion.lua")
         end
     end

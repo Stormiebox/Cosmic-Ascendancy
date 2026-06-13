@@ -51,7 +51,7 @@ function createEnemies()
     -- Spawn 3 randomized heavy/specialized ships (Obliterator, Void-Weaver, Singularity)
     local heavyTypes = {"monolith", "voidweaver", "singularity"}
     for i = 1, 3 do
-        local hType = heavyTypes[math.random(1, #heavyTypes)]
+        local hType = heavyTypes[random():getInt(1, #heavyTypes)]
         local heavy
         if hType == "voidweaver" then heavy = EclipseGenerator.createCarrier(MatrixLookUpPosition(-dir, up, pos))
         elseif hType == "singularity" then heavy = EclipseGenerator.createArtillery(MatrixLookUpPosition(-dir, up, pos))
@@ -64,7 +64,7 @@ function createEnemies()
     -- Spawn 4 randomized light/specialized ships (Nullifier, Phantom)
     local lightTypes = {"pyramid", "phantom"}
     for i = 1, 4 do
-        local lType = lightTypes[math.random(1, #lightTypes)]
+        local lType = lightTypes[random():getInt(1, #lightTypes)]
         local light
         if lType == "phantom" then light = EclipseGenerator.createAssassin(MatrixLookUpPosition(-dir, up, pos))
         else light = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), lType) end

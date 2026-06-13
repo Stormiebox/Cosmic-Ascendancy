@@ -27,7 +27,7 @@ function AscendancySiege.initialize(t, ownerIndex)
     active = true
     
     -- Choose attacker type
-    local r = math.random()
+    local r = random():getInt()
     if cw_success and cw_bridge.getFactionWarHeat then
         local factions = {Sector():getPresentFactions()}
         local warFaction = nil

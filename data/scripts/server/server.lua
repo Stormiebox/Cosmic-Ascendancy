@@ -30,7 +30,7 @@ end
 function CosmicAscendancyServer.onSectorGenerated(x, y)
     -- If the Eclipse is fully awake, there is a chance they have conquered this newly generated sector
     if Server():getValue("eclipse_fully_awake") then
-        if math.random() < 0.05 then -- 5% chance per sector to be an Eclipse Stronghold
+        if random():getInt() < 0.05 then -- 5% chance per sector to be an Eclipse Stronghold
             local EclipseGenerator = include("eclipsegenerator")
             local faction = EclipseGenerator.getFaction()
             
@@ -41,9 +41,9 @@ function CosmicAscendancyServer.onSectorGenerated(x, y)
             -- Spawn some defenders (Mix of specialized ships)
             local defenderTypes = {"monolith", "pyramid", "voidweaver", "phantom", "singularity"}
             for i = 1, 4 do
-                local typeIdx = math.random(1, #defenderTypes)
+                local typeIdx = random():getInt(1, 1, #defenderTypes)
                 local sType = defenderTypes[typeIdx]
-                local pos = MatrixLookUpPosition(vec3(0,0,1), vec3(0,1,0), vec3(math.random(-1000, 1000), 0, math.random(-1000, 1000)))
+                local pos = MatrixLookUpPosition(vec3(0,0,1), vec3(0,1,0), vec3(random():getInt(-1000, 1000), 0, random():getInt(-1000, 1000)))
                 
                 local defender
                 if sType == "voidweaver" then

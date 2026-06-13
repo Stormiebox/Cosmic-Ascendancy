@@ -57,7 +57,7 @@ function EclipseGenerator.addTurrets(ship, numTurrets)
     for i = 1, numTurrets do
         local turret
         -- If Starfall is installed, there's a 50% chance to pick a Starfall weapon for this slot
-        if status and starfall and starfall.generateLegendary and math.random() > 0.5 then
+        if status and starfall and starfall.generateLegendary and random():getInt() > 0.5 then
             turret = starfall.generateLegendary()
         else
             -- Otherwise, pick a Max Tech Vanilla Legendary Turret
