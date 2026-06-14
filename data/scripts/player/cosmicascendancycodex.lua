@@ -1,4 +1,5 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
+package.path = package.path .. ";data/scripts/?.lua"
 
 include("utility")
 
@@ -9,6 +10,6 @@ function initialize()
 end
 
 function onCosmicCodexGatherData()
-    include("codex/infoCa")
+    include("player/codex/infoCa")
     infoCa_injectToCodex()
 end
