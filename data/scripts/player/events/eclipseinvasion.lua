@@ -48,25 +48,29 @@ function createEnemies()
     table.insert(spawned, harbinger)
     pos = pos + right * 200
 
-    -- Spawn 3 randomized heavy/specialized ships (Obliterator, Void-Weaver, Singularity)
-    local heavyTypes = {"monolith", "voidweaver", "singularity"}
+    -- Spawn 3 randomized heavy/specialized ships
+    local heavyTypes = {"voidweaver", "singularity", "juggernaut", "defiler"}
     for i = 1, 3 do
         local hType = heavyTypes[random():getInt(1, #heavyTypes)]
         local heavy
         if hType == "voidweaver" then heavy = EclipseGenerator.createCarrier(MatrixLookUpPosition(-dir, up, pos))
         elseif hType == "singularity" then heavy = EclipseGenerator.createArtillery(MatrixLookUpPosition(-dir, up, pos))
+        elseif hType == "juggernaut" then heavy = EclipseGenerator.createJuggernaut(MatrixLookUpPosition(-dir, up, pos))
+        elseif hType == "defiler" then heavy = EclipseGenerator.createDefiler(MatrixLookUpPosition(-dir, up, pos))
         else heavy = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), hType) end
         
         table.insert(spawned, heavy)
         pos = pos + right * 200
     end
 
-    -- Spawn 4 randomized light/specialized ships (Nullifier, Phantom)
-    local lightTypes = {"pyramid", "phantom"}
+    -- Spawn 4 randomized light/specialized ships
+    local lightTypes = {"pyramid", "phantom", "interceptor", "harvester"}
     for i = 1, 4 do
         local lType = lightTypes[random():getInt(1, #lightTypes)]
         local light
         if lType == "phantom" then light = EclipseGenerator.createAssassin(MatrixLookUpPosition(-dir, up, pos))
+        elseif lType == "interceptor" then light = EclipseGenerator.createInterceptor(MatrixLookUpPosition(-dir, up, pos))
+        elseif lType == "harvester" then light = EclipseGenerator.createHarvester(MatrixLookUpPosition(-dir, up, pos))
         else light = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), lType) end
         
         table.insert(spawned, light)

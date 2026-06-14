@@ -39,9 +39,9 @@ function CosmicAscendancyServer.onSectorGenerated(x, y)
             station:addScript("entity/deleteonplayersleft.lua")
             
             -- Spawn some defenders (Mix of specialized ships)
-            local defenderTypes = {"monolith", "pyramid", "voidweaver", "phantom", "singularity"}
+            local defenderTypes = {"pyramid", "voidweaver", "phantom", "singularity", "juggernaut", "interceptor", "harvester", "defiler"}
             for i = 1, 4 do
-                local typeIdx = random():getInt(1, 1, #defenderTypes)
+                local typeIdx = random():getInt(1, #defenderTypes)
                 local sType = defenderTypes[typeIdx]
                 local pos = MatrixLookUpPosition(vec3(0,0,1), vec3(0,1,0), vec3(random():getInt(-1000, 1000), 0, random():getInt(-1000, 1000)))
                 
@@ -52,6 +52,14 @@ function CosmicAscendancyServer.onSectorGenerated(x, y)
                     defender = EclipseGenerator.createAssassin(pos)
                 elseif sType == "singularity" then
                     defender = EclipseGenerator.createArtillery(pos)
+                elseif sType == "juggernaut" then
+                    defender = EclipseGenerator.createJuggernaut(pos)
+                elseif sType == "interceptor" then
+                    defender = EclipseGenerator.createInterceptor(pos)
+                elseif sType == "harvester" then
+                    defender = EclipseGenerator.createHarvester(pos)
+                elseif sType == "defiler" then
+                    defender = EclipseGenerator.createDefiler(pos)
                 else
                     defender = EclipseGenerator.createShip(pos, sType)
                 end

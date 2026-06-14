@@ -179,6 +179,44 @@ function EclipseGenerator.createArtillery(position)
     return ship
 end
 
+function EclipseGenerator.createJuggernaut(position)
+    local ship = EclipseGenerator.createShip(position, "juggernaut")
+    ship:setTitle("Eclipse Juggernaut"%_T, {})
+    
+    ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 2.0) -- +200% Shields
+    ship:addMultiplyableFactor(StatsBonuses.Velocity, -0.5) -- -50% Speed
+    
+    return ship
+end
+
+function EclipseGenerator.createInterceptor(position)
+    local ship = EclipseGenerator.createShip(position, "interceptor")
+    ship:setTitle("Eclipse Interceptor"%_T, {})
+    
+    ship:addMultiplyableFactor(StatsBonuses.Velocity, 1.5) -- +150% Speed
+    ship:addMultiplyableFactor(StatsBonuses.Damage, -0.2) -- -20% Damage
+    
+    return ship
+end
+
+function EclipseGenerator.createHarvester(position)
+    local ship = EclipseGenerator.createShip(position, "harvester")
+    ship:setTitle("Eclipse Harvester"%_T, {})
+    
+    ship:addMultiplyableFactor(StatsBonuses.CargoCapacity, 5.0) -- +500% Cargo
+    
+    return ship
+end
+
+function EclipseGenerator.createDefiler(position)
+    local ship = EclipseGenerator.createShip(position, "defiler")
+    ship:setTitle("Eclipse Defiler"%_T, {})
+    
+    ship:addMultiplyableFactor(StatsBonuses.Damage, 1.5) -- +150% Damage
+    
+    return ship
+end
+
 function EclipseGenerator.createStation(position)
     position = position or Matrix()
     local faction = EclipseGenerator.getFaction()

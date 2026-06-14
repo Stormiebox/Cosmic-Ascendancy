@@ -10,6 +10,7 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 <summary><b>Click to expand features</b></summary>
 
 - **The Eclipse:** A terrifying endgame crisis faction that invades from the core outward.
+- **The Ascendancy Beacon:** Establish a permanent, 24/7 simulated capital megastructure to buff your entire fleet. Includes fully bespoke `.xml` model generation.
 - **Story Campaign:** A fully-voiced, multi-stage epic narrative questline.
 - **The Ascendancy Forge:** Craft Ascendant-tier technologies by sacrificing vast resources.
 - **Dynamic Strongholds:** Eclipse Citadels naturally spawn and conquer sectors.

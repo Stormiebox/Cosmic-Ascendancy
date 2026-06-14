@@ -9,6 +9,7 @@ function StationFounder.initialize(shipyardFaction)
     table.insert(StationFounder.stations, {
         name = "Ascendancy Beacon"%_t,
         tooltip = "A massive megastructure that acts as your Empire's Capital. It permanently simulates the sector it is built in, regardless of whether a player is present. Requires massive continuous upkeep."%_t,
-        scripts = {"data/scripts/entity/ascendancybeacon.lua"}
+        scripts = {"data/scripts/entity/ascendancybeacon.lua"},
+        plan = "data/plans/ascendancy_beacon.xml"
     })
 end

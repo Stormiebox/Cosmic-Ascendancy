@@ -13,6 +13,7 @@ Welcome to the **Cosmic Ascendancy** official wiki! This page contains the full,
   - [Eclipse Faction Stats & Traits](#eclipse-faction-stats--traits)
   - [Invasion Mechanics & Threat Escalation](#invasion-mechanics--threat-escalation)
   - [Eclipse Citadels](#eclipse-citadels)
+- [🏛️ The Ascendancy Beacon](#️-the-ascendancy-beacon)
 - [⚙️ The Ascendancy Forge (Crafting & Math)](#️-the-ascendancy-forge-crafting--math)
   - [Unlock Requirements](#unlock-requirements)
   - [Crafting Formula & Sacrifice Mechanics](#crafting-formula--sacrifice-mechanics)
@@ -47,6 +48,7 @@ Eclipse vessels are exceptionally deadly due to their specialized "Void Shields"
 - **Void Shields:** Incoming physical damage (Cannons, Bolters, Chainguns) is mitigated by **90%**. You *must* use high-tier Energy/Antimatter/Plasma weapons to strip their shields.
 - **Armor Plating:** Base Hull HP is multiplied by `2.5x` relative to vanilla generated ships of the same volume.
 - **Weaponry:** The Eclipse exclusively utilize massive EMP lasers and high-velocity Plasma Artillery, making them incredibly lethal against your own shields.
+- **Aesthetics & Classes:** Eclipse ships are towering, jet-black monolithic structures accented by crimson energy fields. They fly Nullifiers (Pyramids), Obliterators (Monoliths), Harbingers (Obelisks), and 4 specialized combat classes: the Juggernaut (Dreadnought), Interceptor (Fighter), Harvester (Miner), and Defiler (Assault Frigate).
 
 ### Invasion Mechanics & Threat Escalation
 The Eclipse dynamically targets sectors containing high player or AI faction value.
@@ -61,6 +63,21 @@ When an invasion is overwhelmingly successful, the Eclipse will permanently occu
 - **Siege Mechanics:** Citadels have `250,000,000` base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms. 
 - **Loot:** Destroying a Citadel guarantees a drop of 1-3 **Legendary** subsystems and massive quantities of Avorion ore, alongside unique crafting materials for the Ascendancy Forge.
 - **Suppression Field:** Destroying a Citadel halts all Eclipse invasions within a 15-sector radius for exactly 6 real-time hours.
+</details>
+
+---
+
+## 🏛️ The Ascendancy Beacon
+<details>
+<summary><b>Click to expand</b></summary>
+
+Players can construct the ultimate megastructure: **The Ascendancy Beacon**. 
+
+### Purpose & Functionality
+- **Permanent Sector Simulation:** A sector containing an active Ascendancy Beacon is simulated 24/7, even if no players are online.
+- **Global Buffs:** The beacon applies a permanent, massive stat multiplier to all ships in the player's fleet across the entire galaxy.
+- **Upgrades:** The beacon can be upgraded through 5 tiers, exponentially increasing the global stat buffs but requiring massive, continuous upkeep costs of Credits, Avorion, and Ogonite.
+- **Default Design:** Founding a beacon automatically loads a customized, towering `.xml` megastructure design so players do not have to manually build their empire's capital from scratch.
 </details>
 
 ---

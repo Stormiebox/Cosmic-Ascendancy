@@ -60,12 +60,20 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
             local shipPos = MatrixLookUpPosition(-dir, up, pos + right * random:getFloat(-200, 200))
             local r = random:getFloat()
             local ship
-            if r < 0.2 then
+            if r < 0.125 then
                 ship = EclipseGenerator.createCarrier(shipPos)
-            elseif r < 0.5 then
+            elseif r < 0.25 then
                 ship = EclipseGenerator.createAssassin(shipPos)
-            elseif r < 0.8 then
+            elseif r < 0.375 then
                 ship = EclipseGenerator.createArtillery(shipPos)
+            elseif r < 0.5 then
+                ship = EclipseGenerator.createJuggernaut(shipPos)
+            elseif r < 0.625 then
+                ship = EclipseGenerator.createInterceptor(shipPos)
+            elseif r < 0.75 then
+                ship = EclipseGenerator.createHarvester(shipPos)
+            elseif r < 0.875 then
+                ship = EclipseGenerator.createDefiler(shipPos)
             else
                 ship = EclipseGenerator.createShip(shipPos, "pyramid")
             end
