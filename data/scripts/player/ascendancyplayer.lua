@@ -12,6 +12,9 @@ function AscendancyPlayer.initialize()
         Player():registerCallback("onShipBuilt", "onShipBuilt")
         Player():registerCallback("onShipChanged", "onShipChanged")
     end
+    if onClient() then
+        Player():addScriptOnce("data/scripts/player/cosmicascendancycodex.lua")
+    end
 end
 
 local function applyToEntity(entityId)

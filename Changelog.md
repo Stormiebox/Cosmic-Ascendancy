@@ -19,6 +19,7 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 - **Cosmic Codex Integration:** The mod now fully supports the Cosmic Codex! Comprehensive lore and mechanical documentation (such as features, UI tools, and dynamic events) are now readable directly in-game from the new Cosmic Codex tab.
 
 ### ✨ Added
+- **Deep Wiki Integration:** The entire lore structure for the Eclipse Crisis and the Ascendancy Forge crafting systems have been natively integrated into the Cosmic Codex.
 - **New Campaign: The Eclipse Awakening:** A massive, epic 3-part storyline that automatically triggers when you interact with the Adventurer or Hermit near the galactic core.
 - **New Artifact: The Eclipse Bane:** A legendary reward for completing the campaign. Grants massive bonuses to Hull, Shields, Turret Slots, Jump Range, and Damage.
 - **Eclipse Strongholds:** Conquered unexplored sectors now have a 25% chance of spawning as fully fortified Eclipse Strongholds.
