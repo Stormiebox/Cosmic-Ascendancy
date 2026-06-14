@@ -30,7 +30,7 @@ end
 function CosmicAscendancyServer.onSectorGenerated(x, y)
     -- If the Eclipse is fully awake, there is a chance they have conquered this newly generated sector
     if Server():getValue("eclipse_fully_awake") then
-        if random():getInt() < 0.05 then -- 5% chance per sector to be an Eclipse Stronghold
+        if random():getFloat() < 0.05 then -- 5% chance per sector to be an Eclipse Stronghold
             local EclipseGenerator = include("eclipsegenerator")
             local faction = EclipseGenerator.getFaction()
             

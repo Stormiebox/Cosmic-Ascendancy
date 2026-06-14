@@ -60,7 +60,7 @@ function SpawnEclipseBoss.finish()
     
     local x, y = sector:getCoordinates()
     
-    if random():getInt() < 0.1 then
+    if random():getFloat() < 0.1 then
         local generator = SectorGenerator(x, y)
         local wormhole = generator:createWormhole(random():getInt(-500, 500), random():getInt(-500, 500), ColorRGB(0, 0, 0), 100)
         Server():broadcastChatMessage("System"%_T, 1, "The Eclipse Oblivion Engine has left a dimensional tear in sector \\s(%1%:%2%)!"%_T, x, y)
