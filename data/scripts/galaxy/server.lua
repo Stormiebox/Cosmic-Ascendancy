@@ -20,6 +20,10 @@ function CosmicAscendancyServer.initialize()
     end
 end
 
+function onPlayerLogIn(playerIndex)
+    CosmicAscendancyServer.onPlayerLogIn(playerIndex)
+end
+
 function CosmicAscendancyServer.onPlayerLogIn(playerIndex)
     local player = Player(playerIndex)
     if player then
