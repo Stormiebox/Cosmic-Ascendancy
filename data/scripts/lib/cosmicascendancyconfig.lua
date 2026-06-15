@@ -44,9 +44,19 @@ end
 
 local function readBool(key, fallback)
     if not config then return fallback end
-    local value = config.get(key)
-    if type(value) ~= "boolean" then return fallback end
-    return value
+    local success, value = pcall(config.get, key)
+    if not success then return fallback end
+    if type(value) == "boolean" then return value end
+    if type(value) == "string" then
+        local lower = string.lower(value)
+        if lower == "true" or lower == "1" then return true end
+        if lower == "false" or lower == "0" then return false end
+    end
+    if type(value) == "number" then
+        if value == 1 then return true end
+        if value == 0 then return false end
+    end
+    return fallback
 end
 
 local function build()
