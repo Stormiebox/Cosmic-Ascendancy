@@ -48,7 +48,7 @@ function EclipseGenerator.getShipVolume()
     
     -- Adaptive Eclipse Scaling based on highest player Ascendancy Tier
     local maxTier = 0
-    local cv_buffs_success, cv_buffs = pcall(require, "cosmicvaultbuffs")
+    local cv_buffs_success, cv_buffs = true, require("cosmicvaultbuffs")
     if cv_buffs_success and cv_buffs.getGlobalTier then
         for _, p in pairs({Server():getPlayers()}) do
             local tier = cv_buffs.getGlobalTier(p.index)
@@ -56,7 +56,7 @@ function EclipseGenerator.getShipVolume()
         end
     end
     
-    local eclipseScale = 1.0 + (maxTier * 0.5) -- +50% size/durability per tier!
+    local eclipseScale = math.min(3.0, 1.0 + (maxTier * 0.5)) -- +50% size/durability per tier, capped at 3.0x
     
     return volume * 2.5 * eclipseScale
 end
@@ -147,6 +147,13 @@ function EclipseGenerator.createShip(position, planType)
         ship:addMultiplyableFactor(StatsBonuses.Damage, 5.0) -- +500% Damage
         ship:addMultiplyableFactor(StatsBonuses.ArmedTurrets, 75.0) -- +75 Turrets
         ship:addScriptOnce("entity/eclipse_boss_scaling.lua")
+        
+        -- NEMESIS SYSTEM
+        local nemesisResist = Server():getValue("eclipse_nemesis_resist")
+        if nemesisResist then
+            ship:addScriptOnce("data/scripts/entity/ca_nemesis_resist.lua", nemesisResist)
+        end
+        ship:addScriptOnce("data/scripts/entity/ca_nemesis_system.lua")
     end
 
     Boarding(ship).boardable = false

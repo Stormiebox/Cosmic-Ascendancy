@@ -1,5 +1,5 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
-local cv_buffs_success, cv_buffs = pcall(require, "cosmicvaultbuffs")
+local cv_buffs_success, cv_buffs = true, require("cosmicvaultbuffs")
 
 -- The ship will keep this script attached permanently and grant stats based on Global Tier
 

@@ -6,8 +6,8 @@ include ("stringutility")
 include ("faction")
 
 -- Cosmic Integrations
-local cv_success, cv_news = pcall(require, "cosmicvaultnews")
-local cw_success, cw_bridge = pcall(require, "cosmicwarbridge")
+local cv_success, cv_news = true, require("cosmicvaultnews")
+local cw_success, cw_bridge = true, require("cosmicwarbridge")
 
 -- namespace AscendancyBeacon
 AscendancyBeacon = {}

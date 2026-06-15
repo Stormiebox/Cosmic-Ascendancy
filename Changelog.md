@@ -12,6 +12,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 The ultimate endgame expansion for the Cosmic Series has arrived. Establish your empire's permanent capital, generate immense wealth, forge god-tier weaponry, and defend against gargantuan sieges!
 
 ### 🚀 Major Overhaul Features
+
+- **The Fallen Empire Awakening**: The Eclipse conquest manager now tracks total territory annihilation. Upon conquering 10 sectors, The Eclipse triggers the 'Fallen Empire' state.
+- **Systematic Crusades**: Once awakened, the Eclipse algorithmic intelligence stops targeting random player borders and redirects massive Crusade fleets to systematically hunt down and wipe out AI Faction Capitals.
+- **Eclipse Superiority**: All Eclipse entities are now natively immune to Cosmic Overhaul Subspace Weather effects (Ion Storms, Solar Flares).
 - **The Ascendancy Beacon:** A brand new massive station that permanently keeps its sector loaded (24/7). Players can upgrade this beacon from Tier 1 to Tier 5 using astronomical amounts of credits and ores.
 - **Global Ascendant Buffs:** Upgrading your beacon grants a permanent, account-wide stat buff to all ships in your fleet, multiplying Hull, Shields, and Damage.
 - **The Stellar Forge:** Exchange 1+ Billion Credits and massive ore reserves to asynchronously craft custom God-Tier weapons or Relic Subsystems over 24 real-time hours.
@@ -21,6 +25,8 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 ### ✨ Added
 - **The Galactic Dread News Network**: Integrated with `CosmicVaultNews`. Publishes server-wide breaking news when The Eclipse annihilates a sector, or when players secure a Heroic Victory against an Obliterator or World-Eater.
 - **The "Ascendant Matter" Arms Race**: Introduced `Ascendant Matter` (dropped by Harvesters) and `Eclipse Datacores` (dropped by Juggernauts) as new illegal galactic goods.
+- `ca_nemesis_system.lua` and `ca_nemesis_resist.lua` implemented for Eclipse Dread-Lords.
+- `ca_ascendant_gateway.lua` implemented to allow automated sector defense fleets.
 - **Adaptive Eclipse Scaling**: The Eclipse dynamically scan the server for the highest Ascendancy Tier player. For every tier achieved, the entire Eclipse faction receives a permanent +50% physical volume and stat multiplier.
 - **The "World-Eater" Doomsday Event**: A new server-wide crisis that triggers every 2-3 hours. A massive 5x scaled Juggernaut warps into a populated player sector, initiating a 15-minute countdown to total atomic annihilation.
 - **Global Map Conquest**: The Eclipse now permanently claims ownership of sectors they annihilate or conquer on the Galaxy Map.
@@ -41,6 +47,8 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
   - **Cosmic Overhaul & Chronicles:** Adds lore and weight to the massive empire capital milestones.
 
 ### ⚙️ Changed & Balanced
+- Capped Eclipse Boss volume/HP scaling at 3.0x maximum to prevent physics engine crashes.
+- Removed `pcall` soft-dependencies. Core 5 mods are now hard requirements.
 - **Forge Decryption Matrix**: The Ascendancy Forge now accepts `Eclipse Datacores`. Decrypting them permanently raises your Global Ascendancy Tier, granting +15% Shields, +20% Shield Regen, and +10% Hyperspace Cooldown natively to all player ships.
 - **Forge Crafting Costs**: God-Tier weapons now require `Ascendant Matter` to forge.
 - **The Grand Toll:** Since the sector is permanently loaded, the beacon acts as an intergalactic border checkpoint. All NPC traders and AI factions jumping into the sector are charged a massive entry tax that scales with the beacon's tier.

@@ -1,7 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_success, cv_news = pcall(require, "cosmicvaultnews")
-local cv_fleet_success, cv_fleet = pcall(require, "cosmicvaultfleet")
+local cv_success, cv_news = true, require("cosmicvaultnews")
+local cv_fleet_success, cv_fleet = true, require("cosmicvaultfleet")
 
 -- namespace EclipseBossBehavior
 EclipseBossBehavior = {}

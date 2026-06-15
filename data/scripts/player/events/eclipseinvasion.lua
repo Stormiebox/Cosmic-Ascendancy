@@ -5,7 +5,7 @@ include("stringutility")
 local EclipseGenerator = include("eclipsegenerator")
 local Placer = include ("placer")
 
-local cv_success, cv_fleet = pcall(require, "cosmicvaultfleet")
+local cv_success, cv_fleet = true, require("cosmicvaultfleet")
 
 local minute = 0
 

@@ -154,3 +154,9 @@ All deep lore regarding the Eclipse origins, detailed crafting recipes for the A
 The Cosmic Codex has been radically expanded to properly categorize the Eclipse Crisis.
 **The Ascendancy Beacon:** 
 A late-game construct that applies permanent, galaxy-wide stat multipliers to the player's fleet. Sector instances containing a beacon are simulated 24/7 without requiring the player to be online.
+
+## The Nemesis System
+If an Eclipse Dread-Lord drops below 5% HP, it will retreat. It remembers the damage type that hurt it the most (Plasma, Physical, etc.). Upon returning, it will have a massive 90% resistance to that specific damage type.
+
+## Ascendant Gateways
+Players can construct Ascendant Gateways to automate defense. If hostiles are detected, the gateway summons a powerful Ascendant fleet to protect the sector (2-hour cooldown).

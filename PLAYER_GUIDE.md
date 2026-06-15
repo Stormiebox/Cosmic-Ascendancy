@@ -47,6 +47,16 @@ When an Eclipse invasion is overwhelmingly successful, they will permanently occ
 - **Suppression Field:** Destroying a Citadel halts all Eclipse invasions within a 15-sector radius for exactly 6 real-time hours.
 </details>
 
+## 👑 The Fallen Empire Awakening
+<details>
+<summary><b>Click to expand</b></summary>
+
+If the Eclipse is allowed to conquer or annihilate 10 sectors unchecked, they will evolve into a **Fallen Empire**.
+- **Crusades:** They will cease random border skirmishes and instead systematically launch massive Crusades to hunt down and eradicate major AI Faction Capitals.
+- **Dark Matter Fog:** During an invasion, the Eclipse will blanket the sector in a suffocating Dark Matter Fog, physically cutting defender radar and jump capabilities in half.
+- **Technological Superiority:** Eclipse forces are completely immune to all natural Subspace Weather (Ion Storms, Solar Flares).
+</details>
+
 ## 🛠️ The Ascendancy Forge
 <details>
 <summary><b>Click to expand</b></summary>
@@ -79,3 +89,9 @@ Players can construct the ultimate megastructure to anchor their empire: **The A
 ---
 
 *As of v3.0.0: The Ascendancy Beacon and Codex have been vastly expanded to deeply integrate with the Cosmic Vault's universal framework.*
+
+### Defeating Nemeses
+Do not rely on a single weapon type! If an Eclipse Dread-Lord escapes, it will return highly resistant to whatever you just used against it.
+
+### Automating Defense
+Build Ascendant Gateways in your core sectors to automatically summon allied defense fleets when you are offline.

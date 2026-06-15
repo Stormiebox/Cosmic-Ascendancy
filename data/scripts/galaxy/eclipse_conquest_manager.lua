@@ -2,9 +2,9 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 local CosmicVaultTerritory = nil
-local cv_goods_success, cv_goods = pcall(require, "cosmicvaultgoods")
-local cv_news_success, cv_news = pcall(require, "cosmicvaultnews")
-pcall(function() CosmicVaultTerritory = include("cosmicvaultterritory") end)
+local cv_goods_success, cv_goods = true, require("cosmicvaultgoods")
+local cv_news_success, cv_news = true, require("cosmicvaultnews")
+CosmicVaultTerritory = include("cosmicvaultterritory")
 
 local EclipseConquestManager = {}
 EclipseConquestManager.timer = 0
@@ -38,8 +38,6 @@ function EclipseConquestManager.initialize()
     
     if not Server():getValue("eclipse_fully_awake") then return end
 end
-end
-
 function EclipseConquestManager.updateServer(timeStep)
     if not Server():getValue("eclipse_fully_awake") then return end
     
@@ -53,19 +51,65 @@ function EclipseConquestManager.updateServer(timeStep)
 end
 
 function EclipseConquestManager.expandEmpire()
-    -- Find a target sector to invade. We'll pick a random player's known sector to ensure it's a sector that actually exists and is inhabited.
-    local players = {Server():getPlayers()}
-    if #players == 0 then return end
-    
-    local player = players[random():getInt(1, #players)]
-    local knownSectors = {player:getKnownSectors()}
-    if #knownSectors == 0 then return end
-    
-    local targetSector = knownSectors[random():getInt(1, #knownSectors)]
-    local tx, ty = targetSector.x, targetSector.y
-    
     local EclipseGenerator = include("eclipsegenerator")
     local eclipseFaction = EclipseGenerator.getFaction()
+    
+    local conqueredCount = Server():getValue("eclipse_conquered_sectors") or 0
+    local isFallenEmpire = Server():getValue("eclipse_fallen_empire")
+    
+    -- Check if we should awaken
+    if conqueredCount >= 10 and not isFallenEmpire then
+        Server():setValue("eclipse_fallen_empire", true)
+        isFallenEmpire = true
+        if cv_news_success and cv_news.publishArticle then
+            cv_news.publishArticle({
+                title = "GALACTIC THREAT: The Eclipse Awakens",
+                content = "The algorithmic nightmare known as The Eclipse has consolidated enough territory to form a unified, highly organized empire. They have ceased random raids and are now actively launching Crusades to systematically eradicate all major AI faction capitals. We must unite, or we will perish.",
+                category = "Galactic Dread"
+            })
+        end
+    end
+
+    local tx, ty
+    
+    if isFallenEmpire then
+        -- Crusade Logic: Seek out an AI Faction Capital
+        -- We will scan factions and find one with a home sector
+        local factions = {Galaxy():getFactions()}
+        local targets = {}
+        for _, faction in pairs(factions) do
+            if not faction.isPlayer and not faction.isAlliance and not faction:getValue("is_eclipse") and faction.name ~= "The Eclipse" then
+                local hx, hy = faction:getHomeSectorCoordinates()
+                if hx and hy and (hx ~= 0 or hy ~= 0) then
+                    table.insert(targets, {x=hx, y=hy, faction=faction})
+                end
+            end
+        end
+        
+        if #targets > 0 then
+            local target = targets[random():getInt(1, #targets)]
+            tx, ty = target.x, target.y
+            Server():broadcastChatMessage("The Eclipse", 2, "Crusade designated. Sector (" .. tx .. ":" .. ty .. ") has been marked for priority assimilation.")
+        else
+            -- No AI capitals left, fallback to player hunt
+            local players = {Server():getPlayers()}
+            if #players == 0 then return end
+            local player = players[random():getInt(1, #players)]
+            local knownSectors = {player:getKnownSectors()}
+            if #knownSectors == 0 then return end
+            local targetSector = knownSectors[random():getInt(1, #knownSectors)]
+            tx, ty = targetSector.x, targetSector.y
+        end
+    else
+        -- Normal Logic: Random player known sector
+        local players = {Server():getPlayers()}
+        if #players == 0 then return end
+        local player = players[random():getInt(1, #players)]
+        local knownSectors = {player:getKnownSectors()}
+        if #knownSectors == 0 then return end
+        local targetSector = knownSectors[random():getInt(1, #knownSectors)]
+        tx, ty = targetSector.x, targetSector.y
+    end
     
     -- 40% chance to Conquest (Boarding/Siege via Cosmic War)
     -- 60% chance to Annihilation (Total wipe)
@@ -83,17 +127,20 @@ function EclipseConquestManager.expandEmpire()
                     sector:invokeFunction("events/siegeevent.lua", "initialize")
                 end
             end
+            
+            -- Increment counter since it's a conquest attempt that will turn the sector
+            Server():setValue("eclipse_conquered_sectors", conqueredCount + 1)
         else
             -- Cosmic War not installed or hooked, fallback to Annihilation
-            EclipseConquestManager.annihilateSector(tx, ty, eclipseFaction)
+            EclipseConquestManager.annihilateSector(tx, ty, eclipseFaction, conqueredCount)
         end
     else
         -- ANNIHILATION
-        EclipseConquestManager.annihilateSector(tx, ty, eclipseFaction)
+        EclipseConquestManager.annihilateSector(tx, ty, eclipseFaction, conqueredCount)
     end
 end
 
-function EclipseConquestManager.annihilateSector(x, y, eclipseFaction)
+function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conqueredCount)
     Server():broadcastChatMessage("The Eclipse", 2, "Coordinates (" .. x .. ":" .. y .. ") have been judged unworthy of Ascendancy. Initiating total atomic annihilation.")
     
     if cv_news_success and cv_news.publishArticle then
@@ -104,6 +151,9 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction)
         })
     end
     
+    -- Increment global conquest tracker
+    Server():setValue("eclipse_conquered_sectors", (conqueredCount or Server():getValue("eclipse_conquered_sectors") or 0) + 1)
+    
     -- Change the territory to The Eclipse globally on the galaxy map
     local galaxy = Galaxy()
     galaxy:setFaction(x, y, eclipseFaction.index)
@@ -113,6 +163,9 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction)
     if sector then
         local cx, cy = sector:getCoordinates()
         if cx == x and cy == y then
+            -- Inject Dark Matter Fog weather
+            sector:addScriptOnce("data/scripts/sector/cv_weather_controller.lua", "DarkMatterFog", -1)
+            
             local entities = {sector:getEntities()}
             for _, entity in pairs(entities) do
                 if entity.type == EntityType.Station or entity.type == EntityType.Ship then

@@ -6,9 +6,9 @@ local Xsotan = include("story/xsotan")
 local ShipGenerator = include("shipgenerator")
 local Placer = include("placer")
 
-local cv_success, cv_news = pcall(require, "cosmicvaultnews")
-local cw_success, cw_bridge = pcall(require, "cosmicwarbridge")
-local fleet_success, cv_fleet = pcall(require, "cosmicvaultfleet")
+local cv_success, cv_news = true, require("cosmicvaultnews")
+local cw_success, cw_bridge = true, require("cosmicwarbridge")
+local fleet_success, cv_fleet = true, require("cosmicvaultfleet")
 
 -- namespace AscendancySiege
 AscendancySiege = {}

@@ -3,9 +3,9 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("utility")
 include ("stringutility")
 local TurretGenerator = include("turretgenerator")
-local cv_success, cv_news = pcall(require, "cosmicvaultnews")
-local cw_success, cw_bridge = pcall(require, "cosmicwarbridge")
-local cv_buffs_success, cv_buffs = pcall(require, "cosmicvaultbuffs")
+local cv_success, cv_news = true, require("cosmicvaultnews")
+local cw_success, cw_bridge = true, require("cosmicwarbridge")
+local cv_buffs_success, cv_buffs = true, require("cosmicvaultbuffs")
 
 AscendancyForge = {}
 

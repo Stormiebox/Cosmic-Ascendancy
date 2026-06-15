@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_success, CosmicVaultBuffs = pcall(require, "cosmicvaultbuffs")
+local cv_success, CosmicVaultBuffs = true, require("cosmicvaultbuffs")
 
 function initialize()
     if not onServer() then return end

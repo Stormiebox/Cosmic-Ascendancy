@@ -32,4 +32,4 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 3. Restart Avorion when prompted.
 
 ## 📚 Documentation
-For detailed mechanics, guides, and lore, please refer to the in-game **Cosmic Codex**, or check the included `WIKI.md` and `PLAYER_GUIDE.md` files.
+For detailed mechanics, guides, and lore, please refer to the in-game **Cosmic Codex**, or check the included `WIKI.md` and `PLAYER_GUIDE.md` files. Features the terrifying Nemesis System and constructible Ascendant Gateways for automated empire defense.

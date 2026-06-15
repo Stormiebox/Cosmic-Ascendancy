@@ -1,5 +1,5 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
-local cv_news_success, cv_news = pcall(require, "cosmicvaultnews")
+local cv_news_success, cv_news = true, require("cosmicvaultnews")
 
 local WorldEaterManager = {}
 WorldEaterManager.timer = 0

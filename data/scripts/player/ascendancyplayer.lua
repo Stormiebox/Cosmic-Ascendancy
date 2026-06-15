@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_success, cv_buffs = pcall(require, "cosmicvaultbuffs")
+local cv_success, cv_buffs = true, require("cosmicvaultbuffs")
 
 -- namespace AscendancyPlayer
 AscendancyPlayer = {}
