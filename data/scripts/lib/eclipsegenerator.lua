@@ -22,12 +22,17 @@ function EclipseGenerator.getFaction()
         faction.initialRelations = -100000
         faction.initialRelationsToPlayer = -100000
         faction.staticRelationsToPlayers = true
+        faction.description = "An ancient, hyper-advanced consciousness from before the Great Filter. Their entire existence revolves around one absolute imperative: The eradication of all biological and synthetic life that has not reached Ascendancy."
 
         for trait, value in pairs(faction:getTraits()) do
             faction:setTrait(trait, 0)
         end
         faction:setTrait("aggressive", 1)
         faction:setTrait("brave", 1)
+        faction:setTrait("careful", 0)
+        faction:setTrait("peaceful", 0)
+        faction:setTrait("trusting", 0)
+        faction:setTrait("opportunistic", 0)
     end
 
     faction.initialRelationsToPlayer = -100000
@@ -40,7 +45,20 @@ end
 function EclipseGenerator.getShipVolume()
     local sector = Sector()
     local volume = Balancing_GetSectorShipVolume(sector:getCoordinates())
-    return volume * 2.5 -- Eclipse are significantly larger
+    
+    -- Adaptive Eclipse Scaling based on highest player Ascendancy Tier
+    local maxTier = 0
+    local cv_buffs_success, cv_buffs = pcall(require, "cosmicvaultbuffs")
+    if cv_buffs_success and cv_buffs.getGlobalTier then
+        for _, p in pairs({Server():getPlayers()}) do
+            local tier = cv_buffs.getGlobalTier(p.index)
+            if tier > maxTier then maxTier = tier end
+        end
+    end
+    
+    local eclipseScale = 1.0 + (maxTier * 0.5) -- +50% size/durability per tier!
+    
+    return volume * 2.5 * eclipseScale
 end
 
 function EclipseGenerator.addTurrets(ship, numTurrets)
@@ -185,6 +203,8 @@ function EclipseGenerator.createJuggernaut(position)
     
     ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 2.0) -- +200% Shields
     ship:addMultiplyableFactor(StatsBonuses.Velocity, -0.5) -- -50% Speed
+    -- Add loot script for Eclipse Datacore
+    ship:addScriptOnce("data/scripts/entity/ca_juggernaut_loot.lua")
     
     return ship
 end

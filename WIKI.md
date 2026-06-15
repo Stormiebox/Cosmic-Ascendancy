@@ -57,6 +57,16 @@ The Eclipse dynamically targets sectors containing high player or AI faction val
   - *Fleet Composition:* 1 Dreadnought, 3 Cruisers, 5-8 Corvettes.
 - **Eradication:** Eclipse fleets prioritize destroying Stations. If they destroy an AI faction station, the sector's local economic output drops permanently. If they destroy a Player station, the player obviously loses that asset.
 
+
+### 🚨 The World-Eater Doomsday Event
+A global crisis managed by the galaxy engine.
+- **The Trigger:** Every 2-3 hours, a random populated player sector is targeted.
+- **The Threat:** A World-Eater Juggernaut (5x scaled volume, +1500% Shields, -90% Speed) spawns 15,000 km away.
+- **The Outcome:** If not destroyed within 15 minutes, the sector is completely wiped (all stations/AI ships deleted, player ships set to 1 HP) and ownership transfers to The Eclipse.
+
+### 📈 Adaptive Eclipse Scaling
+The Eclipse adapt to the server's power level. The galaxy engine scans for the player with the highest Global Ascendancy Tier. For **each tier** that player has achieved, the entire Eclipse faction globally receives a **+50% multiplier** to their physical ship volume, hull, and shields.
+
 ### 💥 Eclipse Citadels
 When an invasion is overwhelmingly successful, the Eclipse will permanently occupy the sector and construct a **Citadel**.
 - **The Lockdown Matrix:** Citadels generate a sector-wide interdiction field. Ships cannot jump *out* of a Citadel sector unless the Citadel is destroyed.
@@ -92,10 +102,13 @@ To combat the Eclipse, players must locate and utilize the Ascendancy Forge to c
 - The Forge is discovered at the climax of the main storyline.
 - It requires the player to manually insert a "Guardian Core" (dropped by the Wormhole Guardian) into the primary reactor to power it on.
 
-### Crafting Formula & Sacrifice Mechanics
-Crafting Ascendant-tier gear is extraordinarily expensive to balance its extreme power.
+### Crafting Formula & Global Ascendancy
+Crafting Ascendant-tier gear and decrypting datacores is extraordinarily expensive to balance its extreme power.
 
-- **Base Cost:** 50,000,000 Credits, 250,000 Avorion, 150,000 Ogonite.
+- **Weapon Crafting Cost:** Scales based on distance to the core. Averages 1 Billion Credits and 100-500 **Ascendant Matter** (dropped by Eclipse Harvesters).
+- **The Global Ascendancy Matrix:** Players can decrypt **Eclipse Datacores** (guaranteed drops from Eclipse Juggernauts).
+  - *Benefits:* Each decryption permanently raises the player's Global Ascendancy Tier.
+  - *Stats:* Each tier natively grants all player ships +15% Shield Capacity, +20% Shield Recharge, and +10% Faster Hyperspace Cooldown.
 - **The Sacrifice System:** When initiating a craft, the Forge requires a Catalyst. You must sacrifice existing **Legendary** or **Exotic** subsystems.
   - *Math:* Sacrificing 1 Legendary grants a 20% success rate. Sacrificing 5 Legendaries guarantees a 100% success rate.
   - *Failure:* If the craft fails, the sacrificed subsystems and half the raw materials are destroyed, but you are given "Ascendant Scrap" which slightly boosts the success rate of the next attempt.

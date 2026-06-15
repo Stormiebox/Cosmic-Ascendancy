@@ -19,6 +19,11 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 - **Cosmic Codex Integration:** The mod now fully supports the Cosmic Codex! Comprehensive lore and mechanical documentation (such as features, UI tools, and dynamic events) are now readable directly in-game from the new Cosmic Codex tab.
 
 ### ✨ Added
+- **The Galactic Dread News Network**: Integrated with `CosmicVaultNews`. Publishes server-wide breaking news when The Eclipse annihilates a sector, or when players secure a Heroic Victory against an Obliterator or World-Eater.
+- **The "Ascendant Matter" Arms Race**: Introduced `Ascendant Matter` (dropped by Harvesters) and `Eclipse Datacores` (dropped by Juggernauts) as new illegal galactic goods.
+- **Adaptive Eclipse Scaling**: The Eclipse dynamically scan the server for the highest Ascendancy Tier player. For every tier achieved, the entire Eclipse faction receives a permanent +50% physical volume and stat multiplier.
+- **The "World-Eater" Doomsday Event**: A new server-wide crisis that triggers every 2-3 hours. A massive 5x scaled Juggernaut warps into a populated player sector, initiating a 15-minute countdown to total atomic annihilation.
+- **Global Map Conquest**: The Eclipse now permanently claims ownership of sectors they annihilate or conquer on the Galaxy Map.
 - **Codex Expansions:** Detailed the exact global buffs and simulation capabilities of the Ascendancy Beacon.
 - **Deep Wiki Integration:** The entire lore structure for the Eclipse Crisis and the Ascendancy Forge crafting systems have been natively integrated into the Cosmic Codex.
 - **New Campaign: The Eclipse Awakening:** A massive, epic 3-part storyline that automatically triggers when you interact with the Adventurer or Hermit near the galactic core.
@@ -36,6 +41,8 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
   - **Cosmic Overhaul & Chronicles:** Adds lore and weight to the massive empire capital milestones.
 
 ### ⚙️ Changed & Balanced
+- **Forge Decryption Matrix**: The Ascendancy Forge now accepts `Eclipse Datacores`. Decrypting them permanently raises your Global Ascendancy Tier, granting +15% Shields, +20% Shield Regen, and +10% Hyperspace Cooldown natively to all player ships.
+- **Forge Crafting Costs**: God-Tier weapons now require `Ascendant Matter` to forge.
 - **The Grand Toll:** Since the sector is permanently loaded, the beacon acts as an intergalactic border checkpoint. All NPC traders and AI factions jumping into the sector are charged a massive entry tax that scales with the beacon's tier.
 - **Dynamic Wartime Premium:** Integrated with `Cosmic War`. AI factions currently engaged in massive wars will desperately pay up to a **+50% Premium Toll** for seeking safe harbor in your sector.
 - **Capital Sieges:** A hidden playtime clock runs within the beacon. Every 3 to 6 hours, a devastating siege fleet (Pirates, Xsotan, or War Factions) will invade your sector to destroy the beacon. If you defend it, you earn legendary loot. If it falls, your global buffs collapse.

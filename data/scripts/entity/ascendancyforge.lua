@@ -5,6 +5,7 @@ include ("stringutility")
 local TurretGenerator = include("turretgenerator")
 local cv_success, cv_news = pcall(require, "cosmicvaultnews")
 local cw_success, cw_bridge = pcall(require, "cosmicwarbridge")
+local cv_buffs_success, cv_buffs = pcall(require, "cosmicvaultbuffs")
 
 AscendancyForge = {}
 
@@ -62,6 +63,9 @@ function AscendancyForge.initUI()
     AscendancyForge.forgeBtn = window:createButton(Rect(size.x * 0.5 - 200, 250, size.x * 0.5 - 10, 290), "Ignite Forge"%_t, "onForgePressed")
     AscendancyForge.claimBtn = window:createButton(Rect(size.x * 0.5 + 10, 250, size.x * 0.5 + 200, 290), "Claim Weapon"%_t, "onClaimPressed")
     
+    AscendancyForge.tierLabel = window:createLabel(Rect(10, 300, size.x * 0.5, 340), "Global Ascendancy Tier: 0", 16)
+    AscendancyForge.decryptBtn = window:createButton(Rect(size.x * 0.5, 300, size.x - 10, 340), "Decrypt Eclipse Datacore"%_t, "onDecryptPressed")
+    
     AscendancyForge.sync()
 end
 
@@ -86,10 +90,9 @@ function AscendancyForge.getCosts()
     local scale = math.max(1, 6 - (dist / 100)) -- 1x at 500, up to ~6x at core
     
     local creditCost = math.floor(1000000000 * scale)
-    local matCost = math.floor(10000000 * scale)
-    local matType = Material(math.max(1, math.min(6, math.floor(7 - (dist / 80)))))
+    local matCost = random():getInt(100, 500)
     
-    return creditCost, matType, matCost
+    return creditCost, "Ascendant Matter", matCost
 end
 
 function AscendancyForge.syncCosts()
@@ -108,10 +111,15 @@ function AscendancyForge.sync(data)
     if onServer() then
         local pt = Server().playtime
         local remaining = math.max(0, forgeFinishTime - pt)
+        local tier = 0
+        if cv_buffs_success and cv_buffs.getGlobalTier then
+            tier = cv_buffs.getGlobalTier(Entity().factionIndex)
+        end
         invokeClientFunction(Player(callingPlayer), "sync", {
             isForging = isForging,
             hasCompletedItem = hasCompletedItem,
-            remaining = remaining
+            remaining = remaining,
+            tier = tier
         })
     else
         if data then
@@ -120,6 +128,26 @@ function AscendancyForge.sync(data)
             
             if isForging then
                 AscendancyForge.statusLabel.caption = "FORGING... Remaining: " .. math.floor(data.remaining / 3600) .. "h " .. math.floor((data.remaining % 3600) / 60) .. "m"
+                AscendancyForge.statusLabel.color = ColorRGB(1, 1, 0)
+                AscendancyForge.forgeBtn.active = false
+                AscendancyForge.claimBtn.active = false
+                AscendancyForge.combo.active = false
+            elseif hasCompletedItem then
+                AscendancyForge.statusLabel.caption = "WEAPON READY FOR CLAIM!"
+                AscendancyForge.statusLabel.color = ColorRGB(0, 1, 0)
+                AscendancyForge.forgeBtn.active = false
+                AscendancyForge.claimBtn.active = true
+                AscendancyForge.combo.active = false
+            else
+                AscendancyForge.statusLabel.caption = "FORGE IDLE"
+                AscendancyForge.statusLabel.color = ColorRGB(0.5, 0.5, 0.5)
+                AscendancyForge.forgeBtn.active = true
+                AscendancyForge.claimBtn.active = false
+                AscendancyForge.combo.active = true
+            end
+            if data.tier then
+                AscendancyForge.tierLabel.caption = "Global Ascendancy Tier: " .. tostring(data.tier)
+            endancyForge.statusLabel.caption = "FORGING... Remaining: " .. math.floor(data.remaining / 3600) .. "h " .. math.floor((data.remaining % 3600) / 60) .. "m"
                 AscendancyForge.statusLabel.color = ColorRGB(1, 1, 0)
                 AscendancyForge.forgeBtn.active = false
                 AscendancyForge.claimBtn.active = false
@@ -278,3 +306,38 @@ function AscendancyForge.restore(data)
     hasCompletedItem = data.hasCompletedItem or false
     selectedType = data.selectedType or 1
 end
+
+function AscendancyForge.onDecryptPressed()
+    if onClient() then invokeServerFunction("decryptDatacore"); return end
+end
+
+function AscendancyForge.decryptDatacore()
+    if not onServer() then return end
+    local owner = Faction(Entity().factionIndex)
+    if not owner then return end
+    
+    local amount = owner:getInventory():getAmount("Eclipse Datacore")
+    if amount < 1 then
+        owner:sendChatMessage("Stellar Forge"%_t, 1, "You do not have any Eclipse Datacores!"%_t)
+        return
+    end
+    
+    owner:getInventory():remove("Eclipse Datacore", 1)
+    
+    if cv_buffs_success and cv_buffs.setGlobalTier then
+        local currentTier = cv_buffs.getGlobalTier(owner.index)
+        cv_buffs.setGlobalTier(owner.index, currentTier + 1)
+        owner:sendChatMessage("Stellar Forge"%_t, 0, "Datacore Decrypted! Global Ascendancy Tier increased to " .. (currentTier + 1) .. "!")
+        
+        -- Apply stats globally via a script we will attach to the player
+        if owner.isPlayer then
+            local p = Player(owner.index)
+            if not p:hasScript("data/scripts/player/ca_global_tier_manager.lua") then
+                p:addScript("data/scripts/player/ca_global_tier_manager.lua")
+            end
+        end
+    end
+    
+    AscendancyForge.sync()
+end
+callable(AscendancyForge, "decryptDatacore")

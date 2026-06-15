@@ -12,6 +12,12 @@ end
 function AscendancyCampaign.onSectorEntered(playerIndex, x, y)
     local player = Player(playerIndex)
     
+    -- Trigger Lore Anomalies dynamically
+    local status, LoreAnomalies = pcall(require, "ca_story_lore_anomalies")
+    if status and LoreAnomalies and LoreAnomalies.onSectorEntered then
+        LoreAnomalies.onSectorEntered(playerIndex, x, y, SectorChangeType.Jump)
+    end
+    
     -- Check if player is near the core
     local dist = math.sqrt(x*x + y*y)
     if dist > 200 then return end

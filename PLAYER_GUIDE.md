@@ -23,6 +23,11 @@ The Eclipse is a hyper-advanced, hostile faction that dynamically targets sector
 - **Armor Plating:** Their base Hull HP is multiplied by 2.5x relative to vanilla ships of the same volume.
 - **Weaponry:** The Eclipse exclusively utilizes massive EMP lasers and high-velocity Plasma Artillery, making them incredibly lethal against your shields.
 
+### 🚨 The World-Eater Doomsday Event
+Every 2 to 3 hours, the Eclipse will launch a **World-Eater** (a massively scaled Juggernaut) at a populated player sector.
+- A **15-minute countdown** will broadcast across the Galactic News Network.
+- If the World-Eater is not destroyed in 15 minutes, the entire sector is atomically wiped. All non-player entities are deleted, players are reduced to 1 HP, and the sector falls permanently to Eclipse control.
+
 ### 🚨 Invasion Escalation
 1. **Scouting Phase:** Small, fast-moving Eclipse Interceptors arrive in a sector. If they are not destroyed within 5 minutes, they broadcast a beacon.
 2. **Assault Phase:** Once the beacon is active, a massive invasion fleet warps in (typically 1 Dreadnought, 3 Cruisers, and 5-8 Corvettes).
@@ -49,8 +54,9 @@ When an Eclipse invasion is overwhelmingly successful, they will permanently occ
 To combat the Eclipse, you must locate and utilize the Ascendancy Forge to craft gear that pushes past Avorion's native limits.
 
 ### ⚙️ Mechanics
-- **Unlock Requirements:** The Forge is discovered at the climax of the main storyline. It requires the manual insertion of a "Guardian Core" (dropped by the Wormhole Guardian) into the primary reactor to power it on.
-- **Base Crafting Cost:** 50,000,000 Credits, 250,000 Avorion, and 150,000 Ogonite.
+- **Unlock Requirements:** The Forge is discovered at the climax of the main storyline.
+- **Base Crafting Cost:** 1,000,000,000 Credits and a variable amount of **Ascendant Matter** (harvested from Eclipse Harvester stations).
+- **Global Ascendancy Matrix:** You can submit **Eclipse Datacores** (dropped by Eclipse Juggernauts) to the Forge. Decrypting a datacore permanently raises your Global Ascendancy Tier, granting a stacking +15% Shields, +20% Shield Recharge, and +10% Hyperspace Cooldown to all ships in your fleet!
 - **The Sacrifice System:** When initiating a craft, you must sacrifice existing Legendary or Exotic subsystems as Catalysts.
   - Sacrificing 1 Legendary grants a 20% success rate. 
   - Sacrificing 5 Legendaries guarantees a 100% success rate.

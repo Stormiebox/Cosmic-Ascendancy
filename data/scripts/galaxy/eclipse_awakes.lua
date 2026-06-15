@@ -19,18 +19,25 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
     local server = Server()
     if not server:getValue("eclipse_fully_awake") then return end
     
-    -- Only generate inside the barrier
-    local d2 = x*x + y*y
-    if d2 > 150 * 150 then return end
-    
-    -- 25% chance to be an Eclipse Stronghold
+    local dist = math.sqrt(x*x + y*y)
     local seed = server.seed
     local random = Random(Seed(seed + x + y))
     
-    if random:getFloat() < 0.25 then
+    local chance = 0.0
+    if dist <= 75 then
+        -- 1/3rd of the inner core
+        chance = 0.50
+    elseif dist <= 150 then
+        -- Further inside the core
+        chance = 0.25
+    else
+        -- 5% to 15% for the rest of the galaxy
+        chance = random:getFloat(0.05, 0.15)
+    end
+    
+    if random:getFloat() < chance then
         local EclipseGenerator = include("eclipsegenerator")
         local Placer = include("placer")
-        local SectorTurretGenerator = include("sectorturretgenerator")
         
         local sector = Sector()
         sector.name = "Eclipse Stronghold"%_T
@@ -46,11 +53,12 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
         local spawned = {}
         
         -- Center Citadel
-        local citadel = EclipseGenerator.createStation(Matrix())
+        local citadel = EclipseGenerator.createShip(Matrix(), "monolith")
+        citadel:setTitle("Eclipse Citadel", {})
         table.insert(spawned, citadel)
         
         -- Spawn defending fleet
-        local numDefenders = random():getInt(5, 8)
+        local numDefenders = random:getInt(5, 8)
         local dir = normalize(vec3(random:getFloat(-1, 1), random:getFloat(-1, 1), random:getFloat(-1, 1)))
         local up = vec3(0, 1, 0)
         local right = normalize(cross(dir, up))
@@ -71,9 +79,9 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
             elseif r < 0.625 then
                 ship = EclipseGenerator.createInterceptor(shipPos)
             elseif r < 0.75 then
-                ship = EclipseGenerator.createHarvester(shipPos)
+                ship = EclipseGenerator.createShip(shipPos, "monolith")
             elseif r < 0.875 then
-                ship = EclipseGenerator.createDefiler(shipPos)
+                ship = EclipseGenerator.createShip(shipPos, "obelisk")
             else
                 ship = EclipseGenerator.createShip(shipPos, "pyramid")
             end
@@ -83,7 +91,6 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
         Placer.resolveIntersections(spawned)
     end
 end
-
 
 function EclipseAwakes.updateServer(timeStep)
     local server = Server()
@@ -123,6 +130,7 @@ function EclipseAwakes.updateServer(timeStep)
                 server:setValue("eclipse_fully_awake", true)
                 server:broadcastChatMessage("The Eclipse", 2, "Your ignorance has doomed this galaxy. We are The Eclipse. You will be erased."%_T)
                 Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_roaming_boss.lua")
+                Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_conquest_manager.lua")
             end
         end
     end
@@ -140,9 +148,10 @@ function EclipseAwakes.updateServer(timeStep)
 end
 
 function EclipseAwakes.triggerInvasion()
+    -- This is now handled globally by eclipse_conquest_manager.lua, but we still trigger personal player ambushes here
     local players = {Server():getPlayers()}
     for _, player in pairs(players) do
-        -- 60% chance to invade a player's sector
+        -- 60% chance to invade a player's sector personally
         if random():getFloat(0, 1) > 0.4 then
             player:addScript("data/scripts/player/events/eclipseinvasion.lua")
         end

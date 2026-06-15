@@ -10,6 +10,10 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 <summary><b>Click to expand features</b></summary>
 
 - **The Eclipse:** A terrifying endgame crisis faction that invades from the core outward, eclipsing the galaxy.
+- **The World-Eater Doomsday Event:** A 15-minute apocalyptic countdown targeting populated sectors.
+- **Galactic Dread News Network:** Live server-wide reporting of sector annihilations and heroic victories.
+- **Adaptive Scaling:** The Eclipse dynamically grow in size and power to match the highest-tier player on the server.
+
 - **The Ascendancy Beacon:** Establish a permanent, 24/7 simulated capital megastructure to buff your entire fleet. Includes fully bespoke `.xml` model generation.
 - **Story Campaign:** A written, multi-stage epic narrative questline.
 - **The Ascendancy Forge:** Craft Ascendant-tier technologies by sacrificing vast resources.
