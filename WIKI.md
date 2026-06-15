@@ -14,6 +14,7 @@ Welcome to the **Cosmic Ascendancy** official wiki! This page contains the full,
   - [Invasion Mechanics & Threat Escalation](#invasion-mechanics--threat-escalation)
   - [Eclipse Citadels](#eclipse-citadels)
 - [🏛️ The Ascendancy Beacon](#️-the-ascendancy-beacon)
+- [🌍 Dynamic Faction Expansion](#-dynamic-faction-expansion)
 - [⚙️ The Ascendancy Forge (Crafting & Math)](#️-the-ascendancy-forge-crafting--math)
   - [Unlock Requirements](#unlock-requirements)
   - [Crafting Formula & Sacrifice Mechanics](#crafting-formula--sacrifice-mechanics)

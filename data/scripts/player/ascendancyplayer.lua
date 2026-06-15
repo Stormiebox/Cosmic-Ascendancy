@@ -1,7 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local cv_success, cv_buffs = true, require("cosmicvaultbuffs")
-
+include("cosmicascendancyconfig")
 -- namespace AscendancyPlayer
 AscendancyPlayer = {}
 

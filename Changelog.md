@@ -23,6 +23,7 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 - **Cosmic Codex Integration:** The mod now fully supports the Cosmic Codex! Comprehensive lore and mechanical documentation (such as features, UI tools, and dynamic events) are now readable directly in-game from the new Cosmic Codex tab.
 
 ### ✨ Added
+- **Dynamic Faction Expansion:** AI Factions and Pirates will now organically expand their borders and establish new stations in uncharted sectors over time, driven by a highly optimized background simulation.
 - **The Galactic Dread News Network**: Integrated with `CosmicVaultNews`. Publishes server-wide breaking news when The Eclipse annihilates a sector, or when players secure a Heroic Victory against an Obliterator or World-Eater.
 - **The "Ascendant Matter" Arms Race**: Introduced `Ascendant Matter` (dropped by Harvesters) and `Eclipse Datacores` (dropped by Juggernauts) as new illegal galactic goods.
 - `ca_nemesis_system.lua` and `ca_nemesis_resist.lua` implemented for Eclipse Dread-Lords.

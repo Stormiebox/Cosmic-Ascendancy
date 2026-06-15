@@ -1,0 +1,67 @@
+package.path = package.path .. ";data/scripts/lib/?.lua"
+
+local ccm = include("ccm")
+local config = ccm and ccm.bind("Cosmic_Ascendancy") or nil
+
+CosmicAscendancyConfig = CosmicAscendancyConfig or {}
+
+if ccm then
+    ccm.register("Cosmic_Ascendancy", {
+        pages = {
+            {
+                title = "Dynamic Expansion",
+                options = {
+                    { key = "enableExpansion", type = "bool", title = "Enable Dynamic Expansion", description = "Allows AI Factions and Pirates to naturally expand their territory into unexplored sectors.", default = true },
+                    { key = "expansionInterval", type = "number", title = "Expansion Interval (min)", description = "WARNING: Modifies server workload! How often the server attempts an expansion roll. Lower numbers mean faster galaxy filling but more frequent background sector loading.", default = 30, min = 10, max = 180 },
+                    { key = "expansionChance", type = "number", title = "Expansion Chance (%)", description = "Percent chance an expansion roll succeeds every interval.", default = 35, min = 1, max = 100 },
+                    { key = "allowPirateExpansion", type = "bool", title = "Allow Pirate Expansion", description = "If true, local Pirate factions will slowly establish hidden bases and smuggling outposts in empty space.", default = true },
+                },
+            },
+        },
+    })
+end
+
+local defaults =
+{
+    enableExpansion = true,
+    expansionInterval = 30,
+    expansionChance = 35,
+    allowPirateExpansion = true,
+}
+
+local function clampNumber(v, minV, maxV, fallback)
+    if type(v) ~= "number" then return fallback end
+    if v < minV then return minV end
+    if v > maxV then return maxV end
+    return v
+end
+
+local function readNumber(key, minV, maxV, fallback)
+    if not config then return fallback end
+    local value = config.get(key)
+    return clampNumber(value, minV, maxV, fallback)
+end
+
+local function readBool(key, fallback)
+    if not config then return fallback end
+    local value = config.get(key)
+    if type(value) ~= "boolean" then return fallback end
+    return value
+end
+
+local function build()
+    local out = {}
+
+    out.enableExpansion = readBool("enableExpansion", defaults.enableExpansion)
+    out.expansionInterval = readNumber("expansionInterval", 10, 180, defaults.expansionInterval)
+    out.expansionChance = readNumber("expansionChance", 1, 100, defaults.expansionChance)
+    out.allowPirateExpansion = readBool("allowPirateExpansion", defaults.allowPirateExpansion)
+
+    return out
+end
+
+function CosmicAscendancyConfig.get()
+    return build()
+end
+
+return CosmicAscendancyConfig

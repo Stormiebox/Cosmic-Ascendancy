@@ -43,6 +43,7 @@ meta =
     --      {id = "OptionalMod", min = "0.2", optional = true}, -- we support OptionalMod optionally, starting at version 0.2
     -- },
     dependencies = {
+        { id = "3684665566", incompatible = true },
         { id = "3727542782", min = "1.0", max = "*.*" }, -- Cosmic Vault
         { id = "3732507615", min = "1.0", max = "*.*" }, -- Cosmic Chronicles
         { id = "3315794988", min = "1.0", max = "*.*" }, -- Cosmic Overhaul

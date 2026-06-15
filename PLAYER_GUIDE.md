@@ -7,6 +7,8 @@ Welcome to the **Cosmic Ascendancy** official player guide! This document breaks
 ## 📑 Table of Contents
 - 🌑 The Eclipse Crisis
 - 🏰 Eclipse Citadels
+- 📈 Dynamic Faction Expansion
+- 👑 The Fallen Empire Awakening
 - 🛠️ The Ascendancy Forge
 - 🗼 The Ascendancy Beacon
 
@@ -45,6 +47,16 @@ When an Eclipse invasion is overwhelmingly successful, they will permanently occ
 - **Siege Scale:** Citadels have 250,000,000 base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms. 
 - **Loot & Rewards:** Destroying a Citadel guarantees a drop of 1-3 Legendary subsystems, massive quantities of Avorion ore, and unique crafting materials for the Ascendancy Forge.
 - **Suppression Field:** Destroying a Citadel halts all Eclipse invasions within a 15-sector radius for exactly 6 real-time hours.
+</details>
+
+## 📈 Dynamic Faction Expansion
+<details>
+<summary><b>Click to expand</b></summary>
+
+Vanilla Avorion features a static map. With Cosmic Ascendancy, **civilized AI factions** and **Pirates** will slowly and naturally expand their borders over time.
+- **Organic Growth:** Civilized factions will trace outward from their home sectors to claim contiguous empty sectors, spawning new space stations and officially annexing the territory.
+- **Pirate Bases:** Deep space is no longer permanently safe. Pirates will occasionally establish Smuggler's Hideouts and Pirate Shipyards in completely uncharted systems.
+- **News Alerts:** All major territorial expansions are broadcast live via the Cosmic Chronicles News Network.
 </details>
 
 ## 👑 The Fallen Empire Awakening

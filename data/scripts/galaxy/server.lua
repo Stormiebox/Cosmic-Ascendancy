@@ -16,6 +16,11 @@ function CosmicAscendancyServer.initialize()
             Galaxy():addScript("galaxy/eclipse_awakes.lua")
         end
         
+        -- Start Dynamic Faction Expansion
+        if not Galaxy():hasScript("galaxy/ca_expansion_manager.lua") then
+            Galaxy():addScript("galaxy/ca_expansion_manager.lua")
+        end
+        
         Server():registerCallback("onSectorGenerated", "onSectorGenerated")
     end
 end

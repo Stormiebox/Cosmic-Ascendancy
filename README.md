@@ -14,6 +14,7 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 - **Galactic Dread News Network:** Live server-wide reporting of sector annihilations and heroic victories.
 - **Adaptive Scaling:** The Eclipse dynamically grow in size and power to match the highest-tier player on the server.
 
+- **Dynamic Faction Expansion:** Watch the galaxy come alive as AI Factions and Pirates natively expand their borders into uncharted sectors over time, driven by an optimized background simulation.
 - **The Ascendancy Beacon:** Establish a permanent, 24/7 simulated capital megastructure to buff your entire fleet. Includes fully bespoke `.xml` model generation.
 - **Story Campaign:** A written, multi-stage epic narrative questline.
 - **The Ascendancy Forge:** Craft Ascendant-tier technologies by sacrificing vast resources.
