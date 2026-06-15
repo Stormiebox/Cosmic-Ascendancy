@@ -133,3 +133,11 @@ All deep lore regarding the Eclipse origins, detailed crafting recipes for the A
 - **Math.Random Fix:** The Eclipse spawn engine natively utilizes Avorion's strict `random():getInt()` generation sequence to guarantee 100% synchronization on Multiplayer Dedicated Servers.
 - **Callable Validation:** The Ascendancy Forge UI has been fully hardened. Malicious clients cannot spoof "free" crafting calls; the server actively verifies inventory requirements before processing the craft.
 </details>
+
+
+---
+
+### Ascendancy Beacon & Codex
+The Cosmic Codex has been radically expanded to properly categorize the Eclipse Crisis.
+**The Ascendancy Beacon:** 
+A late-game construct that applies permanent, galaxy-wide stat multipliers to the player's fleet. Sector instances containing a beacon are simulated 24/7 without requiring the player to be online.
