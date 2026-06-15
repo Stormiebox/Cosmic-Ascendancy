@@ -9,11 +9,19 @@ function initialize()
     local players = {sector:getPlayers()}
     local extraPlayers = math.max(0, #players - 1)
     
-    if extraPlayers > 0 and cv_success then
-        local shieldFactor = extraPlayers * 1.0
-        local damageFactor = extraPlayers * 0.5
+        -- The Eclipse is the ultimate endgame crisis. 
+        -- They receive a baseline massive buff (strictly stronger than War Dreadnoughts which get 10x shields)
+        local shieldFactor = 25.0 + (extraPlayers * 2.0)
+        local damageFactor = 3.0 + (extraPlayers * 1.0)
         
-        CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.ShieldDurability, shieldFactor)
-        CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.Damage, damageFactor)
-    end
+        if cv_success and CosmicVaultBuffs then
+            CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.ShieldDurability, shieldFactor)
+            CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.Damage, damageFactor)
+        end
+        
+        local entity = Entity()
+        local shield = Shield(entity.id)
+        if shield then
+            shield.durability = shield.maximum
+        end
 end

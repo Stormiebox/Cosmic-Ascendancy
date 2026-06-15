@@ -61,6 +61,10 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 - **Ascendant Bosses:** Eclipse Harbingers utilize the "Living Relic" subsystem mechanics internally, multiplying their shields by 3750% and damage by 500%.
 - **The Ascendant Forge Unlock:** The Ascendant Forge is now securely locked behind the completion of the new story campaign.
 
+### ⚖️ Balance
+- **Galactic Turn Synchronization:** `expansionInterval` slowed from 30m to 20m to align with the global server turn. `expansionChance` gracefully reduced from 35% to 25% to keep the overall hourly expansion rate mathematically identical.
+- **Endgame Crisis Consistency:** The Eclipse Boss now receives a staggering baseline **25x Shield Multiplier** and **3x Damage Multiplier**, far surpassing the standard 10x shield of War Dreadnoughts, guaranteeing The Eclipse remains a terrifying endgame threat.
+
 ### 🐛 Bug Fixes & Optimization
 - **Initialization Bypass:** Fixed severe bug in `init.lua` where the Ascendancy Codex failed to initialize and inject its UI tabs on fresh server boots.
 - **Math Logic Spawning Bug:** Swept the codebase and replaced critical logic faults where probability checks were evaluating against `getInt()` instead of `getFloat()`, restoring exact percentage math for Eclipse Stronghold generation and Superboss hunts.

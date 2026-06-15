@@ -12,8 +12,8 @@ if ccm then
                 title = "Dynamic Expansion",
                 options = {
                     { key = "enableExpansion", type = "bool", title = "Enable Dynamic Expansion", description = "Allows AI Factions and Pirates to naturally expand their territory into unexplored sectors.", default = true },
-                    { key = "expansionInterval", type = "number", title = "Expansion Interval (min)", description = "WARNING: Modifies server workload! How often the server attempts an expansion roll. Lower numbers mean faster galaxy filling but more frequent background sector loading.", default = 30, min = 10, max = 180 },
-                    { key = "expansionChance", type = "number", title = "Expansion Chance (%)", description = "Percent chance an expansion roll succeeds every interval.", default = 35, min = 1, max = 100 },
+                    { key = "expansionInterval", type = "number", title = "Expansion Interval (min)", description = "WARNING: Modifies server workload! How often the server attempts an expansion roll. Lower numbers mean faster galaxy filling but more frequent background sector loading.", default = 20, min = 10, max = 180 },
+                    { key = "expansionChance", type = "number", title = "Expansion Chance (%)", description = "Percent chance an expansion roll succeeds every interval.", default = 25, min = 1, max = 100 },
                     { key = "allowPirateExpansion", type = "bool", title = "Allow Pirate Expansion", description = "If true, local Pirate factions will slowly establish hidden bases and smuggling outposts in empty space.", default = true },
                 },
             },
@@ -24,8 +24,8 @@ end
 local defaults =
 {
     enableExpansion = true,
-    expansionInterval = 30,
-    expansionChance = 35,
+    expansionInterval = 20,
+    expansionChance = 25,
     allowPirateExpansion = true,
 }
 
