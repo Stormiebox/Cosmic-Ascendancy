@@ -18,7 +18,7 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 
 ## ⚙️ Requirements
 - Avorion v2.0+
-- Dependencies: **Cosmic Vault, Cosmic Starfall**
+- Dependencies: **Cosmic Vault, Cosmic Overhaul, Cosmic War and Cosmic Chronicles.**
 
 ## 🚀 Installation
 1. Place the folder in:
