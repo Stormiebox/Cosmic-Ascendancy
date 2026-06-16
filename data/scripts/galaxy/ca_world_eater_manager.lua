@@ -1,5 +1,5 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
-local cv_news_success, cv_news = true, require("cosmicvaultnews")
+local cv_news_success, cv_news = true, include("cosmicvaultnews")
 
 local WorldEaterManager = {}
 WorldEaterManager.timer = 0
@@ -12,10 +12,10 @@ end
 
 function WorldEaterManager.updateServer(timeStep)
     if not Server():getValue("eclipse_fully_awake") then return end
-    
+
     if WorldEaterManager.activeEvent then
         WorldEaterManager.activeEvent.timeLeft = WorldEaterManager.activeEvent.timeLeft - timeStep
-        
+
         if WorldEaterManager.activeEvent.timeLeft <= 0 then
             WorldEaterManager.executeDoomsday()
         elseif WorldEaterManager.activeEvent.timeLeft % 300 < 30 then
@@ -24,7 +24,7 @@ function WorldEaterManager.updateServer(timeStep)
             local ty = WorldEaterManager.activeEvent.y
             Server():broadcastChatMessage("The Eclipse", 2, "WARNING: Doomsday weapon firing at [" .. tx .. ":" .. ty .. "] in " .. math.floor(WorldEaterManager.activeEvent.timeLeft / 60) .. " minutes.")
         end
-        
+
         -- Check if any player is in the sector to inject the actual boss
         for _, player in pairs({Server():getPlayers()}) do
             local px, py = player:getSectorCoordinates()
@@ -44,16 +44,16 @@ end
 function WorldEaterManager.triggerEvent()
     local players = {Server():getPlayers()}
     if #players == 0 then return end
-    
+
     local player = players[random():getInt(1, #players)]
     local knownSectors = {player:getKnownSectors()}
     if #knownSectors == 0 then return end
-    
+
     local targetSector = knownSectors[random():getInt(1, #knownSectors)]
     local tx, ty = targetSector.x, targetSector.y
-    
+
     WorldEaterManager.activeEvent = {x = tx, y = ty, timeLeft = 900}
-    
+
     Server():broadcastChatMessage("Galactic News", 0, "CRITICAL ALERT: An Eclipse World-Eater has warped to coordinates [" .. tx .. ":" .. ty .. "]! 15 minutes to total annihilation!")
     if cv_news_success and cv_news.publishArticle then
         cv_news.publishArticle({
@@ -62,7 +62,7 @@ function WorldEaterManager.triggerEvent()
             category = "Galactic Dread"
         })
     end
-    
+
     -- If loaded, inject sector script
     local sector = Sector()
     if sector and sector:getCoordinates() == tx and sector:getCoordinates() == ty then
@@ -82,12 +82,12 @@ function WorldEaterManager.executeDoomsday()
     local tx = WorldEaterManager.activeEvent.x
     local ty = WorldEaterManager.activeEvent.y
     WorldEaterManager.activeEvent = nil
-    
+
     local EclipseGenerator = include("eclipsegenerator")
     local eclipseFaction = EclipseGenerator.getFaction()
-    
+
     Server():broadcastChatMessage("The Eclipse", 2, "Doomsday Sequence Complete. Sector [" .. tx .. ":" .. ty .. "] has been purged.")
-    
+
     if cv_news_success and cv_news.publishArticle then
         cv_news.publishArticle({
             title = "DOOMSDAY: Sector [" .. tx .. ":" .. ty .. "] Erased",
@@ -95,10 +95,10 @@ function WorldEaterManager.executeDoomsday()
             category = "Galactic Dread"
         })
     end
-    
+
     local galaxy = Galaxy()
     galaxy:setFaction(tx, ty, eclipseFaction.index)
-    
+
     local sector = Sector()
     if sector then
         local cx, cy = sector:getCoordinates()
@@ -119,7 +119,7 @@ function WorldEaterManager.cancelEvent()
     if not WorldEaterManager.activeEvent then return end
     WorldEaterManager.activeEvent = nil
     Server():broadcastChatMessage("Galactic News", 0, "The World-Eater has been destroyed! The sector is safe.")
-    
+
     if cv_news_success and cv_news.publishArticle then
         cv_news.publishArticle({
             title = "World-Eater Destroyed!",
@@ -137,5 +137,22 @@ end
 function WorldEaterManager.restore(data)
     WorldEaterManager.activeEvent = data
 end
+
+function getUpdateInterval(...)
+    if WorldEaterManager.getUpdateInterval then return WorldEaterManager.getUpdateInterval(...) end
+end
+function initialize(...)
+    if WorldEaterManager.initialize then return WorldEaterManager.initialize(...) end
+end
+function updateServer(...)
+    if WorldEaterManager.updateServer then return WorldEaterManager.updateServer(...) end
+end
+function secure(...)
+    if WorldEaterManager.secure then return WorldEaterManager.secure(...) end
+end
+function restore(...)
+    if WorldEaterManager.restore then return WorldEaterManager.restore(...) end
+end
+
 
 return WorldEaterManager

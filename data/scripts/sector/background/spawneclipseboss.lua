@@ -16,31 +16,31 @@ end
 function SpawnEclipseBoss.createBoss()
     local sector = Sector()
     local position = MatrixLookUpPosition(vec3(0,0,1), vec3(0,1,0), vec3(500, 500, 500))
-    
+
     local boss = EclipseGenerator.createShip(position, "monolith")
     boss.title = "Eclipse Oblivion Engine"%_T
     boss.name = "Eclipse Oblivion Engine"%_T
-    
-    boss:addMultiplyableFactor(StatsBonuses.ShieldDurability, 500.0) 
-    
+
+    boss:addMultiplyableFactor(StatsBonuses.ShieldDurability, 500.0)
+
     local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
     for _, stat in pairs(damageBonuses) do
         boss:addMultiplyableFactor(stat, 50.0)
     end
-    
+
     boss:addMultiplyableFactor(StatsBonuses.ArmedTurrets, 200.0)
-    boss:addMultiplyableFactor(StatsBonuses.Velocity, 3.0) 
-    
+    boss:addMultiplyableFactor(StatsBonuses.Velocity, 3.0)
+
     boss:setValue("stormbox_boss", true)
-    
+
     local SectorTurretGenerator = include("sectorturretgenerator")
     local UpgradeGenerator = include("upgradegenerator")
     local ugen = UpgradeGenerator()
     local tgen = SectorTurretGenerator()
-    
+
     for i = 1, 25 do
         Loot(boss):insert(ugen:generateSectorSystem(150, 0, Rarity(RarityType.Legendary)))
-        
+
         local turret = tgen:generateArmed(150, 0, 0, Rarity(RarityType.Legendary))
         local weapons = {turret:getWeapons()}
         turret:clearWeapons()
@@ -51,7 +51,7 @@ function SpawnEclipseBoss.createBoss()
         end
         Loot(boss):insert(InventoryTurret(turret))
     end
-    
+
     boss:addScriptOnce("entity/background/eclipsebossbehavior.lua")
     ShipAI(boss):setAggressive(true, false)
 end
@@ -62,9 +62,9 @@ function SpawnEclipseBoss.finish()
     if not boss then terminate() return end
 
     sector:deleteEntityJumped(boss)
-    
+
     local x, y = sector:getCoordinates()
-    
+
     if random():getFloat() < 0.1 then
         local generator = SectorGenerator(x, y)
         local wormhole = generator:createWormhole(random():getInt(-500, 500), random():getInt(-500, 500), ColorRGB(0, 0, 0), 100)
@@ -88,5 +88,10 @@ function SpawnEclipseBoss.finish()
 
     terminate()
 end
+
+function initialize(...)
+    if SpawnEclipseBoss.initialize then return SpawnEclipseBoss.initialize(...) end
+end
+
 
 return SpawnEclipseBoss

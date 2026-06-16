@@ -11,7 +11,7 @@ function Detonation.initialize(x, y, z)
     Detonation.posX = x
     Detonation.posY = y
     Detonation.posZ = z
-    
+
     -- Visual warning indicator at the core location
     local sector = Sector()
     sector:createHyperspaceJumpAnimation(nil, vec3(x, y, z), ColorRGB(1.0, 0.0, 0.0), 3.0)
@@ -23,15 +23,15 @@ end
 
 function Detonation.updateServer(timeStep)
     Detonation.timer = Detonation.timer + timeStep
-    
+
     if Detonation.timer >= 3.0 then
         local sector = Sector()
         local pos = vec3(Detonation.posX, Detonation.posY, Detonation.posZ)
-        
+
         -- Create massive visual explosion
         sector:createExplosion(pos, 300, true)
         sector:createHyperspaceJumpAnimation(nil, pos, ColorRGB(1.0, 0.0, 0.0), 1.0)
-        
+
         -- Deal massive true damage in a 3km radius
         local players = {sector:getPlayers()}
         for _, p in pairs(players) do
@@ -43,10 +43,21 @@ function Detonation.updateServer(timeStep)
                 end
             end
         end
-        
+
         -- Detonation complete, remove script from Sector
         sector:removeScript("ca_singularity_detonation.lua")
     end
 end
+
+function initialize(...)
+    if Detonation.initialize then return Detonation.initialize(...) end
+end
+function getUpdateInterval(...)
+    if Detonation.getUpdateInterval then return Detonation.getUpdateInterval(...) end
+end
+function updateServer(...)
+    if Detonation.updateServer then return Detonation.updateServer(...) end
+end
+
 
 return Detonation

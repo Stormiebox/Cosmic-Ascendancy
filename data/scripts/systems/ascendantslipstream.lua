@@ -2,7 +2,7 @@ package.path = package.path .. ";data/scripts/systems/?.lua"
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("basesystem")
 include ("utility")
-local cv_success, cv_war = true, require("cosmicwarbridge")
+local cv_success, cv_war = true, include("cosmicwarbridge")
 
 local dynamicKeys = {}
 

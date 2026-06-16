@@ -15,14 +15,14 @@ end
 
 function EclipseAwakes.onSectorGenerated(x, y, regular)
     if not regular then return end
-    
+
     local server = Server()
     if not server:getValue("eclipse_fully_awake") then return end
-    
+
     local dist = math.sqrt(x*x + y*y)
     local seed = server.seed
     local random = Random(Seed(seed + x + y))
-    
+
     local chance = 0.0
     if dist <= 75 then
         -- 1/3rd of the inner core
@@ -34,14 +34,14 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
         -- 5% to 15% for the rest of the galaxy
         chance = random:getFloat(0.05, 0.15)
     end
-    
+
     if random:getFloat() < chance then
         local EclipseGenerator = include("eclipsegenerator")
         local Placer = include("placer")
-        
+
         local sector = Sector()
         sector.name = "Eclipse Stronghold"%_T
-        
+
         -- Wipe any existing generated structures since this is Eclipse territory now
         local entities = {sector:getEntities()}
         for _, entity in pairs(entities) do
@@ -51,19 +51,19 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
         end
 
         local spawned = {}
-        
+
         -- Center Citadel
         local citadel = EclipseGenerator.createShip(Matrix(), "monolith")
         citadel:setTitle("Eclipse Citadel", {})
         table.insert(spawned, citadel)
-        
+
         -- Spawn defending fleet
         local numDefenders = random:getInt(5, 8)
         local dir = normalize(vec3(random:getFloat(-1, 1), random:getFloat(-1, 1), random:getFloat(-1, 1)))
         local up = vec3(0, 1, 0)
         local right = normalize(cross(dir, up))
         local pos = dir * 500
-        
+
         for i = 1, numDefenders do
             local shipPos = MatrixLookUpPosition(-dir, up, pos + right * random:getFloat(-200, 200))
             local r = random:getFloat()
@@ -87,14 +87,14 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
             end
             table.insert(spawned, ship)
         end
-        
+
         Placer.resolveIntersections(spawned)
     end
 end
 
 function EclipseAwakes.updateServer(timeStep)
     local server = Server()
-    
+
     local unleashed = server:getValue("the_eclipse_unleashed")
     if not unleashed then
         -- Check if any player killed the guardian
@@ -108,11 +108,11 @@ function EclipseAwakes.updateServer(timeStep)
         end
         return
     end
-    
+
     local awakenTime = server:getValue("eclipse_awaken_time")
     if awakenTime then
         local timeRemaining = awakenTime - server.unpausedRuntime
-        
+
         if timeRemaining > 0 then
             -- 3 minutes in (7 mins remaining)
             if timeRemaining <= 7 * 60 and not server:getValue("eclipse_warning_1") then
@@ -134,11 +134,11 @@ function EclipseAwakes.updateServer(timeStep)
             end
         end
     end
-    
+
     -- The Eclipse is fully awake. Handle Global Player Invasions.
     if server:getValue("eclipse_fully_awake") then
         EclipseAwakes.invasionTimer = EclipseAwakes.invasionTimer + timeStep
-        
+
         -- Every 25 to 45 minutes, attempt an invasion
         if EclipseAwakes.invasionTimer > random():getInt(25, 45) * 60 then
             EclipseAwakes.invasionTimer = 0
@@ -157,5 +157,16 @@ function EclipseAwakes.triggerInvasion()
         end
     end
 end
+
+function getUpdateInterval(...)
+    if EclipseAwakes.getUpdateInterval then return EclipseAwakes.getUpdateInterval(...) end
+end
+function initialize(...)
+    if EclipseAwakes.initialize then return EclipseAwakes.initialize(...) end
+end
+function updateServer(...)
+    if EclipseAwakes.updateServer then return EclipseAwakes.updateServer(...) end
+end
+
 
 return EclipseAwakes

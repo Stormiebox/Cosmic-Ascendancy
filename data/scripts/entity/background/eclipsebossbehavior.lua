@@ -1,7 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_success, cv_news = true, require("cosmicvaultnews")
-local cv_fleet_success, cv_fleet = true, require("cosmicvaultfleet")
+local cv_success, cv_news = true, include("cosmicvaultnews")
+local cv_fleet_success, cv_fleet = true, include("cosmicvaultfleet")
 
 -- namespace EclipseBossBehavior
 EclipseBossBehavior = {}
@@ -11,7 +11,7 @@ function EclipseBossBehavior.initialize()
     if onServer() then
         Entity():registerCallback("onDestroyed", "onDestroyed")
         Entity():registerCallback("onDamaged", "onDamaged")
-        
+
         if cv_fleet_success and cv_fleet.orderAttackEnemies then
             cv_fleet.orderAttackEnemies(Entity().index, true)
         end
@@ -61,9 +61,23 @@ function EclipseBossBehavior.onDestroyed(index, lastDamageInflictor)
 
     local players = {sector:getPlayers()}
     for _, player in pairs(players) do
-        player:receive("Eclipse Oblivion Bounty", 5000000000) 
+        player:receive("Eclipse Oblivion Bounty", 5000000000)
         player:sendChatMessage("Recovered Datapad", 0, "'The Oblivion Engine operates at peak efficiency. The galaxy will be purged, just as the architect intended. Project Stormbox is a complete success.'")
     end
 end
+
+function initialize(...)
+    if EclipseBossBehavior.initialize then return EclipseBossBehavior.initialize(...) end
+end
+function getUpdateInterval(...)
+    if EclipseBossBehavior.getUpdateInterval then return EclipseBossBehavior.getUpdateInterval(...) end
+end
+function updateClient(...)
+    if EclipseBossBehavior.updateClient then return EclipseBossBehavior.updateClient(...) end
+end
+function updateServer(...)
+    if EclipseBossBehavior.updateServer then return EclipseBossBehavior.updateServer(...) end
+end
+
 
 return EclipseBossBehavior

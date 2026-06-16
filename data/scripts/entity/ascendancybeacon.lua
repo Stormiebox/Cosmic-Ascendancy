@@ -6,8 +6,8 @@ include ("stringutility")
 include ("faction")
 
 -- Cosmic Integrations
-local cv_success, cv_news = true, require("cosmicvaultnews")
-local cw_success, cw_bridge = true, require("cosmicwarbridge")
+local cv_success, cv_news = true, include("cosmicvaultnews")
+local cw_success, cw_bridge = true, include("cosmicwarbridge")
 
 -- namespace AscendancyBeacon
 AscendancyBeacon = {}
@@ -51,10 +51,10 @@ function AscendancyBeacon.initUI()
     -- Status Labels
     window:createLabel(Rect(10, 10, size.x - 10, 30), "Ascendancy Status:"%_t, 16)
     AscendancyBeacon.statusLabel = window:createLabel(Rect(180, 10, size.x - 10, 30), "", 16)
-    
+
     -- Tier Label
     AscendancyBeacon.tierLabel = window:createLabel(Rect(10, 40, size.x - 10, 60), "", 16)
-    
+
     -- Costs
     window:createLabel(Rect(10, 70, size.x - 10, 90), "Billing Cycle: 45 Minutes"%_t, 14)
     AscendancyBeacon.costLabel = window:createLabel(Rect(10, 100, size.x - 10, 200), "", 14)
@@ -62,7 +62,7 @@ function AscendancyBeacon.initUI()
     -- Buttons
     AscendancyBeacon.toggleBtn = window:createButton(Rect(size.x * 0.5 - 210, 220, size.x * 0.5 - 10, 260), "Activate Beacon"%_t, "onTogglePressed")
     AscendancyBeacon.upgradeBtn = window:createButton(Rect(size.x * 0.5 + 10, 220, size.x * 0.5 + 210, 260), "Upgrade Tier"%_t, "onUpgradePressed")
-    
+
     AscendancyBeacon.sync()
 end
 
@@ -95,17 +95,17 @@ end
 function AscendancyBeacon.getUpkeepCost()
     local owner = Faction(Entity().factionIndex)
     if not owner then return 0, Material(1), 0 end
-    
+
     local currentCount = owner:getValue("ascendancy_beacons_count") or 0
     -- If currently inactive, preview cost for the *next* beacon
     if not active then currentCount = currentCount + 1 end
     -- Fallback to at least 1 multiplier
     if currentCount < 1 then currentCount = 1 end
-    
+
     local mult = currentCount * currentCount -- 1x, 4x, 9x
     local x, y = Sector():getCoordinates()
     local d = length(vec2(x, y))
-    
+
     local mat
     if d > 400 then mat = Material(1)
     elseif d > 300 then mat = Material(2)
@@ -114,29 +114,29 @@ function AscendancyBeacon.getUpkeepCost()
     elseif d > 50 then mat = Material(5)
     else mat = Material(6)
     end
-    
+
     local creditCost = 10000000 * mult
     local matCost = 500000 * mult
-    
+
     return creditCost, mat, matCost
 end
 
 function AscendancyBeacon.onEntityEntered(entityId)
     if not active then return end
     if not onServer() then return end
-    
+
     local entity = Entity(entityId)
     if not entity or not entity.isShip then return end
-    
+
     local ownerFaction = Faction(Entity().factionIndex)
     local enteringFaction = Faction(entity.factionIndex)
-    
+
     -- Restrict toll to AI Factions only (prevent griefing real players)
     if not enteringFaction or not enteringFaction.isAIFaction then return end
-    
+
     -- Do not tax hostile invading factions
     if ownerFaction:getRelations(enteringFaction.index) < -10000 then return end
-    
+
     -- Calculate Base Toll based on Tier
     local baseToll = 0
     if currentTier == 1 then baseToll = 10000 end
@@ -144,7 +144,7 @@ function AscendancyBeacon.onEntityEntered(entityId)
     if currentTier == 3 then baseToll = 100000 end
     if currentTier == 4 then baseToll = 250000 end
     if currentTier == 5 then baseToll = 500000 end
-    
+
     -- Dynamic Modifier: War Heat (Wartime Premium Tax for seeking Safe Haven)
     local heatMod = 1.0
     if cv_bridge_success and cw_bridge.getFactionWarHeat then
@@ -153,9 +153,9 @@ function AscendancyBeacon.onEntityEntered(entityId)
             heatMod = 1.0 + (heat * 0.5) -- Up to 50% extra toll during intense wars
         end
     end
-    
+
     local finalToll = math.floor(baseToll * heatMod)
-    
+
     -- Store Toll in Treasury
     AscendancyBeacon.treasury = (AscendancyBeacon.treasury or 0) + finalToll
 end
@@ -165,7 +165,7 @@ function AscendancyBeacon.toggleBeacon()
     if not onServer() then return end
     local owner = Faction(Entity().factionIndex)
     if not owner then return end
-    
+
     if active then
         -- Deactivate
         AscendancyBeacon.deactivate()
@@ -176,25 +176,25 @@ function AscendancyBeacon.toggleBeacon()
             owner:sendChatMessage("Beacon"%_t, 1, "Empire Limit Reached! You can only maintain 3 Ascendancy Beacons."%_t)
             return
         end
-        
+
         local creditCost, mat, matCost = AscendancyBeacon.getUpkeepCost()
-        
+
         -- Try initial payment
         if owner.money < creditCost or owner:getInventory():getAmount(mat.value) < matCost then
             owner:sendChatMessage("Beacon"%_t, 1, "Insufficient resources to activate beacon."%_t)
             return
         end
-        
+
         owner:pay(creditCost)
         owner:getInventory():remove(mat.value, matCost)
-        
+
         owner:setValue("ascendancy_beacons_count", count + 1)
         active = true
         lastUpkeepTime = Server().playtime
-        
+
         local x, y = Sector():getCoordinates()
         Galaxy():sendCallback("onAscendancyBeaconActivated", x, y)
-        
+
         -- Cosmic Integrations!
         if cv_success and cv_news.publishArticle then
             cv_news.publishArticle({
@@ -203,7 +203,7 @@ function AscendancyBeacon.toggleBeacon()
                 category = "Galactic Expansion"
             })
         end
-        
+
         if cw_success and cw_bridge.addWarHeat then
             -- Find nearest hostile AI faction and add war heat
             local factions = {Sector():getPresentFactions()}
@@ -213,14 +213,14 @@ function AscendancyBeacon.toggleBeacon()
                 end
             end
         end
-        
+
         if not Entity():hasScript("entity/ascendancyforge.lua") then
             Entity():addScript("entity/ascendancyforge.lua")
         end
-        
+
         owner:sendChatMessage("Beacon"%_t, 0, "Beacon Activated. Sector is now permanently simulated."%_t)
     end
-    
+
     AscendancyBeacon.sync()
 end
 
@@ -234,13 +234,13 @@ function AscendancyBeacon.deactivate()
             owner:setValue("ascendancy_beacons_count", count - 1)
         end
         owner:sendChatMessage("Beacon"%_t, 2, "Beacon Deactivated. Sector will now unload normally."%_t)
-        
+
         -- Downgrade global tier if this was our highest beacon
         if cv_success and cv_buffs.setGlobalTier then
             cv_buffs.setGlobalTier(owner.index, 0) -- For now, we just reset it to 0. A full check of other beacons could be added.
         end
     end
-    
+
     local x, y = Sector():getCoordinates()
     Galaxy():sendCallback("onAscendancyBeaconDeactivated", x, y)
     AscendancyBeacon.sync()
@@ -251,23 +251,23 @@ function AscendancyBeacon.upgradeTier()
     if not onServer() then return end
     if not active then return end
     if currentTier >= 5 then return end
-    
+
     local owner = Faction(Entity().factionIndex)
     if not owner then return end
-    
+
     local nextTier = currentTier + 1
     local creditCost, mat, matCost = AscendancyBeacon.getUpgradeCost(nextTier)
-    
+
     if owner.money < creditCost or owner:getInventory():getAmount(mat.value) < matCost then
         owner:sendChatMessage("Beacon"%_t, 1, "Insufficient resources to upgrade to Tier %1%."%_t, nextTier)
         return
     end
-    
+
     owner:pay(creditCost)
     owner:getInventory():remove(mat.value, matCost)
-    
+
     currentTier = nextTier
-    
+
     if cv_success and cv_buffs.setGlobalTier then
         -- Set global tier (assuming this beacon is the highest)
         local globalTier = cv_buffs.getGlobalTier(owner.index)
@@ -275,9 +275,9 @@ function AscendancyBeacon.upgradeTier()
             cv_buffs.setGlobalTier(owner.index, currentTier)
         end
     end
-    
+
     owner:sendChatMessage("Beacon"%_t, 0, "Ascendancy Beacon upgraded to Tier %1%!"%_t, currentTier)
-    
+
     if cv_success and cv_news.publishArticle then
         cv_news.publishArticle({
             title = "Empire Ascends to Tier " .. currentTier,
@@ -285,7 +285,7 @@ function AscendancyBeacon.upgradeTier()
             category = "Galactic Expansion"
         })
     end
-    
+
     AscendancyBeacon.sync()
 end
 
@@ -299,26 +299,26 @@ end
 
 function AscendancyBeacon.updateServer(timeStep)
     if not active then return end
-    
+
     -- Ping the galaxy to keep sector alive
     local owner = Faction(Entity().factionIndex)
     if owner then
         local x, y = Sector():getCoordinates()
         Galaxy():sendCallback("onAscendancyBeaconPing", Entity().id.string, owner.index, x, y)
     end
-    
+
     local now = Server().playtime
     if now - lastUpkeepTime >= UPKEEP_INTERVAL then
         -- Time to pay!
         local creditCost, mat, matCost = AscendancyBeacon.getUpkeepCost()
         local owner = Faction(Entity().factionIndex)
-        
+
         if owner and owner.money >= creditCost and owner:getInventory():getAmount(mat.value) >= matCost then
             owner:pay(creditCost)
             owner:getInventory():remove(mat.value, matCost)
             lastUpkeepTime = now
             owner:sendChatMessage("Beacon"%_t, 3, "Ascendancy Beacon Upkeep Paid: %1% Cr, %2% %3%", createMonetaryString(creditCost), createMonetaryString(matCost), mat.name)
-            
+
             -- Payout Treasury
             if AscendancyBeacon.treasury and AscendancyBeacon.treasury > 0 then
                 owner:receive("Ascendancy Beacon Grand Toll Payout", AscendancyBeacon.treasury)
@@ -333,11 +333,11 @@ function AscendancyBeacon.updateServer(timeStep)
             AscendancyBeacon.deactivate()
         end
     end
-    
+
     if now > lastSiegeTime + nextSiegeInterval then
         lastSiegeTime = now
         nextSiegeInterval = random():getInt(3, 6) * 3600
-        
+
         local owner = Faction(Entity().factionIndex)
         if owner then
             Sector():addScript("events/ascendancysiege.lua", currentTier, owner.index)
@@ -350,14 +350,14 @@ function AscendancyBeacon.sync(data)
     if onServer() then
         invokeClientFunction(Player(callingPlayer), "sync", {active = active, currentTier = currentTier})
     else
-        if data then 
-            active = data.active 
+        if data then
+            active = data.active
             currentTier = data.currentTier or 1
         end
         if not AscendancyBeacon.statusLabel then return end
-        
+
         AscendancyBeacon.tierLabel.caption = "Current Tier: " .. currentTier
-        
+
         if active then
             AscendancyBeacon.statusLabel.caption = "ONLINE (Sector kept alive)"%_t
             AscendancyBeacon.statusLabel.color = ColorRGB(0, 1, 0)
@@ -367,7 +367,7 @@ function AscendancyBeacon.sync(data)
             AscendancyBeacon.statusLabel.color = ColorRGB(1, 0, 0)
             AscendancyBeacon.toggleBtn.caption = "Activate"%_t
         end
-        
+
         if currentTier >= 5 then
             AscendancyBeacon.upgradeBtn.caption = "Max Tier Reached"%_t
             AscendancyBeacon.upgradeBtn.active = false
@@ -375,7 +375,7 @@ function AscendancyBeacon.sync(data)
             AscendancyBeacon.upgradeBtn.caption = "Upgrade to Tier " .. (currentTier + 1)
             AscendancyBeacon.upgradeBtn.active = active -- Only upgrade if online
         end
-        
+
         invokeServerFunction("syncCosts")
     end
 end
@@ -384,12 +384,12 @@ callable(AscendancyBeacon, "sync")
 function AscendancyBeacon.syncCosts()
     if not onServer() then return end
     local creditCost, mat, matCost = AscendancyBeacon.getUpkeepCost()
-    
+
     local upCreditCost, upMat, upMatCost = 0, Material(0), 0
     if currentTier < 5 then
         upCreditCost, upMat, upMatCost = AscendancyBeacon.getUpgradeCost(currentTier + 1)
     end
-    
+
     invokeClientFunction(Player(callingPlayer), "receiveCosts", creditCost, mat.name, matCost, upCreditCost, upMat.name, upMatCost)
 end
 callable(AscendancyBeacon, "syncCosts")
@@ -422,4 +422,21 @@ function AscendancyBeacon.restore(data)
     lastSiegeTime = data.lastSiegeTime or Server().playtime
     nextSiegeInterval = data.nextSiegeInterval or random():getInt(3, 6) * 3600
     AscendancyBeacon.treasury = data.treasury or 0
+end
+
+
+function initialize(...)
+    if AscendancyBeacon.initialize then return AscendancyBeacon.initialize(...) end
+end
+function getUpdateInterval(...)
+    if AscendancyBeacon.getUpdateInterval then return AscendancyBeacon.getUpdateInterval(...) end
+end
+function updateServer(...)
+    if AscendancyBeacon.updateServer then return AscendancyBeacon.updateServer(...) end
+end
+function secure(...)
+    if AscendancyBeacon.secure then return AscendancyBeacon.secure(...) end
+end
+function restore(...)
+    if AscendancyBeacon.restore then return AscendancyBeacon.restore(...) end
 end

@@ -55,7 +55,7 @@ function EclipseGenerator.getShipVolume()
     
     -- Adaptive Eclipse Scaling based on highest player Ascendancy Tier
     local maxTier = 0
-    local cv_buffs_success, cv_buffs = true, require("cosmicvaultbuffs")
+    local cv_buffs_success, cv_buffs = true, include("cosmicvaultbuffs")
     if cv_buffs_success and cv_buffs.getGlobalTier then
         for _, p in pairs({Server():getPlayers()}) do
             local tier = cv_buffs.getGlobalTier(p.index)
@@ -73,7 +73,7 @@ function EclipseGenerator.addTurrets(ship, numTurrets)
     generator.coaxialAllowed = false
     
     -- Try to use Starfall if available
-    local status, starfall = pcall(require, "starfall")
+    local status, starfall = pcall(include, "starfall")
     
     local numTurrets = numTurrets or 20
     local turretsAdded = 0

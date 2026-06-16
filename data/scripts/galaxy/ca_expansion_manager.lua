@@ -31,7 +31,7 @@ end
 function CosmicAscendancyExpansionManager.attemptExpansion(config)
     local galaxy = Galaxy()
     local isPirateExpansion = false
-    
+
     if config.allowPirateExpansion and math.random() < 0.15 then
         isPirateExpansion = true
     end
@@ -42,7 +42,7 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
             local x = math.random(-450, 450)
             local y = math.random(-450, 450)
             local dist = math.sqrt(x*x + y*y)
-            
+
             -- Prevent pirates from spawning inside the extreme core (0-50)
             if dist > 50 and not galaxy:getSectorFaction(x, y) then
                 if CosmicVaultTerritory and CosmicVaultTerritory.expandToSector then
@@ -65,29 +65,29 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
         end
 
         if not faction then return end
-        
+
         local hx, hy = faction:getHomeSectorCoordinates()
         if not hx or not hy then return end
-        
+
         local homeDist = math.sqrt(hx*hx + hy*hy)
-        
+
         local currentX, currentY = hx, hy
         local angle = math.random() * math.pi * 2
         local dx = math.cos(angle)
         local dy = math.sin(angle)
-        
+
         local targetX, targetY
         for step = 1, 30 do
             currentX = currentX + dx * 2
             currentY = currentY + dy * 2
             local cx = math.floor(currentX)
             local cy = math.floor(currentY)
-            
+
             local cDist = math.sqrt(cx*cx + cy*cy)
             if homeDist > 150 and cDist <= 150 then
                 break -- Don't cross the barrier natively
             end
-            
+
             local controlling = galaxy:getSectorFaction(cx, cy)
             if not controlling then
                 targetX = cx
@@ -98,7 +98,7 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
                 break
             end
         end
-        
+
         if targetX and targetY then
             if CosmicVaultTerritory and CosmicVaultTerritory.expandToSector then
                 CosmicVaultTerritory.expandToSector(targetX, targetY, faction.index, false)
@@ -106,5 +106,13 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
         end
     end
 end
+
+function getUpdateInterval(...)
+    if CosmicAscendancyExpansionManager.getUpdateInterval then return CosmicAscendancyExpansionManager.getUpdateInterval(...) end
+end
+function updateServer(...)
+    if CosmicAscendancyExpansionManager.updateServer then return CosmicAscendancyExpansionManager.updateServer(...) end
+end
+
 
 return CosmicAscendancyExpansionManager

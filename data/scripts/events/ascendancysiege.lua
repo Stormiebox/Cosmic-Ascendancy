@@ -6,9 +6,9 @@ local Xsotan = include("story/xsotan")
 local ShipGenerator = include("shipgenerator")
 local Placer = include("placer")
 
-local cv_success, cv_news = true, require("cosmicvaultnews")
-local cw_success, cw_bridge = true, require("cosmicwarbridge")
-local fleet_success, cv_fleet = true, require("cosmicvaultfleet")
+local cv_success, cv_news = true, include("cosmicvaultnews")
+local cw_success, cw_bridge = true, include("cosmicwarbridge")
+local fleet_success, cv_fleet = true, include("cosmicvaultfleet")
 
 -- namespace AscendancySiege
 AscendancySiege = {}
@@ -25,7 +25,7 @@ function AscendancySiege.initialize(t, ownerIndex)
     tier = t or 1
     targetFactionIndex = ownerIndex or 0
     active = true
-    
+
     -- Choose attacker type
     local r = random():getInt()
     if cw_success and cw_bridge.getFactionWarHeat then
@@ -48,7 +48,7 @@ function AscendancySiege.initialize(t, ownerIndex)
     else
         if r < 0.5 then typeName = "Xsotan" else typeName = "Pirates" end
     end
-    
+
     AscendancySiege.spawnFleet()
     AscendancySiege.broadcastWarning()
 end
@@ -58,10 +58,10 @@ function AscendancySiege.spawnFleet()
     local up = vec3(0, 1, 0)
     local right = normalize(cross(dir, up))
     local pos = dir * 1500
-    
+
     local numShips = 3 + (tier * 2)
     local numBosses = math.max(0, tier - 2)
-    
+
     local faction
     if typeName == "Xsotan" then
         faction = Xsotan.getFaction()
@@ -70,7 +70,7 @@ function AscendancySiege.spawnFleet()
     else
         faction = Faction(attackerFaction)
     end
-    
+
     -- Spawn Bosses (Battleships/Dreadnoughts)
     for i = 1, numBosses do
         local shipPos = MatrixLookUpPosition(-dir, up, pos + right * getFloat(-500, 500) + up * getFloat(-500, 500))
@@ -90,7 +90,7 @@ function AscendancySiege.spawnFleet()
             cv_fleet.orderAttackEnemies(ship.index, true)
         end
     end
-    
+
     -- Spawn Standard Fleet
     for i = 1, numShips do
         local shipPos = MatrixLookUpPosition(-dir, up, pos + right * getFloat(-500, 500) + up * getFloat(-500, 500))
@@ -110,14 +110,14 @@ function AscendancySiege.spawnFleet()
             cv_fleet.orderAttackEnemies(ship.index, true)
         end
     end
-    
+
     Placer.resolveIntersections()
 end
 
 function AscendancySiege.broadcastWarning()
     local x, y = Sector():getCoordinates()
     Sector():broadcastChatMessage("System"%_t, 1, "WARNING! Massive %1% siege fleet detected entering the sector!"%_t, typeName)
-    
+
     if cv_success and cv_news.publishArticle then
         local owner = Faction(targetFactionIndex)
         local ownerName = owner and owner.name or "Unknown"
@@ -135,7 +135,7 @@ end
 
 function AscendancySiege.updateServer(timeStep)
     if not active then return end
-    
+
     -- Check if beacon is still alive
     local beaconAlive = false
     local entities = {Sector():getEntitiesByScript("data/scripts/entity/ascendancybeacon.lua")}
@@ -145,13 +145,13 @@ function AscendancySiege.updateServer(timeStep)
             break
         end
     end
-    
+
     if not beaconAlive then
         -- Beacon was destroyed!
         AscendancySiege.onDefeat()
         return
     end
-    
+
     -- Check attackers
     local attackersAlive = false
     local newAttackers = {}
@@ -163,7 +163,7 @@ function AscendancySiege.updateServer(timeStep)
         end
     end
     attackers = newAttackers
-    
+
     if not attackersAlive then
         AscendancySiege.onVictory()
     end
@@ -173,7 +173,7 @@ function AscendancySiege.onVictory()
     active = false
     local x, y = Sector():getCoordinates()
     Sector():broadcastChatMessage("System"%_t, 3, "Siege Defeated! The Ascendant Capital stands strong."%_t)
-    
+
     -- Spawn massive loot explosion at sector center
     local generator = include("weapongenerator")
     local upgGenerator = include("upgradegenerator")
@@ -181,12 +181,12 @@ function AscendancySiege.onVictory()
         Sector():dropTurret(vec3(0,0,0), nil, nil, generator.generate(x, y, 0, Rarity(math.min(5, tier + 1))))
         Sector():dropUpgrade(vec3(0,0,0), nil, nil, upgGenerator.generate(x, y, 0, Rarity(math.min(5, tier + 1))))
     end
-    
+
     local owner = Faction(targetFactionIndex)
     if owner then
         owner:receive("Ascendant Siege Defense Reward", tier * 2500000)
     end
-    
+
     terminate()
 end
 
@@ -194,7 +194,7 @@ function AscendancySiege.onDefeat()
     active = false
     local x, y = Sector():getCoordinates()
     Sector():broadcastChatMessage("System"%_t, 1, "The Ascendant Capital has fallen..."%_t)
-    
+
     if cv_success and cv_news.publishArticle then
         cv_news.publishArticle({
             title = "Capital Falls to " .. typeName,
@@ -202,7 +202,7 @@ function AscendancySiege.onDefeat()
             category = "Galactic War"
         })
     end
-    
+
     -- Jump the attackers away since they won
     for _, id in pairs(attackers) do
         local ship = Entity(Uuid(id))
@@ -210,6 +210,17 @@ function AscendancySiege.onDefeat()
             ship:addScriptOnce("entity/utility/delayedjump.lua")
         end
     end
-    
+
     terminate()
+end
+
+
+function initialize(...)
+    if AscendancySiege.initialize then return AscendancySiege.initialize(...) end
+end
+function getUpdateInterval(...)
+    if AscendancySiege.getUpdateInterval then return AscendancySiege.getUpdateInterval(...) end
+end
+function updateServer(...)
+    if AscendancySiege.updateServer then return AscendancySiege.updateServer(...) end
 end

@@ -5,18 +5,18 @@ WorldEaterEvent.worldEaterId = nil
 
 function WorldEaterEvent.initialize(timeLeft)
     if not onServer() then return end
-    
+
     local EclipseGenerator = include("eclipsegenerator")
     -- Spawn far away
     local mat = MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), vec3(10000, 5000, -10000))
     local ship = EclipseGenerator.createShip(mat, "juggernaut")
     ship:setTitle("Eclipse World-Eater"%_T, {})
-    
+
     -- Make it incredibly tanky
     ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 15.0) -- Massive shields
     ship:addMultiplyableFactor(StatsBonuses.Velocity, -0.9)
     ship.scale = 5.0 -- Physically massive
-    
+
     -- Spawn the Royal Escort Fleet
     local dir = mat.look
     local right = mat.right
@@ -29,7 +29,7 @@ function WorldEaterEvent.initialize(timeLeft)
         local cMat = MatrixLookUpPosition(up, dir, pos)
         EclipseGenerator.createCarrier(cMat)
     end
-    
+
     -- 2 Artillery Ships
     for i = 1, 2 do
         local pos = center + (up * (i == 1 and 1500 or -1500)) + (dir * -2000)
@@ -53,7 +53,7 @@ function WorldEaterEvent.initialize(timeLeft)
         local cMat = MatrixLookUpPosition(up, dir, pos)
         EclipseGenerator.createInterceptor(cMat)
     end
-    
+
     ship:registerCallback("onDestroyed", "onWorldEaterDestroyed")
     ship:addScript("data/scripts/entity/ca_world_eater_mechanics.lua")
     WorldEaterEvent.worldEaterId = ship.id.string
@@ -65,5 +65,10 @@ function WorldEaterEvent.onWorldEaterDestroyed()
     galaxy:invokeFunction("data/scripts/galaxy/ca_world_eater_manager.lua", "cancelEvent")
     terminate()
 end
+
+function initialize(...)
+    if WorldEaterEvent.initialize then return WorldEaterEvent.initialize(...) end
+end
+
 
 return WorldEaterEvent

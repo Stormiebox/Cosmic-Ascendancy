@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_news_success, cv_news = true, require("cosmicvaultnews")
+local cv_news_success, cv_news = true, include("cosmicvaultnews")
 
 function initialize()
     Entity():registerCallback("onDestroyed", "onDestroyed")

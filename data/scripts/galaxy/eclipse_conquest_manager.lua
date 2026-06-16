@@ -2,8 +2,8 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 local CosmicVaultTerritory = nil
-local cv_goods_success, cv_goods = true, require("cosmicvaultgoods")
-local cv_news_success, cv_news = true, require("cosmicvaultnews")
+local cv_goods_success, cv_goods = true, include("cosmicvaultgoods")
+local cv_news_success, cv_news = true, include("cosmicvaultnews")
 CosmicVaultTerritory = include("cosmicvaultterritory")
 
 local EclipseConquestManager = {}
@@ -35,14 +35,14 @@ function EclipseConquestManager.initialize()
             tags = {ascendant = true}
         })
     end
-    
+
     if not Server():getValue("eclipse_fully_awake") then return end
 end
 function EclipseConquestManager.updateServer(timeStep)
     if not Server():getValue("eclipse_fully_awake") then return end
-    
+
     EclipseConquestManager.timer = EclipseConquestManager.timer + timeStep
-    
+
     -- Every 30 to 45 minutes, the Eclipse expand
     if EclipseConquestManager.timer > random():getInt(30, 45) * 60 then
         EclipseConquestManager.timer = 0
@@ -53,10 +53,10 @@ end
 function EclipseConquestManager.expandEmpire()
     local EclipseGenerator = include("eclipsegenerator")
     local eclipseFaction = EclipseGenerator.getFaction()
-    
+
     local conqueredCount = Server():getValue("eclipse_conquered_sectors") or 0
     local isFallenEmpire = Server():getValue("eclipse_fallen_empire")
-    
+
     -- Check if we should awaken
     if conqueredCount >= 10 and not isFallenEmpire then
         Server():setValue("eclipse_fallen_empire", true)
@@ -71,7 +71,7 @@ function EclipseConquestManager.expandEmpire()
     end
 
     local tx, ty
-    
+
     if isFallenEmpire then
         -- Crusade Logic: Seek out an AI Faction Capital
         -- We will scan factions and find one with a home sector
@@ -85,7 +85,7 @@ function EclipseConquestManager.expandEmpire()
                 end
             end
         end
-        
+
         if #targets > 0 then
             local target = targets[random():getInt(1, #targets)]
             tx, ty = target.x, target.y
@@ -110,7 +110,7 @@ function EclipseConquestManager.expandEmpire()
         local targetSector = knownSectors[random():getInt(1, #knownSectors)]
         tx, ty = targetSector.x, targetSector.y
     end
-    
+
     -- 40% chance to Conquest (Boarding/Siege via Cosmic War)
     -- 60% chance to Annihilation (Total wipe)
     if random():getFloat() < 0.4 then
@@ -118,7 +118,7 @@ function EclipseConquestManager.expandEmpire()
         if CosmicVaultTerritory and CosmicVaultTerritory.addContestedZone then
             CosmicVaultTerritory.addContestedZone(tx, ty, eclipseFaction.index)
             Server():broadcastChatMessage("The Eclipse", 2, "Commencing assimilation of coordinates (" .. tx .. ":" .. ty .. "). Resistance is biologically inefficient.")
-            
+
             -- If the sector is currently loaded in memory, inject the siege event immediately
             local sector = Sector()
             if sector and sector:getCoordinates() == tx and sector:getCoordinates() == ty then
@@ -127,7 +127,7 @@ function EclipseConquestManager.expandEmpire()
                     sector:invokeFunction("events/siegeevent.lua", "initialize")
                 end
             end
-            
+
             -- Increment counter since it's a conquest attempt that will turn the sector
             Server():setValue("eclipse_conquered_sectors", conqueredCount + 1)
         else
@@ -142,7 +142,7 @@ end
 
 function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conqueredCount)
     Server():broadcastChatMessage("The Eclipse", 2, "Coordinates (" .. x .. ":" .. y .. ") have been judged unworthy of Ascendancy. Initiating total atomic annihilation.")
-    
+
     if cv_news_success and cv_news.publishArticle then
         cv_news.publishArticle({
             title = "Sector Annihilated: [" .. x .. ":" .. y .. "]",
@@ -150,14 +150,14 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
             category = "Galactic Dread"
         })
     end
-    
+
     -- Increment global conquest tracker
     Server():setValue("eclipse_conquered_sectors", (conqueredCount or Server():getValue("eclipse_conquered_sectors") or 0) + 1)
-    
+
     -- Change the territory to The Eclipse globally on the galaxy map
     local galaxy = Galaxy()
     galaxy:setFaction(x, y, eclipseFaction.index)
-    
+
     -- If the sector is currently loaded in memory, literally wipe everything
     local sector = Sector()
     if sector then
@@ -165,7 +165,7 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
         if cx == x and cy == y then
             -- Inject Dark Matter Fog weather
             sector:addScriptOnce("data/scripts/sector/cv_weather_controller.lua", "DarkMatterFog", -1)
-            
+
             local entities = {sector:getEntities()}
             for _, entity in pairs(entities) do
                 if entity.type == EntityType.Station or entity.type == EntityType.Ship then
@@ -174,16 +174,27 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
                     end
                 end
             end
-            
+
             -- Spawn an Obliterator to show who did it
             local EclipseGenerator = include("eclipsegenerator")
             local ship = EclipseGenerator.createShip(Matrix(), "monolith")
             ship:setTitle("Eclipse Obliterator", {})
-            
+
             -- Attach the heroic defense tracker in case the player fights back
             ship:addScriptOnce("data/scripts/entity/ca_heroic_defense.lua")
         end
     end
 end
+
+function getUpdateInterval(...)
+    if EclipseConquestManager.getUpdateInterval then return EclipseConquestManager.getUpdateInterval(...) end
+end
+function initialize(...)
+    if EclipseConquestManager.initialize then return EclipseConquestManager.initialize(...) end
+end
+function updateServer(...)
+    if EclipseConquestManager.updateServer then return EclipseConquestManager.updateServer(...) end
+end
+
 
 return EclipseConquestManager

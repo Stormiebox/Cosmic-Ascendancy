@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_success, CosmicVaultBuffs = true, require("cosmicvaultbuffs")
+local cv_success, CosmicVaultBuffs = true, include("cosmicvaultbuffs")
 
 -- Namespace WorldEater
 WorldEater = {}
@@ -75,11 +75,11 @@ function WorldEater.onDamaged(objectIndex, amount, inflictor, damageSource, dama
         sector:broadcastChatMessage(entity.title, 0, "ERROR. CORE INSTABILITY. ENRAGE PROTOCOL ENGAGED.")
         WorldEater.blink()
         WorldEater.empPulse()
-        
+
         -- Enrage Buffs (+50% Fire Rate, +50% Damage)
         if cv_success and CosmicVaultBuffs then
             CosmicVaultBuffs.applyPermanentFactor(entity.id, StatsBonuses.FireRate, 1.5)
-            
+
             local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
             for _, stat in pairs(damageBonuses) do
                 CosmicVaultBuffs.applyPermanentFactor(entity.id, stat, 1.5)
@@ -95,14 +95,14 @@ function WorldEater.spawnEscorts(shipType, count)
     local up = entity.up
     local right = entity.right
     local center = entity.translationf
-    
+
     for i = 1, count do
         local rx = (random():getFloat(-1, 1) * 2000)
         local ry = (random():getFloat(-1, 1) * 2000)
         local rz = (random():getFloat(500, 2000))
         local pos = center + vec3(rx, ry, rz)
         local cMat = MatrixLookUpPosition(up, dir, pos)
-        
+
         if shipType == "defiler" then
             EclipseGenerator.createDefiler(cMat)
         elseif shipType == "destroyer" then
@@ -115,13 +115,13 @@ function WorldEater.empPulse()
     local sector = Sector()
     local players = {sector:getPlayers()}
     local myPos = Entity().translationf
-    
+
     for _, player in pairs(players) do
         local craft = player.craft
         if craft and craft.shieldDurability then
             -- Strip 50% of the player's shield capacity directly
             craft.shieldDurability = craft.shieldDurability * 0.5
-            
+
             -- Visual effect
             sector:createHyperspaceJumpAnimation(craft, craft.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
             player:sendChatMessage("Ship Computer", 1, "WARNING: Dark Matter EMP has stripped 50% of our shields!")
@@ -132,22 +132,22 @@ end
 function WorldEater.blink()
     local entity = Entity()
     local sector = Sector()
-    
+
     -- Visual indication of jumping out
     sector:createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.6, 0.5, 0.3), 1.0)
-    
+
     -- Pick a random spot 15 to 25 km away from the center
     local dist = random():getFloat(15000, 25000)
     local rx = random():getFloat(-1, 1)
     local ry = random():getFloat(-1, 1)
     local rz = random():getFloat(-1, 1)
     local dir = normalize(vec3(rx, ry, rz))
-    
+
     local newPos = dir * dist
     local mat = entity.position
     mat.translation = newPos
     entity.position = mat
-    
+
     -- Visual indication of jumping in
     sector:createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.6, 0.5, 0.3), 1.0)
 end
@@ -164,4 +164,21 @@ function WorldEater.restore(data)
     WorldEater.phases = data.phases or WorldEater.phases
     WorldEater.healPool = data.healPool or 0
     WorldEater.healRate = data.healRate or 0
+end
+
+
+function initialize(...)
+    if WorldEater.initialize then return WorldEater.initialize(...) end
+end
+function getUpdateInterval(...)
+    if WorldEater.getUpdateInterval then return WorldEater.getUpdateInterval(...) end
+end
+function updateServer(...)
+    if WorldEater.updateServer then return WorldEater.updateServer(...) end
+end
+function secure(...)
+    if WorldEater.secure then return WorldEater.secure(...) end
+end
+function restore(...)
+    if WorldEater.restore then return WorldEater.restore(...) end
 end

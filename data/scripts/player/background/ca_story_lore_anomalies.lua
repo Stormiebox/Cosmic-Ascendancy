@@ -21,7 +21,7 @@ function LoreAnomalies.onSectorEntered(playerIndex, x, y, sectorChangeType)
     if Server():getValue("eclipse_fully_awake") then return end
 
     local dist = math.sqrt(x*x + y*y)
-    
+
     -- The closer to the core, the higher the chance of finding a lore anomaly
     local spawnChance = 0.0
     if dist > 350 then
@@ -39,7 +39,7 @@ end
 
 function LoreAnomalies.spawnAnomaly(x, y)
     local sector = Sector()
-    
+
     -- Only spawn in empty or unexplored sectors to avoid cluttering populated ones
     if sector:getEntitiesByComponent(ComponentType.Station) then return end
 
@@ -60,14 +60,14 @@ function LoreAnomalies.spawnAnomaly(x, y)
     -- Spawn a generic wreckage (Corrupted Databank / Lost Ship)
     local plan = generator:getBasicWreckagePlan()
     local wreck = sector:createWreckage(plan, pos)
-    
+
     -- Spawn a stash container with loot scaled by distance to core
     local stashPos = pos + vec3(random():getFloat(50, 100), random():getFloat(50, 100), random():getFloat(50, 100))
     local stash = sector:createContainer(MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), stashPos), faction, "")
     stash.title = "Corrupted Databank Stash"%_t
-    
+
     local dist = math.sqrt(x*x + y*y)
-    
+
     -- Scale loot material by distance
     local distMat = 1 -- Iron
     if dist < 150 then distMat = 6 -- Avorion
@@ -76,11 +76,11 @@ function LoreAnomalies.spawnAnomaly(x, y)
     elseif dist < 300 then distMat = 3 -- Trinium
     elseif dist < 400 then distMat = 2 -- Naonite
     end
-    
+
     -- Add resources to stash
     local amount = random():getInt(10000, 50000)
     stash:addDrop(Material(distMat), amount)
-    
+
     -- Drop random system upgrades
     local numUpgrades = random():getInt(1, 3)
     for i = 1, numUpgrades do
@@ -90,5 +90,13 @@ function LoreAnomalies.spawnAnomaly(x, y)
     -- Send the lore directly to the player's chat
     Player():sendChatMessage("Ship Sensors", 3, loreText)
 end
+
+function initialize(...)
+    if LoreAnomalies.initialize then return LoreAnomalies.initialize(...) end
+end
+function onSectorEntered(...)
+    if LoreAnomalies.onSectorEntered then return LoreAnomalies.onSectorEntered(...) end
+end
+
 
 return LoreAnomalies

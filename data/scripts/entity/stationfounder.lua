@@ -13,3 +13,8 @@ function StationFounder.initialize(shipyardFaction)
         plan = "data/plans/ascendancy_beacon.xml"
     })
 end
+
+
+function initialize(...)
+    if StationFounder.initialize then return StationFounder.initialize(...) end
+end
