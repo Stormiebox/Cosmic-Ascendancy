@@ -164,6 +164,7 @@ function EclipseGenerator.createShip(position, planType)
     end
 
     Boarding(ship).boardable = false
+    ship:addScriptOnce("data/scripts/entity/ca_eclipse_abilities.lua")
 
     return ship
 end
@@ -185,7 +186,6 @@ function EclipseGenerator.createAssassin(position)
     local ship = EclipseGenerator.createShip(position, "phantom")
     ship:setTitle("Eclipse Phantom"%_T, {})
     
-    ship:addScriptOnce("enemies/blinker.lua")
     EclipseGenerator.applyDamageMultiplier(ship, 3.0) -- +300% burst damage
     ship:addMultiplyableFactor(StatsBonuses.Velocity, 3.0) -- Fast turning/moving
     

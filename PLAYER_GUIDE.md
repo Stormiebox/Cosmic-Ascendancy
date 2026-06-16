@@ -25,11 +25,25 @@ The Eclipse is a hyper-advanced, hostile faction that dynamically targets sector
 - **Armor Plating:** Their base Hull HP is multiplied by 2.5x relative to vanilla ships of the same volume.
 - **Weaponry:** The Eclipse exclusively utilizes massive EMP lasers and high-velocity Plasma Artillery, making them incredibly lethal against your shields.
 
+### 🌌 Ancient Eclipse Abilities
+To make the faction feel uniquely terrifying, the Eclipse possess 5 devastating ancient mechanics distributed across their classes:
+- **Dark Matter Blink (All Ships):** Upon taking 15% burst damage within 1 second, the ship will violently blink 5-10km away to escape, leaving behind a Void Rift (cooldown: 30s).
+- **Ethereal Phase-Shift (Interceptors & Phantoms):** Slippery vanguards will instantly phase out of reality for 4 seconds upon shield break, becoming an invincible void-shadow to reposition.
+- **Adaptive Resistance (Defilers & Artillery):** These heavy combatants analyze incoming fire; taking 5% Hull damage from a specific element (e.g., Plasma) triggers a 75% resistance to that element for 15 seconds!
+- **Void Siphon Aura (Carriers, Cruisers, Dreadnoughts, Juggernauts):** Massive command ships constantly project a 3km devouring aura, draining 2% of the shield capacity of all nearby player ships per second to heal themselves.
+- **Singularity Implosion (All Large Capital Ships):** Upon death, these gargantuan reactors collapse. After a 3-second warning, they violently detonate, dealing 50,000 true-damage to everything within 3km!
+
 ### 🚨 The World-Eater Doomsday Event
 Every 2 to 3 hours, the Eclipse will launch a **World-Eater** (a massively scaled Juggernaut) at a populated player sector.
 - A **15-minute countdown** will broadcast across the Galactic News Network.
 - **Royal Escort Fleet:** The World-Eater does not travel alone. It arrives with a massive Royal Escort Fleet composed of Carriers, Artillery, Defilers, and Interceptors to protect it from player swarms.
 - **Apocalyptic Durability:** The World-Eater's physical volume has been dynamically scaled up by a factor of 5.0, resulting in a 125x increase to its native Hull HP!
+- **The 6-Phase Gauntlet:** Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal Hull and dynamic multi-phase mechanics:
+  - **80% HP:** Spawns 5 Defiler Escorts.
+  - **70% HP:** Emits an EMP pulse, instantly stripping 50% of the shield capacity from all players in the sector.
+  - **60% HP:** Deploys 4 Eclipse Destroyers.
+  - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
+  - **35% HP:** Blinks again, unleashes a second EMP, and enters an Enraged state (+50% Fire Rate, +50% Global Damage).
 - If the World-Eater is not destroyed in 15 minutes, the entire sector is atomically wiped. All non-player entities are deleted, players are reduced to 1 HP, and the sector falls permanently to Eclipse control.
 
 ### 🚨 Invasion Escalation
@@ -46,7 +60,7 @@ When an Eclipse invasion is overwhelmingly successful, they will permanently occ
 
 ### ⚙️ Mechanics
 - **The Lockdown Matrix:** Citadels generate a sector-wide interdiction field. Ships cannot jump out of a Citadel sector unless the Citadel is destroyed.
-- **Siege Scale:** Citadels have 250,000,000 base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms. 
+- **Siege Scale:** Citadels have 250,000,000 base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms.
 - **Loot & Rewards:** Destroying a Citadel guarantees a drop of 1-3 Legendary subsystems, massive quantities of Avorion ore, and unique crafting materials for the Ascendancy Forge.
 - **Suppression Field:** Destroying a Citadel halts all Eclipse invasions within a 15-sector radius for exactly 6 real-time hours.
 </details>
@@ -82,7 +96,7 @@ To combat the Eclipse, you must locate and utilize the Ascendancy Forge to craft
 - **Base Crafting Cost:** 1,000,000,000 Credits and a variable amount of **Ascendant Matter** (harvested from Eclipse Harvester stations).
 - **Global Ascendancy Matrix:** You can submit **Eclipse Datacores** (dropped by Eclipse Juggernauts) to the Forge. Decrypting a datacore permanently raises your Global Ascendancy Tier, granting a stacking +15% Shields, +20% Shield Recharge, and +10% Hyperspace Cooldown to all ships in your fleet!
 - **The Sacrifice System:** When initiating a craft, you must sacrifice existing Legendary or Exotic subsystems as Catalysts.
-  - Sacrificing 1 Legendary grants a 20% success rate. 
+  - Sacrificing 1 Legendary grants a 20% success rate.
   - Sacrificing 5 Legendaries guarantees a 100% success rate.
 - **Failure:** If the craft fails, the sacrificed subsystems and half the raw materials are destroyed, but you receive "Ascendant Scrap" which slightly boosts the success rate of your next attempt.
 </details>
@@ -97,6 +111,8 @@ Players can construct the ultimate megastructure to anchor their empire: **The A
 - **Permanent Sector Simulation:** A sector containing an active Ascendancy Beacon is simulated 24/7, even if no players are online.
 - **Global Buffs:** The beacon applies a permanent, massive stat multiplier to all ships in the player's fleet across the entire galaxy.
 - **Upgrades & Upkeep:** The beacon can be upgraded through 5 tiers, exponentially increasing the global stat buffs. However, higher tiers require massive, continuous upkeep costs of Credits, Avorion, and Ogonite.
+- **Passive Real-Estate Income:** Beacons automatically tax all passing AI-controlled freighters. This passive income is dynamically scaled by the War Heat of the passing faction (factions actively at war will pay a 50% premium for safe passage through your heavily defended capital!).
+- **Treasury Payouts:** To prevent endless notification spam from freighters constantly passing through your capital, the Beacon safely stores all collected tolls in its internal treasury and pays out a single lump-sum to your faction every 45 minutes (synced with the Upkeep cycle).
 - **Default Design:** Founding a beacon automatically loads a customized, towering `.xml` megastructure design so players do not have to manually build their empire's capital from scratch.
 </details>
 
@@ -105,7 +121,7 @@ Players can construct the ultimate megastructure to anchor their empire: **The A
 *As of v3.0.0: The Ascendancy Beacon and Codex have been vastly expanded to deeply integrate with the Cosmic Vault's universal framework.*
 
 ### Defeating Nemeses
-When facing an Eclipse Dread-Lord, you must coordinate your firepower. 
+When facing an Eclipse Dread-Lord, you must coordinate your firepower.
 - **Damage Gate:** Dread-Lords have an advanced Damage Gate that limits any single instance of damage to a maximum of 8% of their total Hull or Shields, preventing them from being instantly one-shot by god-tier weapons.
 - **Adaptive Resistance:** Do not rely on a single weapon type! Dread-Lords engage "Nemesis Protocols", generating a flawless 90% elemental resistance shield against specific damage types (Physical, Plasma, Antimatter, Electric). If an Eclipse Dread-Lord escapes, it will return highly resistant to whatever you just used against it!
 

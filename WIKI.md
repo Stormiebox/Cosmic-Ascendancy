@@ -51,6 +51,14 @@ Eclipse vessels are exceptionally deadly due to their specialized "Void Shields"
 - **Weaponry:** The Eclipse exclusively utilize massive EMP lasers and high-velocity Plasma Artillery, making them incredibly lethal against your own shields.
 - **Aesthetics & Classes:** Eclipse ships are towering, jet-black monolithic structures accented by crimson energy fields. They fly Nullifiers (Pyramids), Obliterators (Monoliths), Harbingers (Obelisks), and 4 specialized combat classes: the Juggernaut (Dreadnought), Interceptor (Fighter), Harvester (Miner), and Defiler (Assault Frigate).
 
+### 🌌 Ancient Eclipse Abilities
+To make the faction feel uniquely terrifying, the Eclipse possess 5 devastating ancient mechanics distributed across their classes:
+- **Dark Matter Blink (All Ships):** Upon taking 15% burst damage within 1 second, the ship will violently blink 5-10km away to escape, leaving behind a Void Rift (cooldown: 30s).
+- **Ethereal Phase-Shift (Interceptors & Phantoms):** Slippery vanguards will instantly phase out of reality for 4 seconds upon shield break, becoming an invincible void-shadow to reposition.
+- **Adaptive Resistance (Defilers & Artillery):** These heavy combatants analyze incoming fire; taking 5% Hull damage from a specific element (e.g., Plasma) triggers a 75% resistance to that element for 15 seconds!
+- **Void Siphon Aura (Carriers, Cruisers, Dreadnoughts, Juggernauts):** Massive command ships constantly project a 3km devouring aura, draining 2% of the shield capacity of all nearby player ships per second to heal themselves.
+- **Singularity Implosion (All Large Capital Ships):** Upon death, these gargantuan reactors collapse. After a 3-second warning, they violently detonate, dealing 50,000 true-damage to everything within 3km!
+
 ### Invasion Mechanics & Threat Escalation
 The Eclipse dynamically targets sectors containing high player or AI faction value.
 - **Scouting Phase:** Small, fast-moving Eclipse Interceptors will arrive in a sector. If they are not destroyed within 5 minutes, they broadcast a beacon.
