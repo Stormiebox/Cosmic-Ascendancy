@@ -22,6 +22,9 @@ function initialize(damageType)
             entity:addMultiplyableFactor(StatsBonuses.ElectricDamageReceived, modifier)
         end
         
+        entity:registerCallback("onDamaged", "onDamaged")
+        entity:registerCallback("onShieldDamaged", "onShieldDamaged")
+        
         -- Alert players that it has adapted
         Sector():broadcastChatMessage(entity.title, 2, "ADAPTATION COMPLETE. NEMESIS PROTOCOLS ENGAGED.")
     end
@@ -33,4 +36,29 @@ end
 
 function restore(data)
     resistType = data.type
+end
+
+function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
+    local entity = Entity()
+    local maxDurability = entity.maxDurability
+    local maxAllowedDamage = maxDurability * 0.08
+    
+    if amount > maxAllowedDamage then
+        local excessDamage = amount - maxAllowedDamage
+        entity.durability = math.min(entity.durability + excessDamage, maxDurability)
+    end
+end
+
+function onShieldDamaged(objectIndex, amount, inflictor, damageSource, damageType)
+    local entity = Entity()
+    local maxShield = entity.shieldMaxDurability
+    if not maxShield or maxShield <= 0 then return end
+    
+    local maxAllowedDamage = maxShield * 0.08
+    
+    if amount > maxAllowedDamage then
+        local excessDamage = amount - maxAllowedDamage
+        local newShield = math.min(entity.shieldDurability + excessDamage, maxShield)
+        entity.shieldDurability = newShield
+    end
 end
