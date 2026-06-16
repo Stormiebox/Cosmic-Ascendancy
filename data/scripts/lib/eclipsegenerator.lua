@@ -12,6 +12,13 @@ include("weapontype")
 
 local EclipseGenerator = {}
 
+function EclipseGenerator.applyDamageMultiplier(entity, factor)
+    local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
+    for _, stat in pairs(damageBonuses) do
+        entity:addMultiplyableFactor(stat, factor)
+    end
+end
+
 function EclipseGenerator.getFaction()
     local name = "The Eclipse"%_T
 
@@ -144,7 +151,7 @@ function EclipseGenerator.createShip(position, planType)
     -- If it's a Harbinger, inject Ascendant Multipliers
     if planType == "obelisk" then
         ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 37.5) -- +3750% Shields
-        ship:addMultiplyableFactor(StatsBonuses.Damage, 5.0) -- +500% Damage
+        EclipseGenerator.applyDamageMultiplier(ship, 5.0) -- +500% Damage
         ship:addMultiplyableFactor(StatsBonuses.ArmedTurrets, 75.0) -- +75 Turrets
         ship:addScriptOnce("entity/eclipse_boss_scaling.lua")
         
@@ -179,7 +186,7 @@ function EclipseGenerator.createAssassin(position)
     ship:setTitle("Eclipse Phantom"%_T, {})
     
     ship:addScriptOnce("enemies/blinker.lua")
-    ship:addMultiplyableFactor(StatsBonuses.Damage, 3.0) -- +300% burst damage
+    EclipseGenerator.applyDamageMultiplier(ship, 3.0) -- +300% burst damage
     ship:addMultiplyableFactor(StatsBonuses.Velocity, 3.0) -- Fast turning/moving
     
     return ship
@@ -221,7 +228,7 @@ function EclipseGenerator.createInterceptor(position)
     ship:setTitle("Eclipse Interceptor"%_T, {})
     
     ship:addMultiplyableFactor(StatsBonuses.Velocity, 1.5) -- +150% Speed
-    ship:addMultiplyableFactor(StatsBonuses.Damage, -0.2) -- -20% Damage
+    EclipseGenerator.applyDamageMultiplier(ship, -0.2) -- -20% Damage
     
     return ship
 end
@@ -230,7 +237,7 @@ function EclipseGenerator.createHarvester(position)
     local ship = EclipseGenerator.createShip(position, "harvester")
     ship:setTitle("Eclipse Harvester"%_T, {})
     
-    ship:addMultiplyableFactor(StatsBonuses.CargoCapacity, 5.0) -- +500% Cargo
+    ship:addMultiplyableFactor(StatsBonuses.CargoHold, 5.0) -- +500% Cargo
     
     return ship
 end
@@ -239,7 +246,7 @@ function EclipseGenerator.createDefiler(position)
     local ship = EclipseGenerator.createShip(position, "defiler")
     ship:setTitle("Eclipse Defiler"%_T, {})
     
-    ship:addMultiplyableFactor(StatsBonuses.Damage, 1.5) -- +150% Damage
+    EclipseGenerator.applyDamageMultiplier(ship, 1.5) -- +150% Damage
     
     return ship
 end
@@ -276,7 +283,7 @@ function EclipseGenerator.createStation(position)
     station:addScriptOnce("utility/aiundockable.lua")
     
     station:addMultiplyableFactor(StatsBonuses.ShieldDurability, 50.0) 
-    station:addMultiplyableFactor(StatsBonuses.Damage, 5.0) 
+    EclipseGenerator.applyDamageMultiplier(station, 5.0) 
     station:addScriptOnce("entity/eclipse_boss_scaling.lua")
     
     Boarding(station).boardable = false

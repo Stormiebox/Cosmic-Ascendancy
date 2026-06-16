@@ -40,6 +40,8 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 - **Ascendancy Beacon Megastructures:** Players founding an Ascendancy Beacon will now instantly automatically deploy a massive, customized megastructure `.xml` design instead of a procedural vanilla station.
 - **Game-Breaking Arsenal:** The Eclipse utilizes a customized weapon generator that forces Tech 52 (Maximum), boosts all weapon damage, reach, and fire rate significantly, and forces 100% accuracy.
 - **The Eclipse Oblivion Engine:** Added an apocalyptic new roaming superboss. It actively hunts populated sectors, obliterates everything, dynamically broadcasts via Galactic News, and rewards the galaxy's defenders with 5 Billion credits and maximum-tier loot! (Also includes a 'Stormbox Protocol' lore Easter Egg).
+- **Eclipse World-Eater Royal Escort**: The World-Eater doomsday event now spawns with a massive Royal Escort Fleet (2 Carriers, 2 Artillery, 4 Defilers, 8 Interceptors) to protect it from player swarms.
+- **Eclipse World-Eater Hull Scaling**: The World-Eater's physical volume has been scaled natively by 5.0 (yielding a 125x Hull HP boost inherently via Avorion engine physics) ensuring it acts as a true sponge!
 - **Ascendant Subsystems (Living Relics):** Four game-breaking subsystems (War-Drive, Aegis Matrix, Slipstream Core, Omni-Sensor) that dynamically multiply their power up to 7.5x based on your current Core Proximity and the Empire's War Heat!
 - **Cross-Mod Integration:**
   - **Cosmic Vault:** Utilizes `CosmicVaultBuffs` API for global multiplier injections, and `CosmicVaultNews` to broadcast your empire's ascension, sieges, and falls to the entire galaxy.
@@ -57,7 +59,12 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 - **Capital Sieges:** A hidden playtime clock runs within the beacon. Every 3 to 6 hours, a devastating siege fleet (Pirates, Xsotan, or War Factions) will invade your sector to destroy the beacon. If you defend it, you earn legendary loot. If it falls, your global buffs collapse.
 - **Wartime Innovation:** Weapons crafted at the Stellar Forge receive exponential damage multipliers based on how close the forge is to the Galactic Core (+200%) and your current War Heat (+150%). Forging at the core during a massive war yields a 9.0x damage super-weapon!
 - **Multiplayer Boss Scaling:** Implemented dynamic `applyPermanentFactor` scaling. Harbingers and Citadels now inherently gain +100% Shield and +50% Damage per additional player in the sector.
+- **Eclipse Boss Damage Gate**: Implemented an 8% damage gate to Eclipse Dread-Lords in `ca_nemesis_resist.lua` to prevent players from instantly bursting them down with 9.0x super-weapons.
+- **Nemesis Resistances Native Overhaul**: Restructured `ca_nemesis_resist.lua` to calculate its 90% elemental damage reduction dynamically inside the `onDamaged` loop, instead of relying on non-existent `StatsBonuses.*DamageReceived` API enums.
 - **Vault Fleet Integration:** Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.
+
+### 🐛 Bug Fixes
+- **Invalid StatsBonuses Wipe**: Scrubbed all invalid API enums (like `StatsBonuses.Damage`, `StatsBonuses.ShieldCapacity`, `StatsBonuses.CargoCapacity`) from `eclipsegenerator.lua`, `spawneclipseboss.lua`, `ca_ascendant_gateway.lua`, `eclipse_boss_scaling.lua`, `ca_ascendancy_ship_buff.lua`, and `ascendanteclipsebane.lua`. Bosses will now correctly receive their intended 500% damage boosts (by mathematically looping over the 6 native elemental types) and 3750% shields natively!
 - **Ascendant Bosses:** Eclipse Harbingers utilize the "Living Relic" subsystem mechanics internally, multiplying their shields by 3750% and damage by 500%.
 - **The Ascendant Forge Unlock:** The Ascendant Forge is now securely locked behind the completion of the new story campaign.
 

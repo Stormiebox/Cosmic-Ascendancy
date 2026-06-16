@@ -28,6 +28,8 @@ The Eclipse is a hyper-advanced, hostile faction that dynamically targets sector
 ### 🚨 The World-Eater Doomsday Event
 Every 2 to 3 hours, the Eclipse will launch a **World-Eater** (a massively scaled Juggernaut) at a populated player sector.
 - A **15-minute countdown** will broadcast across the Galactic News Network.
+- **Royal Escort Fleet:** The World-Eater does not travel alone. It arrives with a massive Royal Escort Fleet composed of Carriers, Artillery, Defilers, and Interceptors to protect it from player swarms.
+- **Apocalyptic Durability:** The World-Eater's physical volume has been dynamically scaled up by a factor of 5.0, resulting in a 125x increase to its native Hull HP!
 - If the World-Eater is not destroyed in 15 minutes, the entire sector is atomically wiped. All non-player entities are deleted, players are reduced to 1 HP, and the sector falls permanently to Eclipse control.
 
 ### 🚨 Invasion Escalation
@@ -103,7 +105,9 @@ Players can construct the ultimate megastructure to anchor their empire: **The A
 *As of v3.0.0: The Ascendancy Beacon and Codex have been vastly expanded to deeply integrate with the Cosmic Vault's universal framework.*
 
 ### Defeating Nemeses
-Do not rely on a single weapon type! If an Eclipse Dread-Lord escapes, it will return highly resistant to whatever you just used against it.
+When facing an Eclipse Dread-Lord, you must coordinate your firepower. 
+- **Damage Gate:** Dread-Lords have an advanced Damage Gate that limits any single instance of damage to a maximum of 8% of their total Hull or Shields, preventing them from being instantly one-shot by god-tier weapons.
+- **Adaptive Resistance:** Do not rely on a single weapon type! Dread-Lords engage "Nemesis Protocols", generating a flawless 90% elemental resistance shield against specific damage types (Physical, Plasma, Antimatter, Electric). If an Eclipse Dread-Lord escapes, it will return highly resistant to whatever you just used against it!
 
 ### Automating Defense
 Build Ascendant Gateways in your core sectors to automatically summon allied defense fleets when you are offline.

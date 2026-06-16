@@ -16,7 +16,11 @@ function initialize()
         
         if cv_success and CosmicVaultBuffs then
             CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.ShieldDurability, shieldFactor)
-            CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.Damage, damageFactor)
+            
+            local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
+            for _, stat in pairs(damageBonuses) do
+                CosmicVaultBuffs.applyPermanentFactor(Entity().id, stat, damageFactor)
+            end
         end
         
         local entity = Entity()

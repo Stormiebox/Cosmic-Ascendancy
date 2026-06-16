@@ -5,11 +5,15 @@ local StatsBonuses = include("statsbonuses")
 
 function getFixedStats()
     return {
-        {stat = StatsBonuses.ShieldCapacity, amount = 0.50},
-        {stat = StatsBonuses.HullDurability, amount = 0.50},
+        {stat = StatsBonuses.ShieldDurability, amount = 0.50},
         {stat = StatsBonuses.ArmedTurrets, amount = 5},
         {stat = StatsBonuses.HyperspaceReach, amount = 5},
-        {stat = StatsBonuses.Damage, amount = 0.25}
+        {stat = StatsBonuses.EnergyDamage, amount = 0.25},
+        {stat = StatsBonuses.ElectricDamage, amount = 0.25},
+        {stat = StatsBonuses.PlasmaDamage, amount = 0.25},
+        {stat = StatsBonuses.AntiMatterDamage, amount = 0.25},
+        {stat = StatsBonuses.FragmentsDamage, amount = 0.25},
+        {stat = StatsBonuses.PhysicalDamage, amount = 0.25}
     }
 end
 

@@ -17,6 +17,43 @@ function WorldEaterEvent.initialize(timeLeft)
     ship:addMultiplyableFactor(StatsBonuses.Velocity, -0.9)
     ship.scale = 5.0 -- Physically massive
     
+    -- Spawn the Royal Escort Fleet
+    local dir = mat.look
+    local right = mat.right
+    local up = mat.up
+    local center = mat.translation
+
+    -- 2 Carriers
+    for i = 1, 2 do
+        local pos = center + (right * (i == 1 and 2000 or -2000)) + (dir * -1000)
+        local cMat = MatrixLookUpPosition(up, dir, pos)
+        EclipseGenerator.createCarrier(cMat)
+    end
+    
+    -- 2 Artillery Ships
+    for i = 1, 2 do
+        local pos = center + (up * (i == 1 and 1500 or -1500)) + (dir * -2000)
+        local cMat = MatrixLookUpPosition(up, dir, pos)
+        EclipseGenerator.createArtillery(cMat)
+    end
+
+    -- 4 Defilers
+    for i = 1, 4 do
+        local pos = center + (right * ((i%2 == 0 and 1 or -1) * (1000 + i*500))) + (dir * 500)
+        local cMat = MatrixLookUpPosition(up, dir, pos)
+        EclipseGenerator.createDefiler(cMat)
+    end
+
+    -- 8 Interceptors
+    for i = 1, 8 do
+        local rx = (random():getFloat(-1, 1) * 3000)
+        local ry = (random():getFloat(-1, 1) * 3000)
+        local rz = (random():getFloat(500, 2500))
+        local pos = center + vec3(rx, ry, rz)
+        local cMat = MatrixLookUpPosition(up, dir, pos)
+        EclipseGenerator.createInterceptor(cMat)
+    end
+    
     ship:registerCallback("onDestroyed", "onWorldEaterDestroyed")
     WorldEaterEvent.worldEaterId = ship.id.string
 end

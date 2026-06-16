@@ -5,26 +5,15 @@ local resistType = nil
 
 function initialize(damageType)
     resistType = damageType or DamageType.Physical
-    
+
     if onServer() then
         local entity = Entity()
-        
-        -- Apply massive damage reduction to the specific element
-        local modifier = 0.1 -- Takes only 10% damage from this element
-        
-        if resistType == DamageType.Physical then
-            entity:addMultiplyableFactor(StatsBonuses.PhysicalDamageReceived, modifier)
-        elseif resistType == DamageType.Plasma then
-            entity:addMultiplyableFactor(StatsBonuses.PlasmaDamageReceived, modifier)
-        elseif resistType == DamageType.Antimatter then
-            entity:addMultiplyableFactor(StatsBonuses.AntimatterDamageReceived, modifier)
-        elseif resistType == DamageType.Electric then
-            entity:addMultiplyableFactor(StatsBonuses.ElectricDamageReceived, modifier)
-        end
-        
+
+        -- We apply a 90% damage reduction for the specific element inside the onDamaged callbacks
+
         entity:registerCallback("onDamaged", "onDamaged")
         entity:registerCallback("onShieldDamaged", "onShieldDamaged")
-        
+
         -- Alert players that it has adapted
         Sector():broadcastChatMessage(entity.title, 2, "ADAPTATION COMPLETE. NEMESIS PROTOCOLS ENGAGED.")
     end
@@ -41,10 +30,18 @@ end
 function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
     local entity = Entity()
     local maxDurability = entity.maxDurability
+
+    local damageTaken = amount
+    if damageType == resistType then
+        local resisted = amount * 0.90
+        entity.durability = math.min(entity.durability + resisted, maxDurability)
+        damageTaken = amount - resisted
+    end
+
     local maxAllowedDamage = maxDurability * 0.08
-    
-    if amount > maxAllowedDamage then
-        local excessDamage = amount - maxAllowedDamage
+
+    if damageTaken > maxAllowedDamage then
+        local excessDamage = damageTaken - maxAllowedDamage
         entity.durability = math.min(entity.durability + excessDamage, maxDurability)
     end
 end
@@ -53,12 +50,18 @@ function onShieldDamaged(objectIndex, amount, inflictor, damageSource, damageTyp
     local entity = Entity()
     local maxShield = entity.shieldMaxDurability
     if not maxShield or maxShield <= 0 then return end
-    
+
+    local damageTaken = amount
+    if damageType == resistType then
+        local resisted = amount * 0.90
+        entity.shieldDurability = math.min(entity.shieldDurability + resisted, maxShield)
+        damageTaken = amount - resisted
+    end
+
     local maxAllowedDamage = maxShield * 0.08
-    
-    if amount > maxAllowedDamage then
-        local excessDamage = amount - maxAllowedDamage
-        local newShield = math.min(entity.shieldDurability + excessDamage, maxShield)
-        entity.shieldDurability = newShield
+
+    if damageTaken > maxAllowedDamage then
+        local excessDamage = damageTaken - maxAllowedDamage
+        entity.shieldDurability = math.min(entity.shieldDurability + excessDamage, maxShield)
     end
 end
