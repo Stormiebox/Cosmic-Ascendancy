@@ -15,7 +15,11 @@ function initialize()
         local damageFactor = 3.0 + (extraPlayers * 1.0)
         
         if cv_success and CosmicVaultBuffs then
-            CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.ShieldDurability, shieldFactor)
+            local isWorldEater = string.match(Entity().translatedTitle or Entity().title or "", "World%-Eater")
+            
+            if not isWorldEater then
+                CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.ShieldDurability, shieldFactor)
+            end
             
             local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
             for _, stat in pairs(damageBonuses) do

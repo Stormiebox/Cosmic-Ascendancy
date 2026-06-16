@@ -156,11 +156,8 @@ function AscendancyBeacon.onEntityEntered(entityId)
     
     local finalToll = math.floor(baseToll * heatMod)
     
-    -- Collect the Toll
-    ownerFaction:receive(string.format("Grand Toll collected from %s", enteringFaction.name), finalToll)
-    
-    -- Visual Feedback
-    Sector():broadcastChatMessage("Ascendancy Beacon"%_t, 3, string.format("Collected %s Credits from %s", createMonetaryString(finalToll), entity.translatedTitle or "Ship"))
+    -- Store Toll in Treasury
+    AscendancyBeacon.treasury = (AscendancyBeacon.treasury or 0) + finalToll
 end
 
 callable(AscendancyBeacon, "toggleBeacon")
@@ -321,6 +318,13 @@ function AscendancyBeacon.updateServer(timeStep)
             owner:getInventory():remove(mat.value, matCost)
             lastUpkeepTime = now
             owner:sendChatMessage("Beacon"%_t, 3, "Ascendancy Beacon Upkeep Paid: %1% Cr, %2% %3%", createMonetaryString(creditCost), createMonetaryString(matCost), mat.name)
+            
+            -- Payout Treasury
+            if AscendancyBeacon.treasury and AscendancyBeacon.treasury > 0 then
+                owner:receive("Ascendancy Beacon Grand Toll Payout", AscendancyBeacon.treasury)
+                owner:sendChatMessage("Beacon"%_t, 3, "Grand Toll Treasury Payout: %1% Credits received.", createMonetaryString(AscendancyBeacon.treasury))
+                AscendancyBeacon.treasury = 0
+            end
         else
             -- Bankrupt!
             if owner then
@@ -406,7 +410,8 @@ function AscendancyBeacon.secure()
         currentTier = currentTier,
         lastUpkeepTime = lastUpkeepTime,
         lastSiegeTime = lastSiegeTime,
-        nextSiegeInterval = nextSiegeInterval
+        nextSiegeInterval = nextSiegeInterval,
+        treasury = AscendancyBeacon.treasury
     }
 end
 
@@ -416,4 +421,5 @@ function AscendancyBeacon.restore(data)
     lastUpkeepTime = data.lastUpkeepTime or Server().playtime
     lastSiegeTime = data.lastSiegeTime or Server().playtime
     nextSiegeInterval = data.nextSiegeInterval or random():getInt(3, 6) * 3600
+    AscendancyBeacon.treasury = data.treasury or 0
 end

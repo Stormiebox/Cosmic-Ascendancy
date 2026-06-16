@@ -11,7 +11,15 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 The ultimate endgame expansion for the Cosmic Series has arrived. Establish your empire's permanent capital, generate immense wealth, forge god-tier weaponry, and defend against gargantuan sieges!
 
-### 🚀 Major Overhaul Features
+### 🚀 Major Expansion Features
+- **The Eclipse World-Eater MMO Boss Fight:** The Eclipse World-Eater has been completely reimagined from a static sponge into a dynamic, multi-phase encounter. It now features 6 distinct mechanic phases based on its Hull Integrity:
+  - **80% HP:** Summons 5 Defiler Escorts.
+  - **70% HP:** Emits a Dark Matter EMP, instantly stripping 50% of the shield capacity from all players in the sector.
+  - **60% HP:** Deploys 4 Eclipse Destroyers.
+  - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
+  - **35% HP:** Blinks again, unleashes a second EMP, and enters an Enraged state (+50% Fire Rate, +50% Global Damage) until destroyed!
+- **Ascendancy Beacon Treasury System:** The massive Ascendancy Beacon tolls are now securely routed into a localized `AscendancyBeacon.treasury`. Instead of spamming your UI feed every time an AI freighter enters the sector, the Beacon now pays out the entire accumulated war-tax directly to your faction in a single, clean lump-sum every 45 minutes on the Upkeep billing cycle.
+- **Eclipse Boss Rebalancing:** The World-Eater is now completely exempt from the massive +2,500% shield multipliers granted to lesser Eclipse bosses, forcing it to rely exclusively on its colossal 125x Hull mass.
 
 - **The Fallen Empire Awakening**: The Eclipse conquest manager now tracks total territory annihilation. Upon conquering 10 sectors, The Eclipse triggers the 'Fallen Empire' state.
 - **Systematic Crusades**: Once awakened, the Eclipse algorithmic intelligence stops targeting random player borders and redirects massive Crusade fleets to systematically hunt down and wipe out AI Faction Capitals.
@@ -28,6 +36,8 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 - **The "Ascendant Matter" Arms Race**: Introduced `Ascendant Matter` (dropped by Harvesters) and `Eclipse Datacores` (dropped by Juggernauts) as new illegal galactic goods.
 - `ca_nemesis_system.lua` and `ca_nemesis_resist.lua` implemented for Eclipse Dread-Lords.
 - `ca_ascendant_gateway.lua` implemented to allow automated sector defense fleets.
+- **Passive Real-Estate Income:** Beacons automatically tax all passing AI-controlled freighters. This passive income is dynamically scaled by the **War Heat** of the passing faction (factions actively at war will pay a 50% premium for safe passage through your heavily defended capital!).
+- **Treasury Payouts:** To prevent endless notification spam from freighters constantly passing through your capital, the Beacon safely stores all collected tolls in its internal treasury and pays out a single lump-sum to your faction every 45 minutes (synced with the Upkeep cycle).
 - **Adaptive Eclipse Scaling**: The Eclipse dynamically scan the server for the highest Ascendancy Tier player. For every tier achieved, the entire Eclipse faction receives a permanent +50% physical volume and stat multiplier.
 - **The "World-Eater" Doomsday Event**: A new server-wide crisis that triggers every 2-3 hours. A massive 5x scaled Juggernaut warps into a populated player sector, initiating a 15-minute countdown to total atomic annihilation.
 - **Global Map Conquest**: The Eclipse now permanently claims ownership of sectors they annihilate or conquer on the Galaxy Map.
@@ -35,6 +45,8 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 - **Deep Wiki Integration:** The entire lore structure for the Eclipse Crisis and the Ascendancy Forge crafting systems have been natively integrated into the Cosmic Codex.
 - **New Campaign: The Eclipse Awakening:** A massive, epic 3-part storyline that automatically triggers when you interact with the Adventurer or Hermit near the galactic core.
 - **New Artifact: The Eclipse Bane:** A legendary reward for completing the campaign. Grants massive bonuses to Hull, Shields, Turret Slots, Jump Range, and Damage.
+- **Eclipse Generators:** Constructed to automatically spawn brutal endgame boss encounters via automated scripts.
+- **The World-Eater Raid Boss:** An apocalyptic Juggernaut that spawns dynamic escorts, fires EMP pulses, blinks across the sector, and enrages across 6 distinct mechanical phases as its massive hull is shredded.
 - **Eclipse Strongholds:** Conquered unexplored sectors now have a 25% chance of spawning as fully fortified Eclipse Strongholds.
 - **Geometric Nightmares:** The Eclipse fly massive geometric structures made of black Avorion with glowing red accents: Nullifiers (Pyramids), Obliterators (Monoliths), Harbingers (Obelisks), and 4 massive new specialized classes (Juggernaut, Interceptor, Harvester, Defiler) that utilize dynamically scaled, jagged aesthetics.
 - **Ascendancy Beacon Megastructures:** Players founding an Ascendancy Beacon will now instantly automatically deploy a massive, customized megastructure `.xml` design instead of a procedural vanilla station.

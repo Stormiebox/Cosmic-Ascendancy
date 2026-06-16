@@ -55,6 +55,7 @@ function WorldEaterEvent.initialize(timeLeft)
     end
     
     ship:registerCallback("onDestroyed", "onWorldEaterDestroyed")
+    ship:addScript("data/scripts/entity/ca_world_eater_mechanics.lua")
     WorldEaterEvent.worldEaterId = ship.id.string
 end
 

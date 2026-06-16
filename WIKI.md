@@ -62,7 +62,12 @@ The Eclipse dynamically targets sectors containing high player or AI faction val
 ### 🚨 The World-Eater Doomsday Event
 A global crisis managed by the galaxy engine.
 - **The Trigger:** Every 2-3 hours, a random populated player sector is targeted.
-- **The Threat:** A World-Eater Juggernaut (5x scaled volume, +1500% Shields, -90% Speed) spawns 15,000 km away.
+- **The Threat:** A World-Eater Juggernaut (5x scaled volume/125x Hull Mass, -90% Speed) spawns 15,000 km away. Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal Hull and dynamic multi-phase mechanics:
+  - **80% HP:** Spawns 5 Defiler Escorts.
+  - **70% HP:** Emits an EMP pulse, instantly stripping 50% of the shield capacity from all players in the sector.
+  - **60% HP:** Deploys 4 Eclipse Destroyers.
+  - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
+  - **35% HP:** Blinks again, unleashes a second EMP, and enters an Enraged state (+50% Fire Rate, +50% Global Damage).
 - **The Outcome:** If not destroyed within 15 minutes, the sector is completely wiped (all stations/AI ships deleted, player ships set to 1 HP) and ownership transfers to The Eclipse.
 
 ### 📈 Adaptive Eclipse Scaling
@@ -88,6 +93,8 @@ Players can construct the ultimate megastructure: **The Ascendancy Beacon**.
 - **Permanent Sector Simulation:** A sector containing an active Ascendancy Beacon is simulated 24/7, even if no players are online.
 - **Global Buffs:** The beacon applies a permanent, massive stat multiplier to all ships in the player's fleet across the entire galaxy.
 - **Upgrades:** The beacon can be upgraded through 5 tiers, exponentially increasing the global stat buffs but requiring massive, continuous upkeep costs of Credits, Avorion, and Ogonite.
+- **Passive Real-Estate Income:** Beacons automatically tax all passing AI-controlled freighters. This passive income is dynamically scaled by the War Heat of the passing faction (factions actively at war will pay a 50% premium for safe passage through your heavily defended capital!).
+- **Treasury Payouts:** To prevent endless notification spam from freighters constantly passing through your capital, the Beacon safely stores all collected tolls in its internal treasury and pays out a single lump-sum to your faction every 45 minutes (synced with the Upkeep cycle).
 - **Default Design:** Founding a beacon automatically loads a customized, towering `.xml` megastructure design so players do not have to manually build their empire's capital from scratch.
 </details>
 
