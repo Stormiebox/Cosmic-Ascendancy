@@ -24,3 +24,9 @@ end
 function initialize(...)
     if AscendancyKeepAlive.initialize then return AscendancyKeepAlive.initialize(...) end
 end
+
+
+-- Global Event Callbacks
+function onAscendancyBeaconPing(...)
+    if AscendancyKeepAlive.onAscendancyBeaconPing then return AscendancyKeepAlive.onAscendancyBeaconPing(...) end
+end

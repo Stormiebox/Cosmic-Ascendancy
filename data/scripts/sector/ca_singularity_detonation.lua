@@ -58,6 +58,3 @@ end
 function updateServer(...)
     if Detonation.updateServer then return Detonation.updateServer(...) end
 end
-
-
-return Detonation

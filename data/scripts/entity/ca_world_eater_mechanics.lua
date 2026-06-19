@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_success, CosmicVaultBuffs = true, include("cosmicvaultbuffs")
+local CosmicVaultBuffs = include("cosmicvaultbuffs")
 
 -- Namespace WorldEater
 WorldEater = {}
@@ -77,7 +77,7 @@ function WorldEater.onDamaged(objectIndex, amount, inflictor, damageSource, dama
         WorldEater.empPulse()
 
         -- Enrage Buffs (+50% Fire Rate, +50% Damage)
-        if cv_success and CosmicVaultBuffs then
+        if CosmicVaultBuffs then
             CosmicVaultBuffs.applyPermanentFactor(entity.id, StatsBonuses.FireRate, 1.5)
 
             local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
@@ -181,4 +181,10 @@ function secure(...)
 end
 function restore(...)
     if WorldEater.restore then return WorldEater.restore(...) end
+end
+
+
+-- Global Event Callbacks
+function onDamaged(...)
+    if WorldEater.onDamaged then return WorldEater.onDamaged(...) end
 end

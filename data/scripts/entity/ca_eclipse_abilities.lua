@@ -258,5 +258,13 @@ function updateServer(...)
     if EclipseAbilities.updateServer then return EclipseAbilities.updateServer(...) end
 end
 
-
-return EclipseAbilities
+-- Global Event Callbacks
+function onDamaged(...)
+    if EclipseAbilities.onDamaged then return EclipseAbilities.onDamaged(...) end
+end
+function onShieldDamaged(...)
+    if EclipseAbilities.onShieldDamaged then return EclipseAbilities.onShieldDamaged(...) end
+end
+function onDestroyed(...)
+    if EclipseAbilities.onDestroyed then return EclipseAbilities.onDestroyed(...) end
+end

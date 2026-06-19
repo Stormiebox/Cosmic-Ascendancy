@@ -55,9 +55,9 @@ end
 
 mission.phases[3].updateServer = function()
     local player = Player()
-    local avorion = player:getInventory():getAmount(Material(6).value)
-    if avorion >= 50000 then
-        player:getInventory():remove(Material(6).value, 50000)
+    local iron, tit, nao, tri, xan, ogo, avo = player:getResources()
+    if avo >= 50000 then
+        player:pay(0, 0, 0, 0, 0, 0, 0, 50000)
         Player():sendChatMessage("Ship Computer", 0, "50,000 Avorion gathered and fed into the primary reactor schematic. Ascendancy Forge blueprints are fully unlocked and ready for construction.")
         Player():setValue("ca_forge_unlocked", true)
         Player():addScriptOnce("data/scripts/player/missions/ca_story3_vanguard.lua")

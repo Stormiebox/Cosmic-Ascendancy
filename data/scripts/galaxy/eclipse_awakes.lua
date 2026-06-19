@@ -168,5 +168,7 @@ function updateServer(...)
     if EclipseAwakes.updateServer then return EclipseAwakes.updateServer(...) end
 end
 
-
-return EclipseAwakes
+-- Global Event Callbacks
+function onSectorGenerated(...)
+    if EclipseAwakes.onSectorGenerated then return EclipseAwakes.onSectorGenerated(...) end
+end

@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_success, CosmicVaultBuffs = true, include("cosmicvaultbuffs")
+local CosmicVaultBuffs = include("cosmicvaultbuffs")
 
 function initialize()
     if not onServer() then return end
@@ -14,7 +14,7 @@ function initialize()
         local shieldFactor = 25.0 + (extraPlayers * 2.0)
         local damageFactor = 3.0 + (extraPlayers * 1.0)
         
-        if cv_success and CosmicVaultBuffs then
+        if CosmicVaultBuffs then
             local isWorldEater = string.match(Entity().translatedTitle or Entity().title or "", "World%-Eater")
             
             if not isWorldEater then

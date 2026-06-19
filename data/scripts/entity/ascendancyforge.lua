@@ -3,9 +3,9 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("utility")
 include ("stringutility")
 local TurretGenerator = include("turretgenerator")
-local cv_success, cv_news = true, include("cosmicvaultnews")
-local cw_success, cw_bridge = true, include("cosmicwarbridge")
-local cv_buffs_success, cv_buffs = true, include("cosmicvaultbuffs")
+local cv_news = include("cosmicvaultnews")
+local cw_bridge = include("cosmicwarbridge")
+local cv_buffs = include("cosmicvaultbuffs")
 
 AscendancyForge = {}
 
@@ -112,7 +112,7 @@ function AscendancyForge.sync(data)
         local pt = Server().playtime
         local remaining = math.max(0, forgeFinishTime - pt)
         local tier = 0
-        if cv_buffs_success and cv_buffs.getGlobalTier then
+        if cv_buffs.getGlobalTier then
             tier = cv_buffs.getGlobalTier(Entity().factionIndex)
         end
         invokeClientFunction(Player(callingPlayer), "sync", {
@@ -147,8 +147,9 @@ function AscendancyForge.sync(data)
             end
             if data.tier then
                 AscendancyForge.tierLabel.caption = "Global Ascendancy Tier: " .. tostring(data.tier)
-            endancyForge.statusLabel.caption = "FORGING... Remaining: " .. math.floor(data.remaining / 3600) .. "h " .. math.floor((data.remaining % 3600) / 60) .. "m"
-                AscendancyForge.statusLabel.color = ColorRGB(1, 1, 0)
+            end
+            if isForging then
+                AscendancyForge.statusLabel.caption = "FORGING... Remaining: " .. math.floor(data.remaining / 3600) .. "h " .. math.floor((data.remaining % 3600) / 60) .. "m"
                 AscendancyForge.forgeBtn.active = false
                 AscendancyForge.claimBtn.active = false
                 AscendancyForge.combo.active = false
@@ -196,7 +197,7 @@ function AscendancyForge.startForging()
 
     owner:sendChatMessage("Stellar Forge"%_t, 0, "The Stellar Forge has ignited! Your weapon will be ready in 24 hours."%_t)
 
-    if cv_success and cv_news.publishArticle then
+    if cv_news.publishArticle then
         local x, y = Sector():getCoordinates()
         cv_news.publishArticle({
             title = "Stellar Forge Ignited in [" .. x .. ":" .. y .. "]",
@@ -239,7 +240,7 @@ function AscendancyForge.claimWeapon()
         local distBonus = 1.0 + (math.max(0, 500 - length(vec2(x, y))) / 250) -- +200% at core
 
         local warBonus = 1.0
-        if cw_success and cw_bridge.getFactionWarHeat then
+        if cw_bridge.getFactionWarHeat then
             local heat = cw_bridge.getFactionWarHeat(owner.index)
             if heat > 0 then
                 warBonus = 1.0 + (heat * 1.5) -- Up to +150% during massive wars
@@ -324,7 +325,7 @@ function AscendancyForge.decryptDatacore()
 
     owner:getInventory():remove("Eclipse Datacore", 1)
 
-    if cv_buffs_success and cv_buffs.setGlobalTier then
+    if cv_buffs.setGlobalTier then
         local currentTier = cv_buffs.getGlobalTier(owner.index)
         cv_buffs.setGlobalTier(owner.index, currentTier + 1)
         owner:sendChatMessage("Stellar Forge"%_t, 0, "Datacore Decrypted! Global Ascendancy Tier increased to " .. (currentTier + 1) .. "!")

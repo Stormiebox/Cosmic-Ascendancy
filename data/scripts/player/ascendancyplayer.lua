@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_success, cv_buffs = true, include("cosmicvaultbuffs")
+local cv_buffs = include("cosmicvaultbuffs")
 include("cosmicascendancyconfig")
 -- namespace AscendancyPlayer
 AscendancyPlayer = {}
@@ -11,8 +11,6 @@ function AscendancyPlayer.initialize()
         Player():registerCallback("onSectorEntered", "onSectorEntered")
         Player():registerCallback("onShipBuilt", "onShipBuilt")
         Player():registerCallback("onShipChanged", "onShipChanged")
-    end
-    if onClient() then
         Player():addScriptOnce("data/scripts/player/cosmicascendancycodex.lua")
     end
 end
@@ -47,6 +45,53 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
     for _, entity in pairs(entities) do
         applyToEntity(entity.id)
     end
+
+    -- IMPORTANT ARCHITECTURE NOTE:
+    -- We cannot physically spawn stations or ships in the `onSectorGenerated` galaxy event
+    -- inside `server.lua`, because calling `Sector()` there crashes the game.
+    -- Instead, `server.lua` flags the coordinates globally. When a player physical enters, 
+    -- this player script reads the flag and spawns the Stronghold safely inside the sector.
+    if onServer() then
+        if Galaxy():getValue("eclipse_stronghold_" .. x .. "_" .. y) then
+            local sector = Sector()
+            if not sector:getValue("eclipse_stronghold_spawned") then
+                sector:setValue("eclipse_stronghold_spawned", true)
+                local EclipseGenerator = include("eclipsegenerator")
+                local station = EclipseGenerator.createStation(Matrix())
+                station:addScript("entity/deleteonplayersleft.lua")
+                
+                local defenderTypes = {"pyramid", "voidweaver", "phantom", "singularity", "juggernaut", "interceptor", "harvester", "defiler"}
+                for i = 1, 4 do
+                    local typeIdx = random():getInt(1, #defenderTypes)
+                    local sType = defenderTypes[typeIdx]
+                    local pos = MatrixLookUpPosition(vec3(0,0,1), vec3(0,1,0), vec3(random():getInt(-1000, 1000), 0, random():getInt(-1000, 1000)))
+                    
+                    local defender
+                    if sType == "voidweaver" then
+                        defender = EclipseGenerator.createCarrier(pos)
+                    elseif sType == "phantom" then
+                        defender = EclipseGenerator.createAssassin(pos)
+                    elseif sType == "singularity" then
+                        defender = EclipseGenerator.createArtillery(pos)
+                    elseif sType == "juggernaut" then
+                        defender = EclipseGenerator.createJuggernaut(pos)
+                    elseif sType == "interceptor" then
+                        defender = EclipseGenerator.createInterceptor(pos)
+                    elseif sType == "harvester" then
+                        defender = EclipseGenerator.createHarvester(pos)
+                    elseif sType == "defiler" then
+                        defender = EclipseGenerator.createDefiler(pos)
+                    else
+                        defender = EclipseGenerator.createShip(pos, sType)
+                    end
+                    
+                    defender:addScript("ai/patrol.lua")
+                end
+                
+                sector:setValue("is_eclipse_stronghold", true)
+            end
+        end
+    end
 end
 
 function AscendancyPlayer.onShipBuilt(entityId)
@@ -63,4 +108,13 @@ function initialize(...)
 end
 function onSectorEntered(...)
     if AscendancyPlayer.onSectorEntered then return AscendancyPlayer.onSectorEntered(...) end
+end
+
+
+-- Global Event Callbacks
+function onShipBuilt(...)
+    if AscendancyPlayer.onShipBuilt then return AscendancyPlayer.onShipBuilt(...) end
+end
+function onShipChanged(...)
+    if AscendancyPlayer.onShipChanged then return AscendancyPlayer.onShipChanged(...) end
 end

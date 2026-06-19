@@ -1,5 +1,5 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
-local cv_news_success, cv_news = true, include("cosmicvaultnews")
+local cv_news = include("cosmicvaultnews")
 
 local WorldEaterManager = {}
 WorldEaterManager.timer = 0
@@ -55,7 +55,7 @@ function WorldEaterManager.triggerEvent()
     WorldEaterManager.activeEvent = {x = tx, y = ty, timeLeft = 900}
 
     Server():broadcastChatMessage("Galactic News", 0, "CRITICAL ALERT: An Eclipse World-Eater has warped to coordinates [" .. tx .. ":" .. ty .. "]! 15 minutes to total annihilation!")
-    if cv_news_success and cv_news.publishArticle then
+    if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "CRITICAL: World-Eater Detected!",
             content = "A massive Eclipse super-structure has materialized at [" .. tx .. ":" .. ty .. "]. Energy signatures indicate it is charging a weapon capable of obliterating the entire sector. Forces have 15 minutes to intercept.",
@@ -88,7 +88,7 @@ function WorldEaterManager.executeDoomsday()
 
     Server():broadcastChatMessage("The Eclipse", 2, "Doomsday Sequence Complete. Sector [" .. tx .. ":" .. ty .. "] has been purged.")
 
-    if cv_news_success and cv_news.publishArticle then
+    if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "DOOMSDAY: Sector [" .. tx .. ":" .. ty .. "] Erased",
             content = "The World-Eater has fired. Trillions are dead. There is nothing left but dust and dark matter.",
@@ -120,7 +120,7 @@ function WorldEaterManager.cancelEvent()
     WorldEaterManager.activeEvent = nil
     Server():broadcastChatMessage("Galactic News", 0, "The World-Eater has been destroyed! The sector is safe.")
 
-    if cv_news_success and cv_news.publishArticle then
+    if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "World-Eater Destroyed!",
             content = "Heroic forces have obliterated the Eclipse World-Eater, preventing the destruction of the sector.",
@@ -153,6 +153,3 @@ end
 function restore(...)
     if WorldEaterManager.restore then return WorldEaterManager.restore(...) end
 end
-
-
-return WorldEaterManager

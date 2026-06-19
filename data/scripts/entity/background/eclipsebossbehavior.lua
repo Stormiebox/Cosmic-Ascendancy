@@ -1,7 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_success, cv_news = true, include("cosmicvaultnews")
-local cv_fleet_success, cv_fleet = true, include("cosmicvaultfleet")
+local cv_news = include("cosmicvaultnews")
+local cv_fleet = include("cosmicvaultfleet")
 
 -- namespace EclipseBossBehavior
 EclipseBossBehavior = {}
@@ -12,7 +12,7 @@ function EclipseBossBehavior.initialize()
         Entity():registerCallback("onDestroyed", "onDestroyed")
         Entity():registerCallback("onDamaged", "onDamaged")
 
-        if cv_fleet_success and cv_fleet.orderAttackEnemies then
+        if cv_fleet.orderAttackEnemies then
             cv_fleet.orderAttackEnemies(Entity().index, true)
         end
     end
@@ -28,7 +28,7 @@ end
 
 function EclipseBossBehavior.updateServer()
     local entity = Entity()
-    if cv_fleet_success and cv_fleet.orderAttackEnemies then
+    if cv_fleet.orderAttackEnemies then
         cv_fleet.orderAttackEnemies(entity.index, true)
     end
 end
@@ -51,7 +51,7 @@ function EclipseBossBehavior.onDestroyed(index, lastDamageInflictor)
     Server():broadcastChatMessage("System"%_T, 0, "The Eclipse Oblivion Engine has been destroyed in sector \\s(%1%:%2%)!"%_T, x, y)
     Server():setValue("eclipse_annihilator_dead", true)
 
-    if cv_success and cv_news.publishArticle then
+    if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "Oblivion Engine Neutralized!",
             content = "In an impossible feat of galactic coordination, the Eclipse superweapon known as The Eclipse Oblivion Engine has been destroyed in sector [" .. x .. ":" .. y .. "]. Trillions of lives have been saved.",
@@ -79,5 +79,10 @@ function updateServer(...)
     if EclipseBossBehavior.updateServer then return EclipseBossBehavior.updateServer(...) end
 end
 
-
-return EclipseBossBehavior
+-- Global Event Callbacks
+function onDestroyed(...)
+    if EclipseBossBehavior.onDestroyed then return EclipseBossBehavior.onDestroyed(...) end
+end
+function onDamaged(...)
+    if EclipseBossBehavior.onDamaged then return EclipseBossBehavior.onDamaged(...) end
+end

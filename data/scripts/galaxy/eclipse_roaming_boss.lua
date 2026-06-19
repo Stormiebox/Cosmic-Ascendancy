@@ -1,7 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
-local cv_success, cv_news = true, include("cosmicvaultnews")
+local cv_news = include("cosmicvaultnews")
 
 EclipseRoamingBoss = {}
 local self = EclipseRoamingBoss
@@ -97,7 +97,7 @@ function EclipseRoamingBoss.update(timeStep)
 
                 Server():broadcastChatMessage("System"%_T, 1, "CRITICAL ALERT: The Eclipse Oblivion Engine has arrived in sector \\s(%1%:%2%)!"%_T, coords.x, coords.y)
 
-                if cv_success and cv_news.publishArticle then
+                if cv_news.publishArticle then
                     cv_news.publishArticle({
                         title = "World-Eater Sighted!",
                         content = "A superweapon of incomprehensible scale, designated 'The Eclipse Oblivion Engine', has invaded sector [" .. coords.x .. ":" .. coords.y .. "]. It is obliterating everything in its path.",
@@ -132,6 +132,3 @@ end
 function restore(...)
     if EclipseRoamingBoss.restore then return EclipseRoamingBoss.restore(...) end
 end
-
-
-return EclipseRoamingBoss

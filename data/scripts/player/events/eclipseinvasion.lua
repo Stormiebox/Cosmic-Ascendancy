@@ -5,7 +5,7 @@ include("stringutility")
 local EclipseGenerator = include("eclipsegenerator")
 local Placer = include ("placer")
 
-local cv_success, cv_fleet = true, include("cosmicvaultfleet")
+local cv_fleet = include("cosmicvaultfleet")
 
 local minute = 0
 
@@ -79,7 +79,7 @@ function createEnemies()
 
     Placer.resolveIntersections(spawned)
     
-    if cv_success and cv_fleet.orderAttackEnemies then
+    if cv_fleet.orderAttackEnemies then
         for _, ship in pairs(spawned) do
             if valid(ship) then
                 cv_fleet.orderAttackEnemies(ship.index, true)

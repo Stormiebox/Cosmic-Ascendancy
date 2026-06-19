@@ -49,14 +49,24 @@ function EclipseGenerator.getFaction()
     return faction
 end
 
-function EclipseGenerator.getShipVolume()
-    local sector = Sector()
-    local volume = Balancing_GetSectorShipVolume(sector:getCoordinates())
+-- Returns the standard physical ship volume for this sector.
+-- IMPORTANT: We wrap Sector() in a `pcall` fallback. If this generator is called globally 
+-- by `server.lua` or the conquest manager where Sector() is invalid, it defaults to (0, 0).
+function EclipseGenerator.getShipVolume(x, y)
+    if not x or not y then
+        local ok, sector = pcall(Sector)
+        if ok and sector then
+            x, y = sector:getCoordinates()
+        else
+            x, y = 0, 0
+        end
+    end
+    local volume = Balancing_GetSectorShipVolume(x, y)
     
     -- Adaptive Eclipse Scaling based on highest player Ascendancy Tier
     local maxTier = 0
-    local cv_buffs_success, cv_buffs = true, include("cosmicvaultbuffs")
-    if cv_buffs_success and cv_buffs.getGlobalTier then
+    local cv_buffs = include("cosmicvaultbuffs")
+    if cv_buffs.getGlobalTier then
         for _, p in pairs({Server():getPlayers()}) do
             local tier = cv_buffs.getGlobalTier(p.index)
             if tier > maxTier then maxTier = tier end
@@ -115,10 +125,12 @@ function EclipseGenerator.createShip(position, planType)
     local plan = LoadPlanFromFile(planPath)
     if not plan then
         -- Fallback if not found
-        local x, y = Sector():getCoordinates()
+        local x, y = 0, 0
+        local ok, sector = pcall(Sector)
+        if ok and sector then x, y = sector:getCoordinates() end
         local probabilities = Balancing_GetTechnologyMaterialProbability(x, y)
         local material = Material(getValueFromDistribution(probabilities))
-        plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume(), material)
+        plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume(x, y), material)
     end
     
     -- Scale the plan
@@ -258,10 +270,12 @@ function EclipseGenerator.createStation(position)
     local planPath = "data/plans/eclipse/citadel.xml"
     local plan = LoadPlanFromFile(planPath)
     if not plan then
-        local x, y = Sector():getCoordinates()
+        local x, y = 0, 0
+        local ok, sector = pcall(Sector)
+        if ok and sector then x, y = sector:getCoordinates() end
         local probabilities = Balancing_GetTechnologyMaterialProbability(x, y)
         local material = Material(getValueFromDistribution(probabilities))
-        plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume() * 5, material)
+        plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume(x, y) * 5, material)
     end
     
     local volume = EclipseGenerator.getShipVolume() * 10

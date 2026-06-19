@@ -2,7 +2,7 @@ package.path = package.path .. ";data/scripts/systems/?.lua"
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("basesystem")
 include ("utility")
-local cv_success, cv_war = true, include("cosmicwarbridge")
+local cv_war = include("cosmicwarbridge")
 
 local dynamicKeys = {}
 
@@ -29,7 +29,7 @@ function applyDynamicBuffs()
     end
     
     local warMultiplier = 1.0
-    if cv_success and cv_war.getFactionWarHeat then
+    if cv_war.getFactionWarHeat then
         local heat = cv_war.getFactionWarHeat(entity.factionIndex) or 0
         warMultiplier = 1.0 + (heat * 1.5) -- Up to 2.5x during max war
     end

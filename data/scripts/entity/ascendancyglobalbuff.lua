@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_success, cv_buffs = true, include("cosmicvaultbuffs")
+local cv_buffs = include("cosmicvaultbuffs")
 
 -- namespace AscendancyGlobalBuff
 AscendancyGlobalBuff = {}
@@ -19,7 +19,7 @@ function AscendancyGlobalBuff.updateServer(timeStep)
     if not factionIndex then return end
 
     local tier = 0
-    if cv_success and cv_buffs.getGlobalTier then
+    if cv_buffs.getGlobalTier then
         tier = cv_buffs.getGlobalTier(factionIndex)
     end
 

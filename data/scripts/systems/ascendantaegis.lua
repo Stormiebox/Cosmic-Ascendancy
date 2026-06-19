@@ -2,7 +2,7 @@ package.path = package.path .. ";data/scripts/systems/?.lua"
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("basesystem")
 include ("utility")
-local cv_success, cv_war = true, include("cosmicwarbridge")
+local cv_war = include("cosmicwarbridge")
 
 local dynamicKeys = {}
 
@@ -28,28 +28,22 @@ function applyDynamicBuffs()
     end
     
     local warMultiplier = 1.0
-    if cv_success and cv_war.getFactionWarHeat then
+    if cv_war.getFactionWarHeat then
         local heat = cv_war.getFactionWarHeat(entity.factionIndex) or 0
         warMultiplier = 1.0 + (heat * 1.5)
     end
     
     local finalMultiplier = distMultiplier * warMultiplier
     
-    -- Aegis Matrix gives massive Shield and Shield Recharge
-    local k1 = entity:addMultiplier(StatsBonuses.ShieldDurability, 5.0 * finalMultiplier)
-    local k2 = entity:addMultiplier(StatsBonuses.ShieldRecharge, 3.0 * finalMultiplier)
-    
-    table.insert(dynamicKeys, {key=k1, type="multiplier", stat=StatsBonuses.ShieldDurability})
-    table.insert(dynamicKeys, {key=k2, type="multiplier", stat=StatsBonuses.ShieldRecharge})
+    entity:addMultiplyableFactor(StatsBonuses.ShieldDurability, "ca_aegis_durability", 5.0 * finalMultiplier)
+    entity:addMultiplyableFactor(StatsBonuses.ShieldRecharge, "ca_aegis_recharge", 3.0 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
-    for _, kData in pairs(dynamicKeys) do
-        entity:removeMultiplier(kData.stat, kData.key)
-    end
-    dynamicKeys = {}
+    entity:removeMultiplyableFactor(StatsBonuses.ShieldDurability, "ca_aegis_durability")
+    entity:removeMultiplyableFactor(StatsBonuses.ShieldRecharge, "ca_aegis_recharge")
 end
 
 function onInstalled(seed, rarity, permanent)

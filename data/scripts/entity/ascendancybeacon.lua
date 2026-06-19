@@ -6,8 +6,8 @@ include ("stringutility")
 include ("faction")
 
 -- Cosmic Integrations
-local cv_success, cv_news = true, include("cosmicvaultnews")
-local cw_success, cw_bridge = true, include("cosmicwarbridge")
+local cv_news = include("cosmicvaultnews")
+local cw_bridge = include("cosmicwarbridge")
 
 -- namespace AscendancyBeacon
 AscendancyBeacon = {}
@@ -196,7 +196,7 @@ function AscendancyBeacon.toggleBeacon()
         Galaxy():sendCallback("onAscendancyBeaconActivated", x, y)
 
         -- Cosmic Integrations!
-        if cv_success and cv_news.publishArticle then
+        if cv_news.publishArticle then
             cv_news.publishArticle({
                 title = "Galactic Milestone: New Ascendant Capital",
                 content = "The " .. owner.name .. " Empire has constructed a massive Ascendancy Beacon in sector [" .. x .. ":" .. y .. "]! This region of space has been permanently claimed as an Ascendant Capital.",
@@ -204,7 +204,7 @@ function AscendancyBeacon.toggleBeacon()
             })
         end
 
-        if cw_success and cw_bridge.addWarHeat then
+        if cw_bridge.addWarHeat then
             -- Find nearest hostile AI faction and add war heat
             local factions = {Sector():getPresentFactions()}
             for _, f in pairs(factions) do
@@ -236,7 +236,7 @@ function AscendancyBeacon.deactivate()
         owner:sendChatMessage("Beacon"%_t, 2, "Beacon Deactivated. Sector will now unload normally."%_t)
 
         -- Downgrade global tier if this was our highest beacon
-        if cv_success and cv_buffs.setGlobalTier then
+        if cv_buffs.setGlobalTier then
             cv_buffs.setGlobalTier(owner.index, 0) -- For now, we just reset it to 0. A full check of other beacons could be added.
         end
     end
@@ -268,7 +268,7 @@ function AscendancyBeacon.upgradeTier()
 
     currentTier = nextTier
 
-    if cv_success and cv_buffs.setGlobalTier then
+    if cv_buffs.setGlobalTier then
         -- Set global tier (assuming this beacon is the highest)
         local globalTier = cv_buffs.getGlobalTier(owner.index)
         if currentTier > globalTier then
@@ -278,7 +278,7 @@ function AscendancyBeacon.upgradeTier()
 
     owner:sendChatMessage("Beacon"%_t, 0, "Ascendancy Beacon upgraded to Tier %1%!"%_t, currentTier)
 
-    if cv_success and cv_news.publishArticle then
+    if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "Empire Ascends to Tier " .. currentTier,
             content = "The " .. owner.name .. " Empire has poured astronomical resources into upgrading their Ascendancy Beacon to Tier " .. currentTier .. ". Their fleet's global power has increased significantly.",
@@ -439,4 +439,13 @@ function secure(...)
 end
 function restore(...)
     if AscendancyBeacon.restore then return AscendancyBeacon.restore(...) end
+end
+
+
+-- Global Event Callbacks
+function onDestroyed(...)
+    if AscendancyBeacon.onDestroyed then return AscendancyBeacon.onDestroyed(...) end
+end
+function onEntityEntered(...)
+    if AscendancyBeacon.onEntityEntered then return AscendancyBeacon.onEntityEntered(...) end
 end

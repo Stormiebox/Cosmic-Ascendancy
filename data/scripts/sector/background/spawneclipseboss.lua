@@ -92,6 +92,3 @@ end
 function initialize(...)
     if SpawnEclipseBoss.initialize then return SpawnEclipseBoss.initialize(...) end
 end
-
-
-return SpawnEclipseBoss

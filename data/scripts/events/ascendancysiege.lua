@@ -6,9 +6,9 @@ local Xsotan = include("story/xsotan")
 local ShipGenerator = include("shipgenerator")
 local Placer = include("placer")
 
-local cv_success, cv_news = true, include("cosmicvaultnews")
-local cw_success, cw_bridge = true, include("cosmicwarbridge")
-local fleet_success, cv_fleet = true, include("cosmicvaultfleet")
+local cv_news = include("cosmicvaultnews")
+local cw_bridge = include("cosmicwarbridge")
+local cv_fleet = include("cosmicvaultfleet")
 
 -- namespace AscendancySiege
 AscendancySiege = {}
@@ -28,7 +28,7 @@ function AscendancySiege.initialize(t, ownerIndex)
 
     -- Choose attacker type
     local r = random():getInt()
-    if cw_success and cw_bridge.getFactionWarHeat then
+    if cw_bridge.getFactionWarHeat then
         local factions = {Sector():getPresentFactions()}
         local warFaction = nil
         for _, f in pairs(factions) do
@@ -86,7 +86,7 @@ function AscendancySiege.spawnFleet()
         ship:addScript("ai/patrol.lua")
         ship:setValue("is_ascendancy_siege", true)
         table.insert(attackers, ship.id.string)
-        if fleet_success and cv_fleet.orderAttackEnemies then
+        if cv_fleet.orderAttackEnemies then
             cv_fleet.orderAttackEnemies(ship.index, true)
         end
     end
@@ -106,7 +106,7 @@ function AscendancySiege.spawnFleet()
         ship:addScript("ai/patrol.lua")
         ship:setValue("is_ascendancy_siege", true)
         table.insert(attackers, ship.id.string)
-        if fleet_success and cv_fleet.orderAttackEnemies then
+        if cv_fleet.orderAttackEnemies then
             cv_fleet.orderAttackEnemies(ship.index, true)
         end
     end
@@ -118,7 +118,7 @@ function AscendancySiege.broadcastWarning()
     local x, y = Sector():getCoordinates()
     Sector():broadcastChatMessage("System"%_t, 1, "WARNING! Massive %1% siege fleet detected entering the sector!"%_t, typeName)
 
-    if cv_success and cv_news.publishArticle then
+    if cv_news.publishArticle then
         local owner = Faction(targetFactionIndex)
         local ownerName = owner and owner.name or "Unknown"
         cv_news.publishArticle({
@@ -195,7 +195,7 @@ function AscendancySiege.onDefeat()
     local x, y = Sector():getCoordinates()
     Sector():broadcastChatMessage("System"%_t, 1, "The Ascendant Capital has fallen..."%_t)
 
-    if cv_success and cv_news.publishArticle then
+    if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "Capital Falls to " .. typeName,
             content = "The Ascendancy Beacon in sector [" .. x .. ":" .. y .. "] has been completely destroyed. The surrounding empire's global power has collapsed.",

@@ -42,41 +42,15 @@ function CosmicAscendancyServer.onSectorGenerated(x, y)
         if random():getFloat() < 0.05 then -- 5% chance per sector to be an Eclipse Stronghold
             local EclipseGenerator = include("eclipsegenerator")
             local faction = EclipseGenerator.getFaction()
+            Galaxy():setFaction(x, y, faction.index)
             
-            -- Spawn an Eclipse Station (Citadel shape)
-            local station = EclipseGenerator.createStation(Matrix())
-            station:addScript("entity/deleteonplayersleft.lua")
-            
-            -- Spawn some defenders (Mix of specialized ships)
-            local defenderTypes = {"pyramid", "voidweaver", "phantom", "singularity", "juggernaut", "interceptor", "harvester", "defiler"}
-            for i = 1, 4 do
-                local typeIdx = random():getInt(1, #defenderTypes)
-                local sType = defenderTypes[typeIdx]
-                local pos = MatrixLookUpPosition(vec3(0,0,1), vec3(0,1,0), vec3(random():getInt(-1000, 1000), 0, random():getInt(-1000, 1000)))
-                
-                local defender
-                if sType == "voidweaver" then
-                    defender = EclipseGenerator.createCarrier(pos)
-                elseif sType == "phantom" then
-                    defender = EclipseGenerator.createAssassin(pos)
-                elseif sType == "singularity" then
-                    defender = EclipseGenerator.createArtillery(pos)
-                elseif sType == "juggernaut" then
-                    defender = EclipseGenerator.createJuggernaut(pos)
-                elseif sType == "interceptor" then
-                    defender = EclipseGenerator.createInterceptor(pos)
-                elseif sType == "harvester" then
-                    defender = EclipseGenerator.createHarvester(pos)
-                elseif sType == "defiler" then
-                    defender = EclipseGenerator.createDefiler(pos)
-                else
-                    defender = EclipseGenerator.createShip(pos, sType)
-                end
-                
-                defender:addScript("ai/patrol.lua")
-            end
-            
-            Sector():setValue("is_eclipse_stronghold", true)
+            -- IMPORTANT ARCHITECTURE NOTE:
+            -- We cannot physically spawn stations or ships here. Calling `Sector()` during
+            -- `onSectorGenerated` inside `server.lua` crashes the game because this script
+            -- is not bound to a physical sector instance. 
+            -- Instead, we flag the coordinates globally. When a player physically enters 
+            -- these coordinates, `ascendancyplayer.lua` reads this flag and spawns the stronghold.
+            Galaxy():setValue("eclipse_stronghold_" .. x .. "_" .. y, true)
         end
     end
 end
@@ -87,4 +61,10 @@ if onServer() then
         oldInit()
         CosmicAscendancyServer.initialize()
     end
+end
+
+
+-- Global Event Callbacks
+function onSectorGenerated(...)
+    if CosmicAscendancyServer.onSectorGenerated then return CosmicAscendancyServer.onSectorGenerated(...) end
 end

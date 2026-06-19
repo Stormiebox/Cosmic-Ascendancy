@@ -70,5 +70,7 @@ function initialize(...)
     if WorldEaterEvent.initialize then return WorldEaterEvent.initialize(...) end
 end
 
-
-return WorldEaterEvent
+-- Global Event Callbacks
+function onWorldEaterDestroyed(...)
+    if WorldEaterEvent.onWorldEaterDestroyed then return WorldEaterEvent.onWorldEaterDestroyed(...) end
+end

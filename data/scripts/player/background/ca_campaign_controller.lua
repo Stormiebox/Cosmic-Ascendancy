@@ -13,8 +13,8 @@ function AscendancyCampaign.onSectorEntered(playerIndex, x, y)
     local player = Player(playerIndex)
 
     -- Trigger Lore Anomalies dynamically
-    local status, LoreAnomalies = pcall(include, "ca_story_lore_anomalies")
-    if status and LoreAnomalies and LoreAnomalies.onSectorEntered then
+    local LoreAnomalies = include("ca_story_lore_anomalies")
+    if LoreAnomalies and LoreAnomalies.onSectorEntered then
         LoreAnomalies.onSectorEntered(playerIndex, x, y, SectorChangeType.Jump)
     end
 
@@ -44,6 +44,3 @@ end
 function onSectorEntered(...)
     if AscendancyCampaign.onSectorEntered then return AscendancyCampaign.onSectorEntered(...) end
 end
-
-
-return AscendancyCampaign

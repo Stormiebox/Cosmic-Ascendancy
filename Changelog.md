@@ -82,6 +82,12 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 - **Vault Fleet Integration:** Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.
 
 ### 🐛 Bug Fixes
+- **Fixed:** `ascendantaegis.lua` continuously stacked global `addMultiplier` shields infinitely every 15 seconds. Replaced with safe, non-stacking `addMultiplyableFactor` implementations.
+- **Fixed:** `ca_story2_forge.lua` used raw inventory lookups for Avorion, which failed. Switched to native `player:pay()` API.
+- **Fixed:** `ascendancyforge.lua` UI sync function contained a merged syntax error.
+- **Fixed:** Global crash in `server.lua` where `Sector()` was called during galaxy generation `onSectorGenerated`. Replaced with global marking, and shifted physical spawning of Strongholds to player `onSectorEntered` mechanics.
+- **Fixed:** `eclipse_conquest_manager.lua` attempted to call `Sector()` from a Galaxy script context during Annihilation. Offloaded sector wipes to a player script instance to safely execute.
+- **Fixed:** `eclipsegenerator.lua` attempted to call `Sector()` when spawning blueprints globally. Wrapped all `Sector()` coordinate fetches in safe `pcall` fallbacks.
 - **Invalid StatsBonuses Wipe**: Scrubbed all invalid API enums (like `StatsBonuses.Damage`, `StatsBonuses.ShieldCapacity`, `StatsBonuses.CargoCapacity`) from `eclipsegenerator.lua`, `spawneclipseboss.lua`, `ca_ascendant_gateway.lua`, `eclipse_boss_scaling.lua`, `ca_ascendancy_ship_buff.lua`, and `ascendanteclipsebane.lua`. Bosses will now correctly receive their intended 500% damage boosts (by mathematically looping over the 6 native elemental types) and 3750% shields natively!
 - **Ascendant Bosses:** Eclipse Harbingers utilize the "Living Relic" subsystem mechanics internally, multiplying their shields by 3750% and damage by 500%.
 - **The Ascendant Forge Unlock:** The Ascendant Forge is now securely locked behind the completion of the new story campaign.

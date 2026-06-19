@@ -97,6 +97,3 @@ end
 function onSectorEntered(...)
     if LoreAnomalies.onSectorEntered then return LoreAnomalies.onSectorEntered(...) end
 end
-
-
-return LoreAnomalies

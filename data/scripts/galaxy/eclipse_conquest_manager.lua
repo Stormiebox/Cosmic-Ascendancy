@@ -2,8 +2,8 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 local CosmicVaultTerritory = nil
-local cv_goods_success, cv_goods = true, include("cosmicvaultgoods")
-local cv_news_success, cv_news = true, include("cosmicvaultnews")
+local cv_goods = include("cosmicvaultgoods")
+local cv_news = include("cosmicvaultnews")
 CosmicVaultTerritory = include("cosmicvaultterritory")
 
 local EclipseConquestManager = {}
@@ -14,7 +14,7 @@ function EclipseConquestManager.getUpdateInterval()
 end
 
 function EclipseConquestManager.initialize()
-    if cv_goods_success and cv_goods.registerGood then
+    if cv_goods.registerGood then
         cv_goods.registerGood({
             name = "Ascendant Matter",
             description = "A hyper-dense dark energy composite synthesized by Eclipse Harvesters.",
@@ -61,7 +61,7 @@ function EclipseConquestManager.expandEmpire()
     if conqueredCount >= 10 and not isFallenEmpire then
         Server():setValue("eclipse_fallen_empire", true)
         isFallenEmpire = true
-        if cv_news_success and cv_news.publishArticle then
+        if cv_news.publishArticle then
             cv_news.publishArticle({
                 title = "GALACTIC THREAT: The Eclipse Awakens",
                 content = "The algorithmic nightmare known as The Eclipse has consolidated enough territory to form a unified, highly organized empire. They have ceased random raids and are now actively launching Crusades to systematically eradicate all major AI faction capitals. We must unite, or we will perish.",
@@ -143,7 +143,7 @@ end
 function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conqueredCount)
     Server():broadcastChatMessage("The Eclipse", 2, "Coordinates (" .. x .. ":" .. y .. ") have been judged unworthy of Ascendancy. Initiating total atomic annihilation.")
 
-    if cv_news_success and cv_news.publishArticle then
+    if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "Sector Annihilated: [" .. x .. ":" .. y .. "]",
             content = "The Eclipse has completely wiped coordinates [" .. x .. ":" .. y .. "] from the map. Billions are feared dead as all stations and ships were atomically disintegrated.",
@@ -158,30 +158,15 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
     local galaxy = Galaxy()
     galaxy:setFaction(x, y, eclipseFaction.index)
 
-    -- If the sector is currently loaded in memory, literally wipe everything
-    local sector = Sector()
-    if sector then
-        local cx, cy = sector:getCoordinates()
-        if cx == x and cy == y then
-            -- Inject Dark Matter Fog weather
-            sector:addScriptOnce("data/scripts/sector/cv_weather_controller.lua", "DarkMatterFog", -1)
-
-            local entities = {sector:getEntities()}
-            for _, entity in pairs(entities) do
-                if entity.type == EntityType.Station or entity.type == EntityType.Ship then
-                    if entity.factionIndex ~= eclipseFaction.index then
-                        sector:deleteEntity(entity)
-                    end
-                end
-            end
-
-            -- Spawn an Obliterator to show who did it
-            local EclipseGenerator = include("eclipsegenerator")
-            local ship = EclipseGenerator.createShip(Matrix(), "monolith")
-            ship:setTitle("Eclipse Obliterator", {})
-
-            -- Attach the heroic defense tracker in case the player fights back
-            ship:addScriptOnce("data/scripts/entity/ca_heroic_defense.lua")
+    -- IMPORTANT ARCHITECTURE NOTE:
+    -- In Avorion, calling `Sector()` inside a Galaxy-level or Server-level background script
+    -- will instantly crash the dedicated server. To physically wipe a sector, we must delegate 
+    -- the task to a Player or Sector script instance.
+    -- If a player is in the sector, we attach a one-time wipe script to their client.
+    for _, p in pairs({Server():getPlayers()}) do
+        local px, py = p:getSectorCoordinates()
+        if px == x and py == y then
+            p:addScriptOnce("data/scripts/player/ca_annihilation_wiper.lua")
         end
     end
 end
@@ -195,6 +180,3 @@ end
 function updateServer(...)
     if EclipseConquestManager.updateServer then return EclipseConquestManager.updateServer(...) end
 end
-
-
-return EclipseConquestManager
