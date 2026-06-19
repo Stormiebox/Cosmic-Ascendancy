@@ -212,8 +212,9 @@ function EclipseAbilities.triggerBlink()
     -- Void Rift VFX
     sector:createHyperspaceJumpAnimation(entity, entity.translationf, ColorRGB(0.5, 0.0, 1.0), 0.5)
 
-    local dir = normalize(vec3(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5))
-    local dist = math.random(500, 1000) -- 5km to 10km
+    local random = random()
+    local dir = normalize(vec3(random:getFloat() - 0.5, random:getFloat() - 0.5, random:getFloat() - 0.5))
+    local dist = random:getInt(500, 1000) -- 5km to 10km
 
     entity.position = MatrixLookUpPosition(entity.look, entity.up, entity.translationf + dir * dist)
 

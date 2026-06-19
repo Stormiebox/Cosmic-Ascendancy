@@ -21,7 +21,7 @@ function CosmicAscendancyExpansionManager.updateServer(timeStep)
     if self.timer < config.expansionInterval * 60 then return end
     self.timer = self.timer - (config.expansionInterval * 60)
 
-    if math.random(1, 100) > config.expansionChance then
+    if random():getInt(1, 100) > config.expansionChance then
         return
     end
 
@@ -32,15 +32,15 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
     local galaxy = Galaxy()
     local isPirateExpansion = false
 
-    if config.allowPirateExpansion and math.random() < 0.15 then
+    if config.allowPirateExpansion and random():getFloat() < 0.15 then
         isPirateExpansion = true
     end
 
     if isPirateExpansion then
         -- Find a random empty sector for pirates
         for tries = 1, 20 do
-            local x = math.random(-450, 450)
-            local y = math.random(-450, 450)
+            local x = random():getInt(-450, 450)
+            local y = random():getInt(-450, 450)
             local dist = math.sqrt(x*x + y*y)
 
             -- Prevent pirates from spawning inside the extreme core (0-50)
@@ -55,8 +55,8 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
         -- Standard AI Faction Expansion
         local faction
         for tries = 1, 50 do
-            local x = math.random(-490, 490)
-            local y = math.random(-490, 490)
+            local x = random():getInt(-490, 490)
+            local y = random():getInt(-490, 490)
             local f = galaxy:getLocalFaction(x, y)
             if f and f.isAIFaction then
                 faction = f
@@ -72,7 +72,7 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
         local homeDist = math.sqrt(hx*hx + hy*hy)
 
         local currentX, currentY = hx, hy
-        local angle = math.random() * math.pi * 2
+        local angle = random():getFloat() * math.pi * 2
         local dx = math.cos(angle)
         local dy = math.sin(angle)
 

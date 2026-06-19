@@ -9,8 +9,6 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [v1.0.0] - UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
 
-The ultimate endgame expansion for the Cosmic Series has arrived. Establish your empire's permanent capital, generate immense wealth, forge god-tier weaponry, and defend against gargantuan sieges!
-
 ### 🚀 Major Expansion Features
 - **Ancient Eclipse Mechanics:** The Eclipse now wield devastating, class-specific mechanics to obliterate fleets:
   - **Dark Matter Blink (All Ships):** Upon taking 15% burst damage within 1 second, the ship will violently blink 5-10km away to escape, leaving behind a Void Rift (cooldown: 30s).
@@ -97,6 +95,7 @@ The ultimate endgame expansion for the Cosmic Series has arrived. Establish your
 - **Endgame Crisis Consistency:** The Eclipse Boss now receives a staggering baseline **25x Shield Multiplier** and **3x Damage Multiplier**, far surpassing the standard 10x shield of War Dreadnoughts, guaranteeing The Eclipse remains a terrifying endgame threat.
 
 ### 🐛 Bug Fixes & Optimization
+- **Fixed**: Removed `math.random` in procedural generation loops (`ca_eclipse_abilities.lua`, `ca_expansion_manager.lua`) and replaced them with deterministic `random()` to prevent multiplayer desyncs.
 - **Initialization Bypass:** Fixed severe bug in `init.lua` where the Ascendancy Codex failed to initialize and inject its UI tabs on fresh server boots.
 - **Math Logic Spawning Bug:** Swept the codebase and replaced critical logic faults where probability checks were evaluating against `getInt()` instead of `getFloat()`, restoring exact percentage math for Eclipse Stronghold generation and Superboss hunts.
 - **Multiplayer Network Synchronization:** Fixed a silent networking bug where the Ascendancy Beacon UI buttons (Toggle Beacon, Upgrade Tier) would not respond on Dedicated Servers because the server-side functions were missing `callable()` declarations.
