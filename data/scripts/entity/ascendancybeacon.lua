@@ -3,7 +3,6 @@ package.path = package.path .. ";data/scripts/?.lua"
 
 include ("utility")
 include ("stringutility")
-include ("faction")
 
 -- Cosmic Integrations
 local cv_news = include("cosmicvaultnews")
@@ -449,3 +448,5 @@ end
 function onEntityEntered(...)
     if AscendancyBeacon.onEntityEntered then return AscendancyBeacon.onEntityEntered(...) end
 end
+
+return AscendancyBeacon

@@ -356,3 +356,5 @@ end
 function restore(...)
     if AscendancyForge.restore then return AscendancyForge.restore(...) end
 end
+
+return AscendancyForge

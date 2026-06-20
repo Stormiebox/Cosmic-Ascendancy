@@ -8,7 +8,6 @@ include ("defaultscripts")
 local SectorTurretGenerator = include ("sectorturretgenerator")
 local ShipUtility = include ("shiputility")
 local PlanGenerator = include ("plangenerator")
-include("weapontype")
 
 local EclipseGenerator = {}
 

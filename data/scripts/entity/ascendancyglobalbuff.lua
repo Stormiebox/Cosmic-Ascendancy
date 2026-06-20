@@ -126,3 +126,5 @@ end
 function restore(...)
     if AscendancyGlobalBuff.restore then return AscendancyGlobalBuff.restore(...) end
 end
+
+return AscendancyGlobalBuff

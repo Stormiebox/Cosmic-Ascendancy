@@ -188,3 +188,5 @@ end
 function onDamaged(...)
     if WorldEater.onDamaged then return WorldEater.onDamaged(...) end
 end
+
+return WorldEater

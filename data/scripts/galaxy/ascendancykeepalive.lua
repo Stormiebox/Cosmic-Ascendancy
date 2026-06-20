@@ -30,3 +30,5 @@ end
 function onAscendancyBeaconPing(...)
     if AscendancyKeepAlive.onAscendancyBeaconPing then return AscendancyKeepAlive.onAscendancyBeaconPing(...) end
 end
+
+return AscendancyKeepAlive

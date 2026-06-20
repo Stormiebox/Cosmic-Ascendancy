@@ -1,7 +1,6 @@
 package.path = package.path .. ";data/scripts/systems/?.lua"
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local StatsBonuses = include("statsbonuses")
 
 function getFixedStats()
     return {

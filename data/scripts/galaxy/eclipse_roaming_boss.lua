@@ -132,3 +132,5 @@ end
 function restore(...)
     if EclipseRoamingBoss.restore then return EclipseRoamingBoss.restore(...) end
 end
+
+return EclipseRoamingBoss

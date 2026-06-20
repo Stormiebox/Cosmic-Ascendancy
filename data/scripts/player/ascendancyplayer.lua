@@ -118,3 +118,5 @@ end
 function onShipChanged(...)
     if AscendancyPlayer.onShipChanged then return AscendancyPlayer.onShipChanged(...) end
 end
+
+return AscendancyPlayer

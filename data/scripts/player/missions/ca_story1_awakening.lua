@@ -37,7 +37,7 @@ mission.phases[2].onBeginServer = function()
     
     local sector = Sector()
     -- Spawn a monolith to investigate
-    local generator = require("SectorGenerator")(Sector():getCoordinates())
+    local generator = include("SectorGenerator")(Sector():getCoordinates())
     local pos = generator:getPositionInSector(5000)
     local plan = generator:getBasicWreckagePlan()
     local wreck = sector:createWreckage(plan, pos)
@@ -67,7 +67,7 @@ mission.phases[3] = {}
 mission.phases[3].onBeginServer = function()
     mission.data.description = "An Eclipse Vanguard ambush! Survive the attack."
     -- Spawn Eclipse enemies
-    local generator = require("shipgenerator")
+    local generator = include("shipgenerator")
     local faction = Galaxy():getFaction("The Eclipse") or Faction(1)
     
     Player():sendChatMessage("Unknown Transmission", 2, "Biological contamination detected. Purge protocol initiated. We are The Eclipse.")

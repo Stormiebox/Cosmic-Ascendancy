@@ -18,7 +18,7 @@ mission.phases[1] = {}
 mission.phases[1].onBeginServer = function()
     mission.data.description = "A massive Eclipse Vanguard Juggernaut is warping in! Defend the sector at all costs."
     
-    local EclipseGenerator = require("eclipsegenerator")
+    local EclipseGenerator = include("eclipsegenerator")
     local faction = EclipseGenerator.getFaction()
     
     -- Spawn Boss

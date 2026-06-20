@@ -113,3 +113,5 @@ end
 function updateServer(...)
     if CosmicAscendancyExpansionManager.updateServer then return CosmicAscendancyExpansionManager.updateServer(...) end
 end
+
+return CosmicAscendancyExpansionManager

@@ -224,3 +224,5 @@ end
 function updateServer(...)
     if AscendancySiege.updateServer then return AscendancySiege.updateServer(...) end
 end
+
+return AscendancySiege

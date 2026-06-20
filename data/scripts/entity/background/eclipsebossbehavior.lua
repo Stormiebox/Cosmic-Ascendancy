@@ -86,3 +86,5 @@ end
 function onDamaged(...)
     if EclipseBossBehavior.onDamaged then return EclipseBossBehavior.onDamaged(...) end
 end
+
+return EclipseBossBehavior
