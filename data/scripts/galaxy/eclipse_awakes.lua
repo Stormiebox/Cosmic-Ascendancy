@@ -36,59 +36,13 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
     end
 
     if random:getFloat() < chance then
-        local EclipseGenerator = include("eclipsegenerator")
-        local Placer = include("placer")
-
-        local sector = Sector()
-        sector.name = "Eclipse Stronghold"%_T
-
-        -- Wipe any existing generated structures since this is Eclipse territory now
-        local entities = {sector:getEntities()}
-        for _, entity in pairs(entities) do
-            if entity.type == EntityType.Station or entity.type == EntityType.Ship then
-                sector:deleteEntity(entity)
-            end
-        end
-
-        local spawned = {}
-
-        -- Center Citadel
-        local citadel = EclipseGenerator.createShip(Matrix(), "monolith")
-        citadel:setTitle("Eclipse Citadel", {})
-        table.insert(spawned, citadel)
-
-        -- Spawn defending fleet
-        local numDefenders = random:getInt(5, 8)
-        local dir = normalize(vec3(random:getFloat(-1, 1), random:getFloat(-1, 1), random:getFloat(-1, 1)))
-        local up = vec3(0, 1, 0)
-        local right = normalize(cross(dir, up))
-        local pos = dir * 500
-
-        for i = 1, numDefenders do
-            local shipPos = MatrixLookUpPosition(-dir, up, pos + right * random:getFloat(-200, 200))
-            local r = random:getFloat()
-            local ship
-            if r < 0.125 then
-                ship = EclipseGenerator.createCarrier(shipPos)
-            elseif r < 0.25 then
-                ship = EclipseGenerator.createAssassin(shipPos)
-            elseif r < 0.375 then
-                ship = EclipseGenerator.createArtillery(shipPos)
-            elseif r < 0.5 then
-                ship = EclipseGenerator.createJuggernaut(shipPos)
-            elseif r < 0.625 then
-                ship = EclipseGenerator.createInterceptor(shipPos)
-            elseif r < 0.75 then
-                ship = EclipseGenerator.createShip(shipPos, "monolith")
-            elseif r < 0.875 then
-                ship = EclipseGenerator.createShip(shipPos, "obelisk")
-            else
-                ship = EclipseGenerator.createShip(shipPos, "pyramid")
-            end
-            table.insert(spawned, ship)
-        end
-
-        Placer.resolveIntersections(spawned)
+        -- IMPORTANT ARCHITECTURE NOTE (Stormbox):
+        -- We cannot physically spawn stations or ships here. Calling `Sector()` during
+        -- `onSectorGenerated` inside `eclipse_awakes.lua` crashes the game because this script
+        -- is not bound to a physical sector instance.
+        -- Instead, we flag the coordinates globally. When a player physically enters
+        -- these coordinates, `ascendancyplayer.lua` reads this flag and spawns the stronghold.
+        Galaxy():setValue("eclipse_stronghold_" .. x .. "_" .. y, true)
     end
 end
 
