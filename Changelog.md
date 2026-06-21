@@ -79,7 +79,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Nemesis Resistances Native Overhaul**: Restructured `ca_nemesis_resist.lua` to calculate its 90% elemental damage reduction dynamically inside the `onDamaged` loop, instead of relying on non-existent `StatsBonuses.*DamageReceived` API enums.
 - **Vault Fleet Integration:** Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.
 
-### 🐛 Bug Fixes
+### ⚖️ Balance
+- **Galactic Turn Synchronization:** `expansionInterval` slowed from 30m to 20m to align with the global server turn. `expansionChance` gracefully reduced from 35% to 25% to keep the overall hourly expansion rate mathematically identical.
+- **Endgame Crisis Consistency:** The Eclipse Boss now receives a staggering baseline **25x Shield Multiplier** and **3x Damage Multiplier**, far surpassing the standard 10x shield of War Dreadnoughts, guaranteeing The Eclipse remains a terrifying endgame threat.
+
+### 🐛 Bug Fixes & Optimization
+
+- **Fixed**: Fixed a fatal dedicated server crash triggered when the Eclipse Conquest Manager attempted to inject siege events from the Galaxy VM. Siege injection is now safely delegated to player VMs in the target sector.
 - **Fixed:** `ascendantaegis.lua` continuously stacked global `addMultiplier` shields infinitely every 15 seconds. Replaced with safe, non-stacking `addMultiplyableFactor` implementations.
 - **Fixed:** `ca_story2_forge.lua` used raw inventory lookups for Avorion, which failed. Switched to native `player:pay()` API.
 - **Fixed:** `ascendancyforge.lua` UI sync function contained a merged syntax error.
@@ -89,12 +95,6 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Invalid StatsBonuses Wipe**: Scrubbed all invalid API enums (like `StatsBonuses.Damage`, `StatsBonuses.ShieldCapacity`, `StatsBonuses.CargoCapacity`) from `eclipsegenerator.lua`, `spawneclipseboss.lua`, `ca_ascendant_gateway.lua`, `eclipse_boss_scaling.lua`, `ca_ascendancy_ship_buff.lua`, and `ascendanteclipsebane.lua`. Bosses will now correctly receive their intended 500% damage boosts (by mathematically looping over the 6 native elemental types) and 3750% shields natively!
 - **Ascendant Bosses:** Eclipse Harbingers utilize the "Living Relic" subsystem mechanics internally, multiplying their shields by 3750% and damage by 500%.
 - **The Ascendant Forge Unlock:** The Ascendant Forge is now securely locked behind the completion of the new story campaign.
-
-### ⚖️ Balance
-- **Galactic Turn Synchronization:** `expansionInterval` slowed from 30m to 20m to align with the global server turn. `expansionChance` gracefully reduced from 35% to 25% to keep the overall hourly expansion rate mathematically identical.
-- **Endgame Crisis Consistency:** The Eclipse Boss now receives a staggering baseline **25x Shield Multiplier** and **3x Damage Multiplier**, far surpassing the standard 10x shield of War Dreadnoughts, guaranteeing The Eclipse remains a terrifying endgame threat.
-
-### 🐛 Bug Fixes & Optimization
 - **Fixed**: Removed `math.random` in procedural generation loops (`ca_eclipse_abilities.lua`, `ca_expansion_manager.lua`) and replaced them with deterministic `random()` to prevent multiplayer desyncs.
 - **Initialization Bypass:** Fixed severe bug in `init.lua` where the Ascendancy Codex failed to initialize and inject its UI tabs on fresh server boots.
 - **Math Logic Spawning Bug:** Swept the codebase and replaced critical logic faults where probability checks were evaluating against `getInt()` instead of `getFloat()`, restoring exact percentage math for Eclipse Stronghold generation and Superboss hunts.
