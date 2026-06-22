@@ -58,7 +58,7 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
     -- Instead, `server.lua` flags the coordinates globally. When a player physical enters, 
     -- this player script reads the flag and spawns the Stronghold safely inside the sector.
     if onServer() then
-        if Galaxy():getValue("eclipse_stronghold_" .. x .. "_" .. y) then
+        if Server():getValue("eclipse_stronghold_" .. x .. "_" .. y) then
             local sector = Sector()
             if not sector:getValue("eclipse_stronghold_spawned") then
                 sector:setValue("eclipse_stronghold_spawned", true)
