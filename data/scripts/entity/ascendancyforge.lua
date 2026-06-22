@@ -183,14 +183,30 @@ function AscendancyForge.startForging()
     local owner = Faction(Entity().factionIndex)
     if not owner then return end
 
-    local creditCost, mat, matCost = AscendancyForge.getCosts()
-    if owner.money < creditCost or owner:getInventory():getAmount(mat.value) < matCost then
-        owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient resources!"%_t)
+    local player = Player(callingPlayer)
+    if not player then return end
+    
+    local craft = player.craft
+    if not craft then
+        player:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to ignite the forge."%_t)
+        return
+    end
+
+    local creditCost, matName, matCost = AscendancyForge.getCosts()
+    
+    if owner.money < creditCost then
+        owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient credits!"%_t)
+        return
+    end
+    
+    local cargoAmount = craft:getCargoAmount(matName)
+    if cargoAmount < matCost then
+        owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient %s in your ship's cargo hold!"%_t, matName)
         return
     end
 
     owner:pay(creditCost)
-    owner:getInventory():remove(mat.value, matCost)
+    craft:removeCargo(Good(matName), matCost)
 
     isForging = true
     forgeFinishTime = Server().playtime + FORGE_TIME
@@ -317,13 +333,22 @@ function AscendancyForge.decryptDatacore()
     local owner = Faction(Entity().factionIndex)
     if not owner then return end
 
-    local amount = owner:getInventory():getAmount("Eclipse Datacore")
-    if amount < 1 then
-        owner:sendChatMessage("Stellar Forge"%_t, 1, "You do not have any Eclipse Datacores!"%_t)
+    local player = Player(callingPlayer)
+    if not player then return end
+    
+    local craft = player.craft
+    if not craft then
+        player:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to decrypt datacores."%_t)
         return
     end
 
-    owner:getInventory():remove("Eclipse Datacore", 1)
+    local amount = craft:getCargoAmount("Eclipse Datacore")
+    if amount < 1 then
+        player:sendChatMessage("Stellar Forge"%_t, 1, "You do not have any Eclipse Datacores in your ship's cargo hold!"%_t)
+        return
+    end
+
+    craft:removeCargo(Good("Eclipse Datacore"), 1)
 
     if cv_buffs.setGlobalTier then
         local currentTier = cv_buffs.getGlobalTier(owner.index)

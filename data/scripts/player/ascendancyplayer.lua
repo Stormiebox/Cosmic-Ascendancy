@@ -29,6 +29,12 @@ local function applyToEntity(entityId)
     if not entity:hasScript("data/scripts/entity/ascendancyglobalbuff.lua") then
         entity:addScript("data/scripts/entity/ascendancyglobalbuff.lua")
     end
+    
+    if entity.isStation then
+        if not entity:hasScript("data/scripts/entity/ca_station_overdrive.lua") then
+            entity:addScript("data/scripts/entity/ca_station_overdrive.lua")
+        end
+    end
 end
 
 function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
@@ -90,6 +96,13 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
                 
                 sector:setValue("is_eclipse_stronghold", true)
             end
+        end
+        
+
+        
+        -- Raid Summoner (Listens for Datacore jettisons)
+        if not Sector():hasScript("data/scripts/sector/ca_raid_summoner.lua") then
+            Sector():addScriptOnce("data/scripts/sector/ca_raid_summoner.lua")
         end
     end
 end

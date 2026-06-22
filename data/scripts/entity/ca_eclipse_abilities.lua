@@ -239,11 +239,16 @@ function EclipseAbilities.triggerPhaseShift()
 end
 
 function EclipseAbilities.onDestroyed()
-    if EclipseAbilities.isSingularity then
-        local entity = Entity()
-        local sector = Sector()
-        local pos = entity.translationf
+    local entity = Entity()
+    local sector = Sector()
+    local pos = entity.translationf
 
+    -- 25% chance to drop 1-3 Ascendant Matter
+    if random():getFloat() < 0.25 then
+        sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, random():getInt(1, 3))
+    end
+
+    if EclipseAbilities.isSingularity then
         sector:broadcastChatMessage("The Eclipse", 1, "WARNING: SINGULARITY CORE COLLAPSE IMMINENT.")
         sector:addScript("data/scripts/sector/ca_singularity_detonation.lua", pos.x, pos.y, pos.z)
     end

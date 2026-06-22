@@ -10,6 +10,19 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 ## [v1.0.0] - UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
 
 ### 🚀 Major Expansion Features
+- **The World-Eater Boss Fight Overhaul:** The World-Eater has been completely re-coded into a modern, dynamic raid boss:
+  - **Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains 100% invincible, visually tethered to them by massive purple lasers.
+  - **Quantum EMP Hazards:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting catastrophic energy damage.
+  - **Gravity Anomaly Hazards:** Periodically spawns a dark purple Black Hole at a player's location. This anomaly actively pulls all player ships towards the center using physical constraints, inflicting crushing hull damage over time!
+  - **The 6-Phase Gauntlet:** As its massive hull is chipped away, it triggers global desperation mechanics:
+    - **80% HP:** Spawns 5 Defiler Escorts.
+    - **70% HP:** Emits a global EMP pulse, instantly stripping 50% of the shield capacity from all players in the sector.
+    - **60% HP:** Deploys 4 Eclipse Assassin Hunter-Killers.
+    - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
+    - **35% HP:** Blinks again, unleashes a second global EMP, and enters an Enraged state (+50% Fire Rate, +50% Global Damage) until destroyed!
+- **Raid Summoning:** Jettisoning an **Eclipse Datacore** from your cargo hold into space acts as a quantum beacon. If there are no other Eclipse ships currently in the sector, the datacore will violently collapse, tearing open a hyperspace rift and instantly summoning the **Eclipse World-Eater**!
+- **Eclipse Drops:** The elusive `Ascendant Matter` resource is now acquired exclusively by destroying Eclipse vessels, with massive bounties dropping from the World-Eater boss.
+- **Ascendant Overdrive:** As a late-game economic sink, players can approach any factory they own and interact with it to feed it 50 Ascendant Matter. This activates "Ascendant Overdrive", tripling (3.0x) the station's production capacity for 1 real-time hour!
 - **Ancient Eclipse Mechanics:** The Eclipse now wield devastating, class-specific mechanics to obliterate fleets:
   - **Dark Matter Blink (All Ships):** Upon taking 15% burst damage within 1 second, the ship will violently blink 5-10km away to escape, leaving behind a Void Rift (cooldown: 30s).
   - **Ethereal Phase-Shift (Interceptors & Phantoms):** Slippery vanguards will instantly phase out of reality for 4 seconds upon shield break, becoming an invincible void-shadow to reposition.
@@ -85,6 +98,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### 🐛 Bug Fixes & Optimization
 
+- **Critical Crash Fixes:** Resolved an engine-level crash related to vanilla `Sector:dropCargo` failing to parse missing good identifiers.
+- **Callback Optimization:** Cleaned up redundant script initializations and unregistered invalid `onUpdateServer` and `onEntityDestroyed` callbacks that the engine would trip over.
 - **Fixed**: Fixed a fatal dedicated server crash triggered when the Eclipse Conquest Manager attempted to inject siege events from the Galaxy VM. Siege injection is now safely delegated to player VMs in the target sector.
 - **Fixed:** `ascendantaegis.lua` continuously stacked global `addMultiplier` shields infinitely every 15 seconds. Replaced with safe, non-stacking `addMultiplyableFactor` implementations.
 - **Fixed:** `ca_story2_forge.lua` used raw inventory lookups for Avorion, which failed. Switched to native `player:pay()` API.

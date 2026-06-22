@@ -116,7 +116,7 @@ function EclipseGenerator.addTurrets(ship, numTurrets)
     end
 end
 
-function EclipseGenerator.createShip(position, planType)
+function EclipseGenerator.createShip(position, planType, volumeScale, turretCount)
     position = position or Matrix()
     local faction = EclipseGenerator.getFaction()
     
@@ -129,11 +129,11 @@ function EclipseGenerator.createShip(position, planType)
         if ok and sector then x, y = sector:getCoordinates() end
         local probabilities = Balancing_GetTechnologyMaterialProbability(x, y)
         local material = Material(getValueFromDistribution(probabilities))
-        plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume(x, y), material)
+        plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume(x, y) * (volumeScale or 1.0), material)
     end
     
     -- Scale the plan
-    local volume = EclipseGenerator.getShipVolume()
+    local volume = EclipseGenerator.getShipVolume() * (volumeScale or 1.0)
     local currentVolume = plan.volume
     if currentVolume > 0 then
         local scale = math.pow(volume / currentVolume, 1/3)
@@ -142,7 +142,7 @@ function EclipseGenerator.createShip(position, planType)
     
     local ship = Sector():createShip(faction, "", plan, position, EntityArrivalType.Jump)
     
-    EclipseGenerator.addTurrets(ship, 15)
+    EclipseGenerator.addTurrets(ship, turretCount or 15)
 
     if planType == "monolith" then
         ship:setTitle("Eclipse Obliterator"%_T, {})
@@ -177,6 +177,24 @@ function EclipseGenerator.createShip(position, planType)
     Boarding(ship).boardable = false
     ship:addScriptOnce("data/scripts/entity/ca_eclipse_abilities.lua")
 
+    return ship
+end
+
+function EclipseGenerator.createWorldEater(position)
+    -- The World-Eater is a massive Juggernaut
+    local ship = EclipseGenerator.createShip(position, "juggernaut", 5.0, 75)
+    ship:setTitle("Eclipse World Eater"%_T, {})
+    
+    -- The World Eater gets an extra multiplier
+    EclipseGenerator.applyDamageMultiplier(ship, 3.0)
+    ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 5.0)
+    
+    -- -90% Speed as per design
+    ship:addMultiplyableFactor(StatsBonuses.Velocity, -0.9)
+    
+    -- Add the boss behavior script which handles Tethers, EMPs, and Gravity Anomalies
+    ship:addScriptOnce("data/scripts/entity/ca_worldeater_behavior.lua")
+    
     return ship
 end
 

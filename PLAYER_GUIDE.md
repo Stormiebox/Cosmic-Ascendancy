@@ -38,13 +38,21 @@ Every 2 to 3 hours, the Eclipse will launch a **World-Eater** (a massively scale
 - A **15-minute countdown** will broadcast across the Galactic News Network.
 - **Royal Escort Fleet:** The World-Eater does not travel alone. It arrives with a massive Royal Escort Fleet composed of Carriers, Artillery, Defilers, and Interceptors to protect it from player swarms.
 - **Apocalyptic Durability:** The World-Eater's physical volume has been dynamically scaled up by a factor of 5.0, resulting in a 125x increase to its native Hull HP!
-- **The 6-Phase Gauntlet:** Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal Hull and dynamic multi-phase mechanics:
-  - **80% HP:** Spawns 5 Defiler Escorts.
-  - **70% HP:** Emits an EMP pulse, instantly stripping 50% of the shield capacity from all players in the sector.
-  - **60% HP:** Deploys 4 Eclipse Destroyers.
-  - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
-  - **35% HP:** Blinks again, unleashes a second EMP, and enters an Enraged state (+50% Fire Rate, +50% Global Damage).
+- **The Boss Encounter:** Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal Hull and dynamic mechanics:
+  - **Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains 100% invincible, visually tethered to them by massive purple lasers.
+  - **Quantum EMP Hazards:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting catastrophic energy damage.
+  - **Gravity Anomaly Hazards:** Periodically spawns a dark purple Black Hole at a player's location. This anomaly actively pulls all player ships towards the center using physical constraints, inflicting crushing hull damage over time!
+  - **The 6-Phase Gauntlet:** As its massive hull is chipped away, it triggers global desperation mechanics:
+    - **80% HP:** Spawns 5 Defiler Escorts.
+    - **70% HP:** Emits a global EMP pulse, instantly stripping 50% of the shield capacity from all players in the sector.
+    - **60% HP:** Deploys 4 Eclipse Assassin Hunter-Killers.
+    - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
+    - **35% HP:** Blinks again, unleashes a second global EMP, and enters an Enraged state (+50% Fire Rate, +50% Global Damage) until destroyed!
 - If the World-Eater is not destroyed in 15 minutes, the entire sector is atomically wiped. All non-player entities are deleted, players are reduced to 1 HP, and the sector falls permanently to Eclipse control.
+
+### 📡 The Summoning Beacon
+If you are prepared to face the ultimate threat on your own terms, you can forcefully summon the World-Eater!
+- **Raid Summoning:** Jettisoning an **Eclipse Datacore** from your cargo hold into space acts as a quantum beacon. If there are no other Eclipse ships currently in the sector, the datacore will violently collapse, tearing open a hyperspace rift and instantly summoning the **Eclipse World-Eater**!
 
 ### 🚨 Invasion Escalation
 1. **Scouting Phase:** Small, fast-moving Eclipse Interceptors arrive in a sector. If they are not destroyed within 5 minutes, they broadcast a beacon.
@@ -93,12 +101,17 @@ To combat the Eclipse, you must locate and utilize the Ascendancy Forge to craft
 
 ### ⚙️ Mechanics
 - **Unlock Requirements:** The Forge is discovered at the climax of the main storyline.
-- **Base Crafting Cost:** 1,000,000,000 Credits and a variable amount of **Ascendant Matter** (harvested from Eclipse Harvester stations).
+- **Base Crafting Cost:** 1,000,000,000 Credits and a variable amount of **Ascendant Matter**.
 - **Global Ascendancy Matrix:** You can submit **Eclipse Datacores** (dropped by Eclipse Juggernauts) to the Forge. Decrypting a datacore permanently raises your Global Ascendancy Tier, granting a stacking +15% Shields, +20% Shield Recharge, and +10% Hyperspace Cooldown to all ships in your fleet!
 - **The Sacrifice System:** When initiating a craft, you must sacrifice existing Legendary or Exotic subsystems as Catalysts.
   - Sacrificing 1 Legendary grants a 20% success rate.
   - Sacrificing 5 Legendaries guarantees a 100% success rate.
 - **Failure:** If the craft fails, the sacrificed subsystems and half the raw materials are destroyed, but you receive "Ascendant Scrap" which slightly boosts the success rate of your next attempt.
+
+### 🏭 Resource Procurement & Factory Overdrive
+To fuel the Ascendancy Forge, you will need massive quantities of **Ascendant Matter**.
+- **Eclipse Drops:** Ascendant Matter is a highly condensed energy resource found only within the dark reactors of Eclipse vessels. Destroying normal Eclipse ships has a chance to drop small quantities, while obliterating the World-Eater guarantees massive yields of Ascendant Matter.
+- **Ascendant Overdrive:** As a late-game economic sink, players can approach any factory they own and interact with it to feed it 50 Ascendant Matter. This activates "Ascendant Overdrive", tripling (3.0x) the station's production capacity for 1 real-time hour!
 </details>
 
 ## 🗼 The Ascendancy Beacon

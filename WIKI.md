@@ -59,6 +59,10 @@ To make the faction feel uniquely terrifying, the Eclipse possess 5 devastating 
 - **Void Siphon Aura (Carriers, Cruisers, Dreadnoughts, Juggernauts):** Massive command ships constantly project a 3km devouring aura, draining 2% of the shield capacity of all nearby player ships per second to heal themselves.
 - **Singularity Implosion (All Large Capital Ships):** Upon death, these gargantuan reactors collapse. After a 3-second warning, they violently detonate, dealing 50,000 true-damage to everything within 3km!
 
+### 📡 The Summoning Beacon
+If you are prepared to face the ultimate threat on your own terms, you can forcefully summon the World-Eater!
+- **Raid Summoning:** Jettisoning an **Eclipse Datacore** from your cargo hold into space acts as a quantum beacon. If there are no other Eclipse ships currently in the sector, the datacore will violently collapse, tearing open a hyperspace rift and instantly summoning the **Eclipse World-Eater**!
+
 ### Invasion Mechanics & Threat Escalation
 The Eclipse dynamically targets sectors containing high player or AI faction value.
 - **Scouting Phase:** Small, fast-moving Eclipse Interceptors will arrive in a sector. If they are not destroyed within 5 minutes, they broadcast a beacon.
@@ -69,13 +73,17 @@ The Eclipse dynamically targets sectors containing high player or AI faction val
 
 ### 🚨 The World-Eater Doomsday Event
 A global crisis managed by the galaxy engine.
-- **The Trigger:** Every 2-3 hours, a random populated player sector is targeted.
-- **The Threat:** A World-Eater Juggernaut (5x scaled volume/125x Hull Mass, -90% Speed) spawns 15,000 km away. Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal Hull and dynamic multi-phase mechanics:
-  - **80% HP:** Spawns 5 Defiler Escorts.
-  - **70% HP:** Emits an EMP pulse, instantly stripping 50% of the shield capacity from all players in the sector.
-  - **60% HP:** Deploys 4 Eclipse Destroyers.
-  - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
-  - **35% HP:** Blinks again, unleashes a second EMP, and enters an Enraged state (+50% Fire Rate, +50% Global Damage).
+- **The Trigger:** Every 2-3 hours, a random populated player sector is targeted (or triggered manually via Datacore Jettisoning).
+- **The Threat:** A World-Eater Juggernaut (5x scaled volume/125x Hull Mass, -90% Speed) spawns 15,000 km away. Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal Hull and dynamic mechanics:
+  - **Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains 100% invincible, visually tethered to them by massive purple lasers.
+  - **Quantum EMP:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting catastrophic energy damage.
+  - **Gravity Anomaly:** Periodically spawns a dark purple Black Hole at a player's location. This actively pulls all player ships towards the center using physical constraints, inflicting crushing hull damage over time!
+  - **The 6-Phase Gauntlet:** As its massive hull is chipped away, it triggers global desperation mechanics:
+    - **80% HP:** Spawns 5 Defiler Escorts.
+    - **70% HP:** Emits a global EMP pulse, instantly stripping 50% of the shield capacity from all players in the sector.
+    - **60% HP:** Deploys 4 Eclipse Assassin Hunter-Killers.
+    - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
+    - **35% HP:** Blinks again, unleashes a second global EMP, and enters an Enraged state (+50% Fire Rate, +50% Global Damage) until destroyed!
 - **The Outcome:** If not destroyed within 15 minutes, the sector is completely wiped (all stations/AI ships deleted, player ships set to 1 HP) and ownership transfers to The Eclipse.
 
 ### 📈 Adaptive Eclipse Scaling
@@ -138,6 +146,11 @@ Ascendant subsystems are categorized as a new rarity tier (`Ascendant`) with cus
 
 **Example: The Ascendant Core Processor**
 - *Ascendant Variant:* +15 Arbitrary Turrets, +15 Armed Turrets, +50% Energy Generation.
+
+### 🏭 Resource Procurement & Factory Overdrive
+To fuel the Ascendancy Forge, you will need massive quantities of **Ascendant Matter**.
+- **Eclipse Drops:** Ascendant Matter is a highly condensed energy resource found only within the dark reactors of Eclipse vessels. Destroying normal Eclipse ships has a chance to drop small quantities, while obliterating the World-Eater guarantees massive yields of Ascendant Matter.
+- **Ascendant Overdrive:** As a late-game economic sink, players can approach any factory they own and interact with it to feed it 50 Ascendant Matter. This activates "Ascendant Overdrive", tripling (3.0x) the station's production capacity for 1 real-time hour!
 </details>
 
 ---

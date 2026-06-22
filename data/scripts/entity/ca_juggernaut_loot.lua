@@ -9,6 +9,9 @@ function onDestroyed()
     local sector = Sector()
     local entity = Entity()
     
+    -- Anchor Pylons are Juggernauts but shouldn't drop the raid-summoning Datacore!
+    if entity:getValue("is_worldeater_tether") then return end
+    
     -- Juggernauts always drop 1 Datacore
-    sector:dropCargo(entity.translationf, nil, nil, "Eclipse Datacore", 1, 0)
+    sector:dropCargo(entity.translationf, nil, nil, Good("Eclipse Datacore"), 0, 1)
 end
