@@ -316,6 +316,7 @@ function EclipseGenerator.createStation(position)
     station:addMultiplyableFactor(StatsBonuses.ShieldDurability, 50.0) 
     EclipseGenerator.applyDamageMultiplier(station, 5.0) 
     station:addScriptOnce("entity/eclipse_boss_scaling.lua")
+    station:addScriptOnce("data/scripts/entity/ca_citadel_loot.lua")
     
     Boarding(station).boardable = false
     

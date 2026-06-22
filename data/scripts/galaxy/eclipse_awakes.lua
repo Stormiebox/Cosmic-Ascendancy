@@ -42,7 +42,7 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
         -- is not bound to a physical sector instance.
         -- Instead, we flag the coordinates globally. When a player physically enters
         -- these coordinates, `ascendancyplayer.lua` reads this flag and spawns the stronghold.
-        Galaxy():setValue("eclipse_stronghold_" .. x .. "_" .. y, true)
+        Server():setValue("eclipse_stronghold_" .. x .. "_" .. y, true)
     end
 end
 
