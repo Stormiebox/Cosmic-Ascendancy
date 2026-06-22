@@ -154,10 +154,6 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
     -- Increment global conquest tracker
     Server():setValue("eclipse_conquered_sectors", (conqueredCount or Server():getValue("eclipse_conquered_sectors") or 0) + 1)
 
-    -- Change the territory to The Eclipse globally on the galaxy map
-    local galaxy = Galaxy()
-    galaxy:setFaction(x, y, eclipseFaction.index)
-
     -- IMPORTANT ARCHITECTURE NOTE:
     -- In Avorion, calling `Sector()` inside a Galaxy-level or Server-level background script
     -- will instantly crash the dedicated server. To physically wipe a sector, we must delegate 

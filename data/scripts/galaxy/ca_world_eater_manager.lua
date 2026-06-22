@@ -96,21 +96,11 @@ function WorldEaterManager.executeDoomsday()
         })
     end
 
-    local galaxy = Galaxy()
-    galaxy:setFaction(tx, ty, eclipseFaction.index)
-
-    local sector = Sector()
-    if sector then
-        local cx, cy = sector:getCoordinates()
-        if cx == tx and cy == ty then
-            local entities = {sector:getEntities()}
-            for _, entity in pairs(entities) do
-                if entity.factionIndex ~= eclipseFaction.index and not entity.isPlayer then
-                    sector:deleteEntity(entity)
-                elseif entity.isPlayer then
-                    entity.durability = 1
-                end
-            end
+    -- Delegate sector annihilation to any active player in the sector to avoid global Sector() crashes
+    for _, p in pairs({Server():getPlayers()}) do
+        local px, py = p:getSectorCoordinates()
+        if px == tx and py == ty then
+            p:addScriptOnce("data/scripts/player/ca_annihilation_wiper.lua")
         end
     end
 end

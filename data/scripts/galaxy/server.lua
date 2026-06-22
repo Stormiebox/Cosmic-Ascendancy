@@ -42,7 +42,6 @@ function CosmicAscendancyServer.onSectorGenerated(x, y)
         if random():getFloat() < 0.05 then -- 5% chance per sector to be an Eclipse Stronghold
             local EclipseGenerator = include("eclipsegenerator")
             local faction = EclipseGenerator.getFaction()
-            Galaxy():setFaction(x, y, faction.index)
             
             -- IMPORTANT ARCHITECTURE NOTE:
             -- We cannot physically spawn stations or ships here. Calling `Sector()` during
