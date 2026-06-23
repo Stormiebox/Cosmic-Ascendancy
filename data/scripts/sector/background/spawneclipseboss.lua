@@ -21,15 +21,15 @@ function SpawnEclipseBoss.createBoss()
     boss.title = "Eclipse Oblivion Engine"%_T
     boss.name = "Eclipse Oblivion Engine"%_T
 
-    boss:addMultiplyableFactor(StatsBonuses.ShieldDurability, 500.0)
+    boss:addMultiplyableBias(StatsBonuses.ShieldDurability, 500.0)
 
     local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
     for _, stat in pairs(damageBonuses) do
-        boss:addMultiplyableFactor(stat, 50.0)
+        boss:addMultiplyableBias(stat, 50.0)
     end
 
-    boss:addMultiplyableFactor(StatsBonuses.ArmedTurrets, 200.0)
-    boss:addMultiplyableFactor(StatsBonuses.Velocity, 3.0)
+    boss:addMultiplyableBias(StatsBonuses.ArmedTurrets, 200.0)
+    boss:addMultiplyableBias(StatsBonuses.Velocity, 3.0)
 
     boss:setValue("stormbox_boss", true)
 

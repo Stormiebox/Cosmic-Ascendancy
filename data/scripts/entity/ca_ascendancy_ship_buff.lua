@@ -10,8 +10,8 @@ end
 function updateServer(timeStep)
     local entity = Entity()
     -- Force Avorion engine to recalculate stats (onBaseMultiplierCalculated will fire)
-    entity:addMultiplyableFactor(StatsBonuses.ShieldDurability, 0)
-    entity:removeMultiplyableFactor(StatsBonuses.ShieldDurability)
+    local _k = entity:addMultiplyableBias(StatsBonuses.ShieldDurability, 0)
+    entity:removeBonus(_k)
 end
 
 function onBaseMultiplierCalculated(entity, statModifier)
@@ -31,8 +31,8 @@ function onBaseMultiplierCalculated(entity, statModifier)
         local hyperMult = 1.0 + (tier * 0.10) -- +10% faster cooldown per tier
         local regenMult = 1.0 + (tier * 0.20) -- +20% shield regen per tier
         
-        statModifier:modifyBaseMultiplier(StatsBonuses.ShieldDurability, shieldMult)
-        statModifier:modifyBaseMultiplier(StatsBonuses.ShieldRecharge, regenMult)
-        statModifier:modifyBaseMultiplier(StatsBonuses.HyperspaceCooldown, hyperMult)
+        statModifier:addBaseMultiplier(StatsBonuses.ShieldDurability, shieldMult)
+        statModifier:addBaseMultiplier(StatsBonuses.ShieldRecharge, regenMult)
+        statModifier:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, hyperMult)
     end
 end

@@ -14,7 +14,7 @@ local EclipseGenerator = {}
 function EclipseGenerator.applyDamageMultiplier(entity, factor)
     local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
     for _, stat in pairs(damageBonuses) do
-        entity:addMultiplyableFactor(stat, factor)
+        entity:addMultiplyableBias(stat, factor)
     end
 end
 
@@ -161,9 +161,9 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
     
     -- If it's a Harbinger, inject Ascendant Multipliers
     if planType == "obelisk" then
-        ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 37.5) -- +3750% Shields
+        ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 37.5) -- +3750% Shields
         EclipseGenerator.applyDamageMultiplier(ship, 5.0) -- +500% Damage
-        ship:addMultiplyableFactor(StatsBonuses.ArmedTurrets, 75.0) -- +75 Turrets
+        ship:addMultiplyableBias(StatsBonuses.ArmedTurrets, 75.0) -- +75 Turrets
         ship:addScriptOnce("entity/eclipse_boss_scaling.lua")
         
         -- NEMESIS SYSTEM
@@ -187,10 +187,10 @@ function EclipseGenerator.createWorldEater(position)
     
     -- The World Eater gets an extra multiplier
     EclipseGenerator.applyDamageMultiplier(ship, 3.0)
-    ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 5.0)
+    ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 5.0)
     
     -- -90% Speed as per design
-    ship:addMultiplyableFactor(StatsBonuses.Velocity, -0.9)
+    ship:addMultiplyableBias(StatsBonuses.Velocity, -0.9)
     
     -- Add the boss behavior script which handles Tethers, EMPs, and Gravity Anomalies
     ship:addScriptOnce("data/scripts/entity/ca_worldeater_behavior.lua")
@@ -216,7 +216,7 @@ function EclipseGenerator.createAssassin(position)
     ship:setTitle("Eclipse Phantom"%_T, {})
     
     EclipseGenerator.applyDamageMultiplier(ship, 3.0) -- +300% burst damage
-    ship:addMultiplyableFactor(StatsBonuses.Velocity, 3.0) -- Fast turning/moving
+    ship:addMultiplyableBias(StatsBonuses.Velocity, 3.0) -- Fast turning/moving
     
     return ship
 end
@@ -225,7 +225,7 @@ function EclipseGenerator.createArtillery(position)
     local ship = EclipseGenerator.createShip(position, "singularity")
     ship:setTitle("Eclipse Singularity"%_T, {})
     
-    ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 0.5) -- 50% weaker shields
+    ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 0.5) -- 50% weaker shields
     
     -- Multiply reach of generated weapons
     for _, turret in pairs({ship:getTurrets()}) do
@@ -244,8 +244,8 @@ function EclipseGenerator.createJuggernaut(position)
     local ship = EclipseGenerator.createShip(position, "juggernaut")
     ship:setTitle("Eclipse Juggernaut"%_T, {})
     
-    ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 2.0) -- +200% Shields
-    ship:addMultiplyableFactor(StatsBonuses.Velocity, -0.5) -- -50% Speed
+    ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 2.0) -- +200% Shields
+    ship:addMultiplyableBias(StatsBonuses.Velocity, -0.5) -- -50% Speed
     -- Add loot script for Eclipse Datacore
     ship:addScriptOnce("data/scripts/entity/ca_juggernaut_loot.lua")
     
@@ -256,7 +256,7 @@ function EclipseGenerator.createInterceptor(position)
     local ship = EclipseGenerator.createShip(position, "interceptor")
     ship:setTitle("Eclipse Interceptor"%_T, {})
     
-    ship:addMultiplyableFactor(StatsBonuses.Velocity, 1.5) -- +150% Speed
+    ship:addMultiplyableBias(StatsBonuses.Velocity, 1.5) -- +150% Speed
     EclipseGenerator.applyDamageMultiplier(ship, -0.2) -- -20% Damage
     
     return ship
@@ -266,7 +266,7 @@ function EclipseGenerator.createHarvester(position)
     local ship = EclipseGenerator.createShip(position, "harvester")
     ship:setTitle("Eclipse Harvester"%_T, {})
     
-    ship:addMultiplyableFactor(StatsBonuses.CargoHold, 5.0) -- +500% Cargo
+    ship:addMultiplyableBias(StatsBonuses.CargoHold, 5.0) -- +500% Cargo
     
     return ship
 end
@@ -313,7 +313,7 @@ function EclipseGenerator.createStation(position)
     AddDefaultStationScripts(station)
     station:addScriptOnce("utility/aiundockable.lua")
     
-    station:addMultiplyableFactor(StatsBonuses.ShieldDurability, 50.0) 
+    station:addMultiplyableBias(StatsBonuses.ShieldDurability, 50.0) 
     EclipseGenerator.applyDamageMultiplier(station, 5.0) 
     station:addScriptOnce("entity/eclipse_boss_scaling.lua")
     station:addScriptOnce("data/scripts/entity/ca_citadel_loot.lua")

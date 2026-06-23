@@ -339,9 +339,9 @@ function CAWorldEater.checkPhases()
         -- Enrage
         local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
         for _, stat in pairs(damageBonuses) do
-            boss:addMultiplyableFactor(stat, 0.5)
+            boss:addMultiplyableBias(stat, 0.5)
         end
-        boss:addMultiplyableFactor(StatsBonuses.FireRate, 0.5)
+        boss:addMultiplyableBias(StatsBonuses.FireRate, 0.5)
     end
 end
 

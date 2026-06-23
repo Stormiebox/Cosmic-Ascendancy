@@ -47,9 +47,9 @@ function updateServer(timeStep)
                 defender:addScriptOnce("ai/patrol.lua")
                 local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
                 for _, stat in pairs(damageBonuses) do
-                    defender:addMultiplyableFactor(stat, 2.0)
+                    defender:addMultiplyableBias(stat, 2.0)
                 end
-                defender:addMultiplyableFactor(StatsBonuses.ShieldDurability, 2.0)
+                defender:addMultiplyableBias(StatsBonuses.ShieldDurability, 2.0)
             end
         end
     end

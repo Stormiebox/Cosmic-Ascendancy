@@ -50,13 +50,7 @@ function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
     for _, kData in pairs(dynamicKeys) do
-        if kData.type == "absolute" then
-            entity:removeAbsoluteBias(kData.stat, kData.key)
-        elseif kData.type == "base_multiplier" then
-            entity:removeBaseMultiplier(kData.stat, kData.key)
-        else
-            entity:removeMultiplier(kData.stat, kData.key)
-        end
+        entity:removeBonus(kData.key)
     end
     dynamicKeys = {}
 end

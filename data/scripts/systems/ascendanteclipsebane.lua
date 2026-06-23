@@ -20,22 +20,14 @@ function onInstalled(seed, rarity, permanent)
     if not permanent then return end
     for _, bonus in pairs(getFixedStats()) do
         if bonus.stat == StatsBonuses.ArmedTurrets or bonus.stat == StatsBonuses.HyperspaceReach then
-            Entity():addBaseMultiplier(bonus.stat, bonus.amount)
+            addBaseMultiplier(bonus.stat, bonus.amount)
         else
-            Entity():addMultiplyableBias(bonus.stat, bonus.amount)
+            addMultiplyableBias(bonus.stat, bonus.amount)
         end
     end
 end
 
 function onUninstalled(seed, rarity, permanent)
-    if not permanent then return end
-    for _, bonus in pairs(getFixedStats()) do
-        if bonus.stat == StatsBonuses.ArmedTurrets or bonus.stat == StatsBonuses.HyperspaceReach then
-            Entity():removeBaseMultiplier(bonus.stat, bonus.amount)
-        else
-            Entity():removeMultiplyableBias(bonus.stat, bonus.amount)
-        end
-    end
 end
 
 function getName(seed, rarity)

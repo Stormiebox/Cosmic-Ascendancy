@@ -13,8 +13,8 @@ function WorldEaterEvent.initialize(timeLeft)
     ship:setTitle("Eclipse World-Eater"%_T, {})
 
     -- Make it incredibly tanky
-    ship:addMultiplyableFactor(StatsBonuses.ShieldDurability, 15.0) -- Massive shields
-    ship:addMultiplyableFactor(StatsBonuses.Velocity, -0.9)
+    ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 15.0) -- Massive shields
+    ship:addMultiplyableBias(StatsBonuses.Velocity, -0.9)
     ship.scale = 5.0 -- Physically massive
 
     -- Spawn the Royal Escort Fleet

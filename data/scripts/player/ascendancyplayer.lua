@@ -9,7 +9,7 @@ function AscendancyPlayer.initialize()
     if onServer() then Player():addScriptOnce("data/scripts/player/background/ca_campaign_controller.lua") end
     if onServer() then
         Player():registerCallback("onSectorEntered", "onSectorEntered")
-        Player():registerCallback("onShipBuilt", "onShipBuilt")
+        Player():registerCallback("onEntityCreated", "onEntityCreated")
         Player():registerCallback("onShipChanged", "onShipChanged")
         Player():addScriptOnce("data/scripts/player/cosmicascendancycodex.lua")
     end
@@ -107,7 +107,7 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
     end
 end
 
-function AscendancyPlayer.onShipBuilt(entityId)
+function AscendancyPlayer.onEntityCreated(entityId)
     applyToEntity(entityId)
 end
 
@@ -125,8 +125,8 @@ end
 
 
 -- Global Event Callbacks
-function onShipBuilt(...)
-    if AscendancyPlayer.onShipBuilt then return AscendancyPlayer.onShipBuilt(...) end
+function onEntityCreated(...)
+    if AscendancyPlayer.onEntityCreated then return AscendancyPlayer.onEntityCreated(...) end
 end
 function onShipChanged(...)
     if AscendancyPlayer.onShipChanged then return AscendancyPlayer.onShipChanged(...) end

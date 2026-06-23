@@ -35,15 +35,17 @@ function applyDynamicBuffs()
     
     local finalMultiplier = distMultiplier * warMultiplier
     
-    entity:addMultiplyableFactor(StatsBonuses.ShieldDurability, "ca_aegis_durability", 5.0 * finalMultiplier)
-    entity:addMultiplyableFactor(StatsBonuses.ShieldRecharge, "ca_aegis_recharge", 3.0 * finalMultiplier)
+    table.insert(dynamicKeys, entity:addMultiplyableBias(StatsBonuses.ShieldDurability, 5.0 * finalMultiplier))
+    table.insert(dynamicKeys, entity:addMultiplyableBias(StatsBonuses.ShieldRecharge, 3.0 * finalMultiplier))
 end
 
 function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
-    entity:removeMultiplyableFactor(StatsBonuses.ShieldDurability, "ca_aegis_durability")
-    entity:removeMultiplyableFactor(StatsBonuses.ShieldRecharge, "ca_aegis_recharge")
+    for _, key in ipairs(dynamicKeys) do
+        entity:removeBonus(key)
+    end
+    dynamicKeys = {}
 end
 
 function onInstalled(seed, rarity, permanent)
