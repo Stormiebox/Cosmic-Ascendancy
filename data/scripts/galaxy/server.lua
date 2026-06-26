@@ -1,4 +1,4 @@
-include("data/scripts/galaxy/server.lua")
+
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local CosmicAscendancyServer = {}
@@ -6,22 +6,22 @@ local CosmicAscendancyServer = {}
 function CosmicAscendancyServer.initialize()
     if onServer() then
         Server():registerCallback("onPlayerLogIn", "onPlayerLogIn")
-    
+
         -- Start the Cosmic Ascendancy Sector Keep-Alive Engine
         if not Galaxy():hasScript("galaxy/ascendancykeepalive.lua") then
             Galaxy():addScript("galaxy/ascendancykeepalive.lua")
         end
-        
+
         -- Start The Eclipse Awakening Engine
         if not Galaxy():hasScript("galaxy/eclipse_awakes.lua") then
             Galaxy():addScript("galaxy/eclipse_awakes.lua")
         end
-        
+
         -- Start Dynamic Faction Expansion
         if not Galaxy():hasScript("galaxy/ca_expansion_manager.lua") then
             Galaxy():addScript("galaxy/ca_expansion_manager.lua")
         end
-        
+
         Server():registerCallback("onSectorGenerated", "onSectorGenerated")
     end
 end
@@ -45,12 +45,12 @@ function CosmicAscendancyServer.onSectorGenerated(x, y)
         if random():getFloat() < 0.05 then -- 5% chance per sector to be an Eclipse Stronghold
             local EclipseGenerator = include("eclipsegenerator")
             local faction = EclipseGenerator.getFaction()
-            
+
             -- IMPORTANT ARCHITECTURE NOTE:
             -- We cannot physically spawn stations or ships here. Calling `Sector()` during
             -- `onSectorGenerated` inside `server.lua` crashes the game because this script
-            -- is not bound to a physical sector instance. 
-            -- Instead, we flag the coordinates globally. When a player physically enters 
+            -- is not bound to a physical sector instance.
+            -- Instead, we flag the coordinates globally. When a player physically enters
             -- these coordinates, `ascendancyplayer.lua` reads this flag and spawns the stronghold.
             Server():setValue("eclipse_stronghold_" .. x .. "_" .. y, true)
         end
