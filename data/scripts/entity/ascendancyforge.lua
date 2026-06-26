@@ -89,22 +89,44 @@ function AscendancyForge.getCosts()
     local dist = length(vec2(x, y))
     local scale = math.max(1, 6 - (dist / 100)) -- 1x at 500, up to ~6x at core
 
-    local creditCost = math.floor(1000000000 * scale)
-    local matCost = random():getInt(100, 500)
+    local creditCost = math.floor(2500000000 * scale) -- 2.5 Billion
+    local matCost = random():getInt(250, 750) -- Ascendant Matter
+    
+    local ores = {}
+    ores[1] = math.floor(250000000 * scale) -- Iron
+    ores[2] = math.floor(150000000 * scale) -- Titanium
+    ores[3] = math.floor(100000000 * scale) -- Naonite
+    ores[4] = math.floor(75000000 * scale) -- Trinium
+    ores[5] = math.floor(50000000 * scale) -- Xanion
+    ores[6] = math.floor(25000000 * scale) -- Ogonite
+    ores[7] = math.floor(15000000 * scale) -- Avorion
 
-    return creditCost, "Ascendant Matter", matCost
+    return creditCost, "Ascendant Matter", matCost, ores
 end
 
 function AscendancyForge.syncCosts()
     if not onServer() then return end
-    local creditCost, mat, matCost = AscendancyForge.getCosts()
-    invokeClientFunction(Player(callingPlayer), "receiveCosts", creditCost, mat.name, matCost)
+    local creditCost, matName, matCost, ores = AscendancyForge.getCosts()
+    invokeClientFunction(Player(callingPlayer), "receiveCosts", creditCost, matName, matCost, ores)
 end
 callable(AscendancyForge, "syncCosts")
 
-function AscendancyForge.receiveCosts(creditCost, matName, matCost)
+function AscendancyForge.receiveCosts(creditCost, matName, matCost, ores)
     if not AscendancyForge.costLabel then return end
-    AscendancyForge.costLabel.caption = string.format("Forging Costs:\n%s Credits\n%s %s\n\nCrafting Time: 24 Hours", createMonetaryString(creditCost), createMonetaryString(matCost), matName)
+    
+    local caption = string.format("Forging Costs:\n%s Credits\n%s %s", createMonetaryString(creditCost), createMonetaryString(matCost), matName)
+    local matNames = {"Iron", "Titanium", "Naonite", "Trinium", "Xanion", "Ogonite", "Avorion"}
+    
+    for i = 1, 7 do
+        if ores[i] > 0 then
+            caption = caption .. string.format("\n%s %s", createMonetaryString(ores[i]), matNames[i])
+        end
+    end
+    
+    caption = caption .. "\n\nCrafting Time: 24 Hours"
+    
+    AscendancyForge.costLabel.caption = caption
+    AscendancyForge.costLabel.fontSize = 12
 end
 
 function AscendancyForge.sync(data)
@@ -192,10 +214,16 @@ function AscendancyForge.startForging()
         return
     end
 
-    local creditCost, matName, matCost = AscendancyForge.getCosts()
+    local creditCost, matName, matCost, ores = AscendancyForge.getCosts()
     
     if owner.money < creditCost then
         owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient credits!"%_t)
+        return
+    end
+    
+    local p_iron, p_tit, p_nao, p_tri, p_xan, p_ogo, p_avo = owner:getResources()
+    if p_iron < ores[1] or p_tit < ores[2] or p_nao < ores[3] or p_tri < ores[4] or p_xan < ores[5] or p_ogo < ores[6] or p_avo < ores[7] then
+        owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient Ores to fuel the Forge!"%_t)
         return
     end
     
@@ -205,7 +233,7 @@ function AscendancyForge.startForging()
         return
     end
 
-    owner:pay(creditCost)
+    owner:pay(creditCost, ores[1], ores[2], ores[3], ores[4], ores[5], ores[6], ores[7])
     craft:removeCargo(Good(matName), matCost)
 
     isForging = true

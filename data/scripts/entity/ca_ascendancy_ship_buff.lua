@@ -15,7 +15,7 @@ function updateServer(timeStep)
 end
 
 function onBaseMultiplierCalculated(entity, statModifier)
-    if not cv_buffs_success or not cv_buffs.getGlobalTier then return end
+    if not cv_buffs or not cv_buffs.getGlobalTier then return end
     
     local faction = Faction(entity.factionIndex)
     if not faction then return end

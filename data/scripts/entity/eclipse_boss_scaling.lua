@@ -21,7 +21,7 @@ function initialize()
                 CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.ShieldDurability, shieldFactor)
             end
             
-            local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
+            local damageBonuses = {StatsBonuses.ArmedTurrets, StatsBonuses.ArbitraryTurrets}
             for _, stat in pairs(damageBonuses) do
                 CosmicVaultBuffs.applyPermanentFactor(Entity().id, stat, damageFactor)
             end

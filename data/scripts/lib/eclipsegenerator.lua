@@ -12,10 +12,8 @@ local PlanGenerator = include ("plangenerator")
 local EclipseGenerator = {}
 
 function EclipseGenerator.applyDamageMultiplier(entity, factor)
-    local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
-    for _, stat in pairs(damageBonuses) do
-        entity:addMultiplyableBias(stat, factor)
-    end
+    -- Fake damage stats removed; replaced with ArbitraryTurrets multiplier for more raw DPS
+    entity:addMultiplyableBias(StatsBonuses.ArbitraryTurrets, factor * 2)
 end
 
 function EclipseGenerator.getFaction()

@@ -337,7 +337,7 @@ function CAWorldEater.checkPhases()
         broadcastInvokeClientFunction("createGlobalEmpGlow", boss.translationf)
         
         -- Enrage
-        local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
+        local damageBonuses = {StatsBonuses.ArmedTurrets, StatsBonuses.ArbitraryTurrets}
         for _, stat in pairs(damageBonuses) do
             boss:addMultiplyableBias(stat, 0.5)
         end
@@ -372,8 +372,6 @@ function CAWorldEater.onDestroyed()
     sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, random():getInt(100, 250))
 
     -- Boss drops legendary weapons, upgrades, and high tier turrets
-    local LootGenerator = include("lootgenerator")
-    local generator = LootGenerator(sector:getCoordinates())
     
     -- Drop 5-10 max tech legendary weapons
     for i = 1, random():getInt(5, 10) do
@@ -385,9 +383,10 @@ function CAWorldEater.onDestroyed()
     end
     
     -- Drop 5-10 legendary system upgrades
-    local SystemUpgradeTemplate = include("upgradegenerator")
+    local UpgradeGenerator = include("upgradegenerator")
+    local generator = UpgradeGenerator()
     for i = 1, random():getInt(5, 10) do
-        local upgrade = SystemUpgradeTemplate()
+        local upgrade = generator:generateSystem(Rarity(RarityType.Legendary))
         if upgrade then
             sector:dropUpgrade(pos, nil, nil, upgrade)
         end

@@ -1,3 +1,4 @@
+include("data/scripts/galaxy/server.lua")
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local CosmicAscendancyServer = {}
@@ -25,7 +26,9 @@ function CosmicAscendancyServer.initialize()
     end
 end
 
+local old_onPlayerLogIn = onPlayerLogIn
 function onPlayerLogIn(playerIndex)
+    if old_onPlayerLogIn then old_onPlayerLogIn(playerIndex) end
     CosmicAscendancyServer.onPlayerLogIn(playerIndex)
 end
 
@@ -64,6 +67,8 @@ end
 
 
 -- Global Event Callbacks
+local old_onSectorGenerated = onSectorGenerated
 function onSectorGenerated(...)
+    if old_onSectorGenerated then old_onSectorGenerated(...) end
     if CosmicAscendancyServer.onSectorGenerated then return CosmicAscendancyServer.onSectorGenerated(...) end
 end

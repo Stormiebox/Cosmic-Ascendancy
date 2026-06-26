@@ -76,14 +76,10 @@ function WorldEater.onDamaged(objectIndex, amount, inflictor, damageSource, dama
         WorldEater.blink()
         WorldEater.empPulse()
 
-        -- Enrage Buffs (+50% Fire Rate, +50% Damage)
+        -- Enrage Buffs (+50% Fire Rate, +50% Turrets for massive damage increase)
         if CosmicVaultBuffs then
-            CosmicVaultBuffs.applyPermanentFactor(entity.id, StatsBonuses.FireRate, 1.5)
-
-            local damageBonuses = {StatsBonuses.EnergyDamage, StatsBonuses.ElectricDamage, StatsBonuses.PlasmaDamage, StatsBonuses.AntiMatterDamage, StatsBonuses.FragmentsDamage, StatsBonuses.PhysicalDamage}
-            for _, stat in pairs(damageBonuses) do
-                CosmicVaultBuffs.applyPermanentFactor(entity.id, stat, 1.5)
-            end
+            CosmicVaultBuffs.applyPermanentFactor(entity.id, StatsBonuses.ArmedTurrets, 1.5)
+            CosmicVaultBuffs.applyPermanentFactor(entity.id, StatsBonuses.ArbitraryTurrets, 1.5)
         end
     end
 end

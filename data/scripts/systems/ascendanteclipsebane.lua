@@ -5,22 +5,17 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 function getFixedStats()
     return {
         {stat = StatsBonuses.ShieldDurability, amount = 0.50},
-        {stat = StatsBonuses.ArmedTurrets, amount = 5},
-        {stat = StatsBonuses.HyperspaceReach, amount = 5},
-        {stat = StatsBonuses.EnergyDamage, amount = 0.25},
-        {stat = StatsBonuses.ElectricDamage, amount = 0.25},
-        {stat = StatsBonuses.PlasmaDamage, amount = 0.25},
-        {stat = StatsBonuses.AntiMatterDamage, amount = 0.25},
-        {stat = StatsBonuses.FragmentsDamage, amount = 0.25},
-        {stat = StatsBonuses.PhysicalDamage, amount = 0.25}
+        {stat = StatsBonuses.HullDurability, amount = 0.50},
+        {stat = StatsBonuses.ArbitraryTurrets, amount = 5},
+        {stat = StatsBonuses.HyperspaceReach, amount = 5}
     }
 end
 
 function onInstalled(seed, rarity, permanent)
     if not permanent then return end
     for _, bonus in pairs(getFixedStats()) do
-        if bonus.stat == StatsBonuses.ArmedTurrets or bonus.stat == StatsBonuses.HyperspaceReach then
-            addBaseMultiplier(bonus.stat, bonus.amount)
+        if bonus.stat == StatsBonuses.ArbitraryTurrets or bonus.stat == StatsBonuses.HyperspaceReach then
+            addAbsoluteBias(bonus.stat, bonus.amount)
         else
             addMultiplyableBias(bonus.stat, bonus.amount)
         end
