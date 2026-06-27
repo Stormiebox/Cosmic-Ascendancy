@@ -33,10 +33,10 @@ function applyDynamicBuffs()
         warMultiplier = 1.0 + (heat * 1.5)
     end
     
-    local finalMultiplier = distMultiplier * warMultiplier
+    local finalMultiplier = math.min(2.5, distMultiplier * warMultiplier)
     
-    table.insert(dynamicKeys, entity:addMultiplyableBias(StatsBonuses.ShieldDurability, 5.0 * finalMultiplier))
-    table.insert(dynamicKeys, entity:addMultiplyableBias(StatsBonuses.ShieldRecharge, 3.0 * finalMultiplier))
+    table.insert(dynamicKeys, entity:addMultiplyableBias(StatsBonuses.ShieldDurability, 2.0 * finalMultiplier))
+    table.insert(dynamicKeys, entity:addMultiplyableBias(StatsBonuses.ShieldRecharge, 1.5 * finalMultiplier))
 end
 
 function removeDynamicBuffs()

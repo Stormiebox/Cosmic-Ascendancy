@@ -34,6 +34,15 @@ function EclipseConquestManager.initialize()
             illegal = true,
             tags = {ascendant = true}
         })
+        cv_goods.registerGood({
+            name = "Ascendant Scrap",
+            description = "Failed remnants of an Ascendant forging process. Highly sought after by underground tech brokers.",
+            price = 100000,
+            size = 1.0,
+            icon = "data/textures/icons/metal-scales.png",
+            illegal = true,
+            tags = {ascendant = true}
+        })
     end
 
     if not Server():getValue("eclipse_fully_awake") then return end
@@ -56,6 +65,12 @@ function EclipseConquestManager.expandEmpire()
 
     local conqueredCount = Server():getValue("eclipse_conquered_sectors") or 0
     local isFallenEmpire = Server():getValue("eclipse_fallen_empire")
+    
+    -- Suppression Field Logic: Halt invasions for 6 hours after a Citadel dies
+    local citadelDestroyed = Server():getValue("eclipse_citadel_destroyed_time") or 0
+    if Server().playtime - citadelDestroyed < (6 * 3600) then
+        return -- Suppressed
+    end
 
     -- Check if we should awaken
     if conqueredCount >= 10 and not isFallenEmpire then

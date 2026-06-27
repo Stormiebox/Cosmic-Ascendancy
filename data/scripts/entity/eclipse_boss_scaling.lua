@@ -20,14 +20,10 @@ function initialize()
             if not isWorldEater then
                 CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.ShieldDurability, shieldFactor)
             end
-            
-            local damageBonuses = {StatsBonuses.ArmedTurrets, StatsBonuses.ArbitraryTurrets}
-            for _, stat in pairs(damageBonuses) do
-                CosmicVaultBuffs.applyPermanentFactor(Entity().id, stat, damageFactor)
-            end
         end
         
         local entity = Entity()
+        entity.damageMultiplier = (entity.damageMultiplier or 1.0) * damageFactor
         local shield = Shield(entity.id)
         if shield then
             shield.durability = shield.maximum

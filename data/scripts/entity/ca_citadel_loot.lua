@@ -13,6 +13,10 @@ function onDestroyed()
     local entity = Entity()
     local pos = entity.translationf
 
+    -- Suppression Field: Halt all invasions globally for 6 hours
+    Server():setValue("eclipse_citadel_destroyed_time", Server().playtime)
+    Sector():broadcastChatMessage("Eclipse Citadel", 2, "The Citadel's destruction has generated a massive suppression field. Eclipse invasions halted.")
+
     -- Ascendant Matter massive drop
     local matterAmount = random():getInt(100, 250)
     sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, matterAmount)

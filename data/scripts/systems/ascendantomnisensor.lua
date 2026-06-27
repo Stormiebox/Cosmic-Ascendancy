@@ -33,13 +33,13 @@ function applyDynamicBuffs()
         warMultiplier = 1.0 + (heat * 1.5)
     end
     
-    local finalMultiplier = distMultiplier * warMultiplier
+    local finalMultiplier = math.min(2.5, distMultiplier * warMultiplier)
     
     -- Omni-Sensor gives Radar, Hidden Sector, Cargo, and Loot Range
-    local k1 = entity:addAbsoluteBias(StatsBonuses.RadarReach, math.floor(20 * finalMultiplier))
-    local k2 = entity:addAbsoluteBias(StatsBonuses.HiddenSectorRadarReach, math.floor(15 * finalMultiplier))
-    local k3 = entity:addMultiplier(StatsBonuses.CargoHold, 10.0 * finalMultiplier)
-    local k4 = entity:addMultiplier(StatsBonuses.LootCollectionRange, 5.0 * finalMultiplier)
+    local k1 = entity:addAbsoluteBias(StatsBonuses.RadarReach, math.floor(10 * finalMultiplier))
+    local k2 = entity:addAbsoluteBias(StatsBonuses.HiddenSectorRadarReach, math.floor(5 * finalMultiplier))
+    local k3 = entity:addMultiplier(StatsBonuses.CargoHold, 1.5 * finalMultiplier)
+    local k4 = entity:addMultiplier(StatsBonuses.LootCollectionRange, 1.5 * finalMultiplier)
     
     table.insert(dynamicKeys, {key=k1, type="absolute", stat=StatsBonuses.RadarReach})
     table.insert(dynamicKeys, {key=k2, type="absolute", stat=StatsBonuses.HiddenSectorRadarReach})
@@ -51,11 +51,7 @@ function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
     for _, kData in pairs(dynamicKeys) do
-        if kData.type == "absolute" then
-            entity:removeAbsoluteBias(kData.stat, kData.key)
-        else
-            entity:removeMultiplier(kData.stat, kData.key)
-        end
+        entity:removeBonus(kData.key)
     end
     dynamicKeys = {}
 end

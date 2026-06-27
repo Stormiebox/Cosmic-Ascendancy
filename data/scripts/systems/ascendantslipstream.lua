@@ -33,11 +33,11 @@ function applyDynamicBuffs()
         warMultiplier = 1.0 + (heat * 1.5)
     end
     
-    local finalMultiplier = distMultiplier * warMultiplier
+    local finalMultiplier = math.min(2.5, distMultiplier * warMultiplier)
     
     -- Slipstream Core gives massive Velocity, Jump Reach, and Cooldown reduction
-    local k1 = entity:addMultiplier(StatsBonuses.Velocity, 5.0 * finalMultiplier)
-    local k2 = entity:addAbsoluteBias(StatsBonuses.HyperspaceReach, math.floor(25 * finalMultiplier))
+    local k1 = entity:addMultiplier(StatsBonuses.Velocity, 1.5 * finalMultiplier)
+    local k2 = entity:addAbsoluteBias(StatsBonuses.HyperspaceReach, math.floor(10 * finalMultiplier))
     local k3 = entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, -0.8) -- Cap cooldown naturally, maybe not multiply to avoid negative infinity?
     -- Wait, removeBaseMultiplier is for Basesystem. Let's use removeMultiplier.
     

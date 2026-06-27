@@ -34,12 +34,12 @@ function applyDynamicBuffs()
         warMultiplier = 1.0 + (heat * 1.5) -- Up to 2.5x during max war
     end
     
-    local finalMultiplier = distMultiplier * warMultiplier -- Max ~7.5x
+    local finalMultiplier = math.min(2.5, distMultiplier * warMultiplier) -- Capped at 2.5x to prevent absurd stats
     
     -- Apply Base Stats multiplied by finalMultiplier
     -- War-Drive gives Armed/Arbitrary Turrets, Energy, and FireRate
-    local k1 = entity:addAbsoluteBias(StatsBonuses.ArmedTurrets, math.floor(10 * finalMultiplier))
-    local k2 = entity:addAbsoluteBias(StatsBonuses.ArbitraryTurrets, math.floor(5 * finalMultiplier))
+    local k1 = entity:addAbsoluteBias(StatsBonuses.ArmedTurrets, math.floor(3 * finalMultiplier))
+    local k2 = entity:addAbsoluteBias(StatsBonuses.ArbitraryTurrets, math.floor(2 * finalMultiplier))
     local k3 = entity:addMultiplier(StatsBonuses.GeneratedEnergy, 2.0 * finalMultiplier)
     local k4 = entity:addMultiplier(StatsBonuses.FireRate, 0.5 * finalMultiplier)
     
@@ -53,11 +53,7 @@ function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
     for _, kData in pairs(dynamicKeys) do
-        if kData.type == "absolute" then
-            entity:removeAbsoluteBias(kData.stat, kData.key)
-        else
-            entity:removeMultiplier(kData.stat, kData.key)
-        end
+        entity:removeBonus(kData.key)
     end
     dynamicKeys = {}
 end

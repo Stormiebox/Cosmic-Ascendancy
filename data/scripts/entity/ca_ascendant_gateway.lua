@@ -45,11 +45,9 @@ function updateServer(timeStep)
                 defender.shieldDurability = defender.shieldMaxDurability
                 
                 defender:addScriptOnce("ai/patrol.lua")
-                local damageBonuses = {StatsBonuses.ArmedTurrets, StatsBonuses.ArbitraryTurrets}
-                for _, stat in pairs(damageBonuses) do
-                    defender:addMultiplyableBias(stat, 2.0)
-                end
-                defender:addMultiplyableBias(StatsBonuses.ShieldDurability, 2.0)
+                defender.damageMultiplier = (defender.damageMultiplier or 1.0) * 3.0
+                defender:addMultiplyableBias(StatsBonuses.FireRate, 2.0)
+                defender:addMultiplyableBias(StatsBonuses.ShieldDurability, 3.0)
             end
         end
     end

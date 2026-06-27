@@ -14,6 +14,24 @@ function onDamaged(objectIndex, amount, inflictor, damageType)
     local entity = Entity()
     if not entity then return end
     
+    -- 8% Damage Gate Logic
+    local maxTotalHealth = entity.maxDurability + entity.shieldMaxDurability
+    local damageLimit = maxTotalHealth * 0.08
+    
+    if amount > damageLimit then
+        local excess = amount - damageLimit
+        
+        -- Restore the excess damage to prevent one-shots
+        if entity.shieldDurability > 0 then
+            entity.shieldDurability = math.min(entity.shieldMaxDurability, entity.shieldDurability + excess)
+        else
+            entity.durability = math.min(entity.maxDurability, entity.durability + excess)
+        end
+        
+        -- Update the amount actually processed for our tracker
+        amount = damageLimit
+    end
+    
     -- Track incoming damage
     damageType = damageType or DamageType.Physical
     damageTracker[damageType] = (damageTracker[damageType] or 0) + amount

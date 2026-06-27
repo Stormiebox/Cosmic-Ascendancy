@@ -87,8 +87,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Dynamic Wartime Premium:** Integrated with `Cosmic War`. AI factions currently engaged in massive wars will desperately pay up to a **+50% Premium Toll** for seeking safe harbor in your sector.
 - **Capital Sieges:** A hidden playtime clock runs within the beacon. Every 3 to 6 hours, a devastating siege fleet (Pirates, Xsotan, or War Factions) will invade your sector to destroy the beacon. If you defend it, you earn legendary loot. If it falls, your global buffs collapse.
 - **Wartime Innovation:** Weapons crafted at the Stellar Forge receive exponential damage multipliers based on how close the forge is to the Galactic Core (+200%) and your current War Heat (+150%). Forging at the core during a massive war yields a 9.0x damage super-weapon!
+- **Forge Sacrifice Overhaul:** Rebuilt the `ascendancyforge.lua` UI to mimic the Vanilla Research Station. You must drag and drop Legendary (+20% success) or Exotic (+10% success) subsystems to guarantee your craft. Failures immediately destroy materials but reward you with new `Ascendant Scrap`.
 - **Multiplayer Boss Scaling:** Implemented dynamic `applyPermanentFactor` scaling. Harbingers and Citadels now inherently gain +100% Shield and +50% Damage per additional player in the sector.
-- **Eclipse Boss Damage Gate**: Implemented an 8% damage gate to Eclipse Dread-Lords in `ca_nemesis_resist.lua` to prevent players from instantly bursting them down with 9.0x super-weapons.
+- **Eclipse Citadel Mechanics:** 
+  - **Lockdown Matrix**: Attached the vanilla `hyperspaceblocker.lua` script to Citadels natively, actively trapping players in the sector until the Citadel is destroyed.
+  - **Suppression Field**: Destroying a Citadel now writes a global server timestamp that aggressively halts all new Eclipse invasions galaxy-wide for 6 hours.
+- **Eclipse Boss Damage Gate**: Hardened the 8% damage gate inside `ca_nemesis_system.lua` to properly check if shields are active. If a god-tier weapon bypasses the gate, the script seamlessly restores the correct health pool (shields or hull) to prevent one-shots.
 - **Nemesis Resistances Native Overhaul**: Restructured `ca_nemesis_resist.lua` to calculate its 90% elemental damage reduction dynamically inside the `onDamaged` loop, instead of relying on non-existent `StatsBonuses.*DamageReceived` API enums.
 - **Vault Fleet Integration:** Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.
 
@@ -107,6 +111,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Fixed:** Global crash in `server.lua` where `Sector()` was called during galaxy generation `onSectorGenerated`. Replaced with global marking, and shifted physical spawning of Strongholds to player `onSectorEntered` mechanics.
 - **Fixed:** `eclipse_conquest_manager.lua` attempted to call `Sector()` from a Galaxy script context during Annihilation. Offloaded sector wipes to a player script instance to safely execute.
 - **Fixed:** `eclipsegenerator.lua` attempted to call `Sector()` when spawning blueprints globally. Wrapped all `Sector()` coordinate fetches in safe `pcall` fallbacks.
+- **Ascendant Gateways:** Fixed a hallucination where Gateways spawned Ascendant Guardians with `StatsBonuses.ArmedTurrets` (empty slots) instead of `damageMultiplier` and `StatsBonuses.FireRate`.
 - **Invalid StatsBonuses Wipe**: Scrubbed all invalid API enums (like `StatsBonuses.Damage`, `StatsBonuses.ShieldCapacity`, `StatsBonuses.CargoCapacity`) from `eclipsegenerator.lua`, `spawneclipseboss.lua`, `ca_ascendant_gateway.lua`, `eclipse_boss_scaling.lua`, `ca_ascendancy_ship_buff.lua`, and `ascendanteclipsebane.lua`. Bosses will now correctly receive their intended 500% damage boosts (by mathematically looping over the 6 native elemental types) and 3750% shields natively!
 - **Ascendant Bosses:** Eclipse Harbingers utilize the "Living Relic" subsystem mechanics internally, multiplying their shields by 3750% and damage by 500%.
 - **The Ascendant Forge Unlock:** The Ascendant Forge is now securely locked behind the completion of the new story campaign.

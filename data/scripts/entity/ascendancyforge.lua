@@ -1,22 +1,30 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
-
-include ("utility")
-include ("stringutility")
+package.path = package.path .. ";data/scripts/?.lua"
+include("utility")
+include("stringutility")
+include("faction")
+local PlanGenerator = include("plangenerator")
+local ShipGenerator = include("shipgenerator")
 local TurretGenerator = include("turretgenerator")
+local cw_bridge = include("cosmicwar_bridge")
 local cv_news = include("cosmicvaultnews")
-local cw_bridge = include("cosmicwarbridge")
 local cv_buffs = include("cosmicvaultbuffs")
-
-AscendancyForge = {}
+local cv_goods = include("cosmicvaultgoods")
 
 local isForging = false
 local forgeFinishTime = 0
 local hasCompletedItem = false
+local willSucceed = false
 local selectedType = 1
-local FORGE_TIME = 24 * 3600 -- 24 real-world/playtime hours
+
+local FORGE_TIME = 24 * 3600
+
+AscendancyForge = {}
 
 local weaponChoices = {
     {name = "Ascendant Chaingun", value = 1},
+    {name = "Ascendant Point Defense", value = 2},
+    {name = "Ascendant Anti-Fighter", value = 12},
     {name = "Ascendant Bolter", value = 13},
     {name = "Ascendant Laser", value = 3},
     {name = "Ascendant Plasma", value = 8},
@@ -43,7 +51,7 @@ end
 
 function AscendancyForge.initUI()
     local res = getResolution()
-    local size = vec2(600, 350)
+    local size = vec2(850, 650)
     local menu = ScriptUI()
     local window = menu:createWindow(Rect(res * 0.5 - size * 0.5, res * 0.5 + size * 0.5))
     window.caption = "The Stellar Forge"%_t
@@ -51,20 +59,41 @@ function AscendancyForge.initUI()
     window.moveable = 1
     menu:registerWindow(window, "Stellar Forge"%_t, 11)
 
-    window:createLabel(Rect(10, 10, size.x - 10, 30), "Ascendant Weapon Blueprint:"%_t, 14)
-    AscendancyForge.combo = window:createComboBox(Rect(10, 35, size.x - 10, 65), "onComboChanged")
+    local hsplit = UIHorizontalSplitter(Rect(window.size), 10, 10, 0.45)
+    
+    AscendancyForge.inventory = window:createInventorySelection(hsplit.bottom, 12)
+    AscendancyForge.inventory:setShowScrollArrows(true, true, 1.0)
+    AscendancyForge.inventory.dragFromEnabled = 1
+    AscendancyForge.inventory.onClickedFunction = "onInventoryClicked"
+
+    local topSplit = UIVerticalSplitter(hsplit.top, 10, 10, 0.4)
+    
+    window:createLabel(Rect(topSplit.left.lower.x, topSplit.left.lower.y, topSplit.left.upper.x, topSplit.left.lower.y + 25), "Blueprint:"%_t, 14)
+    AscendancyForge.combo = window:createComboBox(Rect(topSplit.left.lower.x, topSplit.left.lower.y + 30, topSplit.left.upper.x, topSplit.left.lower.y + 60), "onComboChanged")
     for _, choice in pairs(weaponChoices) do
         AscendancyForge.combo:addEntry(choice.name)
     end
 
-    AscendancyForge.costLabel = window:createLabel(Rect(10, 80, size.x - 10, 160), "", 14)
-    AscendancyForge.statusLabel = window:createLabel(Rect(10, 180, size.x - 10, 220), "", 18)
+    AscendancyForge.costLabel = window:createLabel(Rect(topSplit.left.lower.x, topSplit.left.lower.y + 70, topSplit.left.upper.x, topSplit.left.lower.y + 220), "", 12)
+    
+    window:createLabel(Rect(topSplit.right.lower.x, topSplit.right.lower.y, topSplit.right.upper.x, topSplit.right.lower.y + 25), "Sacrifice Legendary/Exotic Subsystems:", 14)
+    
+    AscendancyForge.sacrificeSelection = window:createSelection(Rect(topSplit.right.lower.x, topSplit.right.lower.y + 30, topSplit.right.lower.x + 350, topSplit.right.lower.y + 90), 5)
+    AscendancyForge.sacrificeSelection.dropIntoEnabled = 1
+    AscendancyForge.sacrificeSelection.entriesSelectable = 0
+    AscendancyForge.sacrificeSelection.onReceivedFunction = "onSacrificeReceived"
+    AscendancyForge.sacrificeSelection.onClickedFunction = "onSacrificeClicked"
 
-    AscendancyForge.forgeBtn = window:createButton(Rect(size.x * 0.5 - 200, 250, size.x * 0.5 - 10, 290), "Ignite Forge"%_t, "onForgePressed")
-    AscendancyForge.claimBtn = window:createButton(Rect(size.x * 0.5 + 10, 250, size.x * 0.5 + 200, 290), "Claim Weapon"%_t, "onClaimPressed")
+    AscendancyForge.successRateLabel = window:createLabel(Rect(topSplit.right.lower.x, topSplit.right.lower.y + 100, topSplit.right.upper.x, topSplit.right.lower.y + 130), "Success Rate: 0%", 16)
+    AscendancyForge.successRateLabel.color = ColorRGB(1, 0.5, 0)
 
-    AscendancyForge.tierLabel = window:createLabel(Rect(10, 300, size.x * 0.5, 340), "Global Ascendancy Tier: 0", 16)
-    AscendancyForge.decryptBtn = window:createButton(Rect(size.x * 0.5, 300, size.x - 10, 340), "Decrypt Eclipse Datacore"%_t, "onDecryptPressed")
+    AscendancyForge.forgeBtn = window:createButton(Rect(topSplit.right.lower.x, topSplit.right.lower.y + 140, topSplit.right.lower.x + 180, topSplit.right.lower.y + 180), "Ignite Forge"%_t, "onForgePressed")
+    AscendancyForge.claimBtn = window:createButton(Rect(topSplit.right.lower.x + 190, topSplit.right.lower.y + 140, topSplit.right.lower.x + 370, topSplit.right.lower.y + 180), "Claim Weapon"%_t, "onClaimPressed")
+
+    AscendancyForge.statusLabel = window:createLabel(Rect(topSplit.right.lower.x, topSplit.right.lower.y + 190, topSplit.right.upper.x, topSplit.right.lower.y + 230), "", 16)
+    
+    AscendancyForge.tierLabel = window:createLabel(Rect(topSplit.left.lower.x, topSplit.left.lower.y + 230, topSplit.left.upper.x, topSplit.left.lower.y + 250), "Global Ascendancy Tier: 0", 14)
+    AscendancyForge.decryptBtn = window:createButton(Rect(topSplit.left.lower.x, topSplit.left.lower.y + 255, topSplit.left.upper.x, topSplit.left.lower.y + 285), "Decrypt Eclipse Datacore"%_t, "onDecryptPressed")
 
     AscendancyForge.sync()
 end
@@ -82,24 +111,120 @@ callable(AscendancyForge, "updateSelectedType")
 
 function AscendancyForge.onShowWindow()
     AscendancyForge.sync()
+    AscendancyForge.updateSuccessRate()
 end
 
+function AscendancyForge.updateSuccessRate()
+    local rate = 0
+    for _, item in pairs(AscendancyForge.sacrificeSelection:getItems()) do
+        if item.item then
+            if item.item.rarity.value == RarityType.Legendary then rate = rate + 20
+            elseif item.item.rarity.value == RarityType.Exotic then rate = rate + 10 end
+        end
+    end
+    rate = math.min(100, rate)
+    AscendancyForge.successRateLabel.caption = "Success Rate: " .. tostring(rate) .. "%"
+    if rate >= 100 then
+        AscendancyForge.successRateLabel.color = ColorRGB(0, 1, 0)
+    elseif rate >= 50 then
+        AscendancyForge.successRateLabel.color = ColorRGB(1, 1, 0)
+    else
+        AscendancyForge.successRateLabel.color = ColorRGB(1, 0.5, 0)
+    end
+end
+
+-- Drag and Drop Handlers
+function AscendancyForge.removeItemFromMainSelection(key)
+    local item = AscendancyForge.inventory:getItem(key)
+    if not item then return end
+    if item.amount then
+        item.amount = item.amount - 1
+        AscendancyForge.inventory:add(item, key)
+    end
+end
+
+function AscendancyForge.addItemToMainSelection(item)
+    if not item or not item.item then return end
+    if item.item.stackable then
+        local key = AscendancyForge.inventory:find(item.item)
+        if key then
+            local existing = AscendancyForge.inventory:getItem(key)
+            existing.amount = existing.amount + 1
+            AscendancyForge.inventory:add(existing, key)
+            return
+        end
+    end
+    item.amount = 1
+    AscendancyForge.inventory:add(item)
+end
+
+function AscendancyForge.moveItem(item, from, to, fkey, tkey)
+    if not item then return end
+    if from.index == AscendancyForge.inventory.index then
+        if item.favorite then return end
+        if tkey then
+            AscendancyForge.addItemToMainSelection(to:getItem(tkey))
+            to:remove(tkey)
+        end
+        AscendancyForge.removeItemFromMainSelection(fkey)
+        item.amount = nil
+        to:add(item, tkey)
+    elseif to.index == AscendancyForge.inventory.index then
+        AscendancyForge.addItemToMainSelection(item)
+        from:remove(fkey)
+    end
+end
+
+function AscendancyForge.onSacrificeReceived(selectionIndex, fkx, fky, item, fromIndex, toIndex, tkx, tky)
+    if not item then return end
+    if fromIndex == AscendancyForge.sacrificeSelection.index then return end
+    
+    if item.item.rarity.value < RarityType.Exotic then
+        -- Reject anything below exotic
+        return
+    end
+
+    AscendancyForge.moveItem(item, AscendancyForge.inventory, Selection(selectionIndex), ivec2(fkx, fky), ivec2(tkx, tky))
+    AscendancyForge.updateSuccessRate()
+end
+
+function AscendancyForge.onSacrificeClicked(selectionIndex, fkx, fky, item, button)
+    if button == 3 or button == 2 then
+        AscendancyForge.moveItem(item, Selection(selectionIndex), AscendancyForge.inventory, ivec2(fkx, fky), nil)
+        AscendancyForge.updateSuccessRate()
+    end
+end
+
+function AscendancyForge.onInventoryClicked(selectionIndex, kx, ky, item, button)
+    if button == 2 or button == 3 then
+        if item.item.rarity.value < RarityType.Exotic then return end
+        if item.favorite then return end
+        
+        local items = AscendancyForge.sacrificeSelection:getItems()
+        if tablelength(items) < 5 then
+            AscendancyForge.moveItem(item, AscendancyForge.inventory, AscendancyForge.sacrificeSelection, ivec2(kx, ky), nil)
+            AscendancyForge.updateSuccessRate()
+        end
+    end
+end
+
+-- Server side logic
 function AscendancyForge.getCosts()
     local x, y = Sector():getCoordinates()
     local dist = length(vec2(x, y))
-    local scale = math.max(1, 6 - (dist / 100)) -- 1x at 500, up to ~6x at core
+    local scale = math.max(1, 6 - (dist / 100))
 
-    local creditCost = math.floor(2500000000 * scale) -- 2.5 Billion
-    local matCost = random():getInt(250, 750) -- Ascendant Matter
+    local creditCost = math.floor(2500000000 * scale)
+    local matCost = random():getInt(250, 750)
     
     local ores = {}
-    ores[1] = math.floor(250000000 * scale) -- Iron
-    ores[2] = math.floor(150000000 * scale) -- Titanium
-    ores[3] = math.floor(100000000 * scale) -- Naonite
-    ores[4] = math.floor(75000000 * scale) -- Trinium
-    ores[5] = math.floor(50000000 * scale) -- Xanion
-    ores[6] = math.floor(25000000 * scale) -- Ogonite
-    ores[7] = math.floor(15000000 * scale) -- Avorion
+    ores[1] = math.floor(250000000 * scale)
+    ores[2] = math.floor(150000000 * scale)
+    ores[3] = math.floor(100000000 * scale)
+    ores[4] = math.floor(75000000 * scale)
+    ores[5] = math.floor(50000000 * scale)
+    ores[6] = math.floor(25000000 * scale)
+    ores[7] = math.floor(15000000 * scale)
 
     return creditCost, "Ascendant Matter", matCost, ores
 end
@@ -113,21 +238,235 @@ callable(AscendancyForge, "syncCosts")
 
 function AscendancyForge.receiveCosts(creditCost, matName, matCost, ores)
     if not AscendancyForge.costLabel then return end
-    
     local caption = string.format("Forging Costs:\n%s Credits\n%s %s", createMonetaryString(creditCost), createMonetaryString(matCost), matName)
     local matNames = {"Iron", "Titanium", "Naonite", "Trinium", "Xanion", "Ogonite", "Avorion"}
-    
     for i = 1, 7 do
         if ores[i] > 0 then
             caption = caption .. string.format("\n%s %s", createMonetaryString(ores[i]), matNames[i])
         end
     end
-    
-    caption = caption .. "\n\nCrafting Time: 24 Hours"
-    
+    caption = caption .. "\n\nCrafting Time: 24 Hours\nRequires sacrificing Legendary/Exotic subsystems to increase Success Rate."
     AscendancyForge.costLabel.caption = caption
-    AscendancyForge.costLabel.fontSize = 12
 end
+
+function AscendancyForge.onForgePressed()
+    if not onClient() then return end
+    local itemIndices = {}
+    for _, item in pairs(AscendancyForge.sacrificeSelection:getItems()) do
+        if item.item then
+            local amount = itemIndices[item.index] or 0
+            amount = amount + 1
+            itemIndices[item.index] = amount
+        end
+    end
+    invokeServerFunction("startForging", itemIndices)
+end
+
+function AscendancyForge.startForging(itemIndices)
+    if not onServer() then return end
+    if isForging or hasCompletedItem then return end
+
+    local owner = Faction(Entity().factionIndex)
+    if not owner then return end
+    local player = Player(callingPlayer)
+    if not player then return end
+    local craft = player.craft
+    if not craft then
+        player:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to ignite the forge."%_t)
+        return
+    end
+
+    local creditCost, matName, matCost, ores = AscendancyForge.getCosts()
+    if owner.money < creditCost then
+        owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient credits!"%_t)
+        return
+    end
+    local p_iron, p_tit, p_nao, p_tri, p_xan, p_ogo, p_avo = owner:getResources()
+    if p_iron < ores[1] or p_tit < ores[2] or p_nao < ores[3] or p_tri < ores[4] or p_xan < ores[5] or p_ogo < ores[6] or p_avo < ores[7] then
+        owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient Ores to fuel the Forge!"%_t)
+        return
+    end
+    
+    local cargoAmount = craft:getCargoAmount(matName)
+    if cargoAmount < matCost then
+        owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient %s in your ship's cargo hold!"%_t, matName)
+        return
+    end
+
+    -- Verify Sacrificed Items
+    local successRate = 0
+    if itemIndices then
+        for index, amount in pairs(itemIndices) do
+            local item = owner:getInventory():find(index)
+            local has = owner:getInventory():amount(index)
+            if not item or has < amount then
+                player:sendChatMessage("Stellar Forge"%_t, 1, "You don't have the sacrificed items!"%_t)
+                return
+            end
+            if item.rarity.value == RarityType.Legendary then
+                successRate = successRate + (20 * amount)
+            elseif item.rarity.value == RarityType.Exotic then
+                successRate = successRate + (10 * amount)
+            end
+        end
+    end
+
+    -- Consume Costs
+    owner:pay(creditCost, ores[1], ores[2], ores[3], ores[4], ores[5], ores[6], ores[7])
+    craft:removeCargo(Good(matName), matCost)
+    
+    if itemIndices then
+        for index, amount in pairs(itemIndices) do
+            for i = 1, amount do
+                owner:getInventory():take(index)
+            end
+        end
+    end
+
+    -- Roll RNG
+    if random():getInt(1, 100) <= successRate then
+        willSucceed = true
+        isForging = true
+        forgeFinishTime = Server().playtime + FORGE_TIME
+        owner:sendChatMessage("Stellar Forge"%_t, 0, "The Stellar Forge has ignited! Your weapon will be ready in 24 hours."%_t)
+    else
+        willSucceed = false
+        owner:sendChatMessage("Stellar Forge"%_t, 1, "The Forge failed to stabilize the Ascendant Matter! Your materials were consumed."%_t)
+        -- Give Ascendant Scrap
+        if cv_goods.registerGood then
+            craft:addCargo(Good("Ascendant Scrap"), random():getInt(10, 50))
+            owner:sendChatMessage("Stellar Forge"%_t, 2, "You salvaged some Ascendant Scrap from the failure.")
+        end
+    end
+
+    AscendancyForge.sync()
+end
+callable(AscendancyForge, "startForging")
+
+function AscendancyForge.onClaimPressed()
+    if onClient() then invokeServerFunction("claimWeapon"); return end
+end
+
+function AscendancyForge.claimWeapon()
+    if not onServer() then return end
+    if not hasCompletedItem then return end
+    local owner = Faction(Entity().factionIndex)
+    if not owner then return end
+
+    if type(selectedType) == "string" then
+        local system = SystemUpgradeTemplate(selectedType, Rarity(5), random():createSeed())
+        owner:getInventory():add(system)
+        owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. system.name .. "!")
+    else
+        local rarity = Rarity(5)
+        local material = Material(6)
+        local dps = 15000
+        local turret = TurretGenerator.generateSeeded(random():createSeed(), selectedType, dps, 52, rarity, material, true)
+
+        local x, y = Sector():getCoordinates()
+        local distBonus = 1.0 + (math.max(0, 500 - length(vec2(x, y))) / 250)
+        local warBonus = 1.0
+        if cw_bridge.getFactionWarHeat then
+            local heat = cw_bridge.getFactionWarHeat(owner.index)
+            if heat > 0 then warBonus = 1.0 + (heat * 1.5) end
+        end
+
+        local finalMult = 3.0 * distBonus * warBonus
+        local weapons = {turret:getWeapons()}
+        turret:clearWeapons()
+        for _, w in pairs(weapons) do
+            w.damage = w.damage * finalMult
+            w.reach = math.min(30000, w.reach * 2.0)
+            turret:addWeapon(w)
+        end
+        turret.title = "Ascendant " .. turret.title
+        turret.coaxial = false
+        turret.slots = 1
+
+        owner:getInventory():add(turret)
+        owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. turret.title .. "!")
+    end
+
+    hasCompletedItem = false
+    isForging = false
+    willSucceed = false
+    AscendancyForge.sync()
+end
+callable(AscendancyForge, "claimWeapon")
+
+function AscendancyForge.getUpdateInterval() return 60 end
+
+function AscendancyForge.updateServer(timeStep)
+    if isForging then
+        local pt = Server().playtime
+        if pt >= forgeFinishTime then
+            isForging = false
+            hasCompletedItem = true
+            local owner = Faction(Entity().factionIndex)
+            if owner then
+                owner:sendChatMessage("Stellar Forge"%_t, 0, "Your Ascendant Weapon is ready to be claimed!"%_t)
+            end
+        end
+    end
+end
+
+function AscendancyForge.secure()
+    return {
+        isForging = isForging,
+        forgeFinishTime = forgeFinishTime,
+        hasCompletedItem = hasCompletedItem,
+        willSucceed = willSucceed,
+        selectedType = selectedType
+    }
+end
+
+function AscendancyForge.restore(data)
+    isForging = data.isForging or false
+    forgeFinishTime = data.forgeFinishTime or 0
+    hasCompletedItem = data.hasCompletedItem or false
+    willSucceed = data.willSucceed or false
+    selectedType = data.selectedType or 1
+end
+
+function AscendancyForge.onDecryptPressed()
+    if onClient() then invokeServerFunction("decryptDatacore"); return end
+end
+
+function AscendancyForge.decryptDatacore()
+    if not onServer() then return end
+    local owner = Faction(Entity().factionIndex)
+    if not owner then return end
+    local player = Player(callingPlayer)
+    if not player then return end
+    local craft = player.craft
+    if not craft then
+        player:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to decrypt datacores."%_t)
+        return
+    end
+
+    local amount = craft:getCargoAmount("Eclipse Datacore")
+    if amount < 1 then
+        player:sendChatMessage("Stellar Forge"%_t, 1, "You do not have any Eclipse Datacores in your ship's cargo hold!"%_t)
+        return
+    end
+
+    craft:removeCargo(Good("Eclipse Datacore"), 1)
+
+    if cv_buffs.setGlobalTier then
+        local currentTier = cv_buffs.getGlobalTier(owner.index)
+        cv_buffs.setGlobalTier(owner.index, currentTier + 1)
+        owner:sendChatMessage("Stellar Forge"%_t, 0, "Datacore Decrypted! Global Ascendancy Tier increased to " .. (currentTier + 1) .. "!")
+
+        if owner.isPlayer then
+            local p = Player(owner.index)
+            if not p:hasScript("data/scripts/player/ca_global_tier_manager.lua") then
+                p:addScript("data/scripts/player/ca_global_tier_manager.lua")
+            end
+        end
+    end
+    AscendancyForge.sync()
+end
+callable(AscendancyForge, "decryptDatacore")
 
 function AscendancyForge.sync(data)
     if onServer() then
@@ -154,248 +493,30 @@ function AscendancyForge.sync(data)
                 AscendancyForge.forgeBtn.active = false
                 AscendancyForge.claimBtn.active = false
                 AscendancyForge.combo.active = false
+                AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
             elseif hasCompletedItem then
                 AscendancyForge.statusLabel.caption = "WEAPON READY FOR CLAIM!"
                 AscendancyForge.statusLabel.color = ColorRGB(0, 1, 0)
                 AscendancyForge.forgeBtn.active = false
                 AscendancyForge.claimBtn.active = true
                 AscendancyForge.combo.active = false
+                AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
             else
                 AscendancyForge.statusLabel.caption = "FORGE IDLE"
                 AscendancyForge.statusLabel.color = ColorRGB(0.5, 0.5, 0.5)
                 AscendancyForge.forgeBtn.active = true
                 AscendancyForge.claimBtn.active = false
                 AscendancyForge.combo.active = true
+                AscendancyForge.sacrificeSelection.dropIntoEnabled = 1
             end
             if data.tier then
                 AscendancyForge.tierLabel.caption = "Global Ascendancy Tier: " .. tostring(data.tier)
-            end
-            if isForging then
-                AscendancyForge.statusLabel.caption = "FORGING... Remaining: " .. math.floor(data.remaining / 3600) .. "h " .. math.floor((data.remaining % 3600) / 60) .. "m"
-                AscendancyForge.forgeBtn.active = false
-                AscendancyForge.claimBtn.active = false
-                AscendancyForge.combo.active = false
-            elseif hasCompletedItem then
-                AscendancyForge.statusLabel.caption = "WEAPON READY FOR CLAIM!"
-                AscendancyForge.statusLabel.color = ColorRGB(0, 1, 0)
-                AscendancyForge.forgeBtn.active = false
-                AscendancyForge.claimBtn.active = true
-                AscendancyForge.combo.active = false
-            else
-                AscendancyForge.statusLabel.caption = "FORGE IDLE"
-                AscendancyForge.statusLabel.color = ColorRGB(0.5, 0.5, 0.5)
-                AscendancyForge.forgeBtn.active = true
-                AscendancyForge.claimBtn.active = false
-                AscendancyForge.combo.active = true
             end
         end
         invokeServerFunction("syncCosts")
     end
 end
 callable(AscendancyForge, "sync")
-
-function AscendancyForge.onForgePressed()
-    if onClient() then invokeServerFunction("startForging"); return end
-end
-
-function AscendancyForge.startForging()
-    if not onServer() then return end
-    if isForging or hasCompletedItem then return end
-
-    local owner = Faction(Entity().factionIndex)
-    if not owner then return end
-
-    local player = Player(callingPlayer)
-    if not player then return end
-    
-    local craft = player.craft
-    if not craft then
-        player:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to ignite the forge."%_t)
-        return
-    end
-
-    local creditCost, matName, matCost, ores = AscendancyForge.getCosts()
-    
-    if owner.money < creditCost then
-        owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient credits!"%_t)
-        return
-    end
-    
-    local p_iron, p_tit, p_nao, p_tri, p_xan, p_ogo, p_avo = owner:getResources()
-    if p_iron < ores[1] or p_tit < ores[2] or p_nao < ores[3] or p_tri < ores[4] or p_xan < ores[5] or p_ogo < ores[6] or p_avo < ores[7] then
-        owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient Ores to fuel the Forge!"%_t)
-        return
-    end
-    
-    local cargoAmount = craft:getCargoAmount(matName)
-    if cargoAmount < matCost then
-        owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient %s in your ship's cargo hold!"%_t, matName)
-        return
-    end
-
-    owner:pay(creditCost, ores[1], ores[2], ores[3], ores[4], ores[5], ores[6], ores[7])
-    craft:removeCargo(Good(matName), matCost)
-
-    isForging = true
-    forgeFinishTime = Server().playtime + FORGE_TIME
-
-    owner:sendChatMessage("Stellar Forge"%_t, 0, "The Stellar Forge has ignited! Your weapon will be ready in 24 hours."%_t)
-
-    if cv_news.publishArticle then
-        local x, y = Sector():getCoordinates()
-        cv_news.publishArticle({
-            title = "Stellar Forge Ignited in [" .. x .. ":" .. y .. "]",
-            content = "Astronomical energy readings detected as the " .. owner.name .. " Empire initiates their Stellar Forge. They are constructing an apocalyptic super-weapon.",
-            category = "Galactic Expansion"
-        })
-    end
-
-    AscendancyForge.sync()
-end
-callable(AscendancyForge, "startForging")
-
-function AscendancyForge.onClaimPressed()
-    if onClient() then invokeServerFunction("claimWeapon"); return end
-end
-
-function AscendancyForge.claimWeapon()
-    if not onServer() then return end
-    if not hasCompletedItem then return end
-
-    local owner = Faction(Entity().factionIndex)
-    if not owner then return end
-
-    if type(selectedType) == "string" then
-        -- Construct Living Relic Subsystem
-        local system = SystemUpgradeTemplate(selectedType, Rarity(5), random():createSeed())
-        owner:getInventory():add(system)
-        owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. system.name .. "!")
-    else
-        -- Generate God-Tier Weapon
-        local rarity = Rarity(5) -- Legendary
-        local material = Material(6) -- Avorion
-        local dps = 15000
-
-        -- Use highest possible tech
-        local turret = TurretGenerator.generateSeeded(random():createSeed(), selectedType, dps, 52, rarity, material, true)
-
-        -- Compute Multipliers
-        local x, y = Sector():getCoordinates()
-        local distBonus = 1.0 + (math.max(0, 500 - length(vec2(x, y))) / 250) -- +200% at core
-
-        local warBonus = 1.0
-        if cw_bridge.getFactionWarHeat then
-            local heat = cw_bridge.getFactionWarHeat(owner.index)
-            if heat > 0 then
-                warBonus = 1.0 + (heat * 1.5) -- Up to +150% during massive wars
-            end
-        end
-
-        local finalMult = 3.0 * distBonus * warBonus
-
-        -- Inject custom properties
-        local weapons = {turret:getWeapons()}
-        turret:clearWeapons()
-        for _, w in pairs(weapons) do
-            w.damage = w.damage * finalMult
-            w.reach = math.min(30000, w.reach * 2.0)
-            turret:addWeapon(w)
-        end
-
-        turret.title = "Ascendant " .. turret.title
-        turret.coaxial = false -- Ensure it can be mounted normally or coaxially if user wants, but we'll leave it as normal
-        turret.slots = 1 -- Reduce slot cost as a supreme benefit
-
-        -- Give to player
-        owner:getInventory():add(turret)
-        owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. turret.title .. "!")
-    end
-
-    hasCompletedItem = false
-    isForging = false
-    AscendancyForge.sync()
-end
-callable(AscendancyForge, "claimWeapon")
-
-function AscendancyForge.getUpdateInterval()
-    return 60
-end
-
-function AscendancyForge.updateServer(timeStep)
-    if isForging then
-        local pt = Server().playtime
-        if pt >= forgeFinishTime then
-            isForging = false
-            hasCompletedItem = true
-
-            local owner = Faction(Entity().factionIndex)
-            if owner then
-                owner:sendChatMessage("Stellar Forge"%_t, 0, "Your Ascendant Weapon is ready to be claimed!"%_t)
-            end
-        end
-    end
-end
-
-function AscendancyForge.secure()
-    return {
-        isForging = isForging,
-        forgeFinishTime = forgeFinishTime,
-        hasCompletedItem = hasCompletedItem,
-        selectedType = selectedType
-    }
-end
-
-function AscendancyForge.restore(data)
-    isForging = data.isForging or false
-    forgeFinishTime = data.forgeFinishTime or 0
-    hasCompletedItem = data.hasCompletedItem or false
-    selectedType = data.selectedType or 1
-end
-
-function AscendancyForge.onDecryptPressed()
-    if onClient() then invokeServerFunction("decryptDatacore"); return end
-end
-
-function AscendancyForge.decryptDatacore()
-    if not onServer() then return end
-    local owner = Faction(Entity().factionIndex)
-    if not owner then return end
-
-    local player = Player(callingPlayer)
-    if not player then return end
-    
-    local craft = player.craft
-    if not craft then
-        player:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to decrypt datacores."%_t)
-        return
-    end
-
-    local amount = craft:getCargoAmount("Eclipse Datacore")
-    if amount < 1 then
-        player:sendChatMessage("Stellar Forge"%_t, 1, "You do not have any Eclipse Datacores in your ship's cargo hold!"%_t)
-        return
-    end
-
-    craft:removeCargo(Good("Eclipse Datacore"), 1)
-
-    if cv_buffs.setGlobalTier then
-        local currentTier = cv_buffs.getGlobalTier(owner.index)
-        cv_buffs.setGlobalTier(owner.index, currentTier + 1)
-        owner:sendChatMessage("Stellar Forge"%_t, 0, "Datacore Decrypted! Global Ascendancy Tier increased to " .. (currentTier + 1) .. "!")
-
-        -- Apply stats globally via a script we will attach to the player
-        if owner.isPlayer then
-            local p = Player(owner.index)
-            if not p:hasScript("data/scripts/player/ca_global_tier_manager.lua") then
-                p:addScript("data/scripts/player/ca_global_tier_manager.lua")
-            end
-        end
-    end
-
-    AscendancyForge.sync()
-end
-callable(AscendancyForge, "decryptDatacore")
-
 
 function getUpdateInterval(...)
     if AscendancyForge.getUpdateInterval then return AscendancyForge.getUpdateInterval(...) end

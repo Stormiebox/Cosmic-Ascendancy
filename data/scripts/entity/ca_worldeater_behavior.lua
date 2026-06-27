@@ -337,10 +337,7 @@ function CAWorldEater.checkPhases()
         broadcastInvokeClientFunction("createGlobalEmpGlow", boss.translationf)
         
         -- Enrage
-        local damageBonuses = {StatsBonuses.ArmedTurrets, StatsBonuses.ArbitraryTurrets}
-        for _, stat in pairs(damageBonuses) do
-            boss:addMultiplyableBias(stat, 0.5)
-        end
+        boss.damageMultiplier = (boss.damageMultiplier or 1.0) * 1.5
         boss:addMultiplyableBias(StatsBonuses.FireRate, 0.5)
     end
 end

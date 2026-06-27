@@ -135,8 +135,8 @@ Crafting Ascendant-tier gear and decrypting datacores is extraordinarily expensi
   - *Benefits:* Each decryption permanently raises the player's Global Ascendancy Tier.
   - *Stats:* Each tier natively grants all player ships +15% Shield Capacity, +20% Shield Recharge, and +10% Faster Hyperspace Cooldown.
 - **The Sacrifice System:** When initiating a craft, the Forge requires a Catalyst. You must sacrifice existing **Legendary** or **Exotic** subsystems.
-  - *Math:* Sacrificing 1 Legendary grants a 20% success rate. Sacrificing 5 Legendaries guarantees a 100% success rate.
-  - *Failure:* If the craft fails, the sacrificed subsystems and half the raw materials are destroyed, but you are given "Ascendant Scrap" which slightly boosts the success rate of the next attempt.
+  - *Math:* Sacrificing 1 Legendary grants a 20% success rate. Sacrificing 1 Exotic grants a 10% success rate. Sacrificing 5 Legendaries guarantees a 100% success rate.
+  - *Failure:* If the craft fails, the sacrificed subsystems and raw materials are destroyed, but you are given "Ascendant Scrap" which is highly sought after and can be sold to underground tech brokers for massive profit.
 
 ### ⚙️ Ascendant Subsystem Stats
 Ascendant subsystems are categorized as a new rarity tier (`Ascendant`) with custom purple/gold UI text. They are hardcoded to provide **50% greater baseline stats** than the maximum possible roll of a vanilla Legendary.

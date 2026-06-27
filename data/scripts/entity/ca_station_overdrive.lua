@@ -7,6 +7,7 @@ StationOverdrive = {}
 local isOverdriven = false
 local overdriveEndTime = 0
 local OVERDRIVE_DURATION = 3600 -- 1 Hour
+local overdriveKey = nil
 
 function StationOverdrive.initialize()
     -- Intentionally left empty. Engine natively calls updateServer.
@@ -67,7 +68,7 @@ function StationOverdrive.activateOverdrive()
     overdriveEndTime = Server().playtime + OVERDRIVE_DURATION
 
     -- Apply the 3x Production Capacity Multiplier
-    entity:addMultiplier(StatsBonuses.ProductionCapacity, 3.0)
+    overdriveKey = entity:addMultiplier(StatsBonuses.ProductionCapacity, 3.0)
 
     owner:sendChatMessage("Overdrive"%_t, 0, "Ascendant Overdrive engaged! Production speed tripled for 1 hour."%_t)
     
@@ -88,7 +89,10 @@ function StationOverdrive.updateServer(timeStep)
             local entity = Entity()
             
             -- Remove the multiplier
-            entity:removeMultiplier(StatsBonuses.ProductionCapacity, 3.0)
+            if overdriveKey then
+                entity:removeBonus(overdriveKey)
+                overdriveKey = nil
+            end
             
             local owner = Faction(entity.factionIndex)
             if owner then
@@ -130,7 +134,7 @@ function StationOverdrive.restore(data)
         -- In case the server restarted while overdriven, re-apply the multiplier 
         -- because addMultiplier is volatile and does not persist across restarts unless re-added
         local entity = Entity()
-        entity:addMultiplier(StatsBonuses.ProductionCapacity, 3.0)
+        overdriveKey = entity:addMultiplier(StatsBonuses.ProductionCapacity, 3.0)
     end
 end
 

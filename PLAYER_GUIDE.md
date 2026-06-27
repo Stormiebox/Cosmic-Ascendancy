@@ -105,8 +105,9 @@ To combat the Eclipse, you must locate and utilize the Ascendancy Forge to craft
 - **Global Ascendancy Matrix:** You can submit **Eclipse Datacores** (dropped by Eclipse Juggernauts) to the Forge. Decrypting a datacore permanently raises your Global Ascendancy Tier, granting a stacking +15% Shields, +20% Shield Recharge, and +10% Hyperspace Cooldown to all ships in your fleet!
 - **The Sacrifice System:** When initiating a craft, you must sacrifice existing Legendary or Exotic subsystems as Catalysts.
   - Sacrificing 1 Legendary grants a 20% success rate.
+  - Sacrificing 1 Exotic grants a 10% success rate.
   - Sacrificing 5 Legendaries guarantees a 100% success rate.
-- **Failure:** If the craft fails, the sacrificed subsystems and half the raw materials are destroyed, but you receive "Ascendant Scrap" which slightly boosts the success rate of your next attempt.
+- **Failure:** If the craft fails, the sacrificed subsystems and raw materials are destroyed, but you receive "Ascendant Scrap" which is highly sought after and can be sold to underground tech brokers for massive profit.
 
 ### 🏭 Resource Procurement & Factory Overdrive
 To fuel the Ascendancy Forge, you will need massive quantities of **Ascendant Matter**.

@@ -12,8 +12,7 @@ local PlanGenerator = include ("plangenerator")
 local EclipseGenerator = {}
 
 function EclipseGenerator.applyDamageMultiplier(entity, factor)
-    -- Fake damage stats removed; replaced with ArbitraryTurrets multiplier for more raw DPS
-    entity:addMultiplyableBias(StatsBonuses.ArbitraryTurrets, factor * 2)
+    entity.damageMultiplier = (entity.damageMultiplier or 1.0) * factor
 end
 
 function EclipseGenerator.getFaction()
@@ -160,8 +159,8 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
     -- If it's a Harbinger, inject Ascendant Multipliers
     if planType == "obelisk" then
         ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 37.5) -- +3750% Shields
-        EclipseGenerator.applyDamageMultiplier(ship, 5.0) -- +500% Damage
-        ship:addMultiplyableBias(StatsBonuses.ArmedTurrets, 75.0) -- +75 Turrets
+        EclipseGenerator.applyDamageMultiplier(ship, 10.0) -- +1000% Damage (compensated for lost turrets)
+        ship:addMultiplyableBias(StatsBonuses.FireRate, 1.0) -- +100% Fire Rate
         ship:addScriptOnce("entity/eclipse_boss_scaling.lua")
         
         -- NEMESIS SYSTEM
@@ -185,7 +184,7 @@ function EclipseGenerator.createWorldEater(position)
     
     -- The World Eater gets an extra multiplier
     EclipseGenerator.applyDamageMultiplier(ship, 3.0)
-    ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 5.0)
+    ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 15.0) -- Massive shields for the raid boss
     
     -- -90% Speed as per design
     ship:addMultiplyableBias(StatsBonuses.Velocity, -0.9)
@@ -315,6 +314,9 @@ function EclipseGenerator.createStation(position)
     EclipseGenerator.applyDamageMultiplier(station, 5.0) 
     station:addScriptOnce("entity/eclipse_boss_scaling.lua")
     station:addScriptOnce("data/scripts/entity/ca_citadel_loot.lua")
+    
+    -- The Lockdown Matrix: Prevents players from jumping out while the Citadel is alive
+    station:addScriptOnce("entity/hyperspaceblocker.lua")
     
     Boarding(station).boardable = false
     
