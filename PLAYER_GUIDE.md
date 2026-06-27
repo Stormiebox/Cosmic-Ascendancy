@@ -126,7 +126,8 @@ Players can construct the ultimate megastructure to anchor their empire: **The A
 - **Upgrades & Upkeep:** The beacon can be upgraded through 5 tiers, exponentially increasing the global stat buffs. However, higher tiers require massive, continuous upkeep costs of Credits, Avorion, and Ogonite.
 - **Passive Real-Estate Income:** Beacons automatically tax all passing AI-controlled freighters. This passive income is dynamically scaled by the War Heat of the passing faction (factions actively at war will pay a 50% premium for safe passage through your heavily defended capital!).
 - **Treasury Payouts:** To prevent endless notification spam from freighters constantly passing through your capital, the Beacon safely stores all collected tolls in its internal treasury and pays out a single lump-sum to your faction every 45 minutes (synced with the Upkeep cycle).
-- **Default Design:** Founding a beacon automatically loads a customized, towering `.xml` megastructure design so players do not have to manually build their empire's capital from scratch.
+- **Default Design:** Will follow Avorion standard mode of building a station. Allowing players to select `Ascendancy Beacon` as an option if they have it unlocked plus resources.
+
 </details>
 
 ---

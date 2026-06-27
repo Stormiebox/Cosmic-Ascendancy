@@ -92,7 +92,7 @@ The Eclipse adapt to the server's power level. The galaxy engine scans for the p
 ### 💥 Eclipse Citadels
 When an invasion is overwhelmingly successful, the Eclipse will permanently occupy the sector and construct a **Citadel**.
 - **The Lockdown Matrix:** Citadels generate a sector-wide interdiction field. Ships cannot jump *out* of a Citadel sector unless the Citadel is destroyed.
-- **Siege Mechanics:** Citadels have `250,000,000` base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms. 
+- **Siege Mechanics:** Citadels have `250,000,000` base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms.
 - **Loot:** Destroying a Citadel guarantees a drop of 1-3 **Legendary** subsystems and massive quantities of Avorion ore, alongside unique crafting materials for the Ascendancy Forge.
 - **Suppression Field:** Destroying a Citadel halts all Eclipse invasions within a 15-sector radius for exactly 6 real-time hours.
 </details>
@@ -103,7 +103,7 @@ When an invasion is overwhelmingly successful, the Eclipse will permanently occu
 <details>
 <summary><b>Click to expand</b></summary>
 
-Players can construct the ultimate megastructure: **The Ascendancy Beacon**. 
+Players can construct the ultimate megastructure: **The Ascendancy Beacon**.
 
 ### Purpose & Functionality
 - **Permanent Sector Simulation:** A sector containing an active Ascendancy Beacon is simulated 24/7, even if no players are online.
@@ -111,7 +111,8 @@ Players can construct the ultimate megastructure: **The Ascendancy Beacon**.
 - **Upgrades:** The beacon can be upgraded through 5 tiers, exponentially increasing the global stat buffs but requiring massive, continuous upkeep costs of Credits, Avorion, and Ogonite.
 - **Passive Real-Estate Income:** Beacons automatically tax all passing AI-controlled freighters. This passive income is dynamically scaled by the War Heat of the passing faction (factions actively at war will pay a 50% premium for safe passage through your heavily defended capital!).
 - **Treasury Payouts:** To prevent endless notification spam from freighters constantly passing through your capital, the Beacon safely stores all collected tolls in its internal treasury and pays out a single lump-sum to your faction every 45 minutes (synced with the Upkeep cycle).
-- **Default Design:** Founding a beacon automatically loads a customized, towering `.xml` megastructure design so players do not have to manually build their empire's capital from scratch.
+- **Default Design:** Will follow Avorion standard mode of building a station. Allowing players to select `Ascendancy Beacon` as an option if they have it unlocked plus resources.
+
 </details>
 
 ---
@@ -181,7 +182,7 @@ All deep lore regarding the Eclipse origins, detailed crafting recipes for the A
 
 ### Ascendancy Beacon & Codex
 The Cosmic Codex has been radically expanded to properly categorize the Eclipse Crisis.
-**The Ascendancy Beacon:** 
+**The Ascendancy Beacon:**
 A late-game construct that applies permanent, galaxy-wide stat multipliers to the player's fleet. Sector instances containing a beacon are simulated 24/7 without requiring the player to be online.
 
 ## The Nemesis System
