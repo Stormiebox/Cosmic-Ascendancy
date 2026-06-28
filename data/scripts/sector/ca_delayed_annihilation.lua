@@ -2,12 +2,11 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 -- =========================================================================
--- COSMIC ASCENDANCY: SECTOR ANNIHILATION WIPER
+-- COSMIC ASCENDANCY: DELAYED SECTOR ANNIHILATION WIPER
 -- =========================================================================
--- This script is dynamically injected into a Player instance by the 
--- Galaxy-level conquest manager. It allows us to safely call `Sector()` 
--- and physically delete all entities in the sector without crashing the server.
--- It cleans up after itself by calling `terminate()` immediately.
+-- This script is attached to unloaded sectors by the Galaxy conquest manager.
+-- When a player finally visits this sector, this script boots up, physically
+-- annihilates all entities, applies Dark Matter Fog, and terminates.
 -- =========================================================================
 
 function initialize()

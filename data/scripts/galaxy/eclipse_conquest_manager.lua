@@ -174,16 +174,23 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
     -- Increment global conquest tracker
     Server():setValue("eclipse_conquered_sectors", (conqueredCount or Server():getValue("eclipse_conquered_sectors") or 0) + 1)
 
-    -- IMPORTANT ARCHITECTURE NOTE:
-    -- In Avorion, calling `Sector()` inside a Galaxy-level or Server-level background script
-    -- will instantly crash the dedicated server. To physically wipe a sector, we must delegate 
-    -- the task to a Player or Sector script instance.
-    -- If a player is in the sector, we attach a one-time wipe script to their client.
+    -- To forcefully strip faction ownership, we briefly force the server to load the sector.
+    -- This guarantees the `ca_delayed_annihilation.lua` script fires immediately and physically destroys the stations,
+    -- which naturally recalculates the map ownership to Neutral, preventing Ghost claims.
+    
+    local playerInSector = false
     for _, p in pairs({Server():getPlayers()}) do
         local px, py = p:getSectorCoordinates()
         if px == x and py == y then
             p:addScriptOnce("data/scripts/player/ca_annihilation_wiper.lua")
+            playerInSector = true
         end
+    end
+    
+    if not playerInSector then
+        Galaxy():addSectorScript(x, y, "data/scripts/sector/ca_delayed_annihilation.lua")
+        -- Briefly load the sector so the script fires, wiping the stations and correctly updating the map ownership natively.
+        Galaxy():loadSector(x, y)
     end
 end
 
