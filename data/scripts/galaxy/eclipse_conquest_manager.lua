@@ -96,7 +96,14 @@ function EclipseConquestManager.expandEmpire()
     if isFallenEmpire then
         -- Crusade Logic: Seek out an AI Faction Capital
         -- We will scan factions and find one with a home sector
-        local factions = {Galaxy():getFactions()}
+        local factions = {}
+        local factionStr = Server():getValue("factions")
+        if type(factionStr) == "string" and factionStr ~= "" then
+            for id in string.gmatch(factionStr, "([^,]+)") do
+                local f = Faction(tonumber(id))
+                if f then table.insert(factions, f) end
+            end
+        end
         local targets = {}
         for _, faction in pairs(factions) do
             local isEradicated = false
