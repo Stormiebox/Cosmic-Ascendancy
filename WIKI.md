@@ -99,6 +99,22 @@ When an invasion is overwhelmingly successful, the Eclipse will permanently occu
 
 ---
 
+
+---
+
+## ⚙️ The World Eater Event
+<details>
+<summary><b>Click to expand</b></summary>
+
+Once the Eclipse are fully awakened, the galaxy is never truly safe. The Eclipse will periodically unleash their Doomsday Weapon: **The World Eater**.
+
+- **Global Timer:** Every 2 to 3 real-time hours, the World Eater charges its primary weapon system.
+- **Targeting:** It will lock onto a random known sector belonging to an active player.
+- **The Countdown:** A 15-minute Doomsday countdown initiates. The server will broadcast a global GNN warning every 5 minutes, providing the exact coordinates of the impending strike.
+- **Doomsday Execution:** If players fail to arrive in the sector and destroy the World Eater boss within the 15-minute window, the Doomsday weapon fires. The sector is completely erased, and the World Eater retreats.
+- **Loot:** Successfully destroying the World Eater yields an enormous amount of **Ascendant Matter** (required for Forge Overdrive) and high-tier subsystems.
+</details>
+
 ## 🏛️ The Ascendancy Beacon
 <details>
 <summary><b>Click to expand</b></summary>
