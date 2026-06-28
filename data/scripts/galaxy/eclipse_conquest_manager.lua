@@ -135,8 +135,10 @@ function EclipseConquestManager.expandEmpire()
     -- 60% chance to Annihilation (Total wipe)
     if random():getFloat() < 0.4 then
         -- CONQUEST
-        if CosmicVaultTerritory and CosmicVaultTerritory.addContestedZone then
-            CosmicVaultTerritory.addContestedZone(tx, ty, eclipseFaction.index)
+        if CosmicVaultTerritory and CosmicVaultTerritory.setContestedZone then
+            local defFactionObj = Galaxy():getControllingFaction(tx, ty)
+            local defFactionIndex = defFactionObj and defFactionObj.index or 0
+            CosmicVaultTerritory.setContestedZone(tx, ty, eclipseFaction.index, defFactionIndex, 120)
             Server():broadcastChatMessage("The Eclipse", 2, "Commencing assimilation of coordinates (" .. tx .. ":" .. ty .. "). Resistance is biologically inefficient.")
 
             -- If the sector is currently loaded in memory, inject the siege event safely via a player currently inside it
