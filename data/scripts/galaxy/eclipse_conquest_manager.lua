@@ -4,6 +4,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 local CosmicVaultTerritory = nil
 local cv_goods = include("cosmicvaultgoods")
 local cv_news = include("cosmicvaultnews")
+local FactionEradicationUtility = include("factioneradicationutility")
 CosmicVaultTerritory = include("cosmicvaultterritory")
 
 local EclipseConquestManager = {}
@@ -98,7 +99,12 @@ function EclipseConquestManager.expandEmpire()
         local factions = {Galaxy():getFactions()}
         local targets = {}
         for _, faction in pairs(factions) do
-            if not faction.isPlayer and not faction.isAlliance and not faction:getValue("is_eclipse") and faction.name ~= "The Eclipse" then
+            local isEradicated = false
+            if FactionEradicationUtility and FactionEradicationUtility.isFactionEradicated then
+                isEradicated = FactionEradicationUtility.isFactionEradicated(faction.index)
+            end
+
+            if not isEradicated and not faction.isPlayer and not faction.isAlliance and not faction:getValue("is_eclipse") and faction.name ~= "The Eclipse" then
                 local hx, hy = faction:getHomeSectorCoordinates()
                 if hx and hy and (hx ~= 0 or hy ~= 0) then
                     table.insert(targets, {x=hx, y=hy, faction=faction})
