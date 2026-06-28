@@ -2,6 +2,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local cv_news = include("cosmicvaultnews")
 local cv_fleet = include("cosmicvaultfleet")
+local cv_anomalies = include("cosmicvaultanomalies")
 
 -- namespace EclipseBossBehavior
 EclipseBossBehavior = {}
@@ -63,6 +64,11 @@ function EclipseBossBehavior.onDestroyed(index, lastDamageInflictor)
     for _, player in pairs(players) do
         player:receive("Eclipse Oblivion Bounty", 5000000000)
         player:sendChatMessage("Recovered Datapad", 0, "'The Oblivion Engine operates at peak efficiency. The galaxy will be purged, just as the architect intended. Project Stormbox is a complete success.'")
+    end
+
+    -- Synergy: Post-Boss Anomaly Generation
+    if cv_anomalies and cv_anomalies.spawnAnomaly then
+        cv_anomalies.spawnAnomaly(x, y, "PrecursorWreck", Entity().translationf)
     end
 end
 

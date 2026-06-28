@@ -188,6 +188,10 @@ If the Eclipse invades a sector owned by a warring AI faction, those factions wi
 ### 📖 Cosmic Codex (New in Audit 3.0!)
 All deep lore regarding the Eclipse origins, detailed crafting recipes for the Ascendancy Forge, and real-time tracking of known Citadel locations are fully integrated into the in-game **Cosmic Codex**. The Codex updates dynamically as you progress through the main storyline!
 
+### 🌌 Cosmic Vault
+- **Dead Empire Filter:** The Eclipse Conquest Engine natively utilizes `FactionEradicationUtility` to strictly filter out destroyed empires, preventing crusades from glitching and targeting wiped out factions.
+- **Post-Boss Anomalies:** Upon destroying the Eclipse World-Eater (Oblivion Engine), the game natively invokes `CosmicVaultAnomalies` to spawn a massive, persistent `PrecursorWreck` anomaly for exploration and salvaging.
+
 ### 🔒 Network Safety & Anti-Cheat (New in Audit 3.0!)
 - **Math.Random Fix:** The Eclipse spawn engine natively utilizes Avorion's strict `random():getInt()` generation sequence to guarantee 100% synchronization on Multiplayer Dedicated Servers.
 - **Callable Validation:** The Ascendancy Forge UI has been fully hardened. Malicious clients cannot spoof "free" crafting calls; the server actively verifies inventory requirements before processing the craft.

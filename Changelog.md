@@ -9,6 +9,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [v1.0.0] - UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
 
+### 🌌 Cosmic Vault Synergy (Cross-Mod Engine)
+- **Dead Empire Filter:** The Eclipse Conquest Engine natively utilizes `FactionEradicationUtility` to strictly filter out destroyed empires, preventing crusades from glitching and targeting wiped out factions.
+- **Post-Boss Anomalies:** Upon destroying the Eclipse World-Eater (Oblivion Engine), the game natively invokes `CosmicVaultAnomalies` to spawn a massive, persistent `PrecursorWreck` anomaly for exploration and salvaging.
+
 ### 🚀 Major Expansion Features
 - **The World-Eater Boss Fight Overhaul:** The World-Eater has been completely re-coded into a modern, dynamic raid boss:
   - **Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains 100% invincible, visually tethered to them by massive purple lasers.

@@ -11,6 +11,7 @@ Welcome to the **Cosmic Ascendancy** official player guide! This document breaks
 - 👑 The Fallen Empire Awakening
 - 🛠️ The Ascendancy Forge
 - 🗼 The Ascendancy Beacon
+- 🌌 Cosmic Vault Synergy
 
 ---
 
@@ -142,3 +143,7 @@ When facing an Eclipse Dread-Lord, you must coordinate your firepower.
 
 ### Automating Defense
 Build Ascendant Gateways in your core sectors to automatically summon allied defense fleets when you are offline.
+
+## 🌌 Cosmic Vault Synergy
+- **Dead Empire Filter:** The Eclipse Conquest Engine strictly filters out destroyed empires, preventing crusades from glitching and targeting wiped out factions.
+- **Post-Boss Anomalies:** Upon destroying the Eclipse World-Eater, the game natively spawns a massive, persistent PrecursorWreck anomaly for exploration and salvaging.
