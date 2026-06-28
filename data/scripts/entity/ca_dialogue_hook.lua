@@ -5,6 +5,7 @@ local Dialog = include("dialogutility")
 
 function interactionPossible(playerIndex, option)
     local player = Player(playerIndex)
+    if not player:getValue("wormhole_guardian_destroyed") then return false end
     if player:getValue("ca_campaign_completed") then return false end
     if player:hasScript("data/scripts/player/missions/ca_story1_awakening.lua") then return false end
     if player:hasScript("data/scripts/player/missions/ca_story2_forge.lua") then return false end

@@ -55,10 +55,10 @@ end
 
 function SpawnEclipseBoss.finish()
     local sector = Sector()
-    local boss = sector:getEntitiesByScriptValue("stormbox_boss")
-    if not boss then terminate() return end
+    local bossEntities = {sector:getEntitiesByScriptValue("stormbox_boss")}
+    if #bossEntities == 0 then terminate() return end
 
-    sector:deleteEntityJumped(boss)
+    sector:deleteEntityJumped(bossEntities[1])
 
     local x, y = sector:getCoordinates()
 

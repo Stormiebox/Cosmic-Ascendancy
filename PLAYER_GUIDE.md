@@ -34,7 +34,7 @@ To make the faction feel uniquely terrifying, the Eclipse possess 5 devastating 
 - **Singularity Implosion (All Large Capital Ships):** Upon death, these gargantuan reactors collapse. After a 3-second warning, they violently detonate, dealing 50,000 true-damage to everything within 3km!
 
 ### 🚨 The World-Eater Doomsday Event
-Every 2 to 3 hours, the Eclipse will launch a **World-Eater** (a massively scaled Juggernaut) at a populated player sector.
+Every 2 to 3 hours of active playtime, the Eclipse will launch a **World-Eater** (a massively scaled Juggernaut) at a populated player sector. The global timer for this event **automatically pauses** if there are no players online, protecting dedicated servers.
 - A **15-minute countdown** will broadcast across the Galactic News Network.
 - **Royal Escort Fleet:** The World-Eater does not travel alone. It arrives with a massive Royal Escort Fleet composed of Carriers, Artillery, Defilers, and Interceptors to protect it from player swarms.
 - **Apocalyptic Durability:** The World-Eater's physical volume has been dynamically scaled up by a factor of 5.0, resulting in a 125x increase to its native Hull HP!
@@ -70,7 +70,7 @@ When an Eclipse invasion is overwhelmingly successful, they will permanently occ
 - **The Lockdown Matrix:** Citadels generate a sector-wide interdiction field. Ships cannot jump out of a Citadel sector unless the Citadel is destroyed.
 - **Siege Scale:** Citadels have 250,000,000 base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms.
 - **Loot & Rewards:** Destroying a Citadel guarantees a drop of 1-3 Legendary subsystems, massive quantities of Avorion ore, and unique crafting materials for the Ascendancy Forge.
-- **Suppression Field:** Destroying a Citadel halts all Eclipse invasions within a 15-sector radius for exactly 6 real-time hours.
+- **Suppression Field:** Destroying a Citadel dynamically halts all Eclipse invasions within a 15-sector radius. The suppression lasts for a base of 6 real-time hours, plus an additional 2 hours for every 10 sectors the Eclipse currently own.
 </details>
 
 ## 📈 Dynamic Faction Expansion
@@ -87,7 +87,7 @@ Vanilla Avorion features a static map. With Cosmic Ascendancy, **civilized AI fa
 <details>
 <summary><b>Click to expand</b></summary>
 
-If the Eclipse is allowed to conquer or annihilate 10 sectors unchecked, they will evolve into a **Fallen Empire**.
+If the Eclipse is allowed to conquer or annihilate 75 sectors unchecked, they will evolve into a **Fallen Empire**.
 - **Crusades:** They will cease random border skirmishes and instead systematically launch massive Crusades to hunt down and eradicate major AI Faction Capitals.
 - **Dark Matter Fog:** During an invasion, the Eclipse will blanket the sector in a suffocating Dark Matter Fog, physically cutting defender radar and jump capabilities in half.
 - **Technological Superiority:** Eclipse forces are completely immune to all natural Subspace Weather (Ion Storms, Solar Flares).

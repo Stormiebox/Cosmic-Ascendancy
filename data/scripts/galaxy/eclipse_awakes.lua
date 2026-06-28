@@ -85,6 +85,7 @@ function EclipseAwakes.updateServer(timeStep)
                 server:broadcastChatMessage("The Eclipse", 2, "Your ignorance has doomed this galaxy. We are The Eclipse. You will be erased."%_T)
                 Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_roaming_boss.lua")
                 Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_conquest_manager.lua")
+                Galaxy():addScriptOnce("data/scripts/galaxy/ca_world_eater_manager.lua")
             end
         end
     end

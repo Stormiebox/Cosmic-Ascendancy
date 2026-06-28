@@ -50,6 +50,10 @@ end
 function EclipseConquestManager.updateServer(timeStep)
     if not Server():getValue("eclipse_fully_awake") then return end
 
+    -- Pause expansion if no players are online (protects 24/7 dedicated servers from offline wipes)
+    local players = {Server():getPlayers()}
+    if #players == 0 then return end
+
     EclipseConquestManager.timer = EclipseConquestManager.timer + timeStep
 
     -- Every 30 to 45 minutes, the Eclipse expand
@@ -66,14 +70,15 @@ function EclipseConquestManager.expandEmpire()
     local conqueredCount = Server():getValue("eclipse_conquered_sectors") or 0
     local isFallenEmpire = Server():getValue("eclipse_fallen_empire")
     
-    -- Suppression Field Logic: Halt invasions for 6 hours after a Citadel dies
+    -- Suppression Field Logic: Halt invasions dynamically (6 hours base + 2 hours per 10 sectors owned) after a Citadel dies
     local citadelDestroyed = Server():getValue("eclipse_citadel_destroyed_time") or 0
-    if Server().playtime - citadelDestroyed < (6 * 3600) then
+    local suppressionDuration = (6 + math.floor(conqueredCount / 10) * 2) * 3600
+    if Server().unpausedRuntime - citadelDestroyed < suppressionDuration then
         return -- Suppressed
     end
 
     -- Check if we should awaken
-    if conqueredCount >= 10 and not isFallenEmpire then
+    if conqueredCount >= 75 and not isFallenEmpire then
         Server():setValue("eclipse_fallen_empire", true)
         isFallenEmpire = true
         if cv_news.publishArticle then
@@ -113,7 +118,7 @@ function EclipseConquestManager.expandEmpire()
             local knownSectors = {player:getKnownSectors()}
             if #knownSectors == 0 then return end
             local targetSector = knownSectors[random():getInt(1, #knownSectors)]
-            tx, ty = targetSector.x, targetSector.y
+            tx, ty = targetSector:getCoordinates()
         end
     else
         -- Normal Logic: Random player known sector
@@ -123,7 +128,7 @@ function EclipseConquestManager.expandEmpire()
         local knownSectors = {player:getKnownSectors()}
         if #knownSectors == 0 then return end
         local targetSector = knownSectors[random():getInt(1, #knownSectors)]
-        tx, ty = targetSector.x, targetSector.y
+        tx, ty = targetSector:getCoordinates()
     end
 
     -- 40% chance to Conquest (Boarding/Siege via Cosmic War)

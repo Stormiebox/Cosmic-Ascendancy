@@ -22,7 +22,7 @@ function onDamaged(objectIndex, amount, inflictor, damageType)
         local excess = amount - damageLimit
         
         -- Restore the excess damage to prevent one-shots
-        if entity.shieldDurability > 0 then
+        if entity.shieldDurability and entity.shieldDurability > 0 then
             entity.shieldDurability = math.min(entity.shieldMaxDurability, entity.shieldDurability + excess)
         else
             entity.durability = math.min(entity.maxDurability, entity.durability + excess)

@@ -73,7 +73,7 @@ The Eclipse dynamically targets sectors containing high player or AI faction val
 
 ### 🚨 The World-Eater Doomsday Event
 A global crisis managed by the galaxy engine.
-- **The Trigger:** Every 2-3 hours, a random populated player sector is targeted (or triggered manually via Datacore Jettisoning).
+- **The Trigger:** Every 2-3 hours of active playtime, a random populated player sector is targeted (or triggered manually via Datacore Jettisoning). The World Eater timer **automatically pauses** if no players are online, protecting 24/7 dedicated servers from being wiped while the server is empty.
 - **The Threat:** A World-Eater Juggernaut (5x scaled volume/125x Hull Mass, -90% Speed) spawns 15,000 km away. Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal Hull and dynamic mechanics:
   - **Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains 100% invincible, visually tethered to them by massive purple lasers.
   - **Quantum EMP:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting catastrophic energy damage.
@@ -94,7 +94,7 @@ When an invasion is overwhelmingly successful, the Eclipse will permanently occu
 - **The Lockdown Matrix:** Citadels generate a sector-wide interdiction field. Ships cannot jump *out* of a Citadel sector unless the Citadel is destroyed.
 - **Siege Mechanics:** Citadels have `250,000,000` base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms.
 - **Loot:** Destroying a Citadel guarantees a drop of 1-3 **Legendary** subsystems and massive quantities of Avorion ore, alongside unique crafting materials for the Ascendancy Forge.
-- **Suppression Field:** Destroying a Citadel halts all Eclipse invasions within a 15-sector radius for exactly 6 real-time hours.
+- **Suppression Field:** Destroying a Citadel dynamically halts all Eclipse invasions within a 15-sector radius. The suppression lasts for a base of 6 real-time hours, plus an additional 2 hours for every 10 sectors the Eclipse currently own.
 </details>
 
 ---
@@ -108,7 +108,7 @@ When an invasion is overwhelmingly successful, the Eclipse will permanently occu
 
 Once the Eclipse are fully awakened, the galaxy is never truly safe. The Eclipse will periodically unleash their Doomsday Weapon: **The World Eater**.
 
-- **Global Timer:** Every 2 to 3 real-time hours, the World Eater charges its primary weapon system.
+- **Global Timer:** Every 2 to 3 real-time hours, the World Eater charges its primary weapon system. This timer **automatically pauses** if there are zero players online to protect empty dedicated servers.
 - **Targeting:** It will lock onto a random known sector belonging to an active player.
 - **The Countdown:** A 15-minute Doomsday countdown initiates. The server will broadcast a global GNN warning every 5 minutes, providing the exact coordinates of the impending strike.
 - **Doomsday Execution:** If players fail to arrive in the sector and destroy the World Eater boss within the 15-minute window, the Doomsday weapon fires. The sector is completely erased, and the World Eater retreats.

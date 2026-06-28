@@ -2,6 +2,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 local ShipGenerator = include("shipgenerator")
+local PlanGenerator = include("plangenerator")
 
 function getUpdateInterval() return 5.0 end
 

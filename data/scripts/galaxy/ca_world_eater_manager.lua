@@ -13,6 +13,10 @@ end
 function WorldEaterManager.updateServer(timeStep)
     if not Server():getValue("eclipse_fully_awake") then return end
 
+    -- Pause the Doomsday clock if no players are online (protects dedicated servers)
+    local players = {Server():getPlayers()}
+    if #players == 0 then return end
+
     if WorldEaterManager.activeEvent then
         WorldEaterManager.activeEvent.timeLeft = WorldEaterManager.activeEvent.timeLeft - timeStep
 
@@ -50,7 +54,7 @@ function WorldEaterManager.triggerEvent()
     if #knownSectors == 0 then return end
 
     local targetSector = knownSectors[random():getInt(1, #knownSectors)]
-    local tx, ty = targetSector.x, targetSector.y
+    local tx, ty = targetSector:getCoordinates()
 
     WorldEaterManager.activeEvent = {x = tx, y = ty, timeLeft = 900}
 
@@ -65,8 +69,11 @@ function WorldEaterManager.triggerEvent()
 
     -- If loaded, inject sector script
     local sector = Sector()
-    if sector and sector:getCoordinates() == tx and sector:getCoordinates() == ty then
-        WorldEaterManager.injectSectorScript(tx, ty)
+    if sector then
+        local sx, sy = sector:getCoordinates()
+        if sx == tx and sy == ty then
+            WorldEaterManager.injectSectorScript(tx, ty)
+        end
     end
 end
 

@@ -68,7 +68,8 @@ mission.phases[3].onBeginServer = function()
     mission.data.description = "An Eclipse Vanguard ambush! Survive the attack."
     -- Spawn Eclipse enemies
     local generator = include("shipgenerator")
-    local faction = Galaxy():getFaction("The Eclipse") or Faction(1)
+    local EclipseGenerator = include("eclipsegenerator")
+    local faction = EclipseGenerator.getFaction()
     
     Player():sendChatMessage("Unknown Transmission", 2, "Biological contamination detected. Purge protocol initiated. We are The Eclipse.")
     
