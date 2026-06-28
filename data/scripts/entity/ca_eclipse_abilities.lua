@@ -210,7 +210,7 @@ function EclipseAbilities.triggerBlink()
     local sector = Sector()
 
     -- Void Rift VFX
-    sector:createHyperspaceJumpAnimation(entity, entity.translationf, ColorRGB(0.5, 0.0, 1.0), 0.5)
+    sector:createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
 
     local random = random()
     local dir = normalize(vec3(random:getFloat() - 0.5, random:getFloat() - 0.5, random:getFloat() - 0.5))
@@ -219,7 +219,7 @@ function EclipseAbilities.triggerBlink()
     entity.position = MatrixLookUpPosition(entity.look, entity.up, entity.translationf + dir * dist)
 
     -- Reappear VFX
-    sector:createHyperspaceJumpAnimation(entity, entity.translationf, ColorRGB(0.5, 0.0, 1.0), 0.5)
+    sector:createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
 end
 
 function EclipseAbilities.triggerPhaseShift()
@@ -231,7 +231,7 @@ function EclipseAbilities.triggerPhaseShift()
     EclipseAbilities.phaseEndTime = now + 4.0
 
     entity.invincible = true
-    Sector():createHyperspaceJumpAnimation(entity, entity.translationf, ColorRGB(0.1, 0.1, 0.1), 1.0)
+    Sector():createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.1, 0.1, 0.1), 1.0)
 
     if not EclipseAbilities.isSiphon then
         entity:registerCallback("updateServer", "updateServer")

@@ -345,11 +345,11 @@ end
 function CAWorldEater.triggerBlink()
     local entity = Entity()
     local sector = Sector()
-    sector:createHyperspaceJumpAnimation(entity, entity.translationf, ColorRGB(0.5, 0.0, 1.0), 0.5)
+    sector:createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
     local dir = normalize(vec3(random():getFloat() - 0.5, random():getFloat() - 0.5, random():getFloat() - 0.5))
     local dist = random():getInt(5000, 10000)
     entity.position = MatrixLookUpPosition(entity.look, entity.up, entity.translationf + dir * dist)
-    sector:createHyperspaceJumpAnimation(entity, entity.translationf, ColorRGB(0.5, 0.0, 1.0), 0.5)
+    sector:createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
 end
 
 function CAWorldEater.createGlobalEmpGlow(pos)
