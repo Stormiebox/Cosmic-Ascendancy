@@ -170,7 +170,7 @@ function CAWorldEater.processHazards(timeStep)
             
             local ships = {sector:getEntitiesByLocation(Sphere(emp.position, emp.radius))}
             for _, ship in pairs(ships) do
-                if ship.factionIndex ~= boss.factionIndex then
+                if valid(ship) and ship.factionIndex ~= boss.factionIndex then
                     local shield = Shield(ship.id)
                     if shield then
                         shield.durability = 0 -- Instantly strip all shields
@@ -195,7 +195,7 @@ function CAWorldEater.processHazards(timeStep)
         else
             local ships = {sector:getEntitiesByLocation(Sphere(anom.position, anom.radius))}
             for _, ship in pairs(ships) do
-                if ship.factionIndex ~= boss.factionIndex and ship.isShip then
+                if valid(ship) and ship.factionIndex ~= boss.factionIndex and ship.isShip then
                     local velComponent = Velocity(ship.id)
                     if velComponent then
                         -- Pull ship towards anomaly center
