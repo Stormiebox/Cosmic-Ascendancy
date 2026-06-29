@@ -132,3 +132,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Subsystem Memory Leak Patch:** Injected `secure()` and `restore()` persistence hooks into the Living Relic subsystems to prevent an infinite stat-stacking exploit and server crash when sectors rapidly load/unload.
 - **Performance & TPS Optimization:** Drastically reduced server load during late-game scenarios. Injected a hardcoded `getUpdateInterval` throttle (1.0s) into the 3 main story missions (`ca_story1_awakening`, `ca_story2_forge`, `ca_story3_vanguard`) to stop them from polling the sector 60 times a second.
 - **Deterministic Fixes:** Removed `math.random` from `ascendancysiege.lua`, preventing massive multiplayer desyncs during the Eclipse Vanguard invasions.
+
+## [Latest Synergy Patch]
+- [Synergy] Integrated with Cosmic War traits (Imperialist/Vengeful).
+- [Synergy] Integrated with Cosmic Overhaul smugglers (3x payout for Eclipse tech).
+- [Synergy] Integrated with Cosmic Chronicles (Corrupted Lore Nodes).
+- [Synergy] Integrated with Cosmic Vault Weather (Eclipse hazard immunity).
+

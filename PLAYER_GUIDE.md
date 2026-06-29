@@ -147,3 +147,10 @@ Build Ascendant Gateways in your core sectors to automatically summon allied def
 ## 🌌 Cosmic Vault Synergy
 - **Dead Empire Filter:** The Eclipse Conquest Engine strictly filters out destroyed empires, preventing crusades from glitching and targeting wiped out factions.
 - **Post-Boss Anomalies:** Upon destroying the Eclipse World-Eater, the game natively spawns a massive, persistent PrecursorWreck anomaly for exploration and salvaging.
+
+## Synergy Update
+- **Eclipse Contraband**: Eclipse Tech is highly valued by smugglers, offering a 3x payout at Smuggler's Markets (Overhaul).
+- **Corrupted Nodes**: Eclipse territories corrupt data caches, doubling their loot but spawning terrifying ambushes (Chronicles).
+- **Relentless Expansion**: Eclipse AI is now inherently Imperialist and Vengeful. They will expand rapidly and refuse all ceasefires (War).
+- **Hazard Immunity**: Eclipse Dreadnoughts are immune to Cosmic Vault weather hazards (Solar Flares/Ion Storms).
+

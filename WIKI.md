@@ -210,3 +210,10 @@ If an Eclipse Dread-Lord drops below 5% HP, it will retreat. It remembers the da
 
 ## Ascendant Gateways
 Players can construct Ascendant Gateways to automate defense. If hostiles are detected, the gateway summons a powerful Ascendant fleet to protect the sector (2-hour cooldown).
+
+## Synergy Update
+- **Eclipse Contraband**: Eclipse Tech is highly valued by smugglers, offering a 3x payout at Smuggler's Markets (Overhaul).
+- **Corrupted Nodes**: Eclipse territories corrupt data caches, doubling their loot but spawning terrifying ambushes (Chronicles).
+- **Relentless Expansion**: Eclipse AI is now inherently Imperialist and Vengeful. They will expand rapidly and refuse all ceasefires (War).
+- **Hazard Immunity**: Eclipse Dreadnoughts are immune to Cosmic Vault weather hazards (Solar Flares/Ion Storms).
+
