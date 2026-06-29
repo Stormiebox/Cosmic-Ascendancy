@@ -19,6 +19,7 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 - **Story Campaign:** A written, multi-stage epic narrative questline.
 - **The Ascendancy Forge:** Craft Ascendant-tier technologies by sacrificing vast resources.
 - **Dynamic Strongholds:** Eclipse Citadels naturally spawn and conquer sectors.
+- **Eclipse Rift Spillage:** Eclipse Invasions now have a 10% chance to destabilize local space, tearing a massive subspace rift that drains sector shields. You must destroy the Eclipse Rift Stabilizer to close the tear and end the hazard.
 </details>
 
 ## ⚙️ Requirements

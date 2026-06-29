@@ -42,7 +42,7 @@ function createEnemies()
     local pos = dir * 1500
 
     local spawned = {}
-    
+
     -- Spawn 1 Harbinger (Boss)
     local harbinger = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), "obelisk")
     table.insert(spawned, harbinger)
@@ -58,7 +58,7 @@ function createEnemies()
         elseif hType == "juggernaut" then heavy = EclipseGenerator.createJuggernaut(MatrixLookUpPosition(-dir, up, pos))
         elseif hType == "defiler" then heavy = EclipseGenerator.createDefiler(MatrixLookUpPosition(-dir, up, pos))
         else heavy = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), hType) end
-        
+
         table.insert(spawned, heavy)
         pos = pos + right * 200
     end
@@ -72,13 +72,27 @@ function createEnemies()
         elseif lType == "interceptor" then light = EclipseGenerator.createInterceptor(MatrixLookUpPosition(-dir, up, pos))
         elseif lType == "harvester" then light = EclipseGenerator.createHarvester(MatrixLookUpPosition(-dir, up, pos))
         else light = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), lType) end
-        
+
         table.insert(spawned, light)
         pos = pos + right * 150
     end
 
     Placer.resolveIntersections(spawned)
-    
+
+    -- Cosmic Ascendancy - The Eclipse Rift Spillage
+    -- 10% chance to weaponize subspace during an invasion
+    if random():test(0.1) then
+        local stabilizerPos = MatrixLookUpPosition(-dir, up, pos + right * 300)
+        local stabilizer = EclipseGenerator.createStation(stabilizerPos)
+        stabilizer.title = "Eclipse Rift Stabilizer"
+        stabilizer:addScriptOnce("entity/ca_rift_stabilizer.lua")
+        table.insert(spawned, stabilizer)
+
+        -- Start the environmental hazard
+        sector:addScriptOnce("sector/ca_rift_hazard.lua")
+        sector:broadcastChatMessage("System", 3, "WARNING: The Eclipse have weaponized a subspace tear! Local shields are draining!"%_t)
+    end
+
     if cv_fleet.orderAttackEnemies then
         for _, ship in pairs(spawned) do
             if valid(ship) then
@@ -86,7 +100,7 @@ function createEnemies()
             end
         end
     end
-    
+
     AlertAbsentPlayers(ChatMessageType.Warning, "The Eclipse has invaded sector \\s(%1%:%2%)!"%_t, sector:getCoordinates())
 end
 

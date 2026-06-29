@@ -139,3 +139,6 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Synergy] Integrated with Cosmic Chronicles (Corrupted Lore Nodes).
 - [Synergy] Integrated with Cosmic Vault Weather (Eclipse hazard immunity).
 
+
+## [New] Rift DLC Interoperability
+- **Eclipse Rift Spillage:** Eclipse Invasions now have a 10% chance to destabilize local space, tearing a massive subspace rift that drains sector shields. You must destroy the Eclipse Rift Stabilizer to close the tear and end the hazard.

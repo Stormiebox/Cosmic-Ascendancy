@@ -154,3 +154,6 @@ Build Ascendant Gateways in your core sectors to automatically summon allied def
 - **Relentless Expansion**: Eclipse AI is now inherently Imperialist and Vengeful. They will expand rapidly and refuse all ceasefires (War).
 - **Hazard Immunity**: Eclipse Dreadnoughts are immune to Cosmic Vault weather hazards (Solar Flares/Ion Storms).
 
+
+## [New] Rift DLC Interoperability
+- **Eclipse Rift Spillage:** Eclipse Invasions now have a 10% chance to destabilize local space, tearing a massive subspace rift that drains sector shields. You must destroy the Eclipse Rift Stabilizer to close the tear and end the hazard.
