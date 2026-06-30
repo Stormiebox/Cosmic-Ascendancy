@@ -7,14 +7,22 @@ function getUpdateInterval()
     return 30 -- Update every 30 seconds to force stat recalculation if tier changed
 end
 
-function updateServer(timeStep)
-    local entity = Entity()
-    -- Force Avorion engine to recalculate stats (onBaseMultiplierCalculated will fire)
-    local _k = entity:addMultiplyableBias(StatsBonuses.ShieldDurability, 0)
-    entity:removeBonus(_k)
+function initialize()
+    if onServer() then
+        applyBuffs()
+    end
 end
 
-function onBaseMultiplierCalculated(entity, statModifier)
+function updateServer(timeStep)
+    if onServer() then
+        applyBuffs()
+    end
+end
+
+function applyBuffs()
+    local entity = Entity()
+    entity:removeScriptBonuses()
+    
     if not cv_buffs or not cv_buffs.getGlobalTier then return end
     
     local faction = Faction(entity.factionIndex)
@@ -22,17 +30,14 @@ function onBaseMultiplierCalculated(entity, statModifier)
     
     local tier = cv_buffs.getGlobalTier(faction.index)
     if tier > 0 then
-        -- Tier 1: +10% Shields, +10% Damage (represented by Armed Turrets multiplier or Base Damage multiplier)
-        -- Avorion has StatsBonuses.BaseDamageMultiplier ? No, let's use ShieldDurability and Velocity to be safe,
-        -- as modifying raw damage via base multipliers isn't always reliable.
-        -- Actually we can boost ShieldDurability and HyperspaceCooldown!
+        -- Tier 1: +15% Shields, +10% Hyperspace Cooldown Speed, +20% Shield Regen
+        local shieldMult = tier * 0.15
+        local hyperMult = tier * 0.10
+        local regenMult = tier * 0.20
         
-        local shieldMult = 1.0 + (tier * 0.15) -- +15% per tier
-        local hyperMult = 1.0 + (tier * 0.10) -- +10% faster cooldown per tier
-        local regenMult = 1.0 + (tier * 0.20) -- +20% shield regen per tier
-        
-        statModifier:addBaseMultiplier(StatsBonuses.ShieldDurability, shieldMult)
-        statModifier:addBaseMultiplier(StatsBonuses.ShieldRecharge, regenMult)
-        statModifier:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, hyperMult)
+        -- Use negative for HyperspaceCooldown to make it FASTER
+        entity:addBaseMultiplier(StatsBonuses.ShieldDurability, shieldMult)
+        entity:addBaseMultiplier(StatsBonuses.ShieldRecharge, regenMult)
+        entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, -hyperMult)
     end
 end

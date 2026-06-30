@@ -146,7 +146,7 @@ function AscendancyBeacon.onEntityEntered(entityId)
 
     -- Dynamic Modifier: War Heat (Wartime Premium Tax for seeking Safe Haven)
     local heatMod = 1.0
-    if cv_bridge_success and cw_bridge.getFactionWarHeat then
+    if cw_bridge and cw_bridge.getFactionWarHeat then
         local heat = cw_bridge.getFactionWarHeat(enteringFaction.index)
         if heat > 0 then
             heatMod = 1.0 + (heat * 0.5) -- Up to 50% extra toll during intense wars
