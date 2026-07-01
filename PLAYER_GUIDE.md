@@ -102,7 +102,7 @@ To combat the Eclipse, you must locate and utilize the Ascendancy Forge to craft
 
 ### ⚙️ Mechanics
 - **Unlock Requirements:** The Forge is discovered at the climax of the main storyline.
-- **Base Crafting Cost:** 1,000,000,000 Credits and a variable amount of **Ascendant Matter**.
+- **Base Crafting Cost:** Scales up to 300,000,000 Credits, 3,000,000 Avorion, and 25-50 **Ascendant Matter**.
 - **Global Ascendancy Matrix:** You can submit **Eclipse Datacores** (dropped by Eclipse Juggernauts) to the Forge. Decrypting a datacore permanently raises your Global Ascendancy Tier, granting a stacking +15% Shields, +20% Shield Recharge, and +10% Hyperspace Cooldown to all ships in your fleet!
 - **The Sacrifice System:** When initiating a craft, you must sacrifice existing Legendary or Exotic subsystems as Catalysts.
   - Sacrificing 1 Legendary grants a 20% success rate.

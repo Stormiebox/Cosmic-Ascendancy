@@ -84,10 +84,14 @@ function AscendancyBeacon.onUpgradePressed()
 end
 
 function AscendancyBeacon.getUpgradeCost(targetTier)
-    if targetTier == 2 then return 50000000, Material(1), 2000000 end
-    if targetTier == 3 then return 200000000, Material(3), 5000000 end
-    if targetTier == 4 then return 500000000, Material(4), 10000000 end
-    if targetTier == 5 then return 1000000000, Material(5), 20000000 end
+    -- Tier 2: Naonite
+    if targetTier == 2 then return 50000000, Material(2), 2000000 end
+    -- Tier 3: Trinium
+    if targetTier == 3 then return 150000000, Material(3), 4000000 end
+    -- Tier 4: Xanion
+    if targetTier == 4 then return 400000000, Material(4), 7500000 end
+    -- Tier 5: Avorion
+    if targetTier == 5 then return 1000000000, Material(6), 10000000 end
     return 0, Material(0), 0
 end
 

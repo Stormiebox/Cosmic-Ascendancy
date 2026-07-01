@@ -146,7 +146,7 @@ To combat the Eclipse, players must locate and utilize the Ascendancy Forge to c
 ### Crafting Formula & Global Ascendancy
 Crafting Ascendant-tier gear and decrypting datacores is extraordinarily expensive to balance its extreme power.
 
-- **Weapon Crafting Cost:** Scales based on distance to the core. Averages 1 Billion Credits and 100-500 **Ascendant Matter** (dropped by Eclipse Harvesters).
+- **Weapon Crafting Cost:** Scales based on distance to the core. Averages 50M to 300M Credits, massive ore reserves, and 25-50 **Ascendant Matter**.
 - **The Global Ascendancy Matrix:** Players can decrypt **Eclipse Datacores** (guaranteed drops from Eclipse Juggernauts).
   - *Benefits:* Each decryption permanently raises the player's Global Ascendancy Tier.
   - *Stats:* Each tier natively grants all player ships +15% Shield Capacity, +20% Shield Recharge, and +10% Faster Hyperspace Cooldown.

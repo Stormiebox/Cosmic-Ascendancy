@@ -214,17 +214,17 @@ function AscendancyForge.getCosts()
     local dist = length(vec2(x, y))
     local scale = math.max(1, 6 - (dist / 100))
 
-    local creditCost = math.floor(2500000000 * scale)
-    local matCost = random():getInt(250, 750)
+    local creditCost = math.floor(50000000 * scale)
+    local matCost = random():getInt(25, 50)
     
     local ores = {}
-    ores[1] = math.floor(250000000 * scale)
-    ores[2] = math.floor(150000000 * scale)
-    ores[3] = math.floor(100000000 * scale)
-    ores[4] = math.floor(75000000 * scale)
-    ores[5] = math.floor(50000000 * scale)
-    ores[6] = math.floor(25000000 * scale)
-    ores[7] = math.floor(15000000 * scale)
+    ores[1] = math.floor(5000000 * scale)
+    ores[2] = math.floor(4000000 * scale)
+    ores[3] = math.floor(3000000 * scale)
+    ores[4] = math.floor(2500000 * scale)
+    ores[5] = math.floor(2000000 * scale)
+    ores[6] = math.floor(1000000 * scale)
+    ores[7] = math.floor(500000 * scale)
 
     return creditCost, "Ascendant Matter", matCost, ores
 end

@@ -28,15 +28,23 @@ function onDestroyed()
     end
     
     -- Legendary Weapons and Upgrades
-    local generator = include("sectorgenerator")
-    local sg = generator(sector:getCoordinates())
+    local SectorTurretGenerator = include("sectorturretgenerator")
+    local UpgradeGenerator = include("upgradegenerator")
+    local ugen = UpgradeGenerator()
+    local tgen = SectorTurretGenerator()
+    
     for i = 1, random():getInt(8, 12) do
-        local weapon = InventoryWeapon(sg:generateWeapon(random(), 52, 5))
-        sector:dropPort(pos, nil, nil, weapon)
+        local turret = tgen:generateArmed(0, 0, 0, Rarity(RarityType.Legendary))
+        if turret then
+            turret.tech = 52
+            sector:dropTurret(pos, nil, nil, turret)
+        end
     end
     
     for i = 1, random():getInt(8, 12) do
-        local upgrade = sg:generateSystem(5)
-        sector:dropUpgrade(pos, nil, nil, upgrade)
+        local upgrade = ugen:generateSectorSystem(0, 0, Rarity(RarityType.Legendary))
+        if upgrade then
+            sector:dropUpgrade(pos, nil, nil, upgrade)
+        end
     end
 end

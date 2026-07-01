@@ -93,13 +93,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Wartime Innovation:** Weapons crafted at the Stellar Forge receive exponential damage multipliers based on how close the forge is to the Galactic Core (+200%) and your current War Heat (+150%). Forging at the core during a massive war yields a 9.0x damage super-weapon!
 - **Forge Sacrifice Overhaul:** Rebuilt the `ascendancyforge.lua` UI to mimic the Vanilla Research Station. You must drag and drop Legendary (+20% success) or Exotic (+10% success) subsystems to guarantee your craft. Failures immediately destroy materials but reward you with new `Ascendant Scrap`.
 - **Multiplayer Boss Scaling:** Implemented dynamic `applyPermanentFactor` scaling. Harbingers and Citadels now inherently gain +100% Shield and +50% Damage per additional player in the sector.
-- **Eclipse Citadel Mechanics:** 
+- **Eclipse Citadel Mechanics:**
   - **Lockdown Matrix**: Attached the vanilla `hyperspaceblocker.lua` script to Citadels natively, actively trapping players in the sector until the Citadel is destroyed.
   - **Suppression Field**: Destroying a Citadel now writes a global server timestamp that aggressively halts all new Eclipse invasions galaxy-wide for 6 hours.
 - **Eclipse Boss Damage Gate**: Hardened the 8% damage gate inside `ca_nemesis_system.lua` to properly check if shields are active. If a god-tier weapon bypasses the gate, the script seamlessly restores the correct health pool (shields or hull) to prevent one-shots.
 - **Nemesis Resistances Native Overhaul**: Restructured `ca_nemesis_resist.lua` to calculate its 90% elemental damage reduction dynamically inside the `onDamaged` loop, instead of relying on non-existent `StatsBonuses.*DamageReceived` API enums.
 - **Vault Fleet Integration:** Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.
-
+- **Ascendancy Beacon Economy**: Smoothed out the upgrade costs and correctly aligned the material requirements to the natural progression curve (Naonite -> Trinium -> Xanion -> Avorion).
+- **Ascendancy Forge Economy**: Rebalanced the forge costs from an impossible 15 Billion Credits / 90 Million Avorion down to a steep but achievable 300 Million Credits / 3 Million Avorion per weapon. Ascendant Matter requirements were also rebalanced so a single World Eater kill funds 3 to 5 Ascendant weapon forges.
 ### ⚖️ Balance
 - **Galactic Turn Synchronization:** `expansionInterval` slowed from 30m to 20m to align with the global server turn. `expansionChance` gracefully reduced from 35% to 25% to keep the overall hourly expansion rate mathematically identical.
 - **Endgame Crisis Consistency:** The Eclipse Boss now receives a staggering baseline **25x Shield Multiplier** and **3x Damage Multiplier**, far surpassing the standard 10x shield of War Dreadnoughts, guaranteeing The Eclipse remains a terrifying endgame threat.
@@ -132,7 +133,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Subsystem Memory Leak Patch:** Injected `secure()` and `restore()` persistence hooks into the Living Relic subsystems to prevent an infinite stat-stacking exploit and server crash when sectors rapidly load/unload.
 - **Performance & TPS Optimization:** Drastically reduced server load during late-game scenarios. Injected a hardcoded `getUpdateInterval` throttle (1.0s) into the 3 main story missions (`ca_story1_awakening`, `ca_story2_forge`, `ca_story3_vanguard`) to stop them from polling the sector 60 times a second.
 - **Deterministic Fixes:** Removed `math.random` from `ascendancysiege.lua`, preventing massive multiplayer desyncs during the Eclipse Vanguard invasions.
-
+- **Fixed:** Severe API call crash (`dropPort`, `generateWeapon`) in `ca_citadel_loot.lua` that prevented the Citadel from dropping its legendary loot when destroyed.
+- **Fixed:** An exploitable bug where the `Eclipse Oblivion Engine` roaming boss dropped permanently artificially buffed weapons (3x damage, 2x range) directly as raw loot, bypassing the Ascendancy Forge economy entirely.
 ## [Latest Synergy Patch]
 - [Synergy] Integrated with Cosmic War traits (Imperialist/Vengeful).
 - [Synergy] Integrated with Cosmic Overhaul smugglers (3x payout for Eclipse tech).

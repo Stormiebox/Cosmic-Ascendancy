@@ -39,14 +39,10 @@ function SpawnEclipseBoss.createBoss()
         Loot(boss):insert(ugen:generateSectorSystem(150, 0, Rarity(RarityType.Legendary)))
 
         local turret = tgen:generateArmed(150, 0, 0, Rarity(RarityType.Legendary))
-        local weapons = {turret:getWeapons()}
-        turret:clearWeapons()
-        for _, w in pairs(weapons) do
-            w.damage = w.damage * 3
-            w.reach = w.reach * 2
-            turret:addWeapon(w)
+        if turret then
+            turret.tech = 52
+            Loot(boss):insert(InventoryTurret(turret))
         end
-        Loot(boss):insert(InventoryTurret(turret))
     end
 
     boss:addScriptOnce("entity/background/eclipsebossbehavior.lua")
