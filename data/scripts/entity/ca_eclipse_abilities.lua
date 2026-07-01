@@ -37,10 +37,10 @@ function EclipseAbilities.initialize()
         local translatedTitle = entity.translatedTitle or ""
         local name = string.lower(title .. " " .. translatedTitle)
 
-        EclipseAbilities.isSiphon = string.match(name, "void%-weaver") or string.match(name, "juggernaut") or string.match(name, "dreadnought") or string.match(name, "cruiser") or string.match(name, "harbinger") or string.match(name, "world%-eater")
+        EclipseAbilities.isSiphon = string.match(name, "void%-weaver") or string.match(name, "carrier") or string.match(name, "juggernaut") or string.match(name, "dreadnought") or string.match(name, "cruiser") or string.match(name, "harbinger") or string.match(name, "world%-eater")
         EclipseAbilities.isEthereal = string.match(name, "phantom") or string.match(name, "interceptor")
-        EclipseAbilities.isAdaptive = string.match(name, "defiler") or string.match(name, "singularity")
-        EclipseAbilities.isSingularity = string.match(name, "juggernaut") or string.match(name, "dreadnought") or string.match(name, "cruiser") or string.match(name, "harbinger") or string.match(name, "world%-eater")
+        EclipseAbilities.isAdaptive = string.match(name, "defiler") or string.match(name, "artillery") or string.match(name, "singularity")
+        EclipseAbilities.isSingularity = string.match(name, "carrier") or string.match(name, "juggernaut") or string.match(name, "dreadnought") or string.match(name, "cruiser") or string.match(name, "harbinger") or string.match(name, "world%-eater")
 
         -- Initial aura loop if it has it
         if EclipseAbilities.isSiphon then
@@ -110,11 +110,19 @@ function EclipseAbilities.onDamaged(objectIndex, amount, inflictor, damageSource
     EclipseAbilities.lastDamageTime = now
 
     local eShield = Shield(entity.id)
-    local maxShield = 1000
+    local maxShield = 0
     if eShield then maxShield = eShield.maximum end
 
     -- If lost 15% HP or Shields in 1 second
-    if EclipseAbilities.burstDamageTracker > (maxShield * 0.15) or EclipseAbilities.burstDamageTracker > (entity.maxDurability * 0.15) then
+    local blinkTriggered = false
+    if maxShield > 0 and EclipseAbilities.burstDamageTracker > (maxShield * 0.15) then
+        blinkTriggered = true
+    end
+    if EclipseAbilities.burstDamageTracker > (entity.maxDurability * 0.15) then
+        blinkTriggered = true
+    end
+
+    if blinkTriggered then
         EclipseAbilities.triggerBlink()
         EclipseAbilities.burstDamageTracker = 0
     end
@@ -164,9 +172,18 @@ function EclipseAbilities.onShieldDamaged(objectIndex, amount, inflictor, damage
     EclipseAbilities.lastDamageTime = now
 
     local eShield = Shield(entity.id)
-    if eShield and EclipseAbilities.burstDamageTracker > (eShield.maximum * 0.15) then
-        EclipseAbilities.triggerBlink()
-        EclipseAbilities.burstDamageTracker = 0
+    
+    if eShield then
+        -- Void Shields Mechanic: 90% mitigation of all physical damage while shields are active
+        if damageType == DamageType.Physical then
+            local mitigated = amount * 0.90
+            eShield.durability = math.min(eShield.maximum, eShield.durability + mitigated)
+        end
+        
+        if EclipseAbilities.burstDamageTracker > (eShield.maximum * 0.15) then
+            EclipseAbilities.triggerBlink()
+            EclipseAbilities.burstDamageTracker = 0
+        end
     end
 
     -- Adaptive resistance logic for shields
@@ -187,14 +204,16 @@ function EclipseAbilities.onShieldDamaged(objectIndex, amount, inflictor, damage
             end
         end
 
-        if EclipseAbilities.activeResistance == damageType then
-            eShield.durability = math.min(eShield.maximum, eShield.durability + (amount * 0.75))
+        if EclipseAbilities.activeResistance == damageType and damageType ~= DamageType.Physical then
+            if eShield then
+                eShield.durability = math.min(eShield.maximum, eShield.durability + (amount * 0.75))
+            end
         end
     end
 
     -- Ethereal Phase Shift
     if EclipseAbilities.isEthereal and not EclipseAbilities.hasPhased then
-        if eShield and (eShield.durability - amount) <= 0 then
+        if eShield and eShield.durability <= 0 then
             EclipseAbilities.triggerPhaseShift()
         end
     end

@@ -37,6 +37,8 @@ function CAWorldEater.initialize()
         CAWorldEater.spawnTethers()
         
         entity:registerCallback("onDestroyed", "onDestroyed")
+    else
+        invokeServerFunction("syncLasers")
     end
 end
 
@@ -95,9 +97,6 @@ function CAWorldEater.updateServer(timeStep)
             sector:broadcastChatMessage(boss.title, 0, "ANCHOR PYLONS DESTROYED. VOID SHIELD DEACTIVATED.")
         end
     end
-    
-    -- Visual Lasers
-    CAWorldEater.updateLasers()
     
     -- Boss Abilities
     data.abilityTimer = data.abilityTimer + timeStep
@@ -230,34 +229,49 @@ function CAWorldEater.createAnomalyGlow(pos, radius)
 end
 callable(CAWorldEater, "createAnomalyGlow")
 
-function CAWorldEater.updateLasers(tetherIds)
-    if onClient() then
-        local sector = Sector()
-        local boss = Entity()
-        
-        -- Rebuild visual lasers
-        for _, laser in pairs(data.tetherLasers) do
-            if valid(laser) then sector:removeLaser(laser) end
-        end
-        data.tetherLasers = {}
-        
-        if tetherIds then
-            for _, idStr in pairs(tetherIds) do
-                local tether = sector:getEntity(Uuid(idStr))
-                if tether then
-                    -- Thick purple laser
-                    local laser = sector:createLaser(tether.translationf, boss.translationf, ColorRGB(0.6, 0.0, 1.0), 35.0)
-                    laser.collision = false
-                    table.insert(data.tetherLasers, laser)
-                end
-            end
-        end
+function CAWorldEater.syncLasers(tetherIds)
+    if onServer() then
+        broadcastInvokeClientFunction("syncLasers", data.dreadnoughtIds)
     else
-        broadcastInvokeClientFunction("updateLasers", data.dreadnoughtIds)
+        data.dreadnoughtIds = tetherIds or {}
     end
 end
-callable(CAWorldEater, "updateLasers")
+callable(CAWorldEater, "syncLasers")
 
+function CAWorldEater.updateClient(timeStep)
+    local sector = Sector()
+    local boss = Entity()
+    
+    for _, idStr in pairs(data.dreadnoughtIds) do
+        local tether = sector:getEntity(Uuid(idStr))
+        local laser = data.tetherLasers[idStr]
+        
+        if tether then
+            if not valid(laser) then
+                laser = sector:createLaser(tether.translationf, boss.translationf, ColorRGB(0.6, 0.0, 1.0), 35.0)
+                laser.collision = false
+                data.tetherLasers[idStr] = laser
+            end
+            laser.from = tether.translationf
+            laser.to = boss.translationf
+            laser.aliveTime = 0
+        else
+            if valid(laser) then
+                sector:removeLaser(laser)
+            end
+            data.tetherLasers[idStr] = nil
+        end
+    end
+end
+
+
+function CAWorldEater.secure()
+    return data
+end
+
+function CAWorldEater.restore(data_in)
+    data = data_in or data
+end
 
 function CAWorldEater.checkPhases()
     local boss = Entity()
@@ -407,8 +421,17 @@ end
 function createAnomalyGlow(...)
     if CAWorldEater.createAnomalyGlow then return CAWorldEater.createAnomalyGlow(...) end
 end
-function updateLasers(...)
-    if CAWorldEater.updateLasers then return CAWorldEater.updateLasers(...) end
+function updateClient(...)
+    if CAWorldEater.updateClient then return CAWorldEater.updateClient(...) end
+end
+function syncLasers(...)
+    if CAWorldEater.syncLasers then return CAWorldEater.syncLasers(...) end
+end
+function secure(...)
+    if CAWorldEater.secure then return CAWorldEater.secure(...) end
+end
+function restore(...)
+    if CAWorldEater.restore then return CAWorldEater.restore(...) end
 end
 function createGlobalEmpGlow(...)
     if CAWorldEater.createGlobalEmpGlow then return CAWorldEater.createGlobalEmpGlow(...) end

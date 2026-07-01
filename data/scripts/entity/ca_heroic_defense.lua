@@ -9,8 +9,10 @@ end
 function onDestroyed(index, lastDamageInflictor)
     if not onServer() then return end
     
+    if not lastDamageInflictor then return end
+    
     local destroyer = Entity(lastDamageInflictor)
-    if not destroyer then return end
+    if not valid(destroyer) then return end
     
     local faction = Faction(destroyer.factionIndex)
     if faction and (faction.isPlayer or faction.isAlliance) then

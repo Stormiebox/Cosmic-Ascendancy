@@ -76,7 +76,7 @@ function AscendancySiege.spawnFleet()
         local shipPos = MatrixLookUpPosition(-dir, up, pos + right * getFloat(-500, 500) + up * getFloat(-500, 500))
         local ship
         if typeName == "Xsotan" then
-            ship = Xsotan.createDreadnought(shipPos)
+            ship = Xsotan.createGuardian(shipPos)
         elseif typeName == "Pirates" then
             ship = PirateGenerator.createBoss(shipPos)
         else
@@ -157,7 +157,7 @@ function AscendancySiege.updateServer(timeStep)
     local newAttackers = {}
     for _, id in pairs(attackers) do
         local ship = Entity(Uuid(id))
-        if ship and not ship.isDestroyed then
+        if valid(ship) then
             table.insert(newAttackers, id)
             attackersAlive = true
         end
@@ -206,7 +206,7 @@ function AscendancySiege.onDefeat()
     -- Jump the attackers away since they won
     for _, id in pairs(attackers) do
         local ship = Entity(Uuid(id))
-        if ship and not ship.isDestroyed then
+        if valid(ship) then
             ship:addScriptOnce("entity/utility/delayedjump.lua")
         end
     end
@@ -214,6 +214,27 @@ function AscendancySiege.onDefeat()
     terminate()
 end
 
+
+function AscendancySiege.secure()
+    return {
+        tier = tier,
+        targetFactionIndex = targetFactionIndex,
+        attackers = attackers,
+        attackerFaction = attackerFaction,
+        typeName = typeName,
+        active = active
+    }
+end
+
+function AscendancySiege.restore(data_in)
+    data_in = data_in or {}
+    tier = data_in.tier or 1
+    targetFactionIndex = data_in.targetFactionIndex or 0
+    attackers = data_in.attackers or {}
+    attackerFaction = data_in.attackerFaction or 0
+    typeName = data_in.typeName or "Pirates"
+    active = data_in.active or false
+end
 
 function initialize(...)
     if AscendancySiege.initialize then return AscendancySiege.initialize(...) end
@@ -223,6 +244,12 @@ function getUpdateInterval(...)
 end
 function updateServer(...)
     if AscendancySiege.updateServer then return AscendancySiege.updateServer(...) end
+end
+function secure(...)
+    if AscendancySiege.secure then return AscendancySiege.secure(...) end
+end
+function restore(...)
+    if AscendancySiege.restore then return AscendancySiege.restore(...) end
 end
 
 return AscendancySiege

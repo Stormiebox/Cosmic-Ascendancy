@@ -52,7 +52,7 @@ function EclipseRoamingBoss.calculateNextAttackedSector()
     return {x = math.floor(math.cos(angle) * dist), y = math.floor(math.sin(angle) * dist)}
 end
 
-function EclipseRoamingBoss.update(timeStep)
+function EclipseRoamingBoss.updateServer(timeStep)
     local server = Server()
     if not server:getValue("eclipse_fully_awake") then return end
     if server:getValue("eclipse_annihilator_dead") then return end
@@ -114,7 +114,8 @@ function EclipseRoamingBoss.secure()
 end
 
 function EclipseRoamingBoss.restore(data_in)
-    data = data_in
+    data = data_in or {}
+    data.countDown = data.countDown or (5 * 60)
 end
 
 function getUpdateInterval(...)
@@ -123,8 +124,8 @@ end
 function initialize(...)
     if EclipseRoamingBoss.initialize then return EclipseRoamingBoss.initialize(...) end
 end
-function update(...)
-    if EclipseRoamingBoss.update then return EclipseRoamingBoss.update(...) end
+function updateServer(...)
+    if EclipseRoamingBoss.updateServer then return EclipseRoamingBoss.updateServer(...) end
 end
 function secure(...)
     if EclipseRoamingBoss.secure then return EclipseRoamingBoss.secure(...) end

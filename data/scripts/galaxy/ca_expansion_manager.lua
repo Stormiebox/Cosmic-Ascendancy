@@ -44,7 +44,7 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
             local dist = math.sqrt(x*x + y*y)
 
             -- Prevent pirates from spawning inside the extreme core (0-50)
-            if dist > 50 and not galaxy:getSectorFaction(x, y) then
+            if dist > 50 and not galaxy:getControllingFaction(x, y) then
                 if CosmicVaultTerritory and CosmicVaultTerritory.expandToSector then
                     CosmicVaultTerritory.expandToSector(x, y, nil, true)
                 end
@@ -88,7 +88,7 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
                 break -- Don't cross the barrier natively
             end
 
-            local controlling = galaxy:getSectorFaction(cx, cy)
+            local controlling = galaxy:getControllingFaction(cx, cy)
             if not controlling then
                 targetX = cx
                 targetY = cy

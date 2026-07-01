@@ -10,7 +10,9 @@ local OVERDRIVE_DURATION = 3600 -- 1 Hour
 local overdriveKey = nil
 
 function StationOverdrive.initialize()
-    -- Intentionally left empty. Engine natively calls updateServer.
+    if onClient() then
+        invokeServerFunction("sync")
+    end
 end
 
 function StationOverdrive.interactionPossible(playerIndex, option)
@@ -67,7 +69,7 @@ function StationOverdrive.activateOverdrive()
     isOverdriven = true
     overdriveEndTime = Server().playtime + OVERDRIVE_DURATION
 
-    -- Apply the 3x Production Capacity Multiplier
+    -- Apply the 3x Production Capacity Multiplier (This works for Fighter Assemblies)
     overdriveKey = entity:addMultiplier(StatsBonuses.ProductionCapacity, 3.0)
 
     owner:sendChatMessage("Overdrive"%_t, 0, "Ascendant Overdrive engaged! Production speed tripled for 1 hour."%_t)
@@ -88,7 +90,7 @@ function StationOverdrive.updateServer(timeStep)
             isOverdriven = false
             local entity = Entity()
             
-            -- Remove the multiplier
+            -- Remove the Fighter Assembly multiplier
             if overdriveKey then
                 entity:removeBonus(overdriveKey)
                 overdriveKey = nil
@@ -100,16 +102,34 @@ function StationOverdrive.updateServer(timeStep)
             end
             
             StationOverdrive.sync()
+        else
+            -- Avorion Vanilla factories ignore StatsBonuses.ProductionCapacity entirely.
+            -- To achieve true 3x production speed, we must artificially advance the factory's update loop twice per tick.
+            local entity = Entity()
+            if entity:hasScript("factory.lua") then
+                entity:invokeFunction("factory", "updateParallelSelf", timeStep)
+                entity:invokeFunction("factory", "updateParallelSelf", timeStep)
+            elseif entity:hasScript("mine.lua") then
+                entity:invokeFunction("mine", "updateParallelSelf", timeStep)
+                entity:invokeFunction("mine", "updateParallelSelf", timeStep)
+            end
         end
     end
 end
 
 function StationOverdrive.sync(data)
     if onServer() then
-        invokeClientFunction(Player(callingPlayer), "sync", {
-            isOverdriven = isOverdriven,
-            overdriveEndTime = overdriveEndTime
-        })
+        if callingPlayer then
+            invokeClientFunction(Player(callingPlayer), "sync", {
+                isOverdriven = isOverdriven,
+                overdriveEndTime = overdriveEndTime
+            })
+        else
+            broadcastInvokeClientFunction("sync", {
+                isOverdriven = isOverdriven,
+                overdriveEndTime = overdriveEndTime
+            })
+        end
     else
         if data then
             isOverdriven = data.isOverdriven

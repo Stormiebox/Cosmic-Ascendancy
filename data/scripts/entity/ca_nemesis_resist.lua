@@ -30,6 +30,7 @@ end
 function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
     local entity = Entity()
     local maxDurability = entity.maxDurability
+    local maxTotalHealth = maxDurability + (entity.shieldMaxDurability or 0)
 
     local damageTaken = amount
     if damageType == resistType then
@@ -38,7 +39,7 @@ function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
         damageTaken = amount - resisted
     end
 
-    local maxAllowedDamage = maxDurability * 0.08
+    local maxAllowedDamage = maxTotalHealth * 0.08
 
     if damageTaken > maxAllowedDamage then
         local excessDamage = damageTaken - maxAllowedDamage
@@ -50,6 +51,8 @@ function onShieldDamaged(objectIndex, amount, inflictor, damageSource, damageTyp
     local entity = Entity()
     local maxShield = entity.shieldMaxDurability
     if not maxShield or maxShield <= 0 then return end
+    
+    local maxTotalHealth = entity.maxDurability + maxShield
 
     local damageTaken = amount
     if damageType == resistType then
@@ -58,7 +61,7 @@ function onShieldDamaged(objectIndex, amount, inflictor, damageSource, damageTyp
         damageTaken = amount - resisted
     end
 
-    local maxAllowedDamage = maxShield * 0.08
+    local maxAllowedDamage = maxTotalHealth * 0.08
 
     if damageTaken > maxAllowedDamage then
         local excessDamage = damageTaken - maxAllowedDamage

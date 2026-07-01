@@ -37,18 +37,24 @@ function updateServer(timeStep)
             
             sector:broadcastChatMessage("Ascendant Gateway", 0, "Hostiles detected. Summoning Ascendant Defense Fleet...")
             
+            local gatewayPos = Entity().translationf
+            
             -- Summon allied fleet
             for i = 1, 3 do
                 local plan = PlanGenerator.makeShipPlan(playerFaction, Balancing_GetSectorShipVolume(x, y) * 2, Material(MaterialType.Ogonite))
-                local defender = sector:createShip(playerFaction, "", plan, Matrix(), EntityArrivalType.Jump)
+                local m = Matrix()
+                local angle = (math.pi * 2 / 3) * i
+                m.translation = gatewayPos + vec3(math.cos(angle), 0, math.sin(angle)) * 800
+                
+                local defender = sector:createShip(playerFaction, "", plan, m, EntityArrivalType.Jump)
                 defender.title = "Ascendant Guardian"
                 defender.crew = defender.idealCrew
-                defender.shieldDurability = defender.shieldMaxDurability
-                
                 defender:addScriptOnce("ai/patrol.lua")
                 defender.damageMultiplier = (defender.damageMultiplier or 1.0) * 3.0
                 defender:addMultiplyableBias(StatsBonuses.FireRate, 2.0)
                 defender:addMultiplyableBias(StatsBonuses.ShieldDurability, 3.0)
+                
+                defender.shieldDurability = defender.shieldMaxDurability
             end
         end
     end

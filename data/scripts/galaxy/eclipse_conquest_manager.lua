@@ -95,28 +95,29 @@ function EclipseConquestManager.expandEmpire()
 
     if isFallenEmpire then
         -- Crusade Logic: Seek out an AI Faction Capital
-        -- We will scan factions and find one with a home sector
-        local factions = {}
-        local factionStr = Server():getValue("factions")
-        if type(factionStr) == "string" and factionStr ~= "" then
-            for id in string.gmatch(factionStr, "([^,]+)") do
-                local f = Faction(tonumber(id))
-                if f then table.insert(factions, f) end
-            end
-        end
+        -- We randomly sample coordinates to find an active, non-eradicated AI faction
         local targets = {}
-        for _, faction in pairs(factions) do
-            local isEradicated = false
-            if FactionEradicationUtility and FactionEradicationUtility.isFactionEradicated then
-                isEradicated = FactionEradicationUtility.isFactionEradicated(faction.index)
-            end
-
-            if not isEradicated and not faction.isPlayer and not faction.isAlliance and not faction:getValue("is_eclipse") and faction.name ~= "The Eclipse" then
-                local hx, hy = faction:getHomeSectorCoordinates()
-                if hx and hy and (hx ~= 0 or hy ~= 0) then
-                    table.insert(targets, {x=hx, y=hy, faction=faction})
+        for i = 1, 100 do
+            local sx = random():getInt(-490, 490)
+            local sy = random():getInt(-490, 490)
+            local faction = Galaxy():getControllingFaction(sx, sy)
+            
+            if faction and faction.isAIFaction and not faction:getValue("is_eclipse") and faction.name ~= "The Eclipse" then
+                local isEradicated = false
+                if FactionEradicationUtility and FactionEradicationUtility.isFactionEradicated then
+                    isEradicated = FactionEradicationUtility.isFactionEradicated(faction.index)
+                end
+                
+                if not isEradicated then
+                    local hx, hy = faction:getHomeSectorCoordinates()
+                    if hx and hy and (hx ~= 0 or hy ~= 0) then
+                        table.insert(targets, {x=hx, y=hy, faction=faction})
+                    end
                 end
             end
+            
+            -- Stop once we have enough valid crusade candidates
+            if #targets >= 5 then break end
         end
 
         if #targets > 0 then
@@ -203,9 +204,25 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
     end
     
     if not playerInSector then
-        Galaxy():addSectorScript(x, y, "data/scripts/sector/ca_delayed_annihilation.lua")
-        -- Briefly load the sector so the script fires, wiping the stations and correctly updating the map ownership natively.
         Galaxy():loadSector(x, y)
+        local code = [[
+            function run()
+                if not Sector():hasScript("sector/ca_delayed_annihilation.lua") then
+                    Sector():addScriptOnce("data/scripts/sector/ca_delayed_annihilation.lua")
+                end
+            end
+        ]]
+        runSectorCode(x, y, true, code, "run")
+    end
+end
+
+function EclipseConquestManager.secure()
+    return {timer = EclipseConquestManager.timer}
+end
+
+function EclipseConquestManager.restore(data)
+    if data then
+        EclipseConquestManager.timer = data.timer or 0
     end
 end
 
@@ -217,4 +234,10 @@ function initialize(...)
 end
 function updateServer(...)
     if EclipseConquestManager.updateServer then return EclipseConquestManager.updateServer(...) end
+end
+function secure(...)
+    if EclipseConquestManager.secure then return EclipseConquestManager.secure(...) end
+end
+function restore(...)
+    if EclipseConquestManager.restore then return EclipseConquestManager.restore(...) end
 end

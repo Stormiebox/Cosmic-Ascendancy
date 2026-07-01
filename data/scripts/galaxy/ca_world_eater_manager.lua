@@ -68,21 +68,21 @@ function WorldEaterManager.triggerEvent()
     end
 
     -- If loaded, inject sector script
-    local sector = Sector()
-    if sector then
-        local sx, sy = sector:getCoordinates()
-        if sx == tx and sy == ty then
-            WorldEaterManager.injectSectorScript(tx, ty)
-        end
+    if Galaxy():sectorLoaded(tx, ty) then
+        WorldEaterManager.injectSectorScript(tx, ty)
     end
 end
 
 function WorldEaterManager.injectSectorScript(x, y)
-    local sector = Sector()
-    if not sector then return end
-    if not sector:hasScript("events/ca_world_eater_event.lua") then
-        sector:addScript("data/scripts/events/ca_world_eater_event.lua", WorldEaterManager.activeEvent.timeLeft)
-    end
+    local timeLeft = WorldEaterManager.activeEvent and WorldEaterManager.activeEvent.timeLeft or 900
+    local code = [[
+        function run(timeLeft)
+            if not Sector():hasScript("events/ca_world_eater_event.lua") then
+                Sector():addScript("data/scripts/events/ca_world_eater_event.lua", timeLeft)
+            end
+        end
+    ]]
+    runSectorCode(x, y, true, code, "run", timeLeft)
 end
 
 function WorldEaterManager.executeDoomsday()

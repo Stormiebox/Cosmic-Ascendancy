@@ -22,7 +22,7 @@ function CosmicAscendancyServer.initialize()
             Galaxy():addScript("galaxy/ca_expansion_manager.lua")
         end
 
-        Server():registerCallback("onSectorGenerated", "onSectorGenerated")
+
     end
 end
 
@@ -39,23 +39,7 @@ function CosmicAscendancyServer.onPlayerLogIn(playerIndex)
     end
 end
 
-function CosmicAscendancyServer.onSectorGenerated(x, y)
-    -- If the Eclipse is fully awake, there is a chance they have conquered this newly generated sector
-    if Server():getValue("eclipse_fully_awake") then
-        if random():getFloat() < 0.05 then -- 5% chance per sector to be an Eclipse Stronghold
-            local EclipseGenerator = include("eclipsegenerator")
-            local faction = EclipseGenerator.getFaction()
 
-            -- IMPORTANT ARCHITECTURE NOTE:
-            -- We cannot physically spawn stations or ships here. Calling `Sector()` during
-            -- `onSectorGenerated` inside `server.lua` crashes the game because this script
-            -- is not bound to a physical sector instance.
-            -- Instead, we flag the coordinates globally. When a player physically enters
-            -- these coordinates, `ascendancyplayer.lua` reads this flag and spawns the stronghold.
-            Server():setValue("eclipse_stronghold_" .. x .. "_" .. y, true)
-        end
-    end
-end
 
 if onServer() then
     local oldInit = initialize or function() end
@@ -66,9 +50,4 @@ if onServer() then
 end
 
 
--- Global Event Callbacks
-local old_onSectorGenerated = onSectorGenerated
-function onSectorGenerated(...)
-    if old_onSectorGenerated then old_onSectorGenerated(...) end
-    if CosmicAscendancyServer.onSectorGenerated then return CosmicAscendancyServer.onSectorGenerated(...) end
-end
+

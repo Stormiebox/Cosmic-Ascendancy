@@ -25,7 +25,4 @@ function initialize()
         local entity = Entity()
         entity.damageMultiplier = (entity.damageMultiplier or 1.0) * damageFactor
         local shield = Shield(entity.id)
-        if shield then
-            shield.durability = shield.maximum
-        end
 end

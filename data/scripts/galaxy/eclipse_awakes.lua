@@ -113,6 +113,15 @@ function EclipseAwakes.triggerInvasion()
     end
 end
 
+function EclipseAwakes.secure()
+    return {invasionTimer = EclipseAwakes.invasionTimer}
+end
+
+function EclipseAwakes.restore(data)
+    if data then
+        EclipseAwakes.invasionTimer = data.invasionTimer or 0
+    end
+end
 function getUpdateInterval(...)
     if EclipseAwakes.getUpdateInterval then return EclipseAwakes.getUpdateInterval(...) end
 end
@@ -121,6 +130,12 @@ function initialize(...)
 end
 function updateServer(...)
     if EclipseAwakes.updateServer then return EclipseAwakes.updateServer(...) end
+end
+function secure(...)
+    if EclipseAwakes.secure then return EclipseAwakes.secure(...) end
+end
+function restore(...)
+    if EclipseAwakes.restore then return EclipseAwakes.restore(...) end
 end
 
 -- Global Event Callbacks

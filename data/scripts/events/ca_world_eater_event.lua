@@ -59,8 +59,36 @@ function WorldEaterEvent.onWorldEaterDestroyed()
     terminate()
 end
 
+function WorldEaterEvent.secure()
+    return {worldEaterId = WorldEaterEvent.worldEaterId}
+end
+
+function WorldEaterEvent.restore(data)
+    if data then
+        WorldEaterEvent.worldEaterId = data.worldEaterId
+        
+        if WorldEaterEvent.worldEaterId then
+            local ship = Entity(Uuid(WorldEaterEvent.worldEaterId))
+            if valid(ship) then
+                ship:registerCallback("onDestroyed", "onWorldEaterDestroyed")
+            else
+                -- Boss is dead/missing upon loading the sector
+                WorldEaterEvent.onWorldEaterDestroyed()
+            end
+        end
+    end
+end
+
 function initialize(...)
     if WorldEaterEvent.initialize then return WorldEaterEvent.initialize(...) end
+end
+
+function secure(...)
+    if WorldEaterEvent.secure then return WorldEaterEvent.secure(...) end
+end
+
+function restore(...)
+    if WorldEaterEvent.restore then return WorldEaterEvent.restore(...) end
 end
 
 -- Global Event Callbacks

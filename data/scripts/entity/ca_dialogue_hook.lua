@@ -36,7 +36,13 @@ function onInteract()
     
     d1.text = "The Guardian wasn't just hoarding Avorion. It was a lock! A seal holding back an ancient adversary known as The Eclipse. With the Guardian gone, they are waking up."
     d1.answers = {
+        {answer = "Who are The Eclipse?", followUp = d3},
         {answer = "Where are they?", followUp = d2}
+    }
+    
+    d3.text = "They are a mechanical plague. An algorithmic nightmare that eradicates biological and chaotic synthetic life. They were sealed away eons ago, but now they are free."
+    d3.answers = {
+        {answer = "I will stop them. Where do I start?", followUp = d2}
     }
     
     d2.text = "I've detected a massive energy spike nearby. I need you to go investigate it immediately. Be careful... they are not like the Xsotan."
@@ -53,6 +59,9 @@ function startCampaign()
         return
     end
     
-    Player():addScriptOnce("data/scripts/player/missions/ca_story1_awakening.lua")
+    local player = Player(callingPlayer)
+    if player then
+        player:addScriptOnce("data/scripts/player/missions/ca_story1_awakening.lua")
+    end
 end
 callable(nil, "startCampaign")
