@@ -155,14 +155,15 @@ function EclipseConquestManager.expandEmpire()
             CosmicVaultTerritory.setContestedZone(tx, ty, eclipseFaction.index, defFactionIndex, 120)
             Server():broadcastChatMessage("The Eclipse", 2, "Commencing assimilation of coordinates (" .. tx .. ":" .. ty .. "). Resistance is biologically inefficient.")
 
-            -- If the sector is currently loaded in memory, inject the siege event safely via a player currently inside it
-            for _, p in pairs({Server():getPlayers()}) do
-                local px, py = p:getSectorCoordinates()
-                if px == tx and py == ty then
-                    p:addScriptOnce("data/scripts/player/ca_siege_injector.lua")
-                    break
-                end
-            end
+              -- Inject the siege event safely into the sector thread
+              local code = [[
+                  function run()
+                      if not Sector():hasScript("events/siegeevent.lua") then
+                          Sector():addScript("data/scripts/events/siegeevent.lua")
+                      end
+                  end
+              ]]
+              runSectorCode(tx, ty, true, code, "run")
 
             -- Increment counter since it's a conquest attempt that will turn the sector
             Server():setValue("eclipse_conquered_sectors", conqueredCount + 1)

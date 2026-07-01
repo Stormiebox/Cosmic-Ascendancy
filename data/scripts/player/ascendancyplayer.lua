@@ -9,7 +9,6 @@ function AscendancyPlayer.initialize()
     if onServer() then Player():addScriptOnce("data/scripts/player/background/ca_campaign_controller.lua") end
     if onServer() then
         Player():registerCallback("onSectorEntered", "onSectorEntered")
-        Player():registerCallback("onEntityCreated", "onEntityCreated")
         Player():registerCallback("onShipChanged", "onShipChanged")
         Player():addScriptOnce("data/scripts/player/cosmicascendancycodex.lua")
     end
@@ -26,8 +25,8 @@ local function applyToEntity(entityId)
         if not allianceIndex or ownerIndex ~= allianceIndex then return end
     end
 
-    if not entity:hasScript("data/scripts/entity/ascendancyglobalbuff.lua") then
-        entity:addScript("data/scripts/entity/ascendancyglobalbuff.lua")
+    if not entity:hasScript("data/scripts/entity/ca_ascendancy_ship_buff.lua") then
+        entity:addScript("data/scripts/entity/ca_ascendancy_ship_buff.lua")
     end
     
     if entity.isStation then
@@ -64,7 +63,6 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
                 sector:setValue("eclipse_stronghold_spawned", true)
                 local EclipseGenerator = include("eclipsegenerator")
                 local station = EclipseGenerator.createStation(Matrix())
-                station:addScript("entity/deleteonplayersleft.lua")
                 
                 local defenderTypes = {"pyramid", "voidweaver", "phantom", "singularity", "juggernaut", "interceptor", "harvester", "defiler"}
                 for i = 1, 4 do
@@ -107,9 +105,6 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
     end
 end
 
-function AscendancyPlayer.onEntityCreated(entityId)
-    applyToEntity(entityId)
-end
 
 function AscendancyPlayer.onShipChanged(playerIndex, craftId)
     applyToEntity(craftId)
@@ -125,9 +120,6 @@ end
 
 
 -- Global Event Callbacks
-function onEntityCreated(...)
-    if AscendancyPlayer.onEntityCreated then return AscendancyPlayer.onEntityCreated(...) end
-end
 function onShipChanged(...)
     if AscendancyPlayer.onShipChanged then return AscendancyPlayer.onShipChanged(...) end
 end

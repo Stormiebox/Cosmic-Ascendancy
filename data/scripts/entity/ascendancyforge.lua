@@ -459,9 +459,7 @@ function AscendancyForge.decryptDatacore()
 
         if owner.isPlayer then
             local p = Player(owner.index)
-            if not p:hasScript("data/scripts/player/ca_global_tier_manager.lua") then
-                p:addScript("data/scripts/player/ca_global_tier_manager.lua")
-            end
+
         end
     end
     AscendancyForge.sync()

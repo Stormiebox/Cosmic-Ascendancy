@@ -14,7 +14,7 @@ function Detonation.initialize(x, y, z)
 
     -- Visual warning indicator at the core location
     local sector = Sector()
-    sector:createHyperspaceJumpAnimation(nil, vec3(x, y, z), ColorRGB(1.0, 0.0, 0.0), 3.0)
+    sector:createGlow(vec3(x, y, z), 300, ColorRGB(1.0, 0.0, 0.0))
 end
 
 function Detonation.getUpdateInterval()
@@ -30,7 +30,7 @@ function Detonation.updateServer(timeStep)
 
         -- Create massive visual explosion
         sector:createExplosion(pos, 300, true)
-        sector:createHyperspaceJumpAnimation(nil, pos, ColorRGB(1.0, 0.0, 0.0), 1.0)
+        sector:createGlow(pos, 600, ColorRGB(1.0, 0.0, 0.0))
 
         -- Deal massive true damage in a 3km radius
         local players = {sector:getPlayers()}
@@ -49,6 +49,23 @@ function Detonation.updateServer(timeStep)
     end
 end
 
+function Detonation.secure()
+    return {
+        posX = Detonation.posX,
+        posY = Detonation.posY,
+        posZ = Detonation.posZ,
+        timer = Detonation.timer
+    }
+end
+
+function Detonation.restore(data)
+    data = data or {}
+    Detonation.posX = data.posX or 0
+    Detonation.posY = data.posY or 0
+    Detonation.posZ = data.posZ or 0
+    Detonation.timer = data.timer or 0
+end
+
 function initialize(...)
     if Detonation.initialize then return Detonation.initialize(...) end
 end
@@ -57,4 +74,10 @@ function getUpdateInterval(...)
 end
 function updateServer(...)
     if Detonation.updateServer then return Detonation.updateServer(...) end
+end
+function secure(...)
+    if Detonation.secure then return Detonation.secure(...) end
+end
+function restore(...)
+    if Detonation.restore then return Detonation.restore(...) end
 end

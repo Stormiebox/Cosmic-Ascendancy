@@ -103,13 +103,15 @@ function WorldEaterManager.executeDoomsday()
         })
     end
 
-    -- Delegate sector annihilation to any active player in the sector to avoid global Sector() crashes
-    for _, p in pairs({Server():getPlayers()}) do
-        local px, py = p:getSectorCoordinates()
-        if px == tx and py == ty then
-            p:addScriptOnce("data/scripts/player/ca_annihilation_wiper.lua")
+    -- Safely execute sector annihilation via local sector thread
+    local code = [[
+        function run()
+            if not Sector():hasScript("sector/ca_delayed_annihilation.lua") then
+                Sector():addScriptOnce("data/scripts/sector/ca_delayed_annihilation.lua")
+            end
         end
-    end
+    ]]
+    runSectorCode(tx, ty, true, code, "run")
 end
 
 function WorldEaterManager.cancelEvent()
