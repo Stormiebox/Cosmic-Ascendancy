@@ -134,8 +134,6 @@ Players can construct the ultimate megastructure to anchor their empire: **The A
 
 ---
 
-*As of v3.0.0: The Ascendancy Beacon and Codex have been vastly expanded to deeply integrate with the Cosmic Vault's universal framework.*
-
 ### Defeating Nemeses
 When facing an Eclipse Dread-Lord, you must coordinate your firepower.
 - **Damage Gate:** Dread-Lords have an advanced Damage Gate that limits any single instance of damage to a maximum of 8% of their total Hull or Shields, preventing them from being instantly one-shot by god-tier weapons.
