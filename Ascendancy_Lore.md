@@ -73,11 +73,7 @@ The Eclipse did not communicate. It did not negotiate. Its ships, devoid of any 
 
 They were not conquerors. They were exterminators. A cleansing fire sent to purge a universe they deemed "unclean."
 
-Their methods were brutally efficient. Their ships were clad in armor that defied conventional physics, and their weapons tore through shields with contemptuous ease. They wielded abilities that seemed to warp reality itself:
-
-- **Void Shields** that shrugged off physical munitions.
-- **Dark Matter Blinks** that allowed them to vanish from a fight and reappear kilometers away.
-- **Singularity Implosions** that turned their dying capital ships into miniature black holes, consuming everything nearby in a final act of destruction.
+Their methods were brutally efficient. Their ships were clad in armor that defied conventional physics, and their weapons tore through shields with contemptuous ease. They wielded abilities that seemed to warp reality itself, their fleets blinking out of existence only to reappear kilometers away, and their dying capital ships would collapse into miniature black holes, consuming friend and foe alike in a final, spiteful act of destruction.
 
 Where the Xsotan were a force of nature, the Eclipse was a force of intellect—cold, calculating, and utterly relentless. They began their surge at the core, their algorithmic intelligence dynamically targeting the most valuable sectors, the brightest hubs of civilization, and systematically erasing them from existence.
 
@@ -93,9 +89,19 @@ This was your new mission. As the commander whose victory had inadvertently unle
 
 The Forge, an automated, planet-sized factory of impossible scale, was the Ascendants' final gift—the only facility capable of synthesizing the materials and technologies needed to stand against the Eclipse.
 
-But activating it would not be simple. It required a power source of immense energy—the very core of the Wormhole Guardian you had destroyed, the keystone of the prison itself. And to craft its "Ascendant" tier weapons and subsystems, it demanded a terrible price: the sacrifice of existing legendary technologies and a new, hyper-dense resource found only within the dark reactors of Eclipse vessels: **Ascendant Matter.**
+But activating it would not be simple. It required a power source of immense energy—the very core of the Wormhole Guardian you had destroyed, the keystone of the prison itself. To forge its reality-defying armaments, it demanded a terrible price: a sacrifice of the galaxy's most advanced artifacts to act as catalysts, and a new, paradoxical energy source found only within the hearts of the Eclipse themselves—a substance the Forge's archives called **Ascendant Matter.**
 
 The path forward is clear, yet fraught with peril. You must fight fire with fire, harvesting the very essence of your enemy to forge the weapons of your salvation. You must rally the broken factions of the galaxy, defend what little remains, and prepare for the ultimate confrontation. For the Eclipse will not stop. Their World-Eaters will continue their apocalyptic marches, and their Citadels will continue to spread, casting a permanent shadow over all that was once bright.
+
+---
+
+## 🗼 Part IV: A Beacon in the Dark
+
+The Forge provides the sword, but a sword is nothing without an arm to wield it. The Ascendants' second failsafe was not a weapon, but a symbol. A fortress. A nexus of power designed to anchor an empire against the coming storm: The **Ascendancy Beacon**.
+
+More than a mere station, the Beacon is a megastructure that hums with the same dimensional energies the Ascendants used to build their prison. It is a bastion of stable reality in a galaxy succumbing to chaos. By resonating with the unique frequency of your command, it could empower your entire fleet across the vastness of space, a symbol of defiance that declares a sector under your unwavering protection. It is a declaration that here, life will not be extinguished. Here, there is hope.
+
+To construct and maintain a Beacon is to take up the mantle of the Ascendants themselves—to build a bastion of light against an encroaching, all-consuming darkness, and to rally what remains of civilization under a single banner.
 
 ---
 
