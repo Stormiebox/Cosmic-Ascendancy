@@ -199,13 +199,16 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
     for _, p in pairs({Server():getPlayers()}) do
         local px, py = p:getSectorCoordinates()
         if px == x and py == y then
+            -- Add wiper script to player. The script terminates itself upon completion to prevent ghost scripts.
             p:addScriptOnce("data/scripts/player/ca_annihilation_wiper.lua")
             playerInSector = true
         end
     end
     
     if not playerInSector then
-        Galaxy():loadSector(x, y)
+        -- a race condition — the sector thread may not be fully ready when runSectorCode fires,
+        -- causing the script injection to silently fail.
+        -- runSectorCode with loadIfNotLoaded=true (3rd arg) handles this atomically and safely.
         local code = [[
             function run()
                 if not Sector():hasScript("sector/ca_delayed_annihilation.lua") then

@@ -14,27 +14,28 @@ function onDestroyed()
     local pos = entity.translationf
 
     -- Suppression Field: Halt all invasions globally for 6 hours
-    Server():setValue("eclipse_citadel_destroyed_time", Server().playtime)
+    Server():setValue("eclipse_citadel_destroyed_time", Server().unpausedRuntime)
     Sector():broadcastChatMessage("Eclipse Citadel", 2, "The Citadel's destruction has generated a massive suppression field. Eclipse invasions halted.")
 
     -- Ascendant Matter massive drop
     local matterAmount = random():getInt(100, 250)
-    sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, matterAmount)
+    sector:dropLoot(pos, CargoLoot(Good("Ascendant Matter"), matterAmount))
     
     -- Eclipse Datacore drop
     local coreAmount = random():getInt(3, 5)
     for i = 1, coreAmount do
-        sector:dropCargo(pos, nil, nil, Good("Eclipse Datacore"), 0, 1)
+        sector:dropLoot(pos, CargoLoot(Good("Eclipse Datacore"), 1))
     end
     
     -- Legendary Weapons and Upgrades
     local SectorTurretGenerator = include("sectorturretgenerator")
     local UpgradeGenerator = include("upgradegenerator")
     local ugen = UpgradeGenerator()
-    local tgen = SectorTurretGenerator()
+    local cx, cy = sector:getCoordinates()
+    local tgen = SectorTurretGenerator(cx, cy)
     
     for i = 1, random():getInt(8, 12) do
-        local turret = tgen:generateArmed(0, 0, 0, Rarity(RarityType.Legendary))
+        local turret = tgen:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))
         if turret then
             turret.tech = 52
             sector:dropTurret(pos, nil, nil, turret)

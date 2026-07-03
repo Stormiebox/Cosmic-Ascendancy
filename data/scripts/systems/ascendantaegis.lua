@@ -56,21 +56,23 @@ function onUninstalled(seed, rarity, permanent)
     if onServer() then removeDynamicBuffs() end
 end
 
--- ================= PERSISTENCE HOOKS =================
 local base_secure = secure
 function secure()
     local data = {}
     if base_secure then data = base_secure() or {} end
-    data.dynamicKeys = dynamicKeys
+    -- These are integer handles returned by addMultiplyableBias and are volatile —
+    -- they become invalid after a server restart. Storing and restoring them means
+    -- removeBonus(staleKey) silently fails, and old buffs stack permanently each reload.
+    -- The next updateServer() tick will reapply fresh keys automatically.
     return data
 end
 
 local base_restore = restore
 function restore(data)
     if base_restore then base_restore(data) end
-    dynamicKeys = data.dynamicKeys or {}
+    -- The updateServer loop will re-register fresh keys on the next tick.
+    dynamicKeys = {}
 end
--- =====================================================
 
 function getName(seed, rarity)
     return "Ascendant Aegis Matrix"%_t

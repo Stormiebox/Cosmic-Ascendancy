@@ -11,8 +11,12 @@ local PlanGenerator = include ("plangenerator")
 
 local EclipseGenerator = {}
 
+-- All writes to it are silently discarded by the C++ engine with no error.
+-- CORRECT approach: addMultiplyableBias on StatsBonuses.FireRate acts as a DPS scalar.
+-- The (factor - 1.0) converts a multiplier (e.g. 2.0x) to a bias delta (e.g. +1.0).
+-- Keys are intentionally not stored since these buffs are permanent until the ship is destroyed.
 function EclipseGenerator.applyDamageMultiplier(entity, factor)
-    entity.damageMultiplier = (entity.damageMultiplier or 1.0) * factor
+    entity:addMultiplyableBias(StatsBonuses.FireRate, factor - 1.0)
 end
 
 function EclipseGenerator.getFaction()
@@ -25,7 +29,7 @@ function EclipseGenerator.getFaction()
         faction.initialRelations = -100000
         faction.initialRelationsToPlayer = -100000
         faction.staticRelationsToPlayers = true
-        faction.description = "An ancient, hyper-advanced consciousness from before the Great Filter. Their entire existence revolves around one absolute imperative: The eradication of all biological and synthetic life that has not reached Ascendancy."
+        faction.description = "A sentient algorithmic plague that propagates through the multiverse. Its sole directive is to seek out complex, chaotic life and 'sanitize' it, reducing entire universes to a state of perfect, sterile order."
 
         for trait, value in pairs(faction:getTraits()) do
             faction:setTrait(trait, 0)
@@ -75,37 +79,43 @@ function EclipseGenerator.getShipVolume(x, y)
 end
 
 function EclipseGenerator.addTurrets(ship, numTurrets)
-    local generator = SectorTurretGenerator()
+    -- which is the starting region and generates Titanium/Naonite-tier weapons.
+    -- Always pass the current sector coordinates so turrets scale to the correct material tier.
+    local cx, cy = 0, 0
+    local ok, sector = pcall(Sector)
+    if ok and sector then
+        cx, cy = sector:getCoordinates()
+    end
+    local generator = SectorTurretGenerator(cx, cy)
     generator.coaxialAllowed = false
     
-    -- Try to use Starfall if available
+    -- Try to use Starfall if available (soft dependency — no crash if not installed)
     local status, starfall = pcall(include, "starfall")
     
     local numTurrets = numTurrets or 20
-    local turretsAdded = 0
     
-    -- We want to add multiple turrets to the ship. Let's create a pool of possible turrets.
+    -- Build a pool of turrets scaled to the sector location
     for i = 1, numTurrets do
         local turret
-        -- If Starfall is installed, there's a 50% chance to pick a Starfall weapon for this slot
+        -- If Starfall is installed, 50% chance to use a Starfall legendary for this slot
         if status and starfall and starfall.generateLegendary and random():getFloat() > 0.5 then
             turret = starfall.generateLegendary()
         else
-            -- Otherwise, pick a Max Tech Vanilla Legendary Turret
-            turret = generator:generateArmed(0, 0, 0, Rarity(RarityType.Legendary))
+            -- Generate a max-rarity turret appropriate for the current sector's material tier
+            turret = generator:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))
         end
         
-        -- FORCE MAXIMUM STATS, TECH, AND RARITY
+        -- Force maximum stats on top of generation: Eclipse weapons are elite
         turret.tech = 52
         turret.turningSpeed = math.max(turret.turningSpeed, 3.0)
         
         local weapons = {turret:getWeapons()}
         turret:clearWeapons()
         for _, weapon in pairs(weapons) do
-            weapon.damage = weapon.damage * 1.5 -- 50% flat damage boost over standard legendary
-            weapon.fireRate = weapon.fireRate * 1.25 -- 25% faster firing
-            weapon.reach = weapon.reach * 1.5 -- 50% more range
-            weapon.accuracy = 1.0 -- 100% perfect accuracy
+            weapon.damage = weapon.damage * 1.5     -- 50% flat damage bonus over standard legendary
+            weapon.fireRate = weapon.fireRate * 1.25 -- 25% faster fire rate
+            weapon.reach = weapon.reach * 1.5       -- 50% longer range
+            weapon.accuracy = 1.0                   -- Perfect accuracy — Eclipse never misses
             turret:addWeapon(weapon)
         end
         
@@ -129,11 +139,11 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
         plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume(x, y) * (volumeScale or 1.0), material)
     end
     
-    -- Scale the plan
+    -- Scale the plan volume to match the target Eclipse ship size
     local volume = EclipseGenerator.getShipVolume() * (volumeScale or 1.0)
     local currentVolume = plan.volume
     if currentVolume > 0 then
-        local scale = math.pow(volume / currentVolume, 1/3)
+        local scale = (volume / currentVolume) ^ (1/3)
         plan:scale(vec3(scale, scale, scale))
     end
     
@@ -200,10 +210,9 @@ function EclipseGenerator.createCarrier(position)
     ship:setTitle("Eclipse Void-Weaver"%_T, {})
     
     ship:addScriptOnce("ai/carrier.lua")
-    local hangar = Hangar(ship)
-    if hangar then
-        ShipUtility.addCarrierEquipment(ship, 30)
-    end
+    -- ShipUtility.addCarrierEquipment handles the hangar check internally.
+    -- Calling it directly is the correct vanilla pattern.
+    ShipUtility.addCarrierEquipment(ship, 30)
     
     return ship
 end
@@ -292,10 +301,11 @@ function EclipseGenerator.createStation(position)
         plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume(x, y) * 5, material)
     end
     
+    -- Scale the plan volume to match the target Citadel size (10x a standard Eclipse ship)
     local volume = EclipseGenerator.getShipVolume() * 10
     local currentVolume = plan.volume
     if currentVolume > 0 then
-        local scale = math.pow(volume / currentVolume, 1/3)
+        local scale = (volume / currentVolume) ^ (1/3)
         plan:scale(vec3(scale, scale, scale))
     end
     

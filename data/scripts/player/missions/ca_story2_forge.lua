@@ -11,7 +11,7 @@ end
 mission._Name = "Forging the Defense"
 mission._Debug = 0
 
-mission.data.description = "The Eclipse are real, and they possess shielding technology far beyond our current capabilities. The Adventurer mentioned an ancient schematic for an 'Ascendancy Forge'."
+mission.data.description = "The Eclipse are real, and they possess shielding technology that adapts to our weapons. The Adventurer mentioned an ancient, planet-sized failsafe built by the Ascendants: the 'Ascendancy Forge'."
 mission.data.title = "Forging the Defense"
 
 mission.phases[1] = {}

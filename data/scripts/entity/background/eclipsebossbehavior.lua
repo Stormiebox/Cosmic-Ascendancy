@@ -9,6 +9,11 @@ EclipseBossBehavior = {}
 local self = EclipseBossBehavior
 
 function EclipseBossBehavior.initialize()
+    -- Register the boss to the UI once when the script first loads on the client.
+    if onClient() then
+        registerBoss(Entity().index)
+    end
+
     if onServer() then
         Entity():registerCallback("onDestroyed", "onDestroyed")
         Entity():registerCallback("onDamaged", "onDamaged")
@@ -24,7 +29,8 @@ function EclipseBossBehavior.getUpdateInterval()
 end
 
 function EclipseBossBehavior.updateClient()
-    registerBoss(Entity().index)
+    -- registerBoss() has been moved to initialize() — no longer needed here.
+    -- Keeping the function registered to avoid a nil callback error if another system references it.
 end
 
 function EclipseBossBehavior.updateServer()

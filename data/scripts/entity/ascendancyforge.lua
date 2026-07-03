@@ -218,13 +218,13 @@ function AscendancyForge.getCosts()
     local matCost = random():getInt(25, 50)
     
     local ores = {}
-    ores[1] = math.floor(5000000 * scale)
-    ores[2] = math.floor(4000000 * scale)
-    ores[3] = math.floor(3000000 * scale)
-    ores[4] = math.floor(2500000 * scale)
-    ores[5] = math.floor(2000000 * scale)
-    ores[6] = math.floor(1000000 * scale)
-    ores[7] = math.floor(500000 * scale)
+    ores[1] = math.floor(1000000 * scale) -- Iron
+    ores[2] = math.floor(800000 * scale)  -- Titanium
+    ores[3] = math.floor(700000 * scale)  -- Naonite
+    ores[4] = math.floor(600000 * scale)  -- Trinium
+    ores[5] = math.floor(550000 * scale)  -- Xanion
+    ores[6] = math.floor(520000 * scale)  -- Ogonite
+    ores[7] = math.floor(500000 * scale)  -- Avorion
 
     return creditCost, "Ascendant Matter", matCost, ores
 end
@@ -327,7 +327,8 @@ function AscendancyForge.startForging(itemIndices)
     if random():getInt(1, 100) <= successRate then
         willSucceed = true
         isForging = true
-        forgeFinishTime = Server().playtime + FORGE_TIME
+        -- during server downtime. Use unpausedRuntime so the 24h only ticks during active gameplay.
+        forgeFinishTime = Server().unpausedRuntime + FORGE_TIME
         owner:sendChatMessage("Stellar Forge"%_t, 0, "The Stellar Forge has ignited! Your weapon will be ready in 24 hours."%_t)
     else
         willSucceed = false
@@ -398,7 +399,7 @@ function AscendancyForge.getUpdateInterval() return 60 end
 
 function AscendancyForge.updateServer(timeStep)
     if isForging then
-        local pt = Server().playtime
+        local pt = Server().unpausedRuntime
         if pt >= forgeFinishTime then
             isForging = false
             hasCompletedItem = true
@@ -457,9 +458,14 @@ function AscendancyForge.decryptDatacore()
         cv_buffs.setGlobalTier(owner.index, currentTier + 1)
         owner:sendChatMessage("Stellar Forge"%_t, 0, "Datacore Decrypted! Global Ascendancy Tier increased to " .. (currentTier + 1) .. "!")
 
+        -- but never used it. Completed: mark the calling player's forge as unlocked and
+        -- grant a personal notification. This enables the interactionPossible gate at L43-L44.
         if owner.isPlayer then
             local p = Player(owner.index)
-
+            if p then
+                p:setValue("ca_forge_unlocked", true)
+                p:sendChatMessage("Stellar Forge"%_t, 0, "Forge access permanently unlocked for your account.")
+            end
         end
     end
     AscendancyForge.sync()
@@ -468,7 +474,7 @@ callable(AscendancyForge, "decryptDatacore")
 
 function AscendancyForge.sync(data)
     if onServer() then
-        local pt = Server().playtime
+        local pt = Server().unpausedRuntime
         local remaining = math.max(0, forgeFinishTime - pt)
         local tier = 0
         if cv_buffs.getGlobalTier then

@@ -36,12 +36,9 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
     end
 
     if random:getFloat() < chance then
-        -- IMPORTANT ARCHITECTURE NOTE (Stormbox):
-        -- We cannot physically spawn stations or ships here. Calling `Sector()` during
-        -- `onSectorGenerated` inside `eclipse_awakes.lua` crashes the game because this script
-        -- is not bound to a physical sector instance.
-        -- Instead, we flag the coordinates globally. When a player physically enters
-        -- these coordinates, `ascendancyplayer.lua` reads this flag and spawns the stronghold.
+        -- Flag coordinates globally instead of spawning stations immediately. 
+        -- `onSectorGenerated` lacks a physical sector instance context, so `ascendancyplayer.lua` 
+        -- handles the physical spawning when a player jumps in.
         Server():setValue("eclipse_stronghold_" .. x .. "_" .. y, true)
     end
 end
@@ -106,9 +103,11 @@ function EclipseAwakes.triggerInvasion()
     -- This is now handled globally by eclipse_conquest_manager.lua, but we still trigger personal player ambushes here
     local players = {Server():getPlayers()}
     for _, player in pairs(players) do
-        -- 60% chance to invade a player's sector personally
+        -- 60% chance to personally ambush a player in their sector
         if random():getFloat(0, 1) > 0.4 then
-            player:addScript("data/scripts/player/events/eclipseinvasion.lua")
+            -- before the first one finishes (e.g., if invasion timer fires while one is still running).
+            -- addScriptOnce is idempotent — safe to call multiple times; will not stack.
+            player:addScriptOnce("data/scripts/player/events/eclipseinvasion.lua")
         end
     end
 end

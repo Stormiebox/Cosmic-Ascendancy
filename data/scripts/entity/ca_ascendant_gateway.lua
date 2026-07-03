@@ -50,10 +50,12 @@ function updateServer(timeStep)
                 defender.title = "Ascendant Guardian"
                 defender.crew = defender.idealCrew
                 defender:addScriptOnce("ai/patrol.lua")
-                defender.damageMultiplier = (defender.damageMultiplier or 1.0) * 3.0
+                -- Apply a permanent multiplicative bonus to fire rate to act as a 3x DPS multiplier
+                -- since modifying the damageMultiplier property directly is discarded by the engine.
                 defender:addMultiplyableBias(StatsBonuses.FireRate, 2.0)
                 defender:addMultiplyableBias(StatsBonuses.ShieldDurability, 3.0)
                 
+                -- Fill shields to max so defenders spawn battle-ready
                 defender.shieldDurability = defender.shieldMaxDurability
             end
         end

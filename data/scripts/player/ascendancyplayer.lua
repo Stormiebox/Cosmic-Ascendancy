@@ -25,14 +25,10 @@ local function applyToEntity(entityId)
         if not allianceIndex or ownerIndex ~= allianceIndex then return end
     end
 
-    if not entity:hasScript("data/scripts/entity/ca_ascendancy_ship_buff.lua") then
-        entity:addScript("data/scripts/entity/ca_ascendancy_ship_buff.lua")
-    end
+    entity:addScriptOnce("data/scripts/entity/ca_ascendancy_ship_buff.lua")
     
     if entity.isStation then
-        if not entity:hasScript("data/scripts/entity/ca_station_overdrive.lua") then
-            entity:addScript("data/scripts/entity/ca_station_overdrive.lua")
-        end
+        entity:addScriptOnce("data/scripts/entity/ca_station_overdrive.lua")
     end
 end
 
@@ -51,11 +47,9 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
         applyToEntity(entity.id)
     end
 
-    -- IMPORTANT ARCHITECTURE NOTE:
-    -- We cannot physically spawn stations or ships in the `onSectorGenerated` galaxy event
-    -- inside `server.lua`, because calling `Sector()` there crashes the game.
-    -- Instead, `server.lua` flags the coordinates globally. When a player physical enters, 
-    -- this player script reads the flag and spawns the Stronghold safely inside the sector.
+    -- Spawn Eclipse Strongholds safely. 
+    -- The galaxy generation scripts flag coordinates globally; when a player jumps in, 
+    -- this script reads the flag and handles the physical entity spawning to avoid context crashes.
     if onServer() then
         if Server():getValue("eclipse_stronghold_" .. x .. "_" .. y) then
             local sector = Sector()
@@ -89,7 +83,10 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
                         defender = EclipseGenerator.createShip(pos, sType)
                     end
                     
-                    defender:addScript("ai/patrol.lua")
+                    -- Ensure the generator successfully created a defender before assigning AI scripts
+                    if defender then
+                        defender:addScriptOnce("ai/patrol.lua")
+                    end
                 end
                 
                 sector:setValue("is_eclipse_stronghold", true)

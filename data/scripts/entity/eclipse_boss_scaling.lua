@@ -23,6 +23,6 @@ function initialize()
         end
         
         local entity = Entity()
-        entity.damageMultiplier = (entity.damageMultiplier or 1.0) * damageFactor
-        local shield = Shield(entity.id)
+        -- Apply DPS scaling correctly via engine API (using FireRate as a DPS multiplier)
+        entity:addMultiplyableBias(StatsBonuses.FireRate, damageFactor - 1.0)
 end

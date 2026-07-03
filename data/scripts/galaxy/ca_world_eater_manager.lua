@@ -22,14 +22,26 @@ function WorldEaterManager.updateServer(timeStep)
 
         if WorldEaterManager.activeEvent.timeLeft <= 0 then
             WorldEaterManager.executeDoomsday()
-        elseif WorldEaterManager.activeEvent.timeLeft % 300 < 30 then
-            -- Broadcast warning around every 5 minutes
+        else
+            -- the update interval is 30s, meaning the check can overshoot the boundary window
+            -- silently and never broadcast. Instead, track the last interval we broadcast at.
+            -- We broadcast once per 5-minute (300s) interval by comparing the current interval
+            -- index to the last one we announced.
             local tx = WorldEaterManager.activeEvent.x
             local ty = WorldEaterManager.activeEvent.y
-            Server():broadcastChatMessage("The Eclipse", 2, "WARNING: Doomsday weapon firing at [" .. tx .. ":" .. ty .. "] in " .. math.floor(WorldEaterManager.activeEvent.timeLeft / 60) .. " minutes.")
+            local timeLeft = WorldEaterManager.activeEvent.timeLeft
+            local currentInterval = math.floor(timeLeft / 300) -- Which 5-min block are we in?
+            local lastInterval = WorldEaterManager.activeEvent.lastWarningInterval or -1
+
+            -- Fire exactly once when we enter each new 5-minute interval
+            if currentInterval ~= lastInterval then
+                WorldEaterManager.activeEvent.lastWarningInterval = currentInterval
+                local minsLeft = math.ceil(timeLeft / 60)
+                Server():broadcastChatMessage("The Eclipse", 2, "WARNING: Doomsday weapon firing at [" .. tx .. ":" .. ty .. "] in " .. minsLeft .. " minute(s).")
+            end
         end
 
-        -- Check if any player is in the sector to inject the actual boss
+        -- Check if any player is in the targeted sector to inject the actual boss ship
         for _, player in pairs({Server():getPlayers()}) do
             local px, py = player:getSectorCoordinates()
             if px == WorldEaterManager.activeEvent.x and py == WorldEaterManager.activeEvent.y then

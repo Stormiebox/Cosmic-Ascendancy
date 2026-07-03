@@ -7,6 +7,8 @@ include ("stringutility")
 -- Cosmic Integrations
 local cv_news = include("cosmicvaultnews")
 local cw_bridge = include("cosmicwarbridge")
+-- Without this, calling cv_buffs.setGlobalTier crashes on every beacon deactivation.
+local cv_buffs = include("cosmicvaultbuffs")
 
 -- namespace AscendancyBeacon
 AscendancyBeacon = {}
@@ -23,8 +25,9 @@ function AscendancyBeacon.initialize()
         -- Register destruction callback to unregister the beacon safely
         Entity():registerCallback("onDestroyed", "onDestroyed")
         Sector():registerCallback("onEntityEntered", "onEntityEntered")
-        lastUpkeepTime = Server().playtime
-        lastSiegeTime = Server().playtime
+        -- Use Server().unpausedRuntime so timers only tick during active gameplay.
+        lastUpkeepTime = Server().unpausedRuntime
+        lastSiegeTime = Server().unpausedRuntime
         nextSiegeInterval = random():getInt(3, 6) * 3600 -- 3 to 6 hours
     end
 end
@@ -193,7 +196,7 @@ function AscendancyBeacon.toggleBeacon()
 
         owner:setValue("ascendancy_beacons_count", count + 1)
         active = true
-        lastUpkeepTime = Server().playtime
+        lastUpkeepTime = Server().unpausedRuntime
 
         local x, y = Sector():getCoordinates()
         Galaxy():sendCallback("onAscendancyBeaconActivated", x, y)
@@ -217,9 +220,8 @@ function AscendancyBeacon.toggleBeacon()
             end
         end
 
-        if not Entity():hasScript("entity/ascendancyforge.lua") then
-            Entity():addScript("entity/ascendancyforge.lua")
-        end
+        -- addScriptOnce is atomic and idempotent — the correct pattern for conditional script injection.
+        Entity():addScriptOnce("data/scripts/entity/ascendancyforge.lua")
 
         owner:sendChatMessage("Beacon"%_t, 0, "Beacon Activated. Sector is now permanently simulated."%_t)
     end
@@ -310,7 +312,7 @@ function AscendancyBeacon.updateServer(timeStep)
         Galaxy():sendCallback("onAscendancyBeaconPing", Entity().id.string, owner.index, x, y)
     end
 
-    local now = Server().playtime
+    local now = Server().unpausedRuntime
     if now - lastUpkeepTime >= UPKEEP_INTERVAL then
         -- Time to pay!
         local creditCost, mat, matCost = AscendancyBeacon.getUpkeepCost()
@@ -322,9 +324,10 @@ function AscendancyBeacon.updateServer(timeStep)
             lastUpkeepTime = now
             owner:sendChatMessage("Beacon"%_t, 3, "Ascendancy Beacon Upkeep Paid: %1% Cr, %2% %3%", createMonetaryString(creditCost), createMonetaryString(matCost), mat.name)
 
-            -- Payout Treasury
+            -- Payout Treasury: transfer accumulated toll revenue to the beacon owner
             if AscendancyBeacon.treasury and AscendancyBeacon.treasury > 0 then
-                owner:receive("Ascendancy Beacon Grand Toll Payout", AscendancyBeacon.treasury)
+                -- receive(msg, amount) is a valid Faction API (confirmed in merchantutility.lua:37)
+                owner:receive("Ascendancy Beacon Grand Toll Payout"%_t, AscendancyBeacon.treasury)
                 owner:sendChatMessage("Beacon"%_t, 3, "Grand Toll Treasury Payout: %1% Credits received.", createMonetaryString(AscendancyBeacon.treasury))
                 AscendancyBeacon.treasury = 0
             end
@@ -421,8 +424,8 @@ end
 function AscendancyBeacon.restore(data)
     active = data.active or false
     currentTier = data.currentTier or 1
-    lastUpkeepTime = data.lastUpkeepTime or Server().playtime
-    lastSiegeTime = data.lastSiegeTime or Server().playtime
+    lastUpkeepTime = data.lastUpkeepTime or Server().unpausedRuntime
+    lastSiegeTime = data.lastSiegeTime or Server().unpausedRuntime
     nextSiegeInterval = data.nextSiegeInterval or random():getInt(3, 6) * 3600
     AscendancyBeacon.treasury = data.treasury or 0
 end

@@ -22,9 +22,7 @@ function SpawnEclipseBoss.createBoss()
     boss.name = "Eclipse Oblivion Engine"%_T
 
     boss:addMultiplyableBias(StatsBonuses.ShieldDurability, 500.0)
-
     boss:addMultiplyableBias(StatsBonuses.ArbitraryTurrets, 50.0)
-
     boss:addMultiplyableBias(StatsBonuses.ArmedTurrets, 400.0)
     boss:addMultiplyableBias(StatsBonuses.Velocity, 3.0)
 
@@ -33,12 +31,15 @@ function SpawnEclipseBoss.createBoss()
     local SectorTurretGenerator = include("sectorturretgenerator")
     local UpgradeGenerator = include("upgradegenerator")
     local ugen = UpgradeGenerator()
-    local tgen = SectorTurretGenerator()
+    -- Must pass actual sector coordinates so pre-loaded loot scales to the correct material tier.
+    local cx, cy = sector:getCoordinates()
+    local tgen = SectorTurretGenerator(cx, cy)
 
     for i = 1, 25 do
-        Loot(boss):insert(ugen:generateSectorSystem(150, 0, Rarity(RarityType.Legendary)))
+        -- Generate and insert a legendary upgrade into the boss's loot pool
+        Loot(boss):insert(ugen:generateSystem(Rarity(RarityType.Legendary)))
 
-        local turret = tgen:generateArmed(150, 0, 0, Rarity(RarityType.Legendary))
+        local turret = tgen:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))
         if turret then
             turret.tech = 52
             Loot(boss):insert(InventoryTurret(turret))
@@ -46,7 +47,8 @@ function SpawnEclipseBoss.createBoss()
     end
 
     boss:addScriptOnce("entity/background/eclipsebossbehavior.lua")
-    ShipAI(boss):setAggressive(true, false)
+    -- Force the boss into an aggressive AI state
+    ShipAI(boss.index):setAggressive()
 end
 
 function SpawnEclipseBoss.finish()
@@ -66,13 +68,18 @@ function SpawnEclipseBoss.finish()
         Server():broadcastChatMessage("System"%_T, 1, "The Eclipse Oblivion Engine has vanished from sector \\s(%1%:%2%), leaving only dust."%_T, x, y)
     end
 
-    if not sector:getPlayers() then
+    -- `if not sector:getPlayers()` tests the truthiness of the first return value,
+    -- which is semantically wrong and accidentally works only in the zero-player case.
+    -- Collect into a table and check the count explicitly.
+    local players = {sector:getPlayers()}
+    if #players == 0 then
         local generator = SectorGenerator(x, y)
         local entities = {sector:getEntitiesByComponent(ComponentType.Owner)}
         for _, entity in pairs(entities) do
             if entity:hasComponent(ComponentType.Durability) and entity.aiOwned then
-                local blockPlan = Plan(entity.id):getMove()
-                local wreckage = generator:createWreckage(nil, blockPlan)
+                -- SectorGenerator:createWreckage(faction, plan, breaks) takes the Plan directly.
+                local plan = Plan(entity.id)
+                local wreckage = generator:createWreckage(nil, plan, 0)
                 entity:clearCargoBay()
                 sector:deleteEntity(entity)
             end

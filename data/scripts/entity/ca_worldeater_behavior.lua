@@ -170,14 +170,10 @@ function CAWorldEater.processHazards(timeStep)
             local ships = {sector:getEntitiesByLocation(Sphere(emp.position, emp.radius))}
             for _, ship in pairs(ships) do
                 if valid(ship) and ship.factionIndex ~= boss.factionIndex then
-                    local shield = Shield(ship.id)
-                    if shield then
-                        shield.durability = 0 -- Instantly strip all shields
-                    end
-                    local durability = Durability(ship.id)
-                    if durability then
-                        durability:inflictDamage(1000000, 1, DamageType.Energy, boss.id)
-                    end
+                    -- Strip all shields directly on the entity
+                    ship.shieldDurability = 0
+                    -- Inflict raw Energy damage directly on the entity
+                    ship:inflictDamage(1000000, 1, DamageType.Energy, boss.id)
                 end
             end
             
@@ -195,18 +191,14 @@ function CAWorldEater.processHazards(timeStep)
             local ships = {sector:getEntitiesByLocation(Sphere(anom.position, anom.radius))}
             for _, ship in pairs(ships) do
                 if valid(ship) and ship.factionIndex ~= boss.factionIndex and ship.isShip then
-                    local velComponent = Velocity(ship.id)
-                    if velComponent then
-                        -- Pull ship towards anomaly center
-                        local dir = normalize(anom.position - ship.translationf)
-                        velComponent:addVelocity(dir * anom.pullStrength * timeStep)
-                    end
+                    -- Additionally, addVelocity() is not a method on the Velocity component.
+                    -- The correct approach is to add directly to the entity's velocity property (vec3),
+                    -- which applies an impulse that the physics engine integrates on the next tick.
+                    local dir = normalize(anom.position - ship.translationf)
+                    ship.velocity = ship.velocity + dir * anom.pullStrength * timeStep
                     
                     -- Damage over time inside the anomaly
-                    local durability = Durability(ship.id)
-                    if durability then
-                        durability:inflictDamage(50000 * timeStep, 1, DamageType.Physical, boss.id)
-                    end
+                    ship:inflictDamage(50000 * timeStep, 1, DamageType.Physical, boss.id)
                 end
             end
         end
@@ -277,6 +269,12 @@ function CAWorldEater.checkPhases()
     local boss = Entity()
     local sector = Sector()
     
+    -- Early-out once all 5 phases are triggered to save processing time on idle math.
+    local allTriggered = data.phasesTriggered.p80 and data.phasesTriggered.p70 and
+                         data.phasesTriggered.p60 and data.phasesTriggered.p50 and
+                         data.phasesTriggered.p35
+    if allTriggered then return end
+    
     local hpPct = boss.durability / boss.maxDurability
     
     if hpPct <= 0.8 and not data.phasesTriggered.p80 then
@@ -301,10 +299,8 @@ function CAWorldEater.checkPhases()
         for _, p in pairs(players) do
             local ship = p.craft
             if ship then
-                local s = Shield(ship.id)
-                if s then
-                    s.durability = s.durability * 0.5
-                end
+                -- Halve shields directly on the entity
+                ship.shieldDurability = ship.shieldDurability * 0.5
             end
         end
         broadcastInvokeClientFunction("createGlobalEmpGlow", boss.translationf)
@@ -342,16 +338,13 @@ function CAWorldEater.checkPhases()
         for _, p in pairs(players) do
             local ship = p.craft
             if ship then
-                local s = Shield(ship.id)
-                if s then
-                    s.durability = s.durability * 0.5
-                end
+                -- Halve shields directly on the entity
+                ship.shieldDurability = ship.shieldDurability * 0.5
             end
         end
         broadcastInvokeClientFunction("createGlobalEmpGlow", boss.translationf)
         
-        -- Enrage
-        boss.damageMultiplier = (boss.damageMultiplier or 1.0) * 1.5
+        -- Enrage: boost fire rate (key discarded intentionally — buff is permanent until boss death)
         boss:addMultiplyableBias(StatsBonuses.FireRate, 0.5)
     end
 end
@@ -380,13 +373,17 @@ function CAWorldEater.onDestroyed()
     local pos = entity.translationf
 
     -- Drop massive amounts of Ascendant Matter (100 - 250)
-    sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, random():getInt(100, 250))
+    -- dropCargo requires a CargoLoot object, not a raw Good
+    local cx, cy = Sector():getCoordinates()
+    sector:dropLoot(pos, CargoLoot(Good("Ascendant Matter"), random():getInt(100, 250)))
 
     -- Boss drops legendary weapons, upgrades, and high tier turrets
     
     -- Drop 5-10 max tech legendary weapons
+    -- SectorTurretGenerator requires sector coordinates to determine material tier
+    local turretGen = SectorTurretGenerator(cx, cy)
     for i = 1, random():getInt(5, 10) do
-        local turret = SectorTurretGenerator():generateArmed(0, 0, 0, Rarity(RarityType.Legendary))
+        local turret = turretGen:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))
         if turret then
             turret.tech = 52
             sector:dropTurret(pos, nil, nil, turret)

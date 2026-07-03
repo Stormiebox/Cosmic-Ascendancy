@@ -67,10 +67,12 @@ function StationOverdrive.activateOverdrive()
 
     -- Activate Overdrive
     isOverdriven = true
-    overdriveEndTime = Server().playtime + OVERDRIVE_DURATION
+    -- Use Server().unpausedRuntime instead so the 1-hour timer only ticks during active gameplay.
+    overdriveEndTime = Server().unpausedRuntime + OVERDRIVE_DURATION
 
-    -- Apply the 3x Production Capacity Multiplier (This works for Fighter Assemblies)
-    overdriveKey = entity:addMultiplier(StatsBonuses.ProductionCapacity, 3.0)
+    -- The correct method is addMultiplyableBias, which adds a stacking bias to the multiplier pool.
+    -- A bias of 2.0 adds +200% on top of base = effective 3x production capacity.
+    overdriveKey = entity:addMultiplyableBias(StatsBonuses.ProductionCapacity, 2.0)
 
     owner:sendChatMessage("Overdrive"%_t, 0, "Ascendant Overdrive engaged! Production speed tripled for 1 hour."%_t)
     
@@ -85,7 +87,7 @@ end
 
 function StationOverdrive.updateServer(timeStep)
     if isOverdriven then
-        local pt = Server().playtime
+        local pt = Server().unpausedRuntime
         if pt >= overdriveEndTime then
             isOverdriven = false
             local entity = Entity()
@@ -103,13 +105,16 @@ function StationOverdrive.updateServer(timeStep)
             
             StationOverdrive.sync()
         else
-            -- Avorion Vanilla factories ignore StatsBonuses.ProductionCapacity entirely.
-            -- To achieve true 3x production speed, we must artificially advance the factory's update loop twice per tick.
+            -- Run the vanilla factory self-update logic in parallel to process the boost
+            -- Calling it twice per overdrive tick artificially doubles production throughput.
+            -- This is the correct workaround because StatsBonuses.ProductionCapacity is ignored
+            -- by vanilla factory.lua's own production logic (it only reads from its parallel slots count).
             local entity = Entity()
             if entity:hasScript("factory.lua") then
                 entity:invokeFunction("factory", "updateParallelSelf", timeStep)
                 entity:invokeFunction("factory", "updateParallelSelf", timeStep)
             elseif entity:hasScript("mine.lua") then
+                -- mine.lua does not exist in the vanilla copy; this branch is unreachable but harmless
                 entity:invokeFunction("mine", "updateParallelSelf", timeStep)
                 entity:invokeFunction("mine", "updateParallelSelf", timeStep)
             end
@@ -151,10 +156,10 @@ function StationOverdrive.restore(data)
     overdriveEndTime = data.overdriveEndTime or 0
     
     if isOverdriven and onServer() then
-        -- In case the server restarted while overdriven, re-apply the multiplier 
-        -- because addMultiplier is volatile and does not persist across restarts unless re-added
+        -- In case the server restarted while overdriven, re-apply the multiplier.
+        -- addMultiplyableBias is volatile and does not persist across restarts unless re-added.
         local entity = Entity()
-        overdriveKey = entity:addMultiplier(StatsBonuses.ProductionCapacity, 3.0)
+        overdriveKey = entity:addMultiplyableBias(StatsBonuses.ProductionCapacity, 2.0)
     end
 end
 

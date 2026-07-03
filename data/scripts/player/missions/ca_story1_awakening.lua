@@ -11,7 +11,7 @@ end
 mission._Name = "The Eclipse Awakening"
 mission._Debug = 0
 
-mission.data.description = "The Wormhole Guardian was not a final boss. It was a seal. Now that it is broken, investigate the anomalous energy readings the Hermit provided."
+mission.data.description = "The Wormhole Guardian was not a final boss. It was the keystone of the Ascendants' ancient dimensional prison. Now that the knot is unraveled, investigate the anomalous dark energy readings the Hermit provided."
 mission.data.title = "The Eclipse Awakening"
 
 mission.phases[1] = {}
@@ -21,7 +21,7 @@ mission.phases[1].onBeginServer = function()
     local targetX, targetY = getTargetSector(x, y)
     mission.data.custom.targetX = targetX
     mission.data.custom.targetY = targetY
-    mission.data.description = "Jump to the coordinates the Hermit provided: (" .. targetX .. ":" .. targetY .. ")\n\nThe Hermit's last transmission was filled with static. 'The seal is broken. The ancient ones... The Eclipse... they are returning to cleanse the galaxy. You must see it for yourself.'"
+    mission.data.description = "Jump to the coordinates the Hermit provided: (" .. targetX .. ":" .. targetY .. ")\n\nThe Hermit's last transmission was filled with static. 'The lock is broken. The algorithm... The Eclipse... they are returning to sanitize the galaxy. You must see it for yourself.'"
 end
 
 mission.phases[1].onSectorEntered = function(x, y)
@@ -40,7 +40,8 @@ mission.phases[2].onBeginServer = function()
     local generator = include("SectorGenerator")(Sector():getCoordinates())
     local pos = generator:getPositionInSector(5000)
     local plan = generator:getBasicWreckagePlan()
-    local wreck = sector:createWreckage(plan, pos)
+    local wreck = generator:createWreckage(nil, plan, 10)
+    if wreck then wreck.translationf = pos end
     mission.data.custom.wreckId = wreck.index.string
 end
 
@@ -71,7 +72,7 @@ mission.phases[3].onBeginServer = function()
     local EclipseGenerator = include("eclipsegenerator")
     local faction = EclipseGenerator.getFaction()
     
-    Player():sendChatMessage("Unknown Transmission", 2, "Biological contamination detected. Purge protocol initiated. We are The Eclipse.")
+    Player():sendChatMessage("Unknown Transmission", 2, "Chaotic biological variables detected. Sanitation protocol initiated. We are The Eclipse.")
     
     for i = 1, 3 do
         local ship = generator.createMilitaryShip(faction, Matrix(), Sector():getCoordinates())

@@ -34,13 +34,13 @@ function onInteract()
         {answer = "What do you mean?", followUp = d1}
     }
     
-    d1.text = "The Guardian wasn't just hoarding Avorion. It was a lock! A seal holding back an ancient adversary known as The Eclipse. With the Guardian gone, they are waking up."
+    d1.text = "The Guardian wasn't just hoarding Avorion. It was a keystone! A lock to a multidimensional prison built by the Ascendants. With the Guardian gone, the dimensional knot has unraveled. The Eclipse is waking up."
     d1.answers = {
         {answer = "Who are The Eclipse?", followUp = d3},
         {answer = "Where are they?", followUp = d2}
     }
     
-    d3.text = "They are a mechanical plague. An algorithmic nightmare that eradicates biological and chaotic synthetic life. They were sealed away eons ago, but now they are free."
+    d3.text = "They are not a race. They are a conceptual plague. An algorithmic nightmare that eradicates complex, chaotic life. They were sealed away eons ago to save our reality, but now they are free."
     d3.answers = {
         {answer = "I will stop them. Where do I start?", followUp = d2}
     }

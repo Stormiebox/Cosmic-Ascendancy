@@ -71,7 +71,7 @@ function AscendancySiege.spawnFleet()
         faction = Faction(attackerFaction)
     end
 
-    -- Spawn Bosses (Battleships/Dreadnoughts)
+    -- Spawn Bosses (Battleships/Dreadnoughts) — tier 3+ only
     for i = 1, numBosses do
         local shipPos = MatrixLookUpPosition(-dir, up, pos + right * getFloat(-500, 500) + up * getFloat(-500, 500))
         local ship
@@ -83,11 +83,14 @@ function AscendancySiege.spawnFleet()
             local volume = ShipGenerator.getMilitaryShipVolume(faction, 10) * (1 + (tier * 0.5))
             ship = ShipGenerator.createMilitaryShip(faction, shipPos, volume)
         end
-        ship:addScript("ai/patrol.lua")
-        ship:setValue("is_ascendancy_siege", true)
-        table.insert(attackers, ship.id.string)
-        if cv_fleet.orderAttackEnemies then
-            cv_fleet.orderAttackEnemies(ship.index, true)
+        -- or if an internal error occurs. Always nil-check before accessing any property.
+        if ship then
+            ship:addScript("ai/patrol.lua")
+            ship:setValue("is_ascendancy_siege", true)
+            table.insert(attackers, ship.id.string)
+            if cv_fleet.orderAttackEnemies then
+                cv_fleet.orderAttackEnemies(ship.index, true)
+            end
         end
     end
 
@@ -103,11 +106,13 @@ function AscendancySiege.spawnFleet()
             local volume = ShipGenerator.getMilitaryShipVolume(faction, 5) * (1 + (tier * 0.2))
             ship = ShipGenerator.createMilitaryShip(faction, shipPos, volume)
         end
-        ship:addScript("ai/patrol.lua")
-        ship:setValue("is_ascendancy_siege", true)
-        table.insert(attackers, ship.id.string)
-        if cv_fleet.orderAttackEnemies then
-            cv_fleet.orderAttackEnemies(ship.index, true)
+        if ship then
+            ship:addScript("ai/patrol.lua")
+            ship:setValue("is_ascendancy_siege", true)
+            table.insert(attackers, ship.id.string)
+            if cv_fleet.orderAttackEnemies then
+                cv_fleet.orderAttackEnemies(ship.index, true)
+            end
         end
     end
 
@@ -175,16 +180,23 @@ function AscendancySiege.onVictory()
     Sector():broadcastChatMessage("System"%_t, 3, "Siege Defeated! The Ascendant Capital stands strong."%_t)
 
     -- Spawn massive loot explosion at sector center
-    local generator = include("weapongenerator")
-    local upgGenerator = include("upgradegenerator")
+    -- Also, UpgradeGenerator:generate(x,y,seed,rarity) is a TurretGenerator signature;
+    -- the correct UpgradeGenerator method is :generateSystem(rarity).
+    local TurretGenerator = include("turretgenerator")
+    local UpgradeGenerator = include("upgradegenerator")
+    local turretGen = TurretGenerator(x, y)          -- Pass sector coords for correct material tier
+    local upgradeGen = UpgradeGenerator()
+    local lootRarity = Rarity(math.min(5, tier + 1)) -- Cap at Exotic (5) rarity
+    local lootPos = vec3(0, 0, 0)                    -- Drop at sector center
     for i = 1, 5 + tier * 2 do
-        Sector():dropTurret(vec3(0,0,0), nil, nil, generator.generate(x, y, 0, Rarity(math.min(5, tier + 1))))
-        Sector():dropUpgrade(vec3(0,0,0), nil, nil, upgGenerator.generate(x, y, 0, Rarity(math.min(5, tier + 1))))
+        Sector():dropTurret(lootPos, nil, nil, turretGen:generateArmed(x, y, 0, lootRarity))
+        Sector():dropUpgrade(lootPos, nil, nil, upgradeGen:generateSystem(lootRarity))
     end
 
     local owner = Faction(targetFactionIndex)
     if owner then
-        owner:receive("Ascendant Siege Defense Reward", tier * 2500000)
+        -- Reward the defending faction for surviving the siege
+        owner:receive("Ascendant Siege Defense Reward"%_t, tier * 2500000)
     end
 
     terminate()

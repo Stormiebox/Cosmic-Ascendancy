@@ -35,14 +35,14 @@ mission.phases[1].onBeginServer = function()
         escort:setValue("ca_eclipse_ambush", true)
     end
     
-    Player():sendChatMessage("The Eclipse", 2, "Your primitive constructs are an insult to the void. The Forge belongs to us. Relinquish it, and your eradication will be swift.")
+    Player():sendChatMessage("The Eclipse", 2, "Your primitive, chaotic constructs are an insult to absolute order. The Ascendants' Forge belongs to us. Relinquish it, and your sanitation will be swift.")
 end
 
 mission.phases[1].updateServer = function()
     local boss = {Sector():getEntitiesByScriptValue("ca_eclipse_boss")}
     if #boss == 0 then
         Player():sendChatMessage("Ship Computer", 0, "The Juggernaut is destroyed! Its core is destabilizing... wait, it's beaming a data packet to the rest of their fleet!")
-        Player():sendChatMessage("The Eclipse", 2, "Vanguard lost. Assessing biological resistance... Threat level updated. Full galactic cleanse authorized.")
+        Player():sendChatMessage("The Eclipse", 2, "Vanguard lost. Biological chaotic resistance exceeds parameters... Threat level updated. Full galactic sanitation authorized.")
         
         Player():setValue("ca_campaign_completed", true)
         

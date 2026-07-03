@@ -48,22 +48,23 @@ function LoreAnomalies.spawnAnomaly(x, y)
 
     -- Pick a random lore snippet
     local snippets = {
-        "You detect a derelict massive hull. It has been sliced perfectly in half. The energy signature is completely alien to this galaxy. The black-box reads only: 'The Filter approaches.'",
-        "An ancient, corrupted sensor buoy floats here. Translating the static yields a fragmented message: 'They blot out the stars... The Eclipse... Do not open the barrier.'",
-        "A shattered asteroid field. The rocks are laced with an unknown black metallic substance. Sensor scans indicate the material was used to absorb and nullify incoming fire.",
-        "You find the remnants of an entire civilization's evacuation fleet. Every ship is powered down and dead. There are no signs of battle, only a lingering suppression field.",
-        "A massive, jet-black monolithic structure drifts silently in the void. As your ship approaches, your sensors go temporarily blind before the monolith suddenly folds space and vanishes."
+        "You detect a derelict massive hull, sliced perfectly in half. Its databanks contain a single, repeating conceptual warning: 'The Algorithm approaches. True sanitation.'",
+        "An ancient, corrupted sensor buoy floats here. The fragmented message reads: 'They blot out the stars... The Eclipse... Do not untie the dimensional knot.'",
+        "A shattered asteroid field laced with an unknown black material. Scans indicate this 'Avorion' is merely an inert echo of the Ascendants' immense power.",
+        "You find the remnants of an entire civilization. Every ship is powered down and dead. There are no signs of battle, only the aftermath of a perfect, sterile order.",
+        "A massive, jet-black monolithic structure drifts silently. As you approach, sensors detect a terrifying algorithmic intelligence calculating your elimination."
     }
 
     local loreText = snippets[random():getInt(1, #snippets)]
 
     -- Spawn a generic wreckage (Corrupted Databank / Lost Ship)
     local plan = generator:getBasicWreckagePlan()
-    local wreck = sector:createWreckage(plan, pos)
+    local wreck = generator:createWreckage(nil, plan, 10)
+    if wreck then wreck.translationf = pos end
 
     -- Spawn a stash container with loot scaled by distance to core
     local stashPos = pos + vec3(random():getFloat(50, 100), random():getFloat(50, 100), random():getFloat(50, 100))
-    local stash = sector:createContainer(MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), stashPos), faction, "")
+    local stash = sector:createContainer(MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), stashPos), nil, "")
     stash.title = "Corrupted Databank Stash"%_t
 
     local dist = math.sqrt(x*x + y*y)
@@ -89,6 +90,17 @@ function LoreAnomalies.spawnAnomaly(x, y)
 
     -- Send the lore directly to the player's chat
     Player():sendChatMessage("Ship Sensors", 3, loreText)
+
+    -- Synergy: Report Lore Anomaly to Cosmic Vault News
+    local cvn = include("cosmicvaultnews")
+    if cvn then
+        local article = {
+            title = "Deep Space Discovery",
+            category = "Lore Anomaly",
+            content = "An independent explorer has uncovered a disturbing ancient databank in sector (" .. x .. ":" .. y .. "). The decrypted fragments read: '" .. loreText .. "'"
+        }
+        cvn.publishArticle(article)
+    end
 end
 
 function initialize(...)

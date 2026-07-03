@@ -63,21 +63,25 @@ function onUninstalled(seed, rarity, permanent)
     if onServer() then removeDynamicBuffs() end
 end
 
--- ================= PERSISTENCE HOOKS =================
 local base_secure = secure
 function secure()
     local data = {}
     if base_secure then data = base_secure() or {} end
-    data.dynamicKeys = dynamicKeys
+    -- Bonus handles from addMultiplier/addAbsoluteBias/addBaseMultiplier are volatile —
+    -- they are reset on every server restart. Saving stale handles causes:
+    --   1. removeBonus(staleKey) silently fails on next load
+    --   2. The previously applied buffs remain permanently (because they were never removed)
+    --   3. New buffs then stack on top — doubling/tripling velocity and jump range each restart
+    -- Let restore() clear the table so the next update tick reapplies buffs cleanly.
     return data
 end
 
 local base_restore = restore
 function restore(data)
     if base_restore then base_restore(data) end
-    dynamicKeys = data.dynamicKeys or {}
+    -- Clear handles — next updateServer() will call applyDynamicBuffs() with fresh keys
+    dynamicKeys = {}
 end
--- =====================================================
 
 function getName(seed, rarity)
     return "Ascendant Slipstream Core"%_t

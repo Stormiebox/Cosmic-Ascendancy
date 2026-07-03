@@ -13,5 +13,5 @@ function onDestroyed()
     if entity:getValue("is_worldeater_tether") then return end
     
     -- Juggernauts always drop 1 Datacore
-    sector:dropCargo(entity.translationf, nil, nil, Good("Eclipse Datacore"), 0, 1)
+    sector:dropLoot(entity.translationf, CargoLoot(Good("Eclipse Datacore"), 1))
 end
