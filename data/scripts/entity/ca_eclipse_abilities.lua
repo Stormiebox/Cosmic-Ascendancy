@@ -280,7 +280,7 @@ function EclipseAbilities.onDestroyed()
     if EclipseAbilities.isSingularity then
         sector:broadcastChatMessage("The Eclipse", 1, "WARNING: SINGULARITY CORE COLLAPSE IMMINENT.")
         -- Pass the position as 3 separate float args because the sector script stores them individually
-        sector:addScript("data/scripts/sector/ca_singularity_detonation.lua", pos.x, pos.y, pos.z)
+        sector:addScriptOnce("data/scripts/sector/ca_singularity_detonation.lua", pos.x, pos.y, pos.z)
     end
 end
 

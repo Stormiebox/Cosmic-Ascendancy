@@ -59,7 +59,7 @@ mission.phases[2].updateServer = function(timeStep)
     
     if distance(craft.translationf, wreck.translationf) < 500 then
         Player():sendChatMessage("Ship Computer", 0, "Scanning monolithic structure... Architecture is older than the Xsotan. It's functioning as a subspace beacon... Wait. It's activating!")
-        wreck:addScript("entity/delete.lua") -- Delete the wreck
+        wreck:addScriptOnce("entity/delete.lua") -- Delete the wreck
         nextPhase()
     end
 end

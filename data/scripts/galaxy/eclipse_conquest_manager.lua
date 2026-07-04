@@ -159,7 +159,7 @@ function EclipseConquestManager.expandEmpire()
               local code = [[
                   function run()
                       if not Sector():hasScript("events/siegeevent.lua") then
-                          Sector():addScript("data/scripts/events/siegeevent.lua")
+                          Sector():addScriptOnce("data/scripts/events/siegeevent.lua")
                       end
                   end
               ]]

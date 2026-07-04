@@ -90,7 +90,7 @@ function WorldEaterManager.injectSectorScript(x, y)
     local code = [[
         function run(timeLeft)
             if not Sector():hasScript("events/ca_world_eater_event.lua") then
-                Sector():addScript("data/scripts/events/ca_world_eater_event.lua", timeLeft)
+                Sector():addScriptOnce("data/scripts/events/ca_world_eater_event.lua", timeLeft)
             end
         end
     ]]

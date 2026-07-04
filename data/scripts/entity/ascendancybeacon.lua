@@ -346,7 +346,7 @@ function AscendancyBeacon.updateServer(timeStep)
 
         local owner = Faction(Entity().factionIndex)
         if owner then
-            Sector():addScript("events/ascendancysiege.lua", currentTier, owner.index)
+            Sector():addScriptOnce("events/ascendancysiege.lua", currentTier, owner.index)
         end
     end
 end

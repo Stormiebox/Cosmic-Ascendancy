@@ -9,17 +9,17 @@ function CosmicAscendancyServer.initialize()
 
         -- Start the Cosmic Ascendancy Sector Keep-Alive Engine
         if not Galaxy():hasScript("galaxy/ascendancykeepalive.lua") then
-            Galaxy():addScript("galaxy/ascendancykeepalive.lua")
+            Galaxy():addScriptOnce("galaxy/ascendancykeepalive.lua")
         end
 
         -- Start The Eclipse Awakening Engine
         if not Galaxy():hasScript("galaxy/eclipse_awakes.lua") then
-            Galaxy():addScript("galaxy/eclipse_awakes.lua")
+            Galaxy():addScriptOnce("galaxy/eclipse_awakes.lua")
         end
 
         -- Start Dynamic Faction Expansion
         if not Galaxy():hasScript("galaxy/ca_expansion_manager.lua") then
-            Galaxy():addScript("galaxy/ca_expansion_manager.lua")
+            Galaxy():addScriptOnce("galaxy/ca_expansion_manager.lua")
         end
 
 
