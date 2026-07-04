@@ -7,7 +7,6 @@ StationOverdrive = {}
 local isOverdriven = false
 local overdriveEndTime = 0
 local OVERDRIVE_DURATION = 3600 -- 1 Hour
-local overdriveKey = nil
 
 function StationOverdrive.initialize()
     if onClient() then
@@ -72,7 +71,7 @@ function StationOverdrive.activateOverdrive()
 
     -- The correct method is addMultiplyableBias, which adds a stacking bias to the multiplier pool.
     -- A bias of 2.0 adds +200% on top of base = effective 3x production capacity.
-    overdriveKey = entity:addMultiplyableBias(StatsBonuses.ProductionCapacity, 2.0)
+    entity:addMultiplyableBias(StatsBonuses.ProductionCapacity, 2.0)
 
     owner:sendChatMessage("Overdrive"%_t, 0, "Ascendant Overdrive engaged! Production speed tripled for 1 hour."%_t)
     
@@ -92,11 +91,8 @@ function StationOverdrive.updateServer(timeStep)
             isOverdriven = false
             local entity = Entity()
             
-            -- Remove the Fighter Assembly multiplier
-            if overdriveKey then
-                entity:removeBonus(overdriveKey)
-                overdriveKey = nil
-            end
+            -- Remove the multiplier
+            entity:removeScriptBonuses()
             
             local owner = Faction(entity.factionIndex)
             if owner then
@@ -158,8 +154,10 @@ function StationOverdrive.restore(data)
     if isOverdriven and onServer() then
         -- In case the server restarted while overdriven, re-apply the multiplier.
         -- addMultiplyableBias is volatile and does not persist across restarts unless re-added.
+        -- We must first strip the saved bias from the database before re-adding.
         local entity = Entity()
-        overdriveKey = entity:addMultiplyableBias(StatsBonuses.ProductionCapacity, 2.0)
+        entity:removeScriptBonuses()
+        entity:addMultiplyableBias(StatsBonuses.ProductionCapacity, 2.0)
     end
 end
 

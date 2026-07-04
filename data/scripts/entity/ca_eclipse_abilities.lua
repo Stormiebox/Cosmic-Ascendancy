@@ -273,7 +273,7 @@ function EclipseAbilities.onDestroyed()
     -- 25% chance to drop 1-3 Ascendant Matter on death
     -- Use sector:dropLoot with a CargoLoot wrapper object instead.
     if random():getFloat() < 0.25 then
-        sector:dropLoot(pos, CargoLoot(Good("Ascendant Matter"), random():getInt(1, 3)))
+        sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, random():getInt(1, 3))
     end
 
     -- Singularity ships trigger a 3-second delayed explosion on death

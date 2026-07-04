@@ -4,7 +4,7 @@ include ("basesystem")
 include ("utility")
 local cv_war = include("cosmicwarbridge")
 
-local dynamicKeys = {}
+
 
 function getUpdateInterval()
     return 15 -- Every 15 seconds
@@ -38,24 +38,16 @@ function applyDynamicBuffs()
     
     -- Apply Base Stats multiplied by finalMultiplier
     -- War-Drive gives Armed/Arbitrary Turrets, Energy, and FireRate
-    local k1 = entity:addAbsoluteBias(StatsBonuses.ArmedTurrets, math.floor(3 * finalMultiplier))
-    local k2 = entity:addAbsoluteBias(StatsBonuses.ArbitraryTurrets, math.floor(2 * finalMultiplier))
-    local k3 = entity:addMultiplier(StatsBonuses.GeneratedEnergy, 2.0 * finalMultiplier)
-    local k4 = entity:addMultiplier(StatsBonuses.FireRate, 0.5 * finalMultiplier)
-    
-    table.insert(dynamicKeys, {key=k1, type="absolute", stat=StatsBonuses.ArmedTurrets})
-    table.insert(dynamicKeys, {key=k2, type="absolute", stat=StatsBonuses.ArbitraryTurrets})
-    table.insert(dynamicKeys, {key=k3, type="multiplier", stat=StatsBonuses.GeneratedEnergy})
-    table.insert(dynamicKeys, {key=k4, type="multiplier", stat=StatsBonuses.FireRate})
+    entity:addAbsoluteBias(StatsBonuses.ArmedTurrets, math.floor(3 * finalMultiplier))
+    entity:addAbsoluteBias(StatsBonuses.ArbitraryTurrets, math.floor(2 * finalMultiplier))
+    entity:addMultiplier(StatsBonuses.GeneratedEnergy, 2.0 * finalMultiplier)
+    entity:addMultiplier(StatsBonuses.FireRate, 0.5 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
-    for _, kData in pairs(dynamicKeys) do
-        entity:removeBonus(kData.key)
-    end
-    dynamicKeys = {}
+    entity:removeScriptBonuses()
 end
 
 function onInstalled(seed, rarity, permanent)
@@ -75,14 +67,12 @@ local base_secure = secure
 function secure()
     local data = {}
     if base_secure then data = base_secure() or {} end
-    data.dynamicKeys = dynamicKeys
     return data
 end
 
 local base_restore = restore
 function restore(data)
     if base_restore then base_restore(data) end
-    dynamicKeys = data.dynamicKeys or {}
 end
 -- =====================================================
 

@@ -130,7 +130,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Alliance Buff Injection:** Patched the player synchronization script so that Alliance defense fleets properly inherit the global Ascendant stats when jumping into a sector.
 - **Stat Bloat Safety:** Added `onRemove` callback safety nets to prevent players from keeping permanent stat bloat if the beacon is destroyed or the mod is uninstalled.
 - **Asynchronous Forge Safety:** Ensured the forge utilizes server-side global playtime to prevent duplication exploits and allow crafting to continue gracefully while players are offline or during server restarts.
-- **Subsystem Memory Leak Patch:** Injected `secure()` and `restore()` persistence hooks into the Living Relic subsystems to prevent an infinite stat-stacking exploit and server crash when sectors rapidly load/unload.
+- **Subsystem Memory Leak Patch:** Replaced manual `removeBonus` tracking in Living Relic subsystems (`ascendantaegis.lua`, `ascendantomnisensor.lua`, `ascendantslipstream.lua`) with native `Entity():removeScriptBonuses()` to prevent an infinite stat-stacking exploit upon server restart.
+- **Fixed:** `ascendancyforge.lua` Alliance lockout bug where Alliance-owned forges would permanently reject Datacore submissions.
 - **Performance & TPS Optimization:** Drastically reduced server load during late-game scenarios. Injected a hardcoded `getUpdateInterval` throttle (1.0s) into the 3 main story missions (`ca_story1_awakening`, `ca_story2_forge`, `ca_story3_vanguard`) to stop them from polling the sector 60 times a second.
 - **Deterministic Fixes:** Removed `math.random` from `ascendancysiege.lua`, preventing massive multiplayer desyncs during the Eclipse Vanguard invasions.
 - **Fixed:** Severe API call crash (`dropPort`, `generateWeapon`) in `ca_citadel_loot.lua` that prevented the Citadel from dropping its legendary loot when destroyed.

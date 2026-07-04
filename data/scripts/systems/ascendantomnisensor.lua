@@ -4,7 +4,7 @@ include ("basesystem")
 include ("utility")
 local cv_war = include("cosmicwarbridge")
 
-local dynamicKeys = {}
+
 
 function getUpdateInterval()
     return 15
@@ -36,24 +36,16 @@ function applyDynamicBuffs()
     local finalMultiplier = math.min(2.5, distMultiplier * warMultiplier)
     
     -- Omni-Sensor gives Radar, Hidden Sector, Cargo, and Loot Range
-    local k1 = entity:addAbsoluteBias(StatsBonuses.RadarReach, math.floor(10 * finalMultiplier))
-    local k2 = entity:addAbsoluteBias(StatsBonuses.HiddenSectorRadarReach, math.floor(5 * finalMultiplier))
-    local k3 = entity:addMultiplier(StatsBonuses.CargoHold, 1.5 * finalMultiplier)
-    local k4 = entity:addMultiplier(StatsBonuses.LootCollectionRange, 1.5 * finalMultiplier)
-    
-    table.insert(dynamicKeys, {key=k1, type="absolute", stat=StatsBonuses.RadarReach})
-    table.insert(dynamicKeys, {key=k2, type="absolute", stat=StatsBonuses.HiddenSectorRadarReach})
-    table.insert(dynamicKeys, {key=k3, type="multiplier", stat=StatsBonuses.CargoHold})
-    table.insert(dynamicKeys, {key=k4, type="multiplier", stat=StatsBonuses.LootCollectionRange})
+    entity:addAbsoluteBias(StatsBonuses.RadarReach, math.floor(10 * finalMultiplier))
+    entity:addAbsoluteBias(StatsBonuses.HiddenSectorRadarReach, math.floor(5 * finalMultiplier))
+    entity:addMultiplier(StatsBonuses.CargoHold, 1.5 * finalMultiplier)
+    entity:addMultiplier(StatsBonuses.LootCollectionRange, 1.5 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
-    for _, kData in pairs(dynamicKeys) do
-        entity:removeBonus(kData.key)
-    end
-    dynamicKeys = {}
+    entity:removeScriptBonuses()
 end
 
 function onInstalled(seed, rarity, permanent)
@@ -69,14 +61,12 @@ local base_secure = secure
 function secure()
     local data = {}
     if base_secure then data = base_secure() or {} end
-    data.dynamicKeys = dynamicKeys
     return data
 end
 
 local base_restore = restore
 function restore(data)
     if base_restore then base_restore(data) end
-    dynamicKeys = data.dynamicKeys or {}
 end
 -- =====================================================
 

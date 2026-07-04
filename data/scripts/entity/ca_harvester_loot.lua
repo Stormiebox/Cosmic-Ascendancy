@@ -10,7 +10,7 @@ function onDestroyed()
     local entity = Entity()
     local amount = random():getInt(100, 500)
     
-    sector:dropLoot(entity.translationf, CargoLoot(Good("Ascendant Matter"), amount))
+    sector:dropCargo(entity.translationf, nil, nil, Good("Ascendant Matter"), 0, amount)
 end
 
-function initialize(...) if Namespace.initialize then return Namespace.initialize(...) end end
+

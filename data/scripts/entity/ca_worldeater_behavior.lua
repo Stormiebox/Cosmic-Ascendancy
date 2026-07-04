@@ -375,7 +375,7 @@ function CAWorldEater.onDestroyed()
     -- Drop massive amounts of Ascendant Matter (100 - 250)
     -- dropCargo requires a CargoLoot object, not a raw Good
     local cx, cy = Sector():getCoordinates()
-    sector:dropLoot(pos, CargoLoot(Good("Ascendant Matter"), random():getInt(100, 250)))
+    sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, random():getInt(100, 250))
 
     -- Boss drops legendary weapons, upgrades, and high tier turrets
     

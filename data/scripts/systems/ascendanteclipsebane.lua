@@ -7,7 +7,8 @@ function getFixedStats()
         {stat = StatsBonuses.ShieldDurability, amount = 0.50},
         {stat = StatsBonuses.HullDurability, amount = 0.50},
         {stat = StatsBonuses.ArbitraryTurrets, amount = 5},
-        {stat = StatsBonuses.HyperspaceReach, amount = 5}
+        {stat = StatsBonuses.HyperspaceReach, amount = 5},
+        {stat = StatsBonuses.FireRate, amount = 0.25}
     }
 end
 

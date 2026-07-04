@@ -16,15 +16,18 @@ function updateServer(timeStep)
     
     if not playerFaction then return end
     
-    local entities = {sector:getEntitiesByType(EntityType.Ship)}
-    for _, ship in pairs(entities) do
-        if ship.factionIndex ~= playerFaction.index then
-            local otherFaction = Faction(ship.factionIndex)
-            if otherFaction and playerFaction:getRelations(otherFaction.index) < -10000 then
-                enemiesPresent = true
-                break
+    local factions = {sector:getPresentFactions()}
+    for _, f in pairs(factions) do
+        if f.index ~= playerFaction.index and playerFaction:getRelations(f.index) < -10000 then
+            local ships = {sector:getEntitiesByFaction(f.index)}
+            for _, ship in pairs(ships) do
+                if ship.isShip then
+                    enemiesPresent = true
+                    break
+                end
             end
         end
+        if enemiesPresent then break end
     end
     
     if enemiesPresent then

@@ -19,12 +19,12 @@ function onDestroyed()
 
     -- Ascendant Matter massive drop
     local matterAmount = random():getInt(100, 250)
-    sector:dropLoot(pos, CargoLoot(Good("Ascendant Matter"), matterAmount))
+    sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, matterAmount)
     
     -- Eclipse Datacore drop
     local coreAmount = random():getInt(3, 5)
     for i = 1, coreAmount do
-        sector:dropLoot(pos, CargoLoot(Good("Eclipse Datacore"), 1))
+        sector:dropCargo(pos, nil, nil, Good("Eclipse Datacore"), 0, 1)
     end
     
     -- Legendary Weapons and Upgrades

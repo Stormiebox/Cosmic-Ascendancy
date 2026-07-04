@@ -460,12 +460,10 @@ function AscendancyForge.decryptDatacore()
 
         -- but never used it. Completed: mark the calling player's forge as unlocked and
         -- grant a personal notification. This enables the interactionPossible gate at L43-L44.
-        if owner.isPlayer then
-            local p = Player(owner.index)
-            if p then
-                p:setValue("ca_forge_unlocked", true)
-                p:sendChatMessage("Stellar Forge"%_t, 0, "Forge access permanently unlocked for your account.")
-            end
+        local p = Player(callingPlayer)
+        if p then
+            p:setValue("ca_forge_unlocked", true)
+            p:sendChatMessage("Stellar Forge"%_t, 0, "Forge access permanently unlocked for your account.")
         end
     end
     AscendancyForge.sync()

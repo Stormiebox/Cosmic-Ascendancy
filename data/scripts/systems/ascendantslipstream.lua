@@ -4,7 +4,7 @@ include ("basesystem")
 include ("utility")
 local cv_war = include("cosmicwarbridge")
 
-local dynamicKeys = {}
+
 
 function getUpdateInterval()
     return 15
@@ -36,23 +36,15 @@ function applyDynamicBuffs()
     local finalMultiplier = math.min(2.5, distMultiplier * warMultiplier)
     
     -- Slipstream Core gives massive Velocity, Jump Reach, and Cooldown reduction
-    local k1 = entity:addMultiplier(StatsBonuses.Velocity, 1.5 * finalMultiplier)
-    local k2 = entity:addAbsoluteBias(StatsBonuses.HyperspaceReach, math.floor(10 * finalMultiplier))
-    local k3 = entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, -0.8) -- Cap cooldown naturally, maybe not multiply to avoid negative infinity?
-    -- Wait, removeBaseMultiplier is for Basesystem. Let's use removeMultiplier.
-    
-    table.insert(dynamicKeys, {key=k1, type="multiplier", stat=StatsBonuses.Velocity})
-    table.insert(dynamicKeys, {key=k2, type="absolute", stat=StatsBonuses.HyperspaceReach})
-    table.insert(dynamicKeys, {key=k3, type="base_multiplier", stat=StatsBonuses.HyperspaceCooldown})
+    entity:addMultiplier(StatsBonuses.Velocity, 1.5 * finalMultiplier)
+    entity:addAbsoluteBias(StatsBonuses.HyperspaceReach, math.floor(10 * finalMultiplier))
+    entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, -0.8) -- Cap cooldown naturally, maybe not multiply to avoid negative infinity?
 end
 
 function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
-    for _, kData in pairs(dynamicKeys) do
-        entity:removeBonus(kData.key)
-    end
-    dynamicKeys = {}
+    entity:removeScriptBonuses()
 end
 
 function onInstalled(seed, rarity, permanent)
@@ -67,20 +59,12 @@ local base_secure = secure
 function secure()
     local data = {}
     if base_secure then data = base_secure() or {} end
-    -- Bonus handles from addMultiplier/addAbsoluteBias/addBaseMultiplier are volatile —
-    -- they are reset on every server restart. Saving stale handles causes:
-    --   1. removeBonus(staleKey) silently fails on next load
-    --   2. The previously applied buffs remain permanently (because they were never removed)
-    --   3. New buffs then stack on top — doubling/tripling velocity and jump range each restart
-    -- Let restore() clear the table so the next update tick reapplies buffs cleanly.
     return data
 end
 
 local base_restore = restore
 function restore(data)
     if base_restore then base_restore(data) end
-    -- Clear handles — next updateServer() will call applyDynamicBuffs() with fresh keys
-    dynamicKeys = {}
 end
 
 function getName(seed, rarity)

@@ -4,7 +4,7 @@ include ("basesystem")
 include ("utility")
 local cv_war = include("cosmicwarbridge")
 
-local dynamicKeys = {}
+local cv_war = include("cosmicwarbridge")
 
 function getUpdateInterval()
     return 15
@@ -35,17 +35,14 @@ function applyDynamicBuffs()
     
     local finalMultiplier = math.min(2.5, distMultiplier * warMultiplier)
     
-    table.insert(dynamicKeys, entity:addMultiplyableBias(StatsBonuses.ShieldDurability, 2.0 * finalMultiplier))
-    table.insert(dynamicKeys, entity:addMultiplyableBias(StatsBonuses.ShieldRecharge, 1.5 * finalMultiplier))
+    entity:addMultiplyableBias(StatsBonuses.ShieldDurability, 2.0 * finalMultiplier)
+    entity:addMultiplyableBias(StatsBonuses.ShieldRecharge, 1.5 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
-    for _, key in ipairs(dynamicKeys) do
-        entity:removeBonus(key)
-    end
-    dynamicKeys = {}
+    entity:removeScriptBonuses()
 end
 
 function onInstalled(seed, rarity, permanent)
@@ -60,18 +57,12 @@ local base_secure = secure
 function secure()
     local data = {}
     if base_secure then data = base_secure() or {} end
-    -- These are integer handles returned by addMultiplyableBias and are volatile —
-    -- they become invalid after a server restart. Storing and restoring them means
-    -- removeBonus(staleKey) silently fails, and old buffs stack permanently each reload.
-    -- The next updateServer() tick will reapply fresh keys automatically.
     return data
 end
 
 local base_restore = restore
 function restore(data)
     if base_restore then base_restore(data) end
-    -- The updateServer loop will re-register fresh keys on the next tick.
-    dynamicKeys = {}
 end
 
 function getName(seed, rarity)
