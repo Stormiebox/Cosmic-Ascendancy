@@ -54,8 +54,8 @@ end
 -- by `server.lua` or the conquest manager where Sector() is invalid, it defaults to (0, 0).
 function EclipseGenerator.getShipVolume(x, y)
     if not x or not y then
-        local ok, sector = pcall(Sector)
-        if ok and sector then
+        local sector = Sector()
+        if sector then
             x, y = sector:getCoordinates()
         else
             x, y = 0, 0
@@ -82,8 +82,8 @@ function EclipseGenerator.addTurrets(ship, numTurrets)
     -- which is the starting region and generates Titanium/Naonite-tier weapons.
     -- Always pass the current sector coordinates so turrets scale to the correct material tier.
     local cx, cy = 0, 0
-    local ok, sector = pcall(Sector)
-    if ok and sector then
+    local sector = Sector()
+    if sector then
         cx, cy = sector:getCoordinates()
     end
     local generator = SectorTurretGenerator(cx, cy)
@@ -132,8 +132,8 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
     if not plan then
         -- Fallback if not found
         local x, y = 0, 0
-        local ok, sector = pcall(Sector)
-        if ok and sector then x, y = sector:getCoordinates() end
+        local sector = Sector()
+        if sector then x, y = sector:getCoordinates() end
         local probabilities = Balancing_GetTechnologyMaterialProbability(x, y)
         local material = Material(getValueFromDistribution(probabilities))
         plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume(x, y) * (volumeScale or 1.0), material)
@@ -294,8 +294,8 @@ function EclipseGenerator.createStation(position)
     local plan = LoadPlanFromFile(planPath)
     if not plan then
         local x, y = 0, 0
-        local ok, sector = pcall(Sector)
-        if ok and sector then x, y = sector:getCoordinates() end
+        local sector = Sector()
+        if sector then x, y = sector:getCoordinates() end
         local probabilities = Balancing_GetTechnologyMaterialProbability(x, y)
         local material = Material(getValueFromDistribution(probabilities))
         plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume(x, y) * 5, material)
