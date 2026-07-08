@@ -2,8 +2,7 @@ package.path = package.path .. ";data/scripts/systems/?.lua"
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("basesystem")
 include ("utility")
-local cv_war = include("cosmicwarbridge")
-
+local cv_buffs = include("cosmicvaultbuffs")
 
 
 function getUpdateInterval()
@@ -21,20 +20,10 @@ function applyDynamicBuffs()
     if not entity then return end
     
     -- Calculate Relic Multiplier
-    local distMultiplier = 1.0
-    local x, y = Sector():getCoordinates()
-    if x and y then
-        local dist = math.sqrt(x * x + y * y)
-        distMultiplier = 1.0 + (math.max(0, 500 - dist) / 250) -- Up to 3x at core
+    local finalMultiplier = 1.0
+    if cv_buffs and type(cv_buffs.getDynamicRelicMultiplier) == "function" then
+        finalMultiplier = cv_buffs.getDynamicRelicMultiplier(entity.id)
     end
-    
-    local warMultiplier = 1.0
-    if cv_war.getFactionWarHeat then
-        local heat = cv_war.getFactionWarHeat(entity.factionIndex) or 0
-        warMultiplier = 1.0 + (heat * 1.5) -- Up to 2.5x during max war
-    end
-    
-    local finalMultiplier = math.min(2.5, distMultiplier * warMultiplier) -- Capped at 2.5x to prevent absurd stats
     
     -- Apply Base Stats multiplied by finalMultiplier
     -- War-Drive gives Armed/Arbitrary Turrets, Energy, and FireRate

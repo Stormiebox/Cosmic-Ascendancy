@@ -192,10 +192,13 @@ function CAWorldEater.processHazards(timeStep)
             for _, ship in pairs(ships) do
                 if valid(ship) and ship.factionIndex ~= boss.factionIndex and ship.isShip then
                     -- Additionally, addVelocity() is not a method on the Velocity component.
-                    -- The correct approach is to add directly to the entity's velocity property (vec3),
+                    -- The correct approach is to modify the Velocity component directly (vec3),
                     -- which applies an impulse that the physics engine integrates on the next tick.
                     local dir = normalize(anom.position - ship.translationf)
-                    ship.velocity = ship.velocity + dir * anom.pullStrength * timeStep
+                    local vel = Velocity(ship.id)
+                    if valid(vel) then
+                        vel.velocity = vel.velocity + dir * anom.pullStrength * timeStep
+                    end
                     
                     -- Damage over time inside the anomaly
                     ship:inflictDamage(50000 * timeStep, 1, DamageType.Physical, boss.id)
@@ -373,7 +376,6 @@ function CAWorldEater.onDestroyed()
     local pos = entity.translationf
 
     -- Drop massive amounts of Ascendant Matter (100 - 250)
-    -- dropCargo requires a CargoLoot object, not a raw Good
     local cx, cy = Sector():getCoordinates()
     sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, random():getInt(100, 250))
 

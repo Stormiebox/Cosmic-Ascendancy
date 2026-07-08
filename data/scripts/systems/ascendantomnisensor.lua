@@ -2,8 +2,7 @@ package.path = package.path .. ";data/scripts/systems/?.lua"
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("basesystem")
 include ("utility")
-local cv_war = include("cosmicwarbridge")
-
+local cv_buffs = include("cosmicvaultbuffs")
 
 
 function getUpdateInterval()
@@ -20,20 +19,10 @@ function applyDynamicBuffs()
     local entity = Entity()
     if not entity then return end
     
-    local distMultiplier = 1.0
-    local x, y = Sector():getCoordinates()
-    if x and y then
-        local dist = math.sqrt(x * x + y * y)
-        distMultiplier = 1.0 + (math.max(0, 500 - dist) / 250)
+    local finalMultiplier = 1.0
+    if cv_buffs and type(cv_buffs.getDynamicRelicMultiplier) == "function" then
+        finalMultiplier = cv_buffs.getDynamicRelicMultiplier(entity.id)
     end
-    
-    local warMultiplier = 1.0
-    if cv_war.getFactionWarHeat then
-        local heat = cv_war.getFactionWarHeat(entity.factionIndex) or 0
-        warMultiplier = 1.0 + (heat * 1.5)
-    end
-    
-    local finalMultiplier = math.min(2.5, distMultiplier * warMultiplier)
     
     -- Omni-Sensor gives Radar, Hidden Sector, Cargo, and Loot Range
     entity:addAbsoluteBias(StatsBonuses.RadarReach, math.floor(10 * finalMultiplier))

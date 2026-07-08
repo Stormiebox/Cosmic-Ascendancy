@@ -1,5 +1,6 @@
 package.path = package.path .. ";data/scripts/systems/?.lua"
 package.path = package.path .. ";data/scripts/lib/?.lua"
+include ("basesystem")
 
 
 function getFixedStats()
@@ -38,11 +39,13 @@ function getPrice(seed, rarity)
     return 15000000
 end
 
-function getTooltipLines(seed, rarity, tooltip)
-    table.insert(tooltip, {ltext = "Forged from the remnants of the Vanguard. Tuned to destroy The Eclipse.", lcolor = ColorRGB(1, 0.5, 0)})
-    table.insert(tooltip, {ltext = "Shield Durability", rtext = "+50%", icon = "data/textures/icons/shield.png"})
-    table.insert(tooltip, {ltext = "Hull Durability", rtext = "+50%", icon = "data/textures/icons/health-normal.png"})
-    table.insert(tooltip, {ltext = "Arbitrary Turret Slots", rtext = "+5", icon = "data/textures/icons/turret.png"})
-    table.insert(tooltip, {ltext = "Jump Range", rtext = "+5", icon = "data/textures/icons/jump-range.png"})
-    table.insert(tooltip, {ltext = "All Damage (Anti-Eclipse)", rtext = "+25%", icon = "data/textures/icons/explosion.png"})
+function getTooltipLines(seed, rarity, permanent)
+    local texts = {}
+    table.insert(texts, {ltext = "Forged from the remnants of the Vanguard. Tuned to destroy The Eclipse.", lcolor = ColorRGB(1, 0.5, 0)})
+    table.insert(texts, {ltext = "Shield Durability", rtext = "+50%", icon = "data/textures/icons/shield.png"})
+    table.insert(texts, {ltext = "Hull Durability", rtext = "+50%", icon = "data/textures/icons/health-normal.png"})
+    table.insert(texts, {ltext = "Arbitrary Turret Slots", rtext = "+5", icon = "data/textures/icons/turret.png"})
+    table.insert(texts, {ltext = "Jump Range", rtext = "+5", icon = "data/textures/icons/jump-range.png"})
+    table.insert(texts, {ltext = "All Damage (Anti-Eclipse)", rtext = "+25%", icon = "data/textures/icons/explosion.png"})
+    return texts
 end
