@@ -9,6 +9,15 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [v1.0.0] - UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
 
+### The Stellar Forge Re-Balancing & Expansion
+- **Ascendant Scrap Utility:** You can now utilize Ascendant Scrap (gained from failed crafts) to fuel the forge when you do not meet the 100% success rate. 1x Ascendant Scrap consumed = +2% Success Rate!
+- **War Heat Integrity:** Added a hardcap of 10.0x for the War Heat bonus (if Cosmic War is installed) to prevent damage values from causing infinite integer overflow.
+- **Alliance Desync Fixed:** Completely refactored the Forge's interaction logic to correctly grab items and resources from the exact entity utilizing the UI (eliminating a massive Alliance inventory desync bug).
+- **New Ascendant Subsystems:**
+  - **Ascendant Swarm Nexus:** Massively multiplies your ship's production capacity and grants heavy bonuses to fighter squadrons and pilots.
+  - **Ascendant Void-Drill:** Immensely increases Transporter and Loot Collection Range, and multiplies generated energy capacity.
+
+
 ### 🌌 Cosmic Vault Synergy (Cross-Mod Engine)
 - **Dead Empire Filter:** The Eclipse Conquest Engine natively utilizes `FactionEradicationUtility` to strictly filter out destroyed empires, preventing crusades from glitching and targeting wiped out factions.
 - **Post-Boss Anomalies:** Upon destroying the Eclipse World-Eater (Oblivion Engine), the game natively invokes `CosmicVaultAnomalies` to spawn a massive, persistent `PrecursorWreck` anomaly for exploration and salvaging.

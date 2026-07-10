@@ -6,7 +6,7 @@ include("faction")
 local PlanGenerator = include("plangenerator")
 local ShipGenerator = include("shipgenerator")
 local TurretGenerator = include("turretgenerator")
-local cw_bridge = include("cosmicwar_bridge")
+-- Removed hard dependency on cosmicwar_bridge
 local cv_news = include("cosmicvaultnews")
 local cv_buffs = include("cosmicvaultbuffs")
 local cv_goods = include("cosmicvaultgoods")
@@ -38,6 +38,8 @@ local weaponChoices = {
     {name = "Ascendant Aegis Matrix", value = "data/scripts/systems/ascendantaegis.lua"},
     {name = "Ascendant Slipstream Core", value = "data/scripts/systems/ascendantslipstream.lua"},
     {name = "Ascendant Omni-Sensor", value = "data/scripts/systems/ascendantomnisensor.lua"},
+    {name = "Ascendant Swarm Nexus", value = "data/scripts/systems/ascendantswarmnexus.lua"},
+    {name = "Ascendant Void-Drill", value = "data/scripts/systems/ascendantvoiddrill.lua"},
 }
 
 function AscendancyForge.interactionPossible(playerIndex, option)
@@ -122,6 +124,16 @@ function AscendancyForge.updateSuccessRate()
             elseif item.item.rarity.value == RarityType.Exotic then rate = rate + 10 end
         end
     end
+    
+    local scrapNeeded = math.max(0, math.ceil((100 - rate) / 2))
+    local craft = Player().craft
+    local scrapToConsume = 0
+    if craft then
+        local scrapAmount = craft:getCargoAmount("Ascendant Scrap") or 0
+        scrapToConsume = math.min(scrapAmount, scrapNeeded)
+    end
+    rate = rate + (scrapToConsume * 2)
+    
     rate = math.min(100, rate)
     AscendancyForge.successRateLabel.caption = "Success Rate: " .. tostring(rate) .. "%"
     if rate >= 100 then
@@ -266,13 +278,11 @@ function AscendancyForge.startForging(itemIndices)
     if not onServer() then return end
     if isForging or hasCompletedItem then return end
 
-    local owner = Faction(Entity().factionIndex)
+    local owner, craft, player = getInteractingFaction(callingPlayer, AlliancePrivilege.ManageStations, AlliancePrivilege.SpendResources)
     if not owner then return end
-    local player = Player(callingPlayer)
-    if not player then return end
-    local craft = player.craft
     if not craft then
-        player:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to ignite the forge."%_t)
+        local p = Player(callingPlayer)
+        if p then p:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to ignite the forge."%_t) end
         return
     end
 
@@ -287,7 +297,7 @@ function AscendancyForge.startForging(itemIndices)
         return
     end
     
-    local cargoAmount = craft:getCargoAmount(matName)
+    local cargoAmount = craft:getCargoAmount(matName) or 0
     if cargoAmount < matCost then
         owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient %s in your ship's cargo hold!"%_t, matName)
         return
@@ -311,9 +321,19 @@ function AscendancyForge.startForging(itemIndices)
         end
     end
 
+    local scrapNeeded = math.max(0, math.ceil((100 - successRate) / 2))
+    local scrapAmount = craft:getCargoAmount("Ascendant Scrap") or 0
+    local scrapToConsume = math.min(scrapAmount, scrapNeeded)
+    
+    successRate = successRate + (scrapToConsume * 2)
+
     -- Consume Costs
     owner:pay(creditCost, ores[1], ores[2], ores[3], ores[4], ores[5], ores[6], ores[7])
     craft:removeCargo(Good(matName), matCost)
+    
+    if scrapToConsume > 0 then
+        craft:removeCargo(Good("Ascendant Scrap"), scrapToConsume)
+    end
     
     if itemIndices then
         for index, amount in pairs(itemIndices) do
@@ -351,7 +371,7 @@ end
 function AscendancyForge.claimWeapon()
     if not onServer() then return end
     if not hasCompletedItem then return end
-    local owner = Faction(Entity().factionIndex)
+    local owner, craft, player = getInteractingFaction(callingPlayer, AlliancePrivilege.ManageStations)
     if not owner then return end
 
     if type(selectedType) == "string" then
@@ -367,10 +387,22 @@ function AscendancyForge.claimWeapon()
         local x, y = Sector():getCoordinates()
         local distBonus = 1.0 + (math.max(0, 500 - length(vec2(x, y))) / 250)
         local warBonus = 1.0
-        if cw_bridge.getFactionWarHeat then
-            local heat = cw_bridge.getFactionWarHeat(owner.index)
-            if heat > 0 then warBonus = 1.0 + (heat * 1.5) end
+        local server = Server()
+        if server then
+            local snapshotStr = server:getValue("cw_war_heat_snapshot")
+            if type(snapshotStr) == "string" and snapshotStr ~= "" then
+                for pair in string.gmatch(snapshotStr, "([^,]+)") do
+                    local idxStr, heatStr = string.match(pair, "(%d+):([%d%.]+)")
+                    if idxStr and tonumber(idxStr) == owner.index and heatStr then
+                        local heat = tonumber(heatStr) or 0
+                        if heat > 0 then warBonus = 1.0 + (heat * 1.5) end
+                        break
+                    end
+                end
+            end
         end
+        -- Hard cap warBonus to prevent infinite integer scaling
+        warBonus = math.min(10.0, warBonus)
 
         local finalMult = 3.0 * distBonus * warBonus
         local weapons = {turret:getWeapons()}
@@ -435,17 +467,15 @@ end
 
 function AscendancyForge.decryptDatacore()
     if not onServer() then return end
-    local owner = Faction(Entity().factionIndex)
+    local owner, craft, player = getInteractingFaction(callingPlayer, AlliancePrivilege.ManageStations, AlliancePrivilege.SpendResources)
     if not owner then return end
-    local player = Player(callingPlayer)
-    if not player then return end
-    local craft = player.craft
     if not craft then
-        player:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to decrypt datacores."%_t)
+        local p = Player(callingPlayer)
+        if p then p:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to decrypt datacores."%_t) end
         return
     end
 
-    local amount = craft:getCargoAmount("Eclipse Datacore")
+    local amount = craft:getCargoAmount("Eclipse Datacore") or 0
     if amount < 1 then
         player:sendChatMessage("Stellar Forge"%_t, 1, "You do not have any Eclipse Datacores in your ship's cargo hold!"%_t)
         return

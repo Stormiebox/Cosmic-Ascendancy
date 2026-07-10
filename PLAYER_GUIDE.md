@@ -107,8 +107,10 @@ To combat the Eclipse, you must locate and utilize the Ascendancy Forge to craft
 - 🙏 **The Sacrifice System:** When initiating a craft, you must sacrifice existing **Legendary** or **Exotic** subsystems as Catalysts.
   - `1x Legendary` = **20%** success rate.
   - `1x Exotic` = **10%** success rate.
-  - `5x Legendary` = **100%** success rate.
-- 💔 **Failure:** If the craft fails, the sacrificed subsystems and raw materials are destroyed, but you receive **"Ascendant Scrap"** which is highly sought after and can be sold to underground tech brokers for massive profit.
+  - **Ascendant Scrap:** If you cannot reach 100% success rate, the Forge will automatically consume Ascendant Scrap from your ship's cargo hold to bridge the gap. Each Ascendant Scrap adds **+2%** to the success rate.
+- 💔 **Failure:** If the craft fails, the sacrificed subsystems and raw materials are destroyed, but you receive **"Ascendant Scrap"** which is highly sought after and can be used to fuel future Forge attempts!
+- 💥 **War Heat Bonuses:** If *Cosmic War* is installed, your faction's War Heat is added as a massive multiplier to the weapon's damage (up to a **10.0x cap**) upon claiming it!
+- 🛠️ **New Subsystems:** The Forge can synthesize the **Ascendant Swarm Nexus** (massively boosts Production Capacity and Fighter Squadrons) and the **Ascendant Void-Drill** (boosts Transporter Range, Loot Range, and Generator Energy)!
 
 ### 🏭 Resource Procurement & Factory Overdrive
 To fuel the Ascendancy Forge, you will need massive quantities of **Ascendant Matter**.
