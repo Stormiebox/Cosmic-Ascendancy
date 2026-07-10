@@ -50,6 +50,19 @@ function WorldEaterEvent.initialize(timeLeft)
 
     ship:registerCallback("onDestroyed", "onWorldEaterDestroyed")
     WorldEaterEvent.worldEaterId = ship.id.string
+    
+    Sector():registerCallback("onPlayerEntered", "onPlayerEntered")
+    -- Start music for players already present
+    for _, player in pairs({Sector():getPlayers()}) do
+        player:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+        player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "playBossMusic", 1)
+    end
+end
+
+function WorldEaterEvent.onPlayerEntered(playerIndex)
+    local player = Player(playerIndex)
+    player:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+    player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "playBossMusic", 1)
 end
 
 function WorldEaterEvent.onWorldEaterDestroyed()
@@ -94,4 +107,8 @@ end
 -- Global Event Callbacks
 function onWorldEaterDestroyed(...)
     if WorldEaterEvent.onWorldEaterDestroyed then return WorldEaterEvent.onWorldEaterDestroyed(...) end
+end
+
+function onPlayerEntered(...)
+    if WorldEaterEvent.onPlayerEntered then return WorldEaterEvent.onPlayerEntered(...) end
 end

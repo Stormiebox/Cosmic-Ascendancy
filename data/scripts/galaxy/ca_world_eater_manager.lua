@@ -38,6 +38,10 @@ function WorldEaterManager.updateServer(timeStep)
                 WorldEaterManager.activeEvent.lastWarningInterval = currentInterval
                 local minsLeft = math.ceil(timeLeft / 60)
                 Server():broadcastChatMessage("The Eclipse", 2, "WARNING: Doomsday weapon firing at [" .. tx .. ":" .. ty .. "] in " .. minsLeft .. " minute(s).")
+                for _, p in pairs({Server():getPlayers()}) do
+                    p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "showCinematicBanner", "DOOMSDAY EVENT - " .. minsLeft .. " MINS", "data/sounds/siren.ogg")
+                end
             end
         end
 
@@ -115,9 +119,20 @@ function WorldEaterManager.executeDoomsday()
         })
     end
 
+    local CosmicVaultEconomy = include("cosmicvaulteconomy")
+    if CosmicVaultEconomy then
+        for _, faction in pairs({Galaxy():getFactions()}) do
+            if faction.isAIFaction then
+                CosmicVaultEconomy.addFamineScore(faction.index, 250)
+            end
+        end
+        CosmicVaultEconomy.TriggerMarketEvent("All", 0, -50, 10, "crash")
+    end
+
     -- Safely execute sector annihilation via local sector thread
     local code = [[
         function run()
+            Sector():setValue("eclipse_wiped_graveyard", true)
             if not Sector():hasScript("sector/ca_delayed_annihilation.lua") then
                 Sector():addScriptOnce("data/scripts/sector/ca_delayed_annihilation.lua")
             end
@@ -128,6 +143,7 @@ end
 
 function WorldEaterManager.cancelEvent()
     if not WorldEaterManager.activeEvent then return end
+    local tx, ty = WorldEaterManager.activeEvent.x, WorldEaterManager.activeEvent.y
     WorldEaterManager.activeEvent = nil
     Server():broadcastChatMessage("Galactic News", 0, "The World-Eater has been destroyed! The sector is safe.")
 
@@ -137,6 +153,15 @@ function WorldEaterManager.cancelEvent()
             content = "Heroic forces have obliterated the Eclipse World-Eater, preventing the destruction of the sector.",
             category = "Heroic Victories"
         })
+    end
+
+    local reward = 50000000
+    for _, player in pairs({Server():getPlayers()}) do
+        local px, py = player:getSectorCoordinates()
+        if px == tx and py == ty then
+            player:receive("Received %1% Credits for destroying the World-Eater!"%_T, reward)
+            player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "stopBossMusic")
+        end
     end
 end
 callable(WorldEaterManager, "cancelEvent")

@@ -11,6 +11,25 @@ end
 function EclipseAwakes.initialize()
     local server = Server()
     server:registerCallback("onSectorGenerated", "onSectorGenerated")
+    
+    local cv_dialogue = include("cosmicvaultdialogue")
+    if cv_dialogue then
+        cv_dialogue.registerLine({
+            category = "rumor",
+            text = "I heard a massive jet-black monolith wiped out an entire sector near the core... but the Galactic News is covering it up.",
+            conditions = { } 
+        })
+        cv_dialogue.registerLine({
+            category = "rumor",
+            text = "The Ascendants built a Forge that runs on war and bloodshed. With the Eclipse awake, who knows what they're building in there?",
+            conditions = { } 
+        })
+        cv_dialogue.registerLine({
+            category = "rumor",
+            text = "Keep your voice down. The Eclipse has eyes everywhere, and they don't leave survivors.",
+            conditions = { } 
+        })
+    end
 end
 
 function EclipseAwakes.onSectorGenerated(x, y, regular)
@@ -69,11 +88,19 @@ function EclipseAwakes.updateServer(timeStep)
             if timeRemaining <= 7 * 60 and not server:getValue("eclipse_warning_1") then
                 server:setValue("eclipse_warning_1", true)
                 server:broadcastChatMessage("Server", 3, "WARNING: Massive hyperspace anomalies detected across all sectors. Something ancient is waking up."%_T)
+                for _, p in pairs({server:getPlayers()}) do
+                    p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "showCinematicBanner", "MASSIVE HYPERSPACE ANOMALY", "data/sounds/siren.ogg")
+                end
             end
             -- 8 minutes in (2 mins remaining)
             if timeRemaining <= 2 * 60 and not server:getValue("eclipse_warning_2") then
                 server:setValue("eclipse_warning_2", true)
                 server:broadcastChatMessage("Server", 3, "CRITICAL WARNING: The anomalies are stabilizing into jump signatures. Black Avorion reading off the charts!"%_T)
+                for _, p in pairs({server:getPlayers()}) do
+                    p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "showCinematicBanner", "BLACK AVORION SIGNATURES DETECTED", "data/sounds/siren.ogg")
+                end
             end
             return
         else
