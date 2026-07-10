@@ -214,7 +214,7 @@ function AscendancyBeacon.toggleBeacon()
             -- Find nearest hostile AI faction and add war heat
             local factions = {Sector():getPresentFactions()}
             for _, f in pairs(factions) do
-                if f.isAIFaction and f:getTrait("aggressive") then
+                if f.isAIFaction and (f:getTrait("aggressive") or 0) > 0.5 then
                     cw_bridge.addWarHeat(f, 50)
                 end
             end

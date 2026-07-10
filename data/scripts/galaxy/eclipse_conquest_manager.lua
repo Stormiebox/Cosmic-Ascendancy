@@ -19,7 +19,7 @@ function EclipseConquestManager.initialize()
         cv_goods.registerGood({
             name = "Ascendant Matter",
             description = "A hyper-dense dark energy composite synthesized by Eclipse Harvesters.",
-            price = 500000,
+            price = 250000,
             size = 2.5,
             icon = "data/textures/icons/PHOTON.png",
             illegal = true,
