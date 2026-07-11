@@ -65,34 +65,52 @@ function EclipseAbilities.updateServer(timeStep)
         entity.invincible = false
     end
 
-    -- Void Siphon Aura: drains 1% max shield per tick from nearby players and heals self
+    -- Void Siphon Aura: drains shields or hull from nearby players/ships and heals self
     if EclipseAbilities.isSiphon then
         local sector = Sector()
-        local players = {sector:getPlayers()}
+        local ships = {sector:getEntitiesByType(EntityType.Ship)}
+        local stations = {sector:getEntitiesByType(EntityType.Station)}
         local healAmount = 0
 
-        for _, player in pairs(players) do
-            local pShip = player.craft
-            if pShip and pShip.factionIndex ~= entity.factionIndex then
-                local dist = distance(entity.translationf, pShip.translationf)
-                if dist <= 300.0 then -- 3km aura radius
-                    -- Access shield properties directly on the entity object.
-                    local pShieldMax = pShip.shieldMaxDurability or 0
-                    if pShieldMax > 0 and pShip.shieldDurability > 0 then
+        local function siphonTarget(target)
+            if target and target.factionIndex ~= entity.factionIndex then
+                local dist = distance(entity.translationf, target.translationf)
+                if dist <= 1500.0 then -- 15km aura radius
+                    local pShieldMax = target.shieldMaxDurability or 0
+                    if pShieldMax > 0 and target.shieldDurability > 0 then
                         local drain = pShieldMax * 0.01 -- Drain 1% of max shield per 0.5s tick
-                        drain = math.min(drain, pShip.shieldDurability) -- Never drain more than what's left
-                        pShip.shieldDurability = pShip.shieldDurability - drain
+                        drain = math.min(drain, target.shieldDurability)
+                        target.shieldDurability = target.shieldDurability - drain
                         healAmount = healAmount + drain
+                    else
+                        -- Shield is 0, drain hull instead
+                        local pHullMax = target.maxDurability or 0
+                        if pHullMax > 0 and target.durability > 1 then
+                            local drain = pHullMax * 0.005 -- Drain 0.5% max hull
+                            drain = math.min(drain, target.durability - 1)
+                            -- inflicting damage directly
+                            target:inflictDamage(drain, 1, DamageType.Energy, 0, target.translationf, entity.id)
+                            healAmount = healAmount + drain
+                        end
                     end
                 end
             end
         end
 
-        -- Transfer all drained shield energy to the Eclipse entity as healing
+        for _, s in pairs(ships) do siphonTarget(s) end
+        for _, s in pairs(stations) do siphonTarget(s) end
+
+        -- Transfer drained energy to shields first, then hull
         if healAmount > 0 then
             local bossShieldMax = entity.shieldMaxDurability or 0
-            if bossShieldMax > 0 then
-                entity.shieldDurability = math.min(bossShieldMax, entity.shieldDurability + healAmount)
+            if bossShieldMax > 0 and entity.shieldDurability < bossShieldMax then
+                local shieldSpace = bossShieldMax - entity.shieldDurability
+                local toShields = math.min(shieldSpace, healAmount)
+                entity.shieldDurability = entity.shieldDurability + toShields
+                healAmount = healAmount - toShields
+            end
+            if healAmount > 0 then
+                entity.durability = math.min(entity.maxDurability, entity.durability + healAmount)
             end
         end
     end
@@ -126,6 +144,16 @@ function EclipseAbilities.onDamaged(objectIndex, amount, inflictor, damageSource
         EclipseAbilities.triggerBlink()
         EclipseAbilities.burstDamageTracker = 0
     end
+
+    -- Track elemental decay
+    if not EclipseAbilities.lastElementalTime then EclipseAbilities.lastElementalTime = {} end
+    if not EclipseAbilities.lastElementalTime[damageType] then EclipseAbilities.lastElementalTime[damageType] = 0 end
+    
+    if now - EclipseAbilities.lastElementalTime[damageType] > 3.0 then
+        -- Decay memory if not hit by this element in 3 seconds
+        EclipseAbilities.elementalTracker[damageType] = 0
+    end
+    EclipseAbilities.lastElementalTime[damageType] = now
 
     -- Adaptive Resistance: after absorbing 5% max HP of a single element, resist it for 15s
     if EclipseAbilities.isAdaptive then
@@ -189,6 +217,16 @@ function EclipseAbilities.onShieldDamaged(objectIndex, amount, inflictor, damage
             EclipseAbilities.burstDamageTracker = 0
         end
     end
+
+    -- Track elemental decay
+    if not EclipseAbilities.lastElementalTime then EclipseAbilities.lastElementalTime = {} end
+    if not EclipseAbilities.lastElementalTime[damageType] then EclipseAbilities.lastElementalTime[damageType] = 0 end
+    
+    if now - EclipseAbilities.lastElementalTime[damageType] > 3.0 then
+        -- Decay memory if not hit by this element in 3 seconds
+        EclipseAbilities.elementalTracker[damageType] = 0
+    end
+    EclipseAbilities.lastElementalTime[damageType] = now
 
     -- Adaptive resistance logic for shields
     if EclipseAbilities.isAdaptive then
@@ -257,6 +295,12 @@ function EclipseAbilities.triggerPhaseShift()
 
     entity.invincible = true
     Sector():createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.1, 0.1, 0.1), 1.0)
+    
+    -- Regenerate 25% of max shields when phasing
+    local maxShield = entity.shieldMaxDurability or 0
+    if maxShield > 0 then
+        entity.shieldDurability = math.min(maxShield, entity.shieldDurability + (maxShield * 0.25))
+    end
 
     -- Only register it here for non-Siphon ships so the phase expiry timer runs.
     -- Registering twice would cause the update to fire twice per tick.
@@ -279,8 +323,8 @@ function EclipseAbilities.onDestroyed()
     -- Singularity ships trigger a 3-second delayed explosion on death
     if EclipseAbilities.isSingularity then
         sector:broadcastChatMessage("The Eclipse", 1, "WARNING: SINGULARITY CORE COLLAPSE IMMINENT.")
-        -- Pass the position as 3 separate float args because the sector script stores them individually
-        sector:addScriptOnce("data/scripts/sector/ca_singularity_detonation.lua", pos.x, pos.y, pos.z)
+        -- Pass the position as 3 separate float args because the sector script stores them individually, plus the faction index
+        sector:addScriptOnce("data/scripts/sector/ca_singularity_detonation.lua", pos.x, pos.y, pos.z, entity.factionIndex)
     end
 end
 

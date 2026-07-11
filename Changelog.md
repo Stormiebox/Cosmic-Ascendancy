@@ -16,7 +16,22 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **New Ascendant Subsystems:**
   - **Ascendant Swarm Nexus:** Massively multiplies your ship's production capacity and grants heavy bonuses to fighter squadrons and pilots.
   - **Ascendant Void-Drill:** Immensely increases Transporter and Loot Collection Range, and multiplies generated energy capacity.
-- **Custom OST Integration:** Integrated the "Forge The Ascendant" custom soundtrack to play dynamically exactly 1 minute after the Wormhole Guardian's defeat.
+- **Custom OST Integration:** Integrated the "Forge The Ascendant" custom soundtrack to play dynamically exactly 15 seconds after the Wormhole Guardian's defeat.
+
+### The World Eater (Endgame Boss) Overhaul
+- **Dark Matter Aura (Constant Pressure):** Upon reaching the final 35% HP Enrage Phase, the boss projects a passive, sector-wide necrotic aura that constantly drains the hull and shields of all non-Eclipse entities at a rate of 0.25% Max HP per second.
+- **Upgraded Gravity Anomalies:** Gravity Anomalies now severely dampen engine velocity (rather than infinitely stacking permanent stat biases) in addition to massive physical pull forces and physical damage.
+- **Nemesis Protocol (Adaptive Resistance):** If the boss takes massive damage (5% of its Max HP) from a single damage type within a short window, it engages the Nemesis Protocol, gaining a 90% elemental heal-back resistance to that specific damage type for 60 seconds.
+- **The World-Breaker Laser:** The boss now periodically locks onto a random player with a massive tracking beam. After 5 seconds, if the player is still within 20km, it detonates for 5,000,000 energy damage.
+- **Dynamic Tether Resurgence:** At 50% HP (Emergency Repairs) and 25% HP (Final Stand), the boss will forcibly warp in 2 additional Anchor Pylons (Juggernauts). Until these new tethers are destroyed, the boss regains total invulnerability.
+- **Fixed:** Severe engine-level bug involving `inflictDamage` signatures being passed `Uuid`s instead of integers.
+- **Fixed:** Velocity logic causing engine lag/crashes by directly writing incorrect `vec3`s to the Velocity component instead of scaling it gracefully.
+
+### The Eclipse Faction Mechanics Overhaul
+- **Void Siphons:** Siphon auras (Void-Weavers, Juggernauts, etc.) have had their radii drastically increased from 3km to 15km. If a target is unshielded, the aura will now forcefully drain their Hull (Durability) to repair the Eclipse ship.
+- **Adaptive Memory Decay:** Adaptive armor (Defilers, Artillery) will now decay its elemental memory if it hasn't been hit by that specific element within 3 seconds, preventing a permanent lockout from stray shots.
+- **Ethereal Phase Regeneration:** When Ethereal ships (Phantoms, Interceptors) lose their shields and trigger Phase Shift, they now passively regenerate 25% of their Max Shields over the 4-second invincibility window.
+- **Singularity Collapse (Black Hole):** When a Singularity Core dies (Carriers, Dreadnoughts, Harbingers), the blast radius is increased from 3km to 15km. During the 3-second windup, the collapsing core acts as a Gravity Well, physically pulling all non-Eclipse ships inward. The subsequent detonation deals 250,000 true damage to all ships and stations caught in the blast.
 
 
 ### 🌌 Cosmic Vault Synergy (Cross-Mod Engine)
