@@ -16,6 +16,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **New Ascendant Subsystems:**
   - **Ascendant Swarm Nexus:** Massively multiplies your ship's production capacity and grants heavy bonuses to fighter squadrons and pilots.
   - **Ascendant Void-Drill:** Immensely increases Transporter and Loot Collection Range, and multiplies generated energy capacity.
+- **Custom OST Integration:** Integrated the "Forge The Ascendant" custom soundtrack to play dynamically exactly 1 minute after the Wormhole Guardian's defeat.
 
 
 ### 🌌 Cosmic Vault Synergy (Cross-Mod Engine)

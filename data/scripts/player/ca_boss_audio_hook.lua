@@ -27,7 +27,7 @@ function CaBossAudioHook.playBossMusic(phase)
     elseif phase == 2 then
         musicPath = "data/sounds/music/world_eater_enraged.ogg"
     end
-    
+
     -- In a real implementation, you would use Avorion's Sound() API or Music() API.
     -- Placeholder for the Boss Audio hook:
     -- Music():play(musicPath)
@@ -40,9 +40,19 @@ function CaBossAudioHook.stopBossMusic()
     print("Cosmic Ascendancy Hook: Stopping boss music.")
 end
 
+function CaBossAudioHook.playGuardianFellMusic()
+    if onServer() then return end
+    -- Fade out the Wormhole Guardian combat music or other music smoothly over 3 seconds
+    Music():fadeOut(3.0)
+    -- Start the Forge The Ascendant OST
+    Music():playTrack("data/music/special/forge_the_ascendant.ogg", false, 1.0)
+    print("Cosmic Ascendancy Hook: Playing Forge The Ascendant OST.")
+end
+
 callable(CaBossAudioHook, "showCinematicBanner")
 callable(CaBossAudioHook, "playBossMusic")
 callable(CaBossAudioHook, "stopBossMusic")
+callable(CaBossAudioHook, "playGuardianFellMusic")
 
 function initialize(...)
     if CaBossAudioHook.initialize then return CaBossAudioHook.initialize(...) end

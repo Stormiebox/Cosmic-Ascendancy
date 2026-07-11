@@ -84,6 +84,15 @@ function EclipseAwakes.updateServer(timeStep)
         local timeRemaining = awakenTime - server.unpausedRuntime
 
         if timeRemaining > 0 then
+            -- 15 seconds in (585 secs remaining) - Trigger the Forge the Ascendant OST
+            if timeRemaining <= (10 * 60) - 15 and not server:getValue("eclipse_music_triggered") then
+                server:setValue("eclipse_music_triggered", true)
+                for _, p in pairs({server:getPlayers()}) do
+                    p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "playGuardianFellMusic")
+                end
+            end
+
             -- 3 minutes in (7 mins remaining)
             if timeRemaining <= 7 * 60 and not server:getValue("eclipse_warning_1") then
                 server:setValue("eclipse_warning_1", true)
