@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ship_design><plan accumulateHealth="true" convex="false">
+				<item parent="-1" index="0">
+					<block lx="-2" ly="0" lz="-2" ux="2" uy="0.099999994" uz="0.799999952" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="1">
+					<block lx="-2" ly="0" lz="0.799999952" ux="-0.5" uy="0.099999994" uz="2" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="2">
+					<block lx="0.5" ly="0" lz="0.799999952" ux="2.00000024" uy="0.099999994" uz="2" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="3">
+					<block lx="-2" ly="0.0999999046" lz="-2" ux="-0.799999952" uy="0.399999917" uz="1" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="4">
+					<block lx="0.5" ly="0.0999999046" lz="-2" ux="2" uy="0.399999917" uz="1" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="5">
+					<block lx="-0.5" ly="0.0999999046" lz="-2" ux="0.5" uy="0.299999923" uz="0.799999952" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="6">
+					<block lx="-1.85000002" ly="0.100000024" lz="1.45000005" ux="-1.75000012" uy="0.200000048" uz="1.54999995" index="100" material="6" look="2" up="5" color="ff464646" />
+				</item>
+				<item parent="0" index="7">
+					<block lx="1.75000012" ly="0.100000024" lz="1.45000005" ux="1.85000002" uy="0.200000048" uz="1.54999995" index="100" material="6" look="4" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="8">
+					<block lx="-2" ly="0.0999999046" lz="1" ux="-0.5" uy="0.399999917" uz="1.5" index="100" material="6" look="4" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="9">
+					<block lx="0.5" ly="0.0999999046" lz="1" ux="2" uy="0.399999917" uz="1.5" index="100" material="6" look="2" up="5" color="ff464646" />
+				</item>
+				<item parent="0" index="10">
+					<block lx="-0.799999952" ly="0.0999999046" lz="0" ux="-0.499999881" uy="0.49999994" uz="1" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="11">
+					<block lx="-0.5" ly="0" lz="0.799999952" ux="0.5" uy="0.099999994" uz="1.0999999" index="100" material="6" look="4" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="12">
+					<block lx="-0.799999952" ly="0.0999999046" lz="-2" ux="-0.499999881" uy="0.399999917" uz="0" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="13">
+					<block lx="0.700000167" ly="0.100000024" lz="1.45000005" ux="0.800000072" uy="0.200000048" uz="1.54999995" index="100" material="6" look="4" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="14">
+					<block lx="-0.800000072" ly="0.100000024" lz="1.45000005" ux="-0.700000167" uy="0.200000048" uz="1.54999995" index="100" material="6" look="2" up="5" color="ff464646" />
+				</item>
+				<item parent="0" index="15">
+					<block lx="0.700000048" ly="0.301647782" lz="1.10000002" ux="0.799999952" uy="0.401647806" uz="1.19999993" index="100" material="6" look="4" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="16">
+					<block lx="-0.799999952" ly="0.301647782" lz="1.10000002" ux="-0.700000048" uy="0.401647806" uz="1.19999993" index="100" material="6" look="2" up="5" color="ff464646" />
+				</item>
+				<item parent="0" index="17">
+					<block lx="1.75" ly="0.304340601" lz="1.10000002" ux="1.8499999" uy="0.404340625" uz="1.19999993" index="100" material="6" look="4" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="18">
+					<block lx="-1.8499999" ly="0.304340601" lz="1.10000002" ux="-1.75" uy="0.404340625" uz="1.19999993" index="100" material="6" look="2" up="5" color="ff464646" />
+				</item>
+				<item parent="0" index="19">
+					<block lx="-0.5" ly="0.299999952" lz="-1.99999976" ux="0.5" uy="0.349999964" uz="0.849999666" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="20">
+					<block lx="0.499999881" ly="0.399999917" lz="0" ux="0.799999952" uy="0.49999994" uz="1" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="21">
+					<block lx="1.39999998" ly="0.399999857" lz="0.0499999821" ux="1.80000007" uy="0.449999869" uz="0.349999994" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="22">
+					<block lx="-1.80000007" ly="0.399999857" lz="0.0499999821" ux="-1.39999998" uy="0.449999869" uz="0.349999994" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="23">
+					<block lx="-2" ly="0.399999857" lz="0.400000095" ux="-0.799999952" uy="0.499999881" uz="1" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="24">
+					<block lx="0.799999952" ly="0.399999857" lz="0.400000095" ux="2" uy="0.499999881" uz="1" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="25">
+					<block lx="-1.39999986" ly="0.399999857" lz="0" ux="-0.799999952" uy="0.499999881" uz="0.399999976" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="26">
+					<block lx="0.799999952" ly="0.399999857" lz="0" ux="1.39999986" uy="0.499999881" uz="0.399999976" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="27">
+					<block lx="-1.89999998" ly="0.399999857" lz="0.0499999821" ux="-1.80000007" uy="0.449999869" uz="0.349999994" index="100" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="28">
+					<block lx="1.80000007" ly="0.399999857" lz="0.0499999821" ux="1.89999998" uy="0.449999869" uz="0.349999994" index="100" material="6" look="0" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="29">
+					<block lx="0.499999762" ly="0.399999857" lz="-1.89999986" ux="2.00000024" uy="0.499999881" uz="0" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="30">
+					<block lx="-2.00000024" ly="0.399999857" lz="-1.89999986" ux="-0.499999762" uy="0.499999881" uz="0" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="31">
+					<block lx="0.499999762" ly="0.399999857" lz="-1.99999976" ux="2.00000024" uy="0.499999881" uz="-1.89999986" index="100" material="6" look="5" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="32">
+					<block lx="-2.00000024" ly="0.399999857" lz="-1.99999976" ux="-0.499999762" uy="0.499999881" uz="-1.89999986" index="100" material="6" look="2" up="4" color="ff464646" />
+				</item>
+				<item parent="0" index="33">
+					<block lx="0.149999976" ly="0.349999905" lz="-0.42500031" ux="0.450000048" uy="0.549999952" uz="-0.125000119" index="100" material="6" look="4" up="1" color="ff464646" />
+				</item>
+				<item parent="0" index="34">
+					<block lx="0.149999976" ly="0.349999905" lz="-0.725000083" ux="0.449999988" uy="0.549999952" uz="-0.425000131" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="35">
+					<block lx="-0.449999928" ly="0.349999905" lz="-0.725000083" ux="-0.149999976" uy="0.549999952" uz="-0.425000131" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+				<item parent="0" index="36">
+					<block lx="0.149999887" ly="0.349999905" lz="-1.02500021" ux="0.450000077" uy="0.549999952" uz="-0.725000143" index="100" material="6" look="0" up="4" color="ff464646" />
+				</item>
+				<item parent="0" index="37">
+					<block lx="-0.449999958" ly="0.349999905" lz="-1.0250001" ux="-0.149999946" uy="0.549999952" uz="-0.725000143" index="100" material="6" look="5" up="0" color="ff464646" />
+				</item>
+				<item parent="0" index="38">
+					<block lx="-0.450000167" ly="0.349999905" lz="-0.425000191" ux="-0.149999976" uy="0.549999952" uz="-0.125000238" index="100" material="6" look="1" up="5" color="ff464646" />
+				</item>
+				<item parent="0" index="39">
+					<block lx="-0.150000006" ly="0.349999905" lz="-1.0250001" ux="0.150000006" uy="0.549999952" uz="-0.125000238" index="2" material="6" look="1" up="3" color="ff464646" />
+				</item>
+			</plan>
+		</ship_design>

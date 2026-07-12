@@ -40,6 +40,8 @@ local weaponChoices = {
     {name = "Ascendant Omni-Sensor", value = "data/scripts/systems/ascendantomnisensor.lua"},
     {name = "Ascendant Swarm Nexus", value = "data/scripts/systems/ascendantswarmnexus.lua"},
     {name = "Ascendant Void-Drill", value = "data/scripts/systems/ascendantvoiddrill.lua"},
+    {name = "Ascendant Neural Implant", value = "data/scripts/systems/ascendantneuralimplant.lua"},
+    {name = "Ascendant World-Breaker (Titan Coaxial)", value = "titan_worldbreaker"},
 }
 
 function AscendancyForge.interactionPossible(playerIndex, option)
@@ -375,9 +377,32 @@ function AscendancyForge.claimWeapon()
     if not owner then return end
 
     if type(selectedType) == "string" then
-        local system = SystemUpgradeTemplate(selectedType, Rarity(5), random():createSeed())
-        owner:getInventory():add(system)
-        owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. system.name .. "!")
+        if selectedType == "titan_worldbreaker" then
+            local CosmicVaultArsenal = include("cosmicvaultarsenal")
+            local config = {
+                rarity = Rarity(RarityType.Legendary),
+                material = Material(MaterialType.Avorion),
+                weaponType = WeaponType.Laser,
+                damage = 250000,
+                fireRate = 1.0,
+                range = 15000,
+                accuracy = 1.0,
+                coaxial = true,
+                color = ColorRGB(1, 0, 0),
+                size = 10.0,
+                slots = 6
+            }
+            local turret = CosmicVaultArsenal.GenerateTurret(config)
+            if turret then
+                turret.icon = "data/textures/icons/weapon/laser.png"
+                owner:getInventory():add(turret)
+                owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed Ascendant World-Breaker!")
+            end
+        else
+            local system = SystemUpgradeTemplate(selectedType, Rarity(5), random():createSeed())
+            owner:getInventory():add(system)
+            owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. system.name .. "!")
+        end
     else
         local rarity = Rarity(5)
         local material = Material(6)

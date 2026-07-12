@@ -7,6 +7,7 @@ AscendancyPlayer = {}
 
 function AscendancyPlayer.initialize()
     if onServer() then Player():addScriptOnce("data/scripts/player/background/ca_campaign_controller.lua") end
+    if onServer() then Player():addScriptOnce("data/scripts/player/background/ca_darksector_generator.lua") end
     if onServer() then
         Player():registerCallback("onSectorEntered", "onSectorEntered")
         Player():registerCallback("onShipChanged", "onShipChanged")

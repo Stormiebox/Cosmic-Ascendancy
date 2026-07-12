@@ -170,3 +170,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [New] Rift DLC Interoperability
 - **Eclipse Rift Spillage:** Eclipse Invasions now have a 10% chance to destabilize local space, tearing a massive subspace rift that drains sector shields. You must destroy the Eclipse Rift Stabilizer to close the tear and end the hazard.
+
+### Ascendancy Beacon Construction Overhaul
+- **Fixed Station Foundation Behavior**: Previously, the Codex hallucinated that the Ascendancy Beacon automatically generated its structure when founded by a player. The logic has been completely separated: the towering \Ascendancy_beacon.xml\ is strictly generated as an ancient wreck during the main story quest (\ca_story1_awakening\), and players founding their own Ascendancy Beacons will correctly enter Build Mode to use their own ship/station designs as intended by vanilla mechanics.
+
+
+### [New] Mechanic & Superweapons
+- **Ascendant World-Breaker:** Added a massive Titan-Class Coaxial weapon to the Ascendancy Forge. Harnessing the CosmicVaultArsenal framework, this superweapon delivers 250,000 baseline continuous damage to completely vaporize threats.
+- **Ascendant Neural Implant:** Added a new craftable ship subsystem that wires the captain directly into the vessel's core. Providing massive boosts to Jump Reach (+15), Velocity (+30%), Armed/Unarmed Turrets (+10), and Fighter Squadrons (+3), simulating a heavily augmented Ascendant Captain.
+- **The Dark Sector:** Added a terrifying new environmental hazard deep within the Galactic Core (Barrier). Jumping into un-generated sectors near the core now carries a 20% risk of dropping you into a permanent Dark Matter Fog field, crawling with heavily guarded Eclipse Citadels and Juggernauts.

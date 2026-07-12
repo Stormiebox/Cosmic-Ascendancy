@@ -188,8 +188,8 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
 end
 
 function EclipseGenerator.createWorldEater(position)
-    -- The World-Eater is a massive Juggernaut
-    local ship = EclipseGenerator.createShip(position, "juggernaut", 5.0, 75)
+    -- The World-Eater is a massive Pyramid
+    local ship = EclipseGenerator.createShip(position, "pyramid", 150.0, 150)
     ship:setTitle("Eclipse World Eater"%_T, {})
     
     -- The World Eater gets an extra multiplier

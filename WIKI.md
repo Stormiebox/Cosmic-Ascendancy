@@ -103,11 +103,34 @@ If you are prepared to face the ultimate threat on your own terms, you can force
 
 When an invasion is overwhelmingly successful, the Eclipse will permanently occupy the sector and construct a **Citadel**.
 
+
+### ⚔️ Eclipse Combat Classes & Abilities
+- **Void Siphons:** Emitters projecting a massive **15km** radius field. If your shields drop to 0 within this field, the Siphon will aggressively drain your Hull (0.5% max hull per tick) to repair itself.
+- **Singularity Collapse (Dreadnoughts/Carriers):** When their core detonates upon death, it triggers a massive **15km** implosion dealing 250,000 true damage. During its 3-second windup, the core creates a **Gravity Well** that physically sucks all nearby ships toward the epicenter.
+- **Ethereal Phase Shifts (Phantoms/Interceptors):** Upon losing shields, they enter a 4-second invincible Phase Shift and actively **regenerate 25% of their Max Shields** while phased.
+- **Adaptive Memory (Defilers):** Their adaptive armor grants compounding resistance to elemental damage types, but the memory **safely decays** if they aren't hit by that element for 3 seconds.
+
 ### ⚙️ Mechanics
 - 🚫 **The Lockdown Matrix:** Citadels generate a sector-wide interdiction field. Ships cannot jump *out* of a Citadel sector unless the Citadel is destroyed.
 - 💣 **Siege Scale:** Citadels have `250,000,000` base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms.
 - 💰 **Loot & Rewards:** Destroying a Citadel guarantees a drop of 1-3 **Legendary** subsystems, massive quantities of Avorion ore, and unique crafting materials for the Ascendancy Forge.
 - ⏳ **Suppression Field:** Destroying a Citadel dynamically halts all Eclipse invasions within a 15-sector radius. The suppression lasts for a base of 6 real-time hours, plus an additional 2 hours for every 10 sectors the Eclipse currently own.
+</details>
+
+---
+
+
+## The World Eater (Endgame Raid Boss)
+<details>
+<summary><b>Click to expand</b></summary>
+
+At the absolute climax of the Eclipse threat, you will face the **World Eater**—a colossal, 6-kilometer long Pyramid dreadnought built entirely of Avorion.
+
+### Mechanics
+- **Invulnerability Tethers:** Upon reaching **50%** and **25%** Hull, the World Eater becomes completely invulnerable and spawns heavily shielded Tethers in orbit. These Tethers rapidly regenerate the boss's shields. You must destroy all Tethers to drop the invulnerability phase.
+- **Nemesis Protocol:** The World Eater dynamically analyzes incoming damage. Whichever damage type (Physical, Plasma, Antimatter, Electric) you rely on the most will trigger the Nemesis Protocol, granting the boss **90% absolute immunity** to that specific element. You must diversify your fleet's weaponry.
+- **World-Breaker Laser:** The boss is equipped with a devastating axial laser specifically designed to siege. It deals astronomical damage and will instantly vaporize any space station it targets.
+- **Dark Matter Aura (Enrage):** Upon dropping to **35% Hull**, the World Eater enters its Enrage phase, projecting a 15km sector-wide Dark Matter Aura that continuously drains Hull integrity from all hostile ships caught within it.
 </details>
 
 ---
@@ -199,3 +222,12 @@ Cosmic Ascendancy leverages the APIs of the other Cosmic mods to create a deeply
 ### Rift DLC Interoperability
 - **Rift Spillage:** Eclipse Invasions now have a **10% chance** to destabilize local space, tearing a massive subspace rift that drains sector shields. You must destroy the **Eclipse Rift Stabilizer** to close the tear and end the hazard.
 </details>
+
+
+### Dark Sectors
+* Deep within the Galactic Core (distance < 150), un-generated sectors have a 20% chance of spawning as **Dark Sectors**.
+* These sectors are encased in environmental **Dark Matter Fog** and feature Eclipse Citadels guarded by Juggernauts.
+
+### Ascendant Neural Implants & Titan Weaponry
+* **Ascendant Neural Implant:** A ship subsystem crafted at the Forge that massively scales ship stats (Jump Reach, Fighter Squadrons, Armed Turrets, Velocity). Simulates a heavily augmented captain.
+* **Ascendant World-Breaker:** A Titan-Class Coaxial weapon dealing 250,000 base DPS, crafted at the Forge.

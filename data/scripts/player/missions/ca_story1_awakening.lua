@@ -39,7 +39,12 @@ mission.phases[2].onBeginServer = function()
     -- Spawn a monolith to investigate
     local generator = include("SectorGenerator")(Sector():getCoordinates())
     local pos = generator:getPositionInSector(5000)
-    local plan = generator:getBasicWreckagePlan()
+    
+    local plan = LoadPlanFromFile("data/plans/Ascendant/ascendancy_beacon.xml")
+    if not plan then
+        plan = generator:getBasicWreckagePlan()
+    end
+    
     local wreck = generator:createWreckage(nil, plan, 10)
     if wreck then wreck.translationf = pos end
     mission.data.custom.wreckId = wreck.index.string
