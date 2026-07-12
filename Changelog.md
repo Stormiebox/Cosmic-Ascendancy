@@ -9,173 +9,114 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [v1.0.0] - UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
 
-### The Stellar Forge Re-Balancing & Expansion
-- **Ascendant Scrap Utility:** You can now utilize Ascendant Scrap (gained from failed crafts) to fuel the forge when you do not meet the 100% success rate. 1x Ascendant Scrap consumed = +2% Success Rate!
-- **War Heat Integrity:** Added a hardcap of 10.0x for the War Heat bonus (if Cosmic War is installed) to prevent damage values from causing infinite integer overflow.
-- **Alliance Desync Fixed:** Completely refactored the Forge's interaction logic to correctly grab items and resources from the exact entity utilizing the UI (eliminating a massive Alliance inventory desync bug).
-- **New Ascendant Subsystems:**
-  - **Ascendant Swarm Nexus:** Massively multiplies your ship's production capacity and grants heavy bonuses to fighter squadrons and pilots.
-  - **Ascendant Void-Drill:** Immensely increases Transporter and Loot Collection Range, and multiplies generated energy capacity.
-- **Custom OST Integration:** Integrated the "Forge The Ascendant" custom soundtrack to play dynamically exactly 15 seconds after the Wormhole Guardian's defeat.
-
-### The World Eater (Endgame Boss) Overhaul
-- **Dark Matter Aura (Constant Pressure):** Upon reaching the final 35% HP Enrage Phase, the boss projects a passive, sector-wide necrotic aura that constantly drains the hull and shields of all non-Eclipse entities at a rate of 0.25% Max HP per second.
-- **Upgraded Gravity Anomalies:** Gravity Anomalies now severely dampen engine velocity (rather than infinitely stacking permanent stat biases) in addition to massive physical pull forces and physical damage.
-- **Nemesis Protocol (Adaptive Resistance):** If the boss takes massive damage (5% of its Max HP) from a single damage type within a short window, it engages the Nemesis Protocol, gaining a 90% elemental heal-back resistance to that specific damage type for 60 seconds.
-- **The World-Breaker Laser:** The boss now periodically locks onto a random player with a massive tracking beam. After 5 seconds, if the player is still within 20km, it detonates for 5,000,000 energy damage.
-- **Dynamic Tether Resurgence:** At 50% HP (Emergency Repairs) and 25% HP (Final Stand), the boss will forcibly warp in 2 additional Anchor Pylons (Juggernauts). Until these new tethers are destroyed, the boss regains total invulnerability.
-- **Fixed:** Severe engine-level bug involving `inflictDamage` signatures being passed `Uuid`s instead of integers.
-- **Fixed:** Velocity logic causing engine lag/crashes by directly writing incorrect `vec3`s to the Velocity component instead of scaling it gracefully.
-
-### The Eclipse Faction Mechanics Overhaul
-- **Void Siphons:** Siphon auras (Void-Weavers, Juggernauts, etc.) have had their radii drastically increased from 3km to 15km. If a target is unshielded, the aura will now forcefully drain their Hull (Durability) to repair the Eclipse ship.
-- **Adaptive Memory Decay:** Adaptive armor (Defilers, Artillery) will now decay its elemental memory if it hasn't been hit by that specific element within 3 seconds, preventing a permanent lockout from stray shots.
-- **Ethereal Phase Regeneration:** When Ethereal ships (Phantoms, Interceptors) lose their shields and trigger Phase Shift, they now passively regenerate 25% of their Max Shields over the 4-second invincibility window.
-- **Singularity Collapse (Black Hole):** When a Singularity Core dies (Carriers, Dreadnoughts, Harbingers), the blast radius is increased from 3km to 15km. During the 3-second windup, the collapsing core acts as a Gravity Well, physically pulling all non-Eclipse ships inward. The subsequent detonation deals 250,000 true damage to all ships and stations caught in the blast.
-
-
-### 🌌 Cosmic Vault Synergy (Cross-Mod Engine)
-- **Dead Empire Filter:** The Eclipse Conquest Engine natively utilizes `FactionEradicationUtility` to strictly filter out destroyed empires, preventing crusades from glitching and targeting wiped out factions.
-- **Post-Boss Anomalies:** Upon destroying the Eclipse World-Eater (Oblivion Engine), the game natively invokes `CosmicVaultAnomalies` to spawn a massive, persistent `PrecursorWreck` anomaly for exploration and salvaging.
-
-### 🚀 Major Expansion Features
-- **The World-Eater Boss Fight Overhaul:** The World-Eater has been completely re-coded into a modern, dynamic raid boss:
+### ✨ New Features & 📦 Content Additions
+- [Feature] **The World-Eater Boss Fight Overhaul:** The Eclipse World-Eater has been completely reimagined from a static sponge into a dynamic, multi-phase raid boss. It now features massive mechanics based on its Hull Integrity:
   - **Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains 100% invincible, visually tethered to them by massive purple lasers.
   - **Quantum EMP Hazards:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting catastrophic energy damage.
   - **Gravity Anomaly Hazards:** Periodically spawns a dark purple Black Hole at a player's location. This anomaly actively pulls all player ships towards the center using physical constraints, inflicting crushing hull damage over time!
-  - **The 6-Phase Gauntlet:** As its massive hull is chipped away, it triggers global desperation mechanics:
-    - **80% HP:** Spawns 5 Defiler Escorts.
-    - **70% HP:** Emits a global EMP pulse, instantly stripping 50% of the shield capacity from all players in the sector.
-    - **60% HP:** Deploys 4 Eclipse Assassin Hunter-Killers.
+  - **The 6-Phase Gauntlet:** 
+    - **80% HP:** Summons 5 Defiler Escorts.
+    - **70% HP:** Emits a Dark Matter EMP, instantly stripping 50% of the shield capacity from all players in the sector.
+    - **60% HP:** Deploys 4 Eclipse Assassin Hunter-Killers (Destroyers).
     - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
     - **35% HP:** Blinks again, unleashes a second global EMP, and enters an Enraged state (+50% Fire Rate, +50% Global Damage) until destroyed!
-- **Raid Summoning:** Jettisoning an **Eclipse Datacore** from your cargo hold into space acts as a quantum beacon. If there are no other Eclipse ships currently in the sector, the datacore will violently collapse, tearing open a hyperspace rift and instantly summoning the **Eclipse World-Eater**!
-- **Eclipse Drops:** The elusive `Ascendant Matter` resource is now acquired exclusively by destroying Eclipse vessels, with massive bounties dropping from the World-Eater boss.
-- **Ascendant Overdrive:** As a late-game economic sink, players can approach any factory they own and interact with it to feed it 50 Ascendant Matter. This activates "Ascendant Overdrive", tripling (3.0x) the station's production capacity for 1 real-time hour!
-- **Ancient Eclipse Mechanics:** The Eclipse now wield devastating, class-specific mechanics to obliterate fleets:
+- [Feature] **Raid Summoning:** Jettisoning an **Eclipse Datacore** from your cargo hold into space acts as a quantum beacon. If there are no other Eclipse ships currently in the sector, the datacore will violently collapse, tearing open a hyperspace rift and instantly summoning the **Eclipse World-Eater**!
+- [Feature] **Ancient Eclipse Mechanics:** The Eclipse now wield devastating, class-specific mechanics to obliterate fleets:
   - **Dark Matter Blink (All Ships):** Upon taking 15% burst damage within 1 second, the ship will violently blink 5-10km away to escape, leaving behind a Void Rift (cooldown: 30s).
   - **Ethereal Phase-Shift (Interceptors & Phantoms):** Slippery vanguards will instantly phase out of reality for 4 seconds upon shield break, becoming an invincible void-shadow to reposition.
   - **Adaptive Resistance (Defilers & Artillery):** These heavy combatants analyze incoming fire; taking 5% Hull damage from a specific element (e.g., Plasma) triggers a 75% resistance to that element for 15 seconds!
   - **Void Siphon Aura (Carriers, Cruisers, Dreadnoughts, Juggernauts):** Massive command ships constantly project a 3km devouring aura, draining 2% of the shield capacity of all nearby player ships per second to heal themselves.
   - **Singularity Implosion (All Large Capital Ships):** Upon death, these gargantuan reactors collapse. After a 3-second warning, they violently detonate, dealing 50,000 true-damage to everything within 3km!
-- **The Eclipse World-Eater MMO Boss Fight:** The Eclipse World-Eater has been completely reimagined from a static sponge into a dynamic, multi-phase encounter. It now features 6 distinct mechanic phases based on its Hull Integrity:
-  - **80% HP:** Summons 5 Defiler Escorts.
-  - **70% HP:** Emits a Dark Matter EMP, instantly stripping 50% of the shield capacity from all players in the sector.
-  - **60% HP:** Deploys 4 Eclipse Destroyers.
-  - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
-  - **35% HP:** Blinks again, unleashes a second EMP, and enters an Enraged state (+50% Fire Rate, +50% Global Damage) until destroyed!
-- **Ascendancy Beacon Treasury System:** The massive Ascendancy Beacon tolls are now securely routed into a localized `AscendancyBeacon.treasury`. Instead of spamming your UI feed every time an AI freighter enters the sector, the Beacon now pays out the entire accumulated war-tax directly to your faction in a single, clean lump-sum every 45 minutes on the Upkeep billing cycle.
-- **Eclipse Boss Rebalancing:** The World-Eater is now completely exempt from the massive +2,500% shield multipliers granted to lesser Eclipse bosses, forcing it to rely exclusively on its colossal 125x Hull mass.
-
-- **The Fallen Empire Awakening**: The Eclipse conquest manager now tracks total territory annihilation. Upon conquering 10 sectors, The Eclipse triggers the 'Fallen Empire' state.
-- **Systematic Crusades**: Once awakened, the Eclipse algorithmic intelligence stops targeting random player borders and redirects massive Crusade fleets to systematically hunt down and wipe out AI Faction Capitals.
-- **Eclipse Superiority**: All Eclipse entities are now natively immune to Cosmic Overhaul Subspace Weather effects (Ion Storms, Solar Flares).
-- **The Ascendancy Beacon:** A brand new massive station that permanently keeps its sector loaded (24/7). Players can upgrade this beacon from Tier 1 to Tier 5 using astronomical amounts of credits and ores.
-- **Global Ascendant Buffs:** Upgrading your beacon grants a permanent, account-wide stat buff to all ships in your fleet, multiplying Hull, Shields, and Damage.
-- **The Stellar Forge:** Exchange 1+ Billion Credits and massive ore reserves to asynchronously craft custom God-Tier weapons or Relic Subsystems over 24 real-time hours.
-- **Endgame Expansion: The Eclipse:** The death of the Xsotan Wormhole Guardian now triggers a galaxy-wide event. After a 10-minute agonizing delay of subspace anomalies, an ancient, ravenous faction known as **The Eclipse** awakens and aggressively hunts players.
-- **Cosmic Codex Integration:** The mod now fully supports the Cosmic Codex! Comprehensive lore and mechanical documentation (such as features, UI tools, and dynamic events) are now readable directly in-game from the new Cosmic Codex tab.
-
-### ✨ Added
-- **Dynamic Faction Expansion:** AI Factions and Pirates will now organically expand their borders and establish new stations in uncharted sectors over time, driven by a highly optimized background simulation.
-- **The Galactic Dread News Network**: Integrated with `CosmicVaultNews`. Publishes server-wide breaking news when The Eclipse annihilates a sector, or when players secure a Heroic Victory against an Obliterator or World-Eater.
-- **The "Ascendant Matter" Arms Race**: Introduced `Ascendant Matter` (dropped by Harvesters) and `Eclipse Datacores` (dropped by Juggernauts) as new illegal galactic goods.
-- `ca_nemesis_system.lua` and `ca_nemesis_resist.lua` implemented for Eclipse Dread-Lords.
-- `ca_ascendant_gateway.lua` implemented to allow automated sector defense fleets.
-- **Passive Real-Estate Income:** Beacons automatically tax all passing AI-controlled freighters. This passive income is dynamically scaled by the **War Heat** of the passing faction (factions actively at war will pay a 50% premium for safe passage through your heavily defended capital!).
-- **Treasury Payouts:** To prevent endless notification spam from freighters constantly passing through your capital, the Beacon safely stores all collected tolls in its internal treasury and pays out a single lump-sum to your faction every 45 minutes (synced with the Upkeep cycle).
-- **Adaptive Eclipse Scaling**: The Eclipse dynamically scan the server for the highest Ascendancy Tier player. For every tier achieved, the entire Eclipse faction receives a permanent +50% physical volume and stat multiplier.
-- **The "World-Eater" Doomsday Event**: A new server-wide crisis that triggers every 2-3 hours. A massive 5x scaled Juggernaut warps into a populated player sector, initiating a 15-minute countdown to total atomic annihilation.
-- **Global Map Conquest**: The Eclipse now permanently claims ownership of sectors they annihilate or conquer on the Galaxy Map.
-- **Codex Expansions:** Detailed the exact global buffs and simulation capabilities of the Ascendancy Beacon.
-- **Deep Wiki Integration:** The entire lore structure for the Eclipse Crisis and the Ascendancy Forge crafting systems have been natively integrated into the Cosmic Codex.
-- **New Campaign: The Eclipse Awakening:** A massive, epic 3-part storyline that automatically triggers when you interact with the Adventurer or Hermit near the galactic core.
-- **New Artifact: The Eclipse Bane:** A legendary reward for completing the campaign. Grants massive bonuses to Hull, Shields, Turret Slots, Jump Range, and Damage.
-- **Eclipse Generators:** Constructed to automatically spawn brutal endgame boss encounters via automated scripts.
-- **The World-Eater Raid Boss:** An apocalyptic Juggernaut that spawns dynamic escorts, fires EMP pulses, blinks across the sector, and enrages across 6 distinct mechanical phases as its massive hull is shredded.
-- **Eclipse Strongholds:** Conquered unexplored sectors now have a 25% chance of spawning as fully fortified Eclipse Strongholds.
-- **Geometric Nightmares:** The Eclipse fly massive geometric structures made of black Avorion with glowing red accents: Nullifiers (Pyramids), Obliterators (Monoliths), Harbingers (Obelisks), and 4 massive new specialized classes (Juggernaut, Interceptor, Harvester, Defiler) that utilize dynamically scaled, jagged aesthetics.
-- **Ascendancy Beacon Megastructures:** Will follow Avorion standard mode of building a station. Allowing players to select `Ascendancy Beacon` as an option if they have it unlocked plus resources.
-- **Game-Breaking Arsenal:** The Eclipse utilizes a customized weapon generator that forces Tech 52 (Maximum), boosts all weapon damage, reach, and fire rate significantly, and forces 100% accuracy.
-- **The Eclipse Oblivion Engine:** Added an apocalyptic new roaming superboss. It actively hunts populated sectors, obliterates everything, dynamically broadcasts via Galactic News, and rewards the galaxy's defenders with 5 Billion credits and maximum-tier loot! (Also includes a 'Stormbox Protocol' lore Easter Egg).
-- **Eclipse World-Eater Royal Escort**: The World-Eater doomsday event now spawns with a massive Royal Escort Fleet (2 Carriers, 2 Artillery, 4 Defilers, 8 Interceptors) to protect it from player swarms.
-- **Eclipse World-Eater Hull Scaling**: The World-Eater's physical volume has been scaled natively by 5.0 (yielding a 125x Hull HP boost inherently via Avorion engine physics) ensuring it acts as a true sponge!
-- **Ascendant Subsystems (Living Relics):** Four game-breaking subsystems (War-Drive, Aegis Matrix, Slipstream Core, Omni-Sensor) that dynamically multiply their power up to 7.5x based on your current Core Proximity and the Empire's War Heat!
-- **Cross-Mod Integration:**
+- [Feature] **The Fallen Empire Awakening:** The Eclipse conquest manager now tracks total territory annihilation. Upon conquering 10 sectors, The Eclipse triggers the 'Fallen Empire' state, redirecting massive Crusade fleets to systematically hunt down and wipe out AI Faction Capitals.
+- [Feature] **Endgame Expansion: The Eclipse:** The death of the Xsotan Wormhole Guardian now triggers a galaxy-wide event. After a 10-minute agonizing delay of subspace anomalies, an ancient, ravenous faction known as **The Eclipse** awakens and aggressively hunts players.
+- [Feature] **The Ascendancy Beacon Megastructure:** A brand new massive station that permanently keeps its sector loaded (24/7) using a custom Keep-Alive engine. Players can construct it via standard station founding, and upgrade it from Tier 1 to Tier 5 using astronomical amounts of credits and ores.
+- [Feature] **Global Ascendant Buffs:** Upgrading your beacon grants a permanent, account-wide stat buff to all ships in your fleet, multiplying Hull, Shields, and Damage.
+- [Feature] **The Stellar Forge:** Exchange 1+ Billion Credits and massive ore reserves to asynchronously craft custom God-Tier weapons or Relic Subsystems over 24 real-time hours.
+- [Feature] **Ascendant Overdrive:** As a late-game economic sink, players can approach any factory they own and interact with it to feed it 50 Ascendant Matter. This activates "Ascendant Overdrive", tripling (3.0x) the station's production capacity for 1 real-time hour!
+- [Feature] **Forge Decryption Matrix:** The Ascendancy Forge now accepts `Eclipse Datacores`. Decrypting them permanently raises your Global Ascendancy Tier, granting +15% Shields, +20% Shield Regen, and +10% Hyperspace Cooldown natively to all player ships.
+- [Feature] **Eclipse Citadel Mechanics:** 
+  - **Lockdown Matrix:** Attached the vanilla `hyperspaceblocker.lua` script to Citadels natively, actively trapping players in the sector until the Citadel is destroyed.
+  - **Suppression Field:** Destroying a Citadel now writes a global server timestamp that aggressively halts all new Eclipse invasions galaxy-wide for 6 hours.
+- [Feature] **The Grand Toll & Treasury Payouts:** Since the Ascendancy Beacon sector is permanently loaded, the beacon acts as an intergalactic border checkpoint. All NPC traders and AI factions jumping into the sector are charged a massive entry tax that scales with the beacon's tier. To prevent endless notification spam, the Beacon safely stores all collected tolls in its internal treasury and pays out a single lump-sum to your faction every 45 minutes (synced with the Upkeep cycle).
+- [Feature] **Dynamic Wartime Premium:** Integrated with `Cosmic War`. AI factions currently engaged in massive wars will desperately pay up to a **+50% Premium Toll** for seeking safe harbor in your heavily defended capital sector!
+- [Feature] **Capital Sieges:** A hidden playtime clock runs within the beacon. Every 3 to 6 hours, a devastating siege fleet (Pirates, Xsotan, or War Factions) will invade your sector to destroy the beacon. If you defend it, you earn legendary loot. If it falls, your global buffs collapse.
+- [Feature] **Dynamic Faction Expansion:** AI Factions and Pirates will now organically expand their borders and establish new stations in uncharted sectors over time, driven by a highly optimized background simulation.
+- [Feature] **Global Map Conquest:** The Eclipse now permanently claims ownership of sectors they annihilate or conquer on the Galaxy Map.
+- [Feature] **Adaptive Eclipse Scaling:** The Eclipse dynamically scan the server for the highest Ascendancy Tier player. For every tier achieved, the entire Eclipse faction receives a permanent +50% physical volume and stat multiplier.
+- [Feature] **Dead Empire Filter:** The Eclipse Conquest Engine natively utilizes `FactionEradicationUtility` to strictly filter out destroyed empires, preventing crusades from glitching and targeting wiped out factions.
+- [Feature] **Eclipse Rift Spillage:** Eclipse Invasions now have a 10% chance to destabilize local space, tearing a massive subspace rift that drains sector shields. You must destroy the Eclipse Rift Stabilizer to close the tear and end the hazard.
+- [Feature] **Automated Sector Defense Fleets:** `ca_ascendant_gateway.lua` implemented to allow automated Ascendant defense fleets to spawn at player gateways.
+- [Feature] **Cosmic Codex & Deep Wiki Integration:** The mod now fully supports the Cosmic Codex! Comprehensive lore, the Eclipse Crisis storyline, and mechanical documentation for the Ascendancy Forge crafting systems are natively integrated.
+- [Feature] **The Galactic Dread News Network:** Integrated with `CosmicVaultNews`. Publishes server-wide breaking news when The Eclipse annihilates a sector, or when players secure a Heroic Victory against an Obliterator or World-Eater.
+- [Feature] **Custom OST Integration:** Integrated the "Forge The Ascendant" custom soundtrack to play dynamically exactly 15 seconds after the Wormhole Guardian's defeat.
+- [Feature] **Cross-Mod Integration:**
   - **Cosmic Vault:** Utilizes `CosmicVaultBuffs` API for global multiplier injections, and `CosmicVaultNews` to broadcast your empire's ascension, sieges, and falls to the entire galaxy.
   - **Cosmic War:** Deeply integrated with `CosmicWarBridge` to fetch War Heat for dynamic toll scaling, siege attackers, and Forge weapon multipliers.
   - **Cosmic Starfall:** If installed, The Eclipse will randomly utilize its god-tier weaponry alongside their vanilla max-tech arsenal.
   - **Cosmic Overhaul & Chronicles:** Adds lore and weight to the massive empire capital milestones.
+- [Feature] **Post-Boss Anomalies:** Upon destroying the Eclipse World-Eater (Oblivion Engine), the game natively invokes `CosmicVaultAnomalies` to spawn a massive, persistent `PrecursorWreck` anomaly for exploration and salvaging.
+- [Content] **New Campaign: The Eclipse Awakening:** A massive, epic 3-part storyline that automatically triggers when you interact with the Adventurer or Hermit near the galactic core.
+- [Content] **New Artifact: The Eclipse Bane:** A legendary reward for completing the campaign. Grants massive bonuses to Hull, Shields, Turret Slots, Jump Range, and Damage.
+- [Content] **The "World-Eater" Doomsday Event:** A new server-wide crisis that triggers every 2-3 hours. A massive 5x scaled Juggernaut warps into a populated player sector, initiating a 15-minute countdown to total atomic annihilation, escorted by a Royal Escort Fleet (2 Carriers, 2 Artillery, 4 Defilers, 8 Interceptors).
+- [Content] **The Eclipse Oblivion Engine:** Added an apocalyptic new roaming superboss. It actively hunts populated sectors, obliterates everything, dynamically broadcasts via Galactic News, and rewards the galaxy's defenders with 5 Billion credits and maximum-tier loot! (Also includes a 'Stormbox Protocol' lore Easter Egg).
+- [Content] **Geometric Nightmares:** The Eclipse fly massive geometric structures made of black Avorion with glowing red accents: Nullifiers (Pyramids), Obliterators (Monoliths), Harbingers (Obelisks), and 4 massive new specialized classes (Juggernaut, Interceptor, Harvester, Defiler) that utilize dynamically scaled, jagged aesthetics.
+- [Content] **Eclipse Strongholds:** Conquered unexplored sectors now have a 25% chance of spawning as fully fortified Eclipse Strongholds.
+- [Content] **The "Ascendant Matter" Arms Race:** Introduced `Ascendant Matter` (dropped by Harvesters) and `Eclipse Datacores` (dropped by Juggernauts) as new illegal galactic goods acquired exclusively by destroying Eclipse vessels.
+- [Content] **Game-Breaking Arsenal:** The Eclipse utilizes a customized weapon generator that forces Tech 52 (Maximum), boosts all weapon damage, reach, and fire rate significantly, and forces 100% accuracy.
+- [Content] **Ascendant Subsystems (Living Relics):** Four game-breaking subsystems (War-Drive, Aegis Matrix, Slipstream Core, Omni-Sensor) that dynamically multiply their power up to 7.5x based on your current Core Proximity and the Empire's War Heat!
+- [Content] **New Ascendant Subsystems:**
+  - **Ascendant Swarm Nexus:** Massively multiplies your ship's production capacity and grants heavy bonuses to fighter squadrons and pilots.
+  - **Ascendant Void-Drill:** Immensely increases Transporter and Loot Collection Range, and multiplies generated energy capacity.
+- [Content] **Ascendant Neural Implant:** Added a new craftable ship subsystem that wires the captain directly into the vessel's core. Providing massive boosts to Jump Reach (+15), Velocity (+30%), Armed/Unarmed Turrets (+10), and Fighter Squadrons (+3), simulating a heavily augmented Ascendant Captain.
+- [Content] **Ascendant World-Breaker:** Added a massive Titan-Class Coaxial weapon to the Ascendancy Forge. Harnessing the CosmicVaultArsenal framework, this superweapon delivers 250,000 baseline continuous damage to completely vaporize threats.
+- [Content] **The Dark Sector:** Added a terrifying new environmental hazard deep within the Galactic Core (Barrier). Jumping into un-generated sectors near the core now carries a 20% risk of dropping you into a permanent Dark Matter Fog field, crawling with heavily guarded Eclipse Citadels and Juggernauts.
 
-### ⚙️ Changed & Balanced
-- Capped Eclipse Boss volume/HP scaling at 3.0x maximum to prevent physics engine crashes.
-- Removed `pcall` soft-dependencies. Core 5 mods are now hard requirements.
-- **Forge Decryption Matrix**: The Ascendancy Forge now accepts `Eclipse Datacores`. Decrypting them permanently raises your Global Ascendancy Tier, granting +15% Shields, +20% Shield Regen, and +10% Hyperspace Cooldown natively to all player ships.
-- **Forge Crafting Costs**: God-Tier weapons now require `Ascendant Matter` to forge.
-- **The Grand Toll:** Since the sector is permanently loaded, the beacon acts as an intergalactic border checkpoint. All NPC traders and AI factions jumping into the sector are charged a massive entry tax that scales with the beacon's tier.
-- **Dynamic Wartime Premium:** Integrated with `Cosmic War`. AI factions currently engaged in massive wars will desperately pay up to a **+50% Premium Toll** for seeking safe harbor in your sector.
-- **Capital Sieges:** A hidden playtime clock runs within the beacon. Every 3 to 6 hours, a devastating siege fleet (Pirates, Xsotan, or War Factions) will invade your sector to destroy the beacon. If you defend it, you earn legendary loot. If it falls, your global buffs collapse.
-- **Wartime Innovation:** Weapons crafted at the Stellar Forge receive exponential damage multipliers based on how close the forge is to the Galactic Core (+200%) and your current War Heat (+150%). Forging at the core during a massive war yields a 9.0x damage super-weapon!
-- **Forge Sacrifice Overhaul:** Rebuilt the `ascendancyforge.lua` UI to mimic the Vanilla Research Station. You must drag and drop Legendary (+20% success) or Exotic (+10% success) subsystems to guarantee your craft. Failures immediately destroy materials but reward you with new `Ascendant Scrap`.
-- **Multiplayer Boss Scaling:** Implemented dynamic `applyPermanentFactor` scaling. Harbingers and Citadels now inherently gain +100% Shield and +50% Damage per additional player in the sector.
-- **Eclipse Citadel Mechanics:**
-  - **Lockdown Matrix**: Attached the vanilla `hyperspaceblocker.lua` script to Citadels natively, actively trapping players in the sector until the Citadel is destroyed.
-  - **Suppression Field**: Destroying a Citadel now writes a global server timestamp that aggressively halts all new Eclipse invasions galaxy-wide for 6 hours.
-- **Eclipse Boss Damage Gate**: Hardened the 8% damage gate inside `ca_nemesis_system.lua` to properly check if shields are active. If a god-tier weapon bypasses the gate, the script seamlessly restores the correct health pool (shields or hull) to prevent one-shots.
-- **Nemesis Resistances Native Overhaul**: Restructured `ca_nemesis_resist.lua` to calculate its 90% elemental damage reduction dynamically inside the `onDamaged` loop, instead of relying on non-existent `StatsBonuses.*DamageReceived` API enums.
-- **Vault Fleet Integration:** Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.
-- **Ascendancy Beacon Economy**: Smoothed out the upgrade costs and correctly aligned the material requirements to the natural progression curve (Naonite -> Trinium -> Xanion -> Avorion).
-- **Ascendancy Forge Economy**: Rebalanced the forge costs from an impossible 15 Billion Credits / 90 Million Avorion down to a steep but achievable 300 Million Credits / 3 Million Avorion per weapon. Ascendant Matter requirements were also rebalanced so a single World Eater kill funds 3 to 5 Ascendant weapon forges.
-### ⚖️ Balance
-- **Galactic Turn Synchronization:** `expansionInterval` slowed from 30m to 20m to align with the global server turn. `expansionChance` gracefully reduced from 35% to 25% to keep the overall hourly expansion rate mathematically identical.
-- **Endgame Crisis Consistency:** The Eclipse Boss now receives a staggering baseline **25x Shield Multiplier** and **3x Damage Multiplier**, far surpassing the standard 10x shield of War Dreadnoughts, guaranteeing The Eclipse remains a terrifying endgame threat.
+### ⚙️ Changed & ⚖️ Balanced
+- [Changed] **Dark Matter Aura (Constant Pressure):** Upon reaching the final 35% HP Enrage Phase, the boss projects a passive, sector-wide necrotic aura that constantly drains the hull and shields of all non-Eclipse entities at a rate of 0.25% Max HP per second.
+- [Changed] **Nemesis Protocol (Adaptive Resistance):** If the boss takes massive damage (5% of its Max HP) from a single damage type within a short window, it engages the Nemesis Protocol, gaining a 90% elemental heal-back resistance to that specific damage type for 60 seconds.
+- [Changed] **Upgraded Gravity Anomalies:** Gravity Anomalies now severely dampen engine velocity (rather than infinitely stacking permanent stat biases) in addition to massive physical pull forces and physical damage.
+- [Changed] **The World-Breaker Laser:** The boss now periodically locks onto a random player with a massive tracking beam. After 5 seconds, if the player is still within 20km, it detonates for 5,000,000 energy damage.
+- [Changed] **Dynamic Tether Resurgence:** At 50% HP (Emergency Repairs) and 25% HP (Final Stand), the boss will forcibly warp in 2 additional Anchor Pylons (Juggernauts). Until these new tethers are destroyed, the boss regains total invulnerability.
+- [Changed] **Vault Fleet Integration:** Siege and Invasion fleets now utilize the `CosmicVaultFleet.orderAttackEnemies()` API to ruthlessly hunt down players rather than idling.
+- [Changed] **Ascendant Scrap Utility & Forge Sacrifice Overhaul:** Rebuilt the `ascendancyforge.lua` UI to mimic the Vanilla Research Station. You must drag and drop Legendary (+20% success) or Exotic (+10% success) subsystems to guarantee your craft. Failures immediately destroy materials but reward you with new `Ascendant Scrap`. You can consume Ascendant Scrap to fuel the forge when you do not meet the 100% success rate (1x Scrap = +2% Success Rate).
+- [Changed] **The Ascendant Forge Unlock:** The Ascendant Forge is now securely locked behind the completion of the new story campaign.
+- [Changed] **Core Dependencies:** Removed `pcall` soft-dependencies. Core 5 mods are now hard requirements.
+- [Balanced] **Singularity Collapse (Black Hole):** When a Singularity Core dies (Carriers, Dreadnoughts, Harbingers), the blast radius is increased from 3km to 15km. During the 3-second windup, the collapsing core acts as a Gravity Well, physically pulling all non-Eclipse ships inward. The subsequent detonation deals 250,000 true damage to all ships and stations caught in the blast.
+- [Balanced] **Void Siphons:** Siphon auras (Void-Weavers, Juggernauts, etc.) have had their radius drastically increased from 3km to 15km. If a target is unshielded, the aura will now forcefully drain their Hull (Durability) to repair the Eclipse ship.
+- [Balanced] **Adaptive Memory Decay:** Adaptive armor (Defilers, Artillery) will now decay its elemental memory if it hasn't been hit by that specific element within 3 seconds, preventing a permanent lockout from stray shots.
+- [Balanced] **Ethereal Phase Regeneration:** When Ethereal ships (Phantoms, Interceptors) lose their shields and trigger Phase Shift, they now passively regenerate 25% of their Max Shields over the 4-second invincibility window.
+- [Balanced] **Wartime Innovation:** Weapons crafted at the Stellar Forge receive exponential damage multipliers based on how close the forge is to the Galactic Core (+200%) and your current War Heat (+150%). Forging at the core during a massive war yields a 9.0x damage super-weapon!
+- [Balanced] **War Heat Integrity:** Added a hardcap of 10.0x for the War Heat bonus (if Cosmic War is installed) to prevent damage values from causing infinite integer overflow.
+- [Balanced] **Ascendancy Beacon Economy:** Smoothed out the upgrade costs and correctly aligned the material requirements to the natural progression curve (Naonite -> Trinium -> Xanion -> Avorion).
+- [Balanced] **Ascendancy Forge Economy:** Rebalanced the forge costs from an impossible 15 Billion Credits / 90 Million Avorion down to a steep but achievable 300 Million Credits / 3 Million Avorion per weapon. Ascendant Matter requirements were also rebalanced so a single World Eater kill funds 3 to 5 Ascendant weapon forges. God-Tier weapons now explicitly require `Ascendant Matter` to forge.
+- [Balanced] **Galactic Turn Synchronization:** `expansionInterval` slowed from 30m to 20m to align with the global server turn. `expansionChance` gracefully reduced from 35% to 25% to keep the overall hourly expansion rate mathematically identical.
+- [Balanced] **Eclipse Superiority:** All Eclipse entities are now natively immune to Cosmic Overhaul Subspace Weather effects (Ion Storms, Solar Flares).
+- [Balanced] **Endgame Crisis Consistency:** The Eclipse Boss now receives a staggering baseline **25x Shield Multiplier** and **3x Damage Multiplier**, far surpassing the standard 10x shield of War Dreadnoughts, guaranteeing The Eclipse remains a terrifying endgame threat.
+- [Balanced] **Multiplayer Boss Scaling:** Implemented dynamic `applyPermanentFactor` scaling. Harbingers and Citadels now inherently gain +100% Shield and +50% Damage per additional player in the sector.
+- [Balanced] **Eclipse Boss Rebalancing:** The World-Eater is now completely exempt from the massive +2,500% shield multipliers granted to lesser Eclipse bosses, forcing it to rely exclusively on its colossal 125x Hull mass. Capped Eclipse Boss volume/HP scaling at 3.0x maximum to prevent physics engine crashes.
+- [Balanced] **Eclipse World-Eater Hull Scaling:** The World-Eater's physical volume has been scaled natively by 5.0 (yielding a 125x Hull HP boost inherently via Avorion engine physics) ensuring it acts as a true sponge!
 
-### 🐛 Bug Fixes & Optimization
-
-- **Critical Crash Fixes:** Resolved an engine-level crash related to vanilla `Sector:dropCargo` failing to parse missing good identifiers.
-- **Callback Optimization:** Cleaned up redundant script initializations and unregistered invalid `onUpdateServer` and `onEntityDestroyed` callbacks that the engine would trip over.
-- **Fixed**: Fixed a fatal dedicated server crash triggered when the Eclipse Conquest Manager attempted to inject siege events from the Galaxy VM. Siege injection is now safely delegated to player VMs in the target sector.
-- **Fixed:** `ascendantaegis.lua` continuously stacked global `addMultiplier` shields infinitely every 15 seconds. Replaced with safe, non-stacking `addMultiplyableFactor` implementations.
-- **Fixed:** `ca_story2_forge.lua` used raw inventory lookups for Avorion, which failed. Switched to native `player:pay()` API.
-- **Fixed:** `ascendancyforge.lua` UI sync function contained a merged syntax error.
-- **Fixed:** Global crash in `server.lua` where `Sector()` was called during galaxy generation `onSectorGenerated`. Replaced with global marking, and shifted physical spawning of Strongholds to player `onSectorEntered` mechanics.
-- **Fixed:** `eclipse_conquest_manager.lua` attempted to call `Sector()` from a Galaxy script context during Annihilation. Offloaded sector wipes to a player script instance to safely execute.
-- **Fixed:** `eclipsegenerator.lua` attempted to call `Sector()` when spawning blueprints globally. Wrapped all `Sector()` coordinate fetches in safe `pcall` fallbacks.
-- **Ascendant Gateways:** Fixed a hallucination where Gateways spawned Ascendant Guardians with `StatsBonuses.ArmedTurrets` (empty slots) instead of `damageMultiplier` and `StatsBonuses.FireRate`.
-- **Invalid StatsBonuses Wipe**: Scrubbed all invalid API enums (like `StatsBonuses.Damage`, `StatsBonuses.ShieldCapacity`, `StatsBonuses.CargoCapacity`) from `eclipsegenerator.lua`, `spawneclipseboss.lua`, `ca_ascendant_gateway.lua`, `eclipse_boss_scaling.lua`, `ca_ascendancy_ship_buff.lua`, and `ascendanteclipsebane.lua`. Bosses will now correctly receive their intended 500% damage boosts (by mathematically looping over the 6 native elemental types) and 3750% shields natively!
-- **Ascendant Bosses:** Eclipse Harbingers utilize the "Living Relic" subsystem mechanics internally, multiplying their shields by 3750% and damage by 500%.
-- **The Ascendant Forge Unlock:** The Ascendant Forge is now securely locked behind the completion of the new story campaign.
-- **Fixed**: Removed `math.random` in procedural generation loops (`ca_eclipse_abilities.lua`, `ca_expansion_manager.lua`) and replaced them with deterministic `random()` to prevent multiplayer desyncs.
-- **Initialization Bypass:** Fixed severe bug in `init.lua` where the Ascendancy Codex failed to initialize and inject its UI tabs on fresh server boots.
-- **Math Logic Spawning Bug:** Swept the codebase and replaced critical logic faults where probability checks were evaluating against `getInt()` instead of `getFloat()`, restoring exact percentage math for Eclipse Stronghold generation and Superboss hunts.
-- **Multiplayer Network Synchronization:** Fixed a silent networking bug where the Ascendancy Beacon UI buttons (Toggle Beacon, Upgrade Tier) would not respond on Dedicated Servers because the server-side functions were missing `callable()` declarations.
-- **Infinite Spawns Prevention:** Replaced `addScript` with `addScriptOnce` in `ascendancybeacon.lua` so the Eclipse Siege script doesn't inject multiple times into the same sector upon reloading, which caused exponential enemy spawns.
-- **Galaxy Engine Initialization:** Fixed a critical structural issue where `server.lua` was placed in the wrong directory (`scripts/server/` instead of `scripts/galaxy/`). The Eclipse Awakening events will now correctly hook into newly generated sectors and spawn Eclipse Citadels as originally intended.
-- **Keep-Alive Engine:** Built a dedicated background galaxy script (`ascendancykeepalive.lua`) to ensure the server physically holds beacon sectors in memory instead of unloading them.
-- **Alliance Buff Injection:** Patched the player synchronization script so that Alliance defense fleets properly inherit the global Ascendant stats when jumping into a sector.
-- **Stat Bloat Safety:** Added `onRemove` callback safety nets to prevent players from keeping permanent stat bloat if the beacon is destroyed or the mod is uninstalled.
-- **Asynchronous Forge Safety:** Ensured the forge utilizes server-side global playtime to prevent duplication exploits and allow crafting to continue gracefully while players are offline or during server restarts.
-- **Subsystem Memory Leak Patch:** Replaced manual `removeBonus` tracking in Living Relic subsystems (`ascendantaegis.lua`, `ascendantomnisensor.lua`, `ascendantslipstream.lua`) with native `Entity():removeScriptBonuses()` to prevent an infinite stat-stacking exploit upon server restart.
-- **Fixed:** `ascendancyforge.lua` Alliance lockout bug where Alliance-owned forges would permanently reject Datacore submissions.
-- **Performance & TPS Optimization:** Drastically reduced server load during late-game scenarios. Injected a hardcoded `getUpdateInterval` throttle (1.0s) into the 3 main story missions (`ca_story1_awakening`, `ca_story2_forge`, `ca_story3_vanguard`) to stop them from polling the sector 60 times a second.
-- **Deterministic Fixes:** Removed `math.random` from `ascendancysiege.lua`, preventing massive multiplayer desyncs during the Eclipse Vanguard invasions.
-- **Fixed:** Severe API call crash (`dropPort`, `generateWeapon`) in `ca_citadel_loot.lua` that prevented the Citadel from dropping its legendary loot when destroyed.
-- **Fixed:** An exploitable bug where the `Eclipse Oblivion Engine` roaming boss dropped permanently artificially buffed weapons (3x damage, 2x range) directly as raw loot, bypassing the Ascendancy Forge economy entirely.
-## [Latest Synergy Patch]
-- [Synergy] Integrated with Cosmic War traits (Imperialist/Vengeful).
-- [Synergy] Integrated with Cosmic Overhaul smugglers (3x payout for Eclipse tech).
-- [Synergy] Integrated with Cosmic Chronicles (Corrupted Lore Nodes).
-- [Synergy] Integrated with Cosmic Vault Weather (Eclipse hazard immunity).
-
-
-## [New] Rift DLC Interoperability
-- **Eclipse Rift Spillage:** Eclipse Invasions now have a 10% chance to destabilize local space, tearing a massive subspace rift that drains sector shields. You must destroy the Eclipse Rift Stabilizer to close the tear and end the hazard.
-
-### Ascendancy Beacon Construction Overhaul
-- **Fixed Station Foundation Behavior**: Previously, the Codex hallucinated that the Ascendancy Beacon automatically generated its structure when founded by a player. The logic has been completely separated: the towering \Ascendancy_beacon.xml\ is strictly generated as an ancient wreck during the main story quest (\ca_story1_awakening\), and players founding their own Ascendancy Beacons will correctly enter Build Mode to use their own ship/station designs as intended by vanilla mechanics.
-
-
-### [New] Mechanic & Superweapons
-- **Ascendant World-Breaker:** Added a massive Titan-Class Coaxial weapon to the Ascendancy Forge. Harnessing the CosmicVaultArsenal framework, this superweapon delivers 250,000 baseline continuous damage to completely vaporize threats.
-- **Ascendant Neural Implant:** Added a new craftable ship subsystem that wires the captain directly into the vessel's core. Providing massive boosts to Jump Reach (+15), Velocity (+30%), Armed/Unarmed Turrets (+10), and Fighter Squadrons (+3), simulating a heavily augmented Ascendant Captain.
-- **The Dark Sector:** Added a terrifying new environmental hazard deep within the Galactic Core (Barrier). Jumping into un-generated sectors near the core now carries a 20% risk of dropping you into a permanent Dark Matter Fog field, crawling with heavily guarded Eclipse Citadels and Juggernauts.
+### 🐛 Bug Fixes & 🛠️ Optimization
+- [Optimized] **Performance & TPS Optimization:** Drastically reduced server load during late-game scenarios. Injected a hardcoded `getUpdateInterval` throttle (1.0s) into the 3 main story missions (`ca_story1_awakening`, `ca_story2_forge`, `ca_story3_vanguard`) to stop them from polling the sector 60 times a second.
+- [Optimized] **Callback Optimization:** Cleaned up redundant script initializations and unregistered invalid `onUpdateServer` and `onEntityDestroyed` callbacks that the engine would trip over.
+- [Optimized] **Keep-Alive Engine:** Built a dedicated background galaxy script (`ascendancykeepalive.lua`) to ensure the server physically holds beacon sectors in memory instead of unloading them.
+- [Bugfixed] **Multiplayer RNG Synchronization:** Removed `math.random` in procedural generation loops (`ca_eclipse_abilities.lua`, `ca_expansion_manager.lua`) and from `ascendancysiege.lua`, replacing them with deterministic `random()` to prevent massive multiplayer desyncs during the Eclipse Vanguard invasions.
+- [Bugfixed] **Subsystem Memory Leak Patch:** Replaced manual `removeBonus` tracking in Living Relic subsystems (`ascendantaegis.lua`, `ascendantomnisensor.lua`, `ascendantslipstream.lua`) with native `Entity():removeScriptBonuses()` to prevent an infinite stat-stacking exploit upon server restart. Added `onRemove` callback safety nets to prevent players from keeping permanent stat bloat if the beacon is destroyed or the mod is uninstalled.
+- [Bugfixed] **Alliance Forge Desync Fixed:** Completely refactored the Forge's interaction logic to correctly grab items and resources from the exact entity utilizing the UI (eliminating a massive Alliance inventory desync bug). Fixed `ascendancyforge.lua` Alliance lockout bug where Alliance-owned forges would permanently reject Datacore submissions.
+- [Bugfixed] **Engine API Crash Fixes:** Resolved an engine-level crash related to vanilla `Sector:dropCargo` failing to parse missing good identifiers. Fixed a severe engine-level bug involving `inflictDamage` signatures being passed `Uuid`s instead of integers. Fixed Velocity logic causing engine lag/crashes by directly writing incorrect `vec3`s to the Velocity component instead of scaling it gracefully.
+- [Bugfixed] **Nemesis Resistances Native Overhaul:** Restructured `ca_nemesis_resist.lua` to calculate its 90% elemental damage reduction dynamically inside the `onDamaged` loop, instead of relying on non-existent `StatsBonuses.*DamageReceived` API enums.
+- [Bugfixed] **Eclipse Boss Damage Gate:** Hardened the 8% damage gate inside `ca_nemesis_system.lua` to properly check if shields are active. If a god-tier weapon bypasses the gate, the script seamlessly restores the correct health pool (shields or hull) to prevent one-shots.
+- [Bugfixed] **Station Foundation Behavior:** Previously, the Codex hallucinated that the Ascendancy Beacon automatically generated its structure when founded by a player. The logic has been completely separated: the towering `Ascendancy_beacon.xml` is strictly generated as an ancient wreck during the main story quest, and players founding their own Ascendancy Beacons will correctly enter Build Mode to use their own ship/station designs as intended by vanilla mechanics.
+- [Bugfixed] **Initialization Bypass:** Fixed severe bug in `init.lua` where the Ascendancy Codex failed to initialize and inject its UI tabs on fresh server boots.
+- [Bugfixed] **Galaxy Engine Initialization:** Fixed a critical structural issue where `server.lua` was placed in the wrong directory (`scripts/server/` instead of `scripts/galaxy/`). The Eclipse Awakening events will now correctly hook into newly generated sectors and spawn Eclipse Citadels as originally intended. Fixed global crash in `server.lua` where `Sector()` was called during galaxy generation `onSectorGenerated`. Replaced with global marking, and shifted physical spawning of Strongholds to player `onSectorEntered` mechanics.
+- [Bugfixed] **Conquest Injection Target:** Fixed a fatal dedicated server crash triggered when the Eclipse Conquest Manager attempted to inject siege events from the Galaxy VM. Siege injection is now safely delegated to player VMs in the target sector.
+- [Bugfixed] **Sector Calling Context:** Fixed `eclipse_conquest_manager.lua` attempted to call `Sector()` from a Galaxy script context during Annihilation. Offloaded sector wipes to a player script instance to safely execute. Wrapped `Sector()` calls in `eclipsegenerator.lua` inside safe `pcall` fallbacks.
+- [Bugfixed] **Invalid StatsBonuses Wipe:** Scrubbed all invalid API enums (like `StatsBonuses.Damage`, `StatsBonuses.ShieldCapacity`, `StatsBonuses.CargoCapacity`) from all generator scripts (`eclipsegenerator.lua`, `spawneclipseboss.lua`, etc). Bosses (like Eclipse Harbingers) will now correctly receive their intended 500% damage boosts and 3750% shields natively using the "Living Relic" subsystem mechanics! Fixed Ascendant Gateways erroneously spawning Ascendant Guardians with `StatsBonuses.ArmedTurrets` instead of damage multipliers.
+- [Bugfixed] **Inventory Context API:** Fixed `ca_story2_forge.lua` used raw inventory lookups for Avorion, which failed. Switched to native `player:pay()` API.
+- [Bugfixed] **Forge UI Sync:** Fixed `ascendancyforge.lua` UI sync function containing a merged syntax error.
+- [Bugfixed] **Math Logic Spawning Bug:** Swept the codebase and replaced critical logic faults where probability checks were evaluating against `getInt()` instead of `getFloat()`, restoring exact percentage math for Eclipse Stronghold generation and Superboss hunts.
+- [Bugfixed] **Multiplayer UI Sync:** Fixed a silent networking bug where the Ascendancy Beacon UI buttons (Toggle Beacon, Upgrade Tier) would not respond on Dedicated Servers because the server-side functions were missing `callable()` declarations.
+- [Bugfixed] **Infinite Spawns Prevention:** Replaced `addScript` with `addScriptOnce` in `ascendancybeacon.lua` so the Eclipse Siege script doesn't inject multiple times into the same sector upon reloading, which caused exponential enemy spawns.
+- [Bugfixed] **Alliance Buff Injection:** Patched the player synchronization script so that Alliance defense fleets properly inherit the global Ascendant stats when jumping into a sector.
+- [Bugfixed] **Asynchronous Forge Safety:** Ensured the forge utilizes server-side global playtime to prevent duplication exploits and allow crafting to continue gracefully while players are offline or during server restarts.
+- [Bugfixed] **Boss Loot Drops:** Fixed severe API call crash (`dropPort`, `generateWeapon`) in `ca_citadel_loot.lua` that prevented the Citadel from dropping its legendary loot when destroyed. Fixed an exploitable bug where the `Eclipse Oblivion Engine` roaming boss dropped permanently artificially buffed weapons (3x damage, 2x range) directly as raw loot, bypassing the Ascendancy Forge economy entirely.
