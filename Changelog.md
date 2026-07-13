@@ -72,6 +72,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Content] **The Dark Sector:** Added a terrifying new environmental hazard deep within the Galactic Core (Barrier). Jumping into un-generated sectors near the core now carries a 20% risk of dropping you into a permanent Dark Matter Fog field, crawling with heavily guarded Eclipse Citadels and Juggernauts.
 
 ### ⚙️ Changed & ⚖️ Balanced
+- [Changed] **Eclipse Faction Architecture Overhaul:** ALL Eclipse ships and the Ascendancy Megastructures have been physically upscaled and mathematically upgraded to Avorion (Tier 6) material. The World-Eater now stands at an imposing 5.9 kilometers in length!
 - [Changed] **Dark Matter Aura (Constant Pressure):** Upon reaching the final 35% HP Enrage Phase, the boss projects a passive, sector-wide necrotic aura that constantly drains the hull and shields of all non-Eclipse entities at a rate of 0.25% Max HP per second.
 - [Changed] **Nemesis Protocol (Adaptive Resistance):** If the boss takes massive damage (5% of its Max HP) from a single damage type within a short window, it engages the Nemesis Protocol, gaining a 90% elemental heal-back resistance to that specific damage type for 60 seconds.
 - [Changed] **Upgraded Gravity Anomalies:** Gravity Anomalies now severely dampen engine velocity (rather than infinitely stacking permanent stat biases) in addition to massive physical pull forces and physical damage.
@@ -97,6 +98,9 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Balanced] **Eclipse World-Eater Hull Scaling:** The World-Eater's physical volume has been scaled natively by 5.0 (yielding a 125x Hull HP boost inherently via Avorion engine physics) ensuring it acts as a true sponge!
 
 ### 🐛 Bug Fixes & 🛠️ Optimization
+- [Bugfixed] **World-Eater Physics Crash:** Prevented a hard server crash in the gravity anomaly logic by replacing an invalid `vel:addVelocity` call with proper vector addition (`vel.velocity = vel.velocity + ...`).
+- [Bugfixed] **Permanent Cripple Exploit:** Prevented the World-Eater's black hole from infinitely stacking permanent debuffs on player ships via `addMultiplyableBias`. It now applies a safe, temporary physical dampener.
+- [Bugfixed] **Codex Crash Protection:** Hardened all Ascendancy Codex entries to prevent UI crashes if a registered `[Category]` goes missing.
 - [Optimized] **Performance & TPS Optimization:** Drastically reduced server load during late-game scenarios. Injected a hardcoded `getUpdateInterval` throttle (1.0s) into the 3 main story missions (`ca_story1_awakening`, `ca_story2_forge`, `ca_story3_vanguard`) to stop them from polling the sector 60 times a second.
 - [Optimized] **Callback Optimization:** Cleaned up redundant script initializations and unregistered invalid `onUpdateServer` and `onEntityDestroyed` callbacks that the engine would trip over.
 - [Optimized] **Keep-Alive Engine:** Built a dedicated background galaxy script (`ascendancykeepalive.lua`) to ensure the server physically holds beacon sectors in memory instead of unloading them.

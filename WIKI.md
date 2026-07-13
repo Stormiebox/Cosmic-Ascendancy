@@ -77,16 +77,18 @@ If an Eclipse Dread-Lord drops below 5% HP, it will retreat. It remembers the da
 A global crisis managed by the galaxy engine.
 
 - **The Trigger:** Every 2-3 hours of active playtime, a random populated player sector is targeted. The timer **automatically pauses** if no players are online, protecting 24/7 dedicated servers from being wiped while the server is empty.
-- **The Threat:** A World-Eater Juggernaut (`5x` scaled volume, `125x` Hull Mass, `-90%` Speed) spawns 15,000 km away. Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal Hull and dynamic mechanics:
+- **The Threat:** A World-Eater Juggernaut (5.9 kilometers long, `125x` Hull Mass, `-90%` Speed) spawns 15,000 km away. Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal Hull and dynamic mechanics:
   - **⛓️ Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains **100% invincible**, visually tethered to them by massive purple lasers.
+  - **Nemesis Protocol:** The boss dynamically scans incoming DPS. If it takes overwhelming burst damage, the Nemesis Protocol engages, reducing all incoming damage by 90% dynamically to prevent players from instantly deleting it.
+  - **World-Breaker Laser:** The boss is armed with a colossal coaxial laser capable of obliterating anything caught in its 15km path.
   - **⚡ Quantum EMP:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting catastrophic energy damage.
-  - **⚫ Gravity Anomaly:** Periodically spawns a dark purple Black Hole at a player's location. This actively pulls all player ships towards the center using physical constraints, inflicting crushing hull damage over time!
+  - **⚫ Gravity Anomaly:** Periodically spawns a dark purple Black Hole at a player's location. This actively pulls all player ships towards the center using physical constraints, crippling velocity and trapping you in the blast zone!
   - **💥 The 6-Phase Gauntlet:** As its massive hull is chipped away, it triggers global desperation mechanics:
     - **80% HP:** Spawns 5 Defiler Escorts.
     - **70% HP:** Emits a global EMP pulse, instantly stripping 50% of the shield capacity from all players in the sector.
     - **60% HP:** Deploys 4 Eclipse Assassin Hunter-Killers.
     - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
-    - **35% HP:** Blinks again, unleashes a second global EMP, and enters an **Enraged state** (+50% Fire Rate, +50% Global Damage) until destroyed!
+    - **35% HP:** Blinks again, unleashes a second global EMP, and enters an **Enraged state** (+50% Fire Rate, +50% Global Damage) and projects a 15km sector-wide Dark Matter Aura that continuously drains Hull integrity from all hostile ships caught within it!
 - **The Outcome:** If not destroyed within 15 minutes, the sector is completely wiped (all stations/AI ships deleted, player ships set to 1 HP) and ownership transfers to The Eclipse.
 - **💰 Loot:** Successfully destroying the World-Eater yields an enormous amount of **Ascendant Matter** and high-tier subsystems.
 
@@ -184,8 +186,10 @@ Crafting Ascendant-tier gear and decrypting datacores is extraordinarily expensi
     - `1x Exotic` = **10%** success rate.
     - **Ascendant Scrap:** If you cannot reach 100% success rate, the Forge will automatically consume Ascendant Scrap from your ship's cargo hold to bridge the gap. Each Ascendant Scrap adds **+2%** to the success rate.
   - 💥 **War Heat Bonuses:** If *Cosmic War* is installed, your faction's War Heat is added as a massive multiplier to the weapon's damage (up to a **10.0x cap**) upon claiming it!
-  - 🛠️ **New Subsystems:** The Forge can synthesize the **Ascendant Swarm Nexus** (massively boosts Production Capacity and Fighter Squadrons) and the **Ascendant Void-Drill** (boosts Transporter Range, Loot Range, and Generator Energy)!
-- 💔 **Failure:** If the craft fails, the sacrificed subsystems and raw materials are destroyed, but you receive **"Ascendant Scrap"** which is highly sought after and can be sold to underground tech brokers for massive profit.
+    - ⚔️ **New Subsystems:** The Forge can synthesize the **Ascendant Swarm Nexus** (massively boosts Production Capacity and Fighter Squadrons) and the **Ascendant Void-Drill** (boosts Transporter Range, Loot Range, and Generator Energy)!
+    - 🦾 **Ascendant Neural Implants:** You can now craft and equip the legendary Ascendant Neural Implant subsystem, which transforms your ship into a biomechanical dreadnought (scaling massive stats like jump reach, fighters, and turrets while injecting extreme velocity).
+    - 🧨 **Titan Coaxial Superweapons:** Players can forge the **Ascendant World-Breaker**, a massively devastating coaxial laser superweapon capable of 250,000 continuous damage.
+  - 💔 **Failure:** If the craft fails, the sacrificed subsystems and raw materials are destroyed, but you receive **"Ascendant Scrap"** which is highly sought after and can be sold to underground tech brokers for massive profit.
 
 ### ✨ Ascendant Subsystem Stats
 Ascendant subsystems are categorized as a new rarity tier (`Ascendant`) with custom purple/gold UI text. They are hardcoded to provide **50% greater baseline stats** than the maximum possible roll of a vanilla Legendary.
@@ -200,7 +204,15 @@ Ascendant subsystems are categorized as a new rarity tier (`Ascendant`) with cus
 ### 🏭 Resource Procurement & Factory Overdrive
 To fuel the Ascendancy Forge, you will need massive quantities of **Ascendant Matter**.
 - **Loot Source:** Ascendant Matter is a highly condensed energy resource found only within the dark reactors of Eclipse vessels. Destroying normal Eclipse ships has a chance to drop small quantities, while obliterating the World-Eater guarantees massive yields.
-- **Factory Overdrive:** As a late-game economic sink, players can approach any factory they own and interact with it to feed it **50 Ascendant Matter**. This activates "Ascendant Overdrive", **tripling (3.0x)** the station's production capacity for 1 real-time hour!
+  - **Factory Overdrive:** As a late-game economic sink, players can approach any factory they own and interact with it to feed it **50 Ascendant Matter**. This activates "Ascendant Overdrive", **tripling (3.0x)** the station's production capacity for 1 real-time hour!
+</details>
+
+---
+
+## 🌌 The Dark Sector
+<details>
+<summary><b>Click to expand</b></summary>
+Uncharted sectors inside the Galactic Core (distance to center < 150) now have a 20% chance to instantly spawn as horrifying, Dark Matter Fog-choked "Dark Sectors". These sectors are permanently suffocated in an atmospheric hazard and heavily guarded by Eclipse Citadels surrounded by massive Dreadnought fleets. Dive in if you dare!
 </details>
 
 ---

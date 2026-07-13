@@ -325,8 +325,8 @@ function EclipseGenerator.createStation(position)
     station:addScriptOnce("entity/eclipse_boss_scaling.lua")
     station:addScriptOnce("data/scripts/entity/ca_citadel_loot.lua")
     
-    -- The Lockdown Matrix: Prevents players from jumping out while the Citadel is alive
-    station:addScriptOnce("entity/blocker.lua")
+    -- The Lockdown Matrix: Prevents players from jumping out while the Citadel is alive (Paced)
+    station:addScriptOnce("entity/ca_citadel_blocker.lua")
     
     Boarding(station).boardable = false
     

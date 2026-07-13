@@ -39,16 +39,18 @@ Every 2 to 3 hours of active playtime, the Eclipse will launch a **World-Eater**
 - ⏰ A **15-minute countdown** will broadcast across the Galactic News Network.
 - 🛡️ **Royal Escort Fleet:** The World-Eater does not travel alone. It arrives with a massive Royal Escort Fleet composed of Carriers, Artillery, Defilers, and Interceptors.
 - 💪 **Apocalyptic Durability:** The World-Eater's physical volume is dynamically scaled up by a factor of 5.0, resulting in a **125x increase** to its native Hull HP!
-- 🔥 **The Boss Encounter:** Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal Hull and dynamic mechanics:
+- 🔥 **The Boss Encounter:** Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal 5.9 kilometer Hull and dynamic mechanics:
   - **⛓️ Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains **100% invincible**, visually tethered to them by massive purple lasers.
+  - **Nemesis Protocol:** You cannot instantly burst down the World-Eater. If it takes massive burst damage, the Nemesis Protocol engages, reducing all incoming damage by 90% dynamically.
+  - **World-Breaker Laser:** The boss is armed with a colossal coaxial laser capable of obliterating anything caught in its 15km path.
   - **⚡ Quantum EMP:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting catastrophic energy damage.
-  - **⚫ Gravity Anomaly:** Periodically spawns a dark purple Black Hole at a player's location. This anomaly actively pulls all player ships towards the center, inflicting crushing hull damage over time!
+  - **⚫ Gravity Anomaly:** Periodically spawns a dark purple Black Hole at a player's location. This anomaly actively pulls all player ships towards the center, crippling your velocity and trapping you in the blast zone!
   - **💥 The 6-Phase Gauntlet:** As its massive hull is chipped away, it triggers global desperation mechanics:
     - **80% HP:** Spawns 5 Defiler Escorts.
-    - **70% HP:** Emits a global EMP pulse, instantly stripping 50% of the shield capacity from all players in the sector.
+    - **70% HP:** Emits a Dark Matter EMP, instantly stripping 50% of the shield capacity from all players in the sector.
     - **60% HP:** Deploys 4 Eclipse Assassin Hunter-Killers.
     - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
-    - **35% HP:** Blinks again, unleashes a second global EMP, and enters an **Enraged state** (+50% Fire Rate, +50% Global Damage) until destroyed!
+    - **35% HP:** Blinks again, unleashes a second global EMP, and enters an **Enraged state** (+50% Fire Rate, +50% Global Damage) and projects a 15km sector-wide Dark Matter Aura that continuously drains Hull integrity from all hostile ships caught within it.
 - ☠️ If the World-Eater is not destroyed in 15 minutes, the entire sector is atomically wiped. All non-player entities are deleted, players are reduced to 1 HP, and the sector falls permanently to Eclipse control.
 
 ### 📡 The Summoning Beacon
@@ -105,6 +107,21 @@ If the Eclipse is allowed to conquer or annihilate 75 sectors unchecked, they wi
 <details>
 <summary><b>Click to expand</b></summary>
 
+The **Ascendancy Forge** is a massive endgame progression system built into the Beacon. Once operational, the Forge allows you to spend massive amounts of raw resources (Avorion, Ogonite, Credits) and Eclipse Datacores to synthesize legendary **Ascendant** tier items.
+
+- **Titan Coaxial Superweapons:** Players can now forge the **Ascendant World-Breaker**, a massively devastating coaxial laser superweapon capable of 250,000 continuous damage.
+- **Ascendant Neural Implants:** You can now craft and equip the legendary Ascendant Neural Implant subsystem, which transforms your ship into a biomechanical dreadnought (scaling massive stats like jump reach, fighters, and turrets while injecting extreme velocity).
+
+### 🛠️ Crafting Recipes
+
+- **Ascendant Slipstream Drive:** Grants +35 Jump Range and massively reduces hyperspace cooldowns.
+- **Ascendant Aegis Reactor:** Unlocks the Ethereal Phase-Shift ability for your own ship, rendering you invincible for 3 seconds upon shield break.
+- **Ascendant Omni-Sensor:** Reveals the entire galaxy map and permanently disables all hostile radar jamming inside your sector.
+- **Ascendant World-Breaker (Coaxial Laser):** 250,000 continuous damage. Locks your ship's rotation while firing.
+- **Ascendant Neural Implant (Subsystem):** +3 Fighter Squadrons, +15 Jump Reach, +30% Velocity, +10 Armed/Unarmed Turrets.
+
+*Warning: Crafting at the Forge emits a massive subspace energy signature. The Eclipse will detect this and dispatch immediate invasion fleets to destroy the Beacon. You must defend the Forge while it synthesizes your items!*
+
 To combat the Eclipse, you must locate and utilize the Ascendancy Forge to craft gear that pushes past Avorion's native limits.
 
 ### ⚙️ Mechanics
@@ -125,6 +142,11 @@ To fuel the Ascendancy Forge, you will need massive quantities of **Ascendant Ma
 - **Factory Overdrive:** As a late-game economic sink, players can approach any factory they own and interact with it to feed it **50 Ascendant Matter**. This activates "Ascendant Overdrive", **tripling (3.0x)** the station's production capacity for 1 real-time hour!
 </details>
 
+## 🌌 The Dark Sector
+
+<details>
+<summary><b>Click to expand</b></summary>
+Uncharted sectors inside the Galactic Core (distance to center < 150) now have a 20% chance to instantly spawn as horrifying, Dark Matter Fog-choked "Dark Sectors". These sectors are permanently suffocated in an atmospheric hazard and heavily guarded by Eclipse Citadels surrounded by massive Dreadnought fleets. Dive in if you dare!
 
 ## The World Eater (Endgame Raid Boss)
 <details>
@@ -191,5 +213,5 @@ The Ascendancy Forge allows you to craft absurdly powerful technologies at great
 * **Ascendant Neural Implant:** A ship subsystem that wires the captain directly into the vessel's core processors. It provides massive scaling buffs to jump reach, velocity, turrets, and fighter squadrons.
 
 ### The Dark Sector
-* **Danger:** Un-generated sectors inside the Galactic Core (Barrier) have a high chance of being **Dark Sectors**. 
+* **Danger:** Un-generated sectors inside the Galactic Core (Barrier) have a high chance of being **Dark Sectors**.
 * **Details:** These are extreme threat zones bathed in thick Dark Matter Fog, containing Eclipse Citadels and massive Juggernaut fleets. Proceed with extreme caution and only with a heavily armed fleet.

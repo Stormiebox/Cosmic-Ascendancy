@@ -25,7 +25,7 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     if dist > 150 then return end
     
     -- Only a 20% chance to be a Dark Sector, keeping it somewhat rare
-    if math.random() > 0.20 then return end
+    if random():getFloat(0, 1) > 0.20 then return end
     
     -- It's a Dark Sector!
     print("Generating Eclipse Dark Sector at " .. tostring(x) .. ":" .. tostring(y))
@@ -37,7 +37,7 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     
     -- Spawn Eclipse Citadels (1-3)
     local EclipseGenerator = include("eclipsegenerator")
-    local numCitadels = math.random(1, 3)
+    local numCitadels = random():getInt(1, 3)
     
     for i = 1, numCitadels do
         local pos = generator:createPositionInSector(1000)
@@ -48,7 +48,7 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     end
     
     -- Spawn heavily guarded Eclipse Fleets
-    local numFleets = math.random(2, 4)
+    local numFleets = random():getInt(2, 4)
     for i = 1, numFleets do
         local pos = generator:createPositionInSector(1500)
         EclipseGenerator.createJuggernaut(pos)

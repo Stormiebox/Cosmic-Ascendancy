@@ -67,7 +67,8 @@ function CAWorldEater.spawnTethers(count)
     local spawnCount = count or 4
     for i = 1, spawnCount do
         local angle = (math.pi / 2) * i + random():getFloat(0, math.pi)
-        local dist = 1500
+        -- Increased distance from 1500 to 4500 to prevent instant AoE wipes from Singularity collapse
+        local dist = 4500
 
         local look = vec3(math.cos(angle), 0, math.sin(angle))
         local up = vec3(0, 1, 0)
@@ -285,6 +286,7 @@ end
 function CAWorldEater.createEmpGlow(pos, radius)
     if onClient() then
         Sector():createGlow(pos, radius, ColorRGB(0.0, 1.0, 1.0))
+        playSound("interface/warning", SoundType.UI, 1.0)
     end
 end
 callable(CAWorldEater, "createEmpGlow")

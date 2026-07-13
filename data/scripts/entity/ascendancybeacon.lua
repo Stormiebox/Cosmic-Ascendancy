@@ -156,7 +156,8 @@ function AscendancyBeacon.onEntityEntered(entityId)
     if cw_bridge and cw_bridge.getFactionWarHeat then
         local heat = cw_bridge.getFactionWarHeat(enteringFaction.index)
         if heat > 0 then
-            heatMod = 1.0 + (heat * 0.5) -- Up to 50% extra toll during intense wars
+            -- Cap the war heat modifier to +50% extra toll maximum
+            heatMod = 1.0 + math.min(0.5, heat * 0.5)
         end
     end
 

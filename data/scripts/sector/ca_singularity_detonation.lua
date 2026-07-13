@@ -16,7 +16,17 @@ function Detonation.initialize(x, y, z, factionIndex)
 
     local sector = Sector()
     sector:createGlow(vec3(x, y, z), 1500, ColorRGB(1.0, 0.0, 0.0))
+    
+    sector:broadcastChatMessage("System", 3, "WARNING: SINGULARITY CORE COLLAPSE DETECTED.")
+    broadcastInvokeClientFunction("playSingularityWarning", x, y, z)
 end
+
+function Detonation.playSingularityWarning(x, y, z)
+    if onClient() then
+        playSound("interface/warning", SoundType.UI, 1.0)
+    end
+end
+callable(Detonation, "playSingularityWarning")
 
 function Detonation.getUpdateInterval()
     -- Fast interval for gravity pull
@@ -101,4 +111,7 @@ function secure(...)
 end
 function restore(...)
     if Detonation.restore then return Detonation.restore(...) end
+end
+function playSingularityWarning(...)
+    if Detonation.playSingularityWarning then return Detonation.playSingularityWarning(...) end
 end
