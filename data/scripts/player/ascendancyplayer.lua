@@ -107,19 +107,3 @@ end
 function AscendancyPlayer.onShipChanged(playerIndex, craftId)
     applyToEntity(craftId)
 end
-
-
-function initialize(...)
-    if AscendancyPlayer.initialize then return AscendancyPlayer.initialize(...) end
-end
-function onSectorEntered(...)
-    if AscendancyPlayer.onSectorEntered then return AscendancyPlayer.onSectorEntered(...) end
-end
-
-
--- Global Event Callbacks
-function onShipChanged(...)
-    if AscendancyPlayer.onShipChanged then return AscendancyPlayer.onShipChanged(...) end
-end
-
-return AscendancyPlayer

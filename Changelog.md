@@ -124,3 +124,5 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Bugfixed] **Alliance Buff Injection:** Patched the player synchronization script so that Alliance defense fleets properly inherit the global Ascendant stats when jumping into a sector.
 - [Bugfixed] **Asynchronous Forge Safety:** Ensured the forge utilizes server-side global playtime to prevent duplication exploits and allow crafting to continue gracefully while players are offline or during server restarts.
 - [Bugfixed] **Boss Loot Drops:** Fixed severe API call crash (`dropPort`, `generateWeapon`) in `ca_citadel_loot.lua` that prevented the Citadel from dropping its legendary loot when destroyed. Fixed an exploitable bug where the `Eclipse Oblivion Engine` roaming boss dropped permanently artificially buffed weapons (3x damage, 2x range) directly as raw loot, bypassing the Ascendancy Forge economy entirely.
+
+- [Bugfixed] **VFS Compliance:** Stripped redundant global wrapper functions from namespaced scripts to prevent silent double-execution logic loops and engine crashes.

@@ -430,31 +430,3 @@ function AscendancyBeacon.restore(data)
     nextSiegeInterval = data.nextSiegeInterval or random():getInt(3, 6) * 3600
     AscendancyBeacon.treasury = data.treasury or 0
 end
-
-
-function initialize(...)
-    if AscendancyBeacon.initialize then return AscendancyBeacon.initialize(...) end
-end
-function getUpdateInterval(...)
-    if AscendancyBeacon.getUpdateInterval then return AscendancyBeacon.getUpdateInterval(...) end
-end
-function updateServer(...)
-    if AscendancyBeacon.updateServer then return AscendancyBeacon.updateServer(...) end
-end
-function secure(...)
-    if AscendancyBeacon.secure then return AscendancyBeacon.secure(...) end
-end
-function restore(...)
-    if AscendancyBeacon.restore then return AscendancyBeacon.restore(...) end
-end
-
-
--- Global Event Callbacks
-function onDestroyed(...)
-    if AscendancyBeacon.onDestroyed then return AscendancyBeacon.onDestroyed(...) end
-end
-function onEntityEntered(...)
-    if AscendancyBeacon.onEntityEntered then return AscendancyBeacon.onEntityEntered(...) end
-end
-
-return AscendancyBeacon
