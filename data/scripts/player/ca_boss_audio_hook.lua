@@ -28,7 +28,7 @@ function CaBossAudioHook.playBossMusic(phase)
         musicPath = "data/sounds/music/world_eater_enraged.ogg"
     end
 
-    -- In a real implementation, you would use Avorion's Sound() API or Music() API.
+    -- In a real implementation, I would use Avorion's Sound() API or Music() API.
     -- Placeholder for the Boss Audio hook:
     -- Music():play(musicPath)
     print("Cosmic Ascendancy Hook: Playing boss music " .. musicPath)

@@ -95,12 +95,12 @@ function EclipseRoamingBoss.updateServer(timeStep)
                 data.currentlyAttackedSector.coords = coords
                 data.countDown = 20 * 60
 
-                Server():broadcastChatMessage("System"%_T, 1, "CRITICAL ALERT: The Eclipse Oblivion Engine has arrived in sector \\s(%1%:%2%)!"%_T, coords.x, coords.y)
+                Server():broadcastChatMessage("System"%_T, 1, "CRITICAL ALERT: The World Eater has arrived in sector \\s(%1%:%2%)!"%_T, coords.x, coords.y)
 
                 if cv_news.publishArticle then
                     cv_news.publishArticle({
                         title = "World-Eater Sighted!",
-                        content = "A superweapon of incomprehensible scale, designated 'The Eclipse Oblivion Engine', has invaded sector [" .. coords.x .. ":" .. coords.y .. "]. It is obliterating everything in its path.",
+                        content = "A superweapon of incomprehensible scale, designated 'The World Eater', has invaded sector [" .. coords.x .. ":" .. coords.y .. "]. It is obliterating everything in its path.",
                         category = "Galactic War"
                     })
                 end

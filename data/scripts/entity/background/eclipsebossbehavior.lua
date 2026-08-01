@@ -46,7 +46,7 @@ function EclipseBossBehavior.onDamaged(objectIndex, amount, inflictor)
         local ratio = Entity().durability / Entity().maxDurability
         if ratio < 0.5 then
             triggeredWarning = true
-            Sector():broadcastChatMessage(Entity().name, 2, "PATHETIC. THE OBLIVION ENGINE CANNOT BE STOPPED. INITIATING OMEGA PURGE."%_t)
+            Sector():broadcastChatMessage(Entity().name, 2, "PATHETIC. THE INEVITABLE CANNOT BE STOPPED. INITIATING OMEGA PURGE."%_t)
         end
     end
 end
@@ -55,21 +55,21 @@ function EclipseBossBehavior.onDestroyed(index, lastDamageInflictor)
     local sector = Sector()
     local x, y = sector:getCoordinates()
 
-    Server():broadcastChatMessage("System"%_T, 0, "The Eclipse Oblivion Engine has been destroyed in sector \\s(%1%:%2%)!"%_T, x, y)
+    Server():broadcastChatMessage("System"%_T, 0, "The World Eater has been destroyed in sector \\s(%1%:%2%)!"%_T, x, y)
     Server():setValue("eclipse_annihilator_dead", true)
 
     if cv_news.publishArticle then
         cv_news.publishArticle({
-            title = "Oblivion Engine Neutralized!",
-            content = "In an impossible feat of galactic coordination, the Eclipse superweapon known as The Eclipse Oblivion Engine has been destroyed in sector [" .. x .. ":" .. y .. "]. Trillions of lives have been saved.",
+            title = "World Eater Neutralized!",
+            content = "In an impossible feat of galactic coordination, the Eclipse superweapon known as The World Eater has been destroyed in sector [" .. x .. ":" .. y .. "]. Trillions of lives have been saved.",
             category = "Galactic War"
         })
     end
 
     local players = {sector:getPlayers()}
     for _, player in pairs(players) do
-        player:receive("Eclipse Oblivion Bounty", 5000000000)
-        player:sendChatMessage("Recovered Datapad", 0, "'The Oblivion Engine operates at peak efficiency. The galaxy will be purged, just as the architect intended. Project Stormbox is a complete success.'")
+        player:receive("World Eater Bounty", 5000000000)
+        player:sendChatMessage("Recovered Datapad", 0, "'The World Eater operates at peak efficiency. The galaxy will be purged, just as the architect intended. Project Stormbox is a complete success.'")
     end
 
     -- Synergy: Post-Boss Anomaly Generation

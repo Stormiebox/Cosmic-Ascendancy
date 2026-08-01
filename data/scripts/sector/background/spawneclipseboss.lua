@@ -18,8 +18,8 @@ function SpawnEclipseBoss.createBoss()
     local position = MatrixLookUpPosition(vec3(0,0,1), vec3(0,1,0), vec3(500, 500, 500))
 
     local boss = EclipseGenerator.createShip(position, "monolith")
-    boss.title = "Eclipse Oblivion Engine"%_T
-    boss.name = "Eclipse Oblivion Engine"%_T
+    boss.title = "World Eater"%_T
+    boss.name = "World Eater"%_T
 
     boss:addMultiplyableBias(StatsBonuses.ShieldDurability, 500.0)
     boss:addMultiplyableBias(StatsBonuses.ArbitraryTurrets, 50.0)
@@ -63,9 +63,9 @@ function SpawnEclipseBoss.finish()
     if random():getFloat() < 0.1 then
         local generator = SectorGenerator(x, y)
         local wormhole = generator:createWormhole(random():getInt(-500, 500), random():getInt(-500, 500), ColorRGB(0, 0, 0), 100)
-        Server():broadcastChatMessage("System"%_T, 1, "The Eclipse Oblivion Engine has left a dimensional tear in sector \\s(%1%:%2%)!"%_T, x, y)
+        Server():broadcastChatMessage("System"%_T, 1, "The World Eater has left a dimensional tear in sector \\s(%1%:%2%)!"%_T, x, y)
     else
-        Server():broadcastChatMessage("System"%_T, 1, "The Eclipse Oblivion Engine has vanished from sector \\s(%1%:%2%), leaving only dust."%_T, x, y)
+        Server():broadcastChatMessage("System"%_T, 1, "The World Eater has vanished from sector \\s(%1%:%2%), leaving only dust."%_T, x, y)
     end
 
     -- `if not sector:getPlayers()` tests the truthiness of the first return value,
