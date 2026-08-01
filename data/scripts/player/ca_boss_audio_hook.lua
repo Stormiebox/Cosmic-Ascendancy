@@ -23,9 +23,9 @@ function CaBossAudioHook.playBossMusic(phase)
 
     local musicPath = ""
     if phase == 1 then
-        musicPath = "data/sounds/music/world_eater_phase1.ogg"
+        musicPath = "data/music/world_eater_phase1.ogg"
     elseif phase == 2 then
-        musicPath = "data/sounds/music/world_eater_enraged.ogg"
+        musicPath = "data/music/world_eater_enraged.ogg"
     end
 
     -- In a real implementation, I would use Avorion's Sound() API or Music() API.
