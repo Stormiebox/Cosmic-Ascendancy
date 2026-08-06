@@ -16,7 +16,8 @@ meta =
     type = "mod",
 
     -- Description of your mod that will be displayed to players
-    description = "",
+    description =
+    "Following the destruction of the Wormhole Guardian, a darker, ancient adversary awakens: The Eclipse. Cosmic Ascendancy introduces an epic endgame narrative campaign where you must track a mysterious distress signal, uncover the truth behind The Eclipse, and unlock the Ascendancy Forge to craft the weapons needed to survive.",
 
     -- Insert all authors into this list
     authors = { "Stormbox" },
@@ -43,12 +44,12 @@ meta =
     --      {id = "OptionalMod", min = "0.2", optional = true}, -- we support OptionalMod optionally, starting at version 0.2
     -- },
     dependencies = {
-        { id = "3684665566", incompatible = true },
+        { id = "3684665566", incompatible = true },      -- Outlands: Sectors Keep-Alive
         { id = "3727542782", min = "1.0", max = "*.*" }, -- Cosmic Vault
         { id = "3732507615", min = "1.0", max = "*.*" }, -- Cosmic Chronicles
         { id = "3315794988", min = "1.0", max = "*.*" }, -- Cosmic Overhaul
         { id = "3727544356", min = "1.0", max = "*.*" }, -- Cosmic War
-        { id = "Avorion",    min = "1.0",   max = "*.*" }
+        { id = "Avorion",    min = "1.0", max = "*.*" }
     },
 
     -- Set to true if the mod only has to run on the server. Clients will get notified that the mod is running on the server, but they won't download it to themselves
