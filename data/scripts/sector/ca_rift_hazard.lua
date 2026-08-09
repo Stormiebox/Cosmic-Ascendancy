@@ -5,7 +5,23 @@ include("randomext")
 
 function initialize()
     if onServer() then
+        Sector():registerCallback("onPlayerEntered", "onPlayerEntered")
         deferredCallback(1.0, "updateServer", 1.0)
+    end
+end
+
+function onPlayerEntered(playerIndex)
+    local player = Player(playerIndex)
+    if not player then return end
+
+    local craft = player.craft
+    local eclipseFaction = Galaxy():findFaction("The Eclipse")
+    local eclipseIndex = eclipseFaction and eclipseFaction.index or -1
+
+    -- Only warn if the player's craft is vulnerable to the anomaly
+    if not craft or craft.factionIndex ~= eclipseIndex then
+        player:sendChatMessage("Rift Hazard", 2, "WARNING: Navigational hazard detected! Shields are actively draining.")
+        player:sendChatMessage("Rift Hazard", 3, "WARNING: Navigational hazard detected! Shields are actively draining.")
     end
 end
 

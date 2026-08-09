@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.0.1] - Patch
+
+### 🐛 Bug Fix
+- [Bugfixed] Fixed an issue where the Rift Hazard anomaly would silently drain non-Eclipse shields without notifying the player. Entering a hazard zone now immediately broadcasts a high-priority UI and chat warning.
+
 ## [v1.0.0] - UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
 
 ### ✨ New Features & 📦 Content Additions
@@ -14,7 +19,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   - **Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains 100% invincible, visually tethered to them by massive purple lasers.
   - **Quantum EMP Hazards:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting catastrophic energy damage.
   - **Gravity Anomaly Hazards:** Periodically spawns a dark purple Black Hole at a player's location. This anomaly actively pulls all player ships towards the center using physical constraints, inflicting crushing hull damage over time!
-  - **The 6-Phase Gauntlet:** 
+  - **The 6-Phase Gauntlet:**
     - **80% HP:** Summons 5 Defiler Escorts.
     - **70% HP:** Emits a Dark Matter EMP, instantly stripping 50% of the shield capacity from all players in the sector.
     - **60% HP:** Deploys 4 Eclipse Assassin Hunter-Killers (Destroyers).
@@ -34,7 +39,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Feature] **The Stellar Forge:** Exchange 1+ Billion Credits and massive ore reserves to asynchronously craft custom God-Tier weapons or Relic Subsystems over 24 real-time hours.
 - [Feature] **Ascendant Overdrive:** As a late-game economic sink, players can approach any factory they own and interact with it to feed it 50 Ascendant Matter. This activates "Ascendant Overdrive", tripling (3.0x) the station's production capacity for 1 real-time hour!
 - [Feature] **Forge Decryption Matrix:** The Ascendancy Forge now accepts `Eclipse Datacores`. Decrypting them permanently raises your Global Ascendancy Tier, granting +15% Shields, +20% Shield Regen, and +10% Hyperspace Cooldown natively to all player ships.
-- [Feature] **Eclipse Citadel Mechanics:** 
+- [Feature] **Eclipse Citadel Mechanics:**
   - **Lockdown Matrix:** Attached the vanilla `hyperspaceblocker.lua` script to Citadels natively, actively trapping players in the sector until the Citadel is destroyed.
   - **Suppression Field:** Destroying a Citadel now writes a global server timestamp that aggressively halts all new Eclipse invasions galaxy-wide for 6 hours.
 - [Feature] **The Grand Toll & Treasury Payouts:** Since the Ascendancy Beacon sector is permanently loaded, the beacon acts as an intergalactic border checkpoint. All NPC traders and AI factions jumping into the sector are charged a massive entry tax that scales with the beacon's tier. To prevent endless notification spam, the Beacon safely stores all collected tolls in its internal treasury and pays out a single lump-sum to your faction every 45 minutes (synced with the Upkeep cycle).
