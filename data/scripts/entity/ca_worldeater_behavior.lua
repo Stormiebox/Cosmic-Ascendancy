@@ -227,8 +227,9 @@ function CAWorldEater.processHazards(timeStep)
                 if valid(ship) and ship.factionIndex ~= boss.factionIndex then
                     -- Strip all shields directly on the entity
                     ship.shieldDurability = 0
-                    -- Inflict raw Energy damage directly on the entity
-                    ship:inflictDamage(1000000, 1, DamageType.Energy, 0, ship.translationf, boss.id)
+                    -- Inflict 25% Max Hull as Energy damage directly on the entity
+                    local damage = ship.maxDurability * 0.25
+                    ship:inflictDamage(damage, 1, DamageType.Energy, 0, ship.translationf, boss.id)
                 end
             end
 
@@ -248,8 +249,9 @@ function CAWorldEater.processHazards(timeStep)
                 if dist < 20000 then -- 20km range
                     -- Detonate laser!
                     sector:createExplosion(ship.translationf, 200, false)
-                    -- Deal massive damage
-                    ship:inflictDamage(5000000, 1, DamageType.Energy, 0, ship.translationf, boss.id)
+                    -- Deal 100% Max Shields + 50% Max Hull damage
+                    local damage = (ship.shieldMaxDurability or 0) + (ship.maxDurability * 0.50)
+                    ship:inflictDamage(damage, 1, DamageType.Energy, 0, ship.translationf, boss.id)
                 end
             end
             table.remove(data.laserTargets, i)
@@ -274,8 +276,9 @@ function CAWorldEater.processHazards(timeStep)
                         vel.velocity = vel.velocity * 0.1
                     end
 
-                    -- Damage over time inside the anomaly
-                    ship:inflictDamage(50000 * timeStep, 1, DamageType.Physical, 0, ship.translationf, boss.id)
+                    -- Damage over time inside the anomaly (5% Max Hull per second)
+                    local damage = ship.maxDurability * 0.05 * timeStep
+                    ship:inflictDamage(damage, 1, DamageType.Physical, 0, ship.translationf, boss.id)
                 end
             end
         end
@@ -416,7 +419,7 @@ function CAWorldEater.checkPhases()
         data.phasesTriggered.p50 = true
         sector:broadcastChatMessage(boss.title, 2, "EMERGENCY REPAIRS INITIATED.")
         CAWorldEater.triggerBlink()
-        boss.durability = math.min(boss.maxDurability, boss.durability + (boss.maxDurability * 0.1))
+        boss.durability = math.min(boss.maxDurability, boss.durability + (boss.maxDurability * 0.05))
     end
 
     if hpPct <= 0.5 and not data.phasesTriggered.tethers50 then

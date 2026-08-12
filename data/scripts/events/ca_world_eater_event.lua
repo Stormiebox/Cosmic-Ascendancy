@@ -55,14 +55,14 @@ function WorldEaterEvent.initialize(timeLeft)
     -- Start music for players already present
     for _, player in pairs({Sector():getPlayers()}) do
         player:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
-        player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "playBossMusic", 1)
+        player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerBossMusic", 1)
     end
 end
 
 function WorldEaterEvent.onPlayerEntered(playerIndex)
     local player = Player(playerIndex)
     player:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
-    player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "playBossMusic", 1)
+    player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerBossMusic", 1)
 end
 
 function WorldEaterEvent.onWorldEaterDestroyed()

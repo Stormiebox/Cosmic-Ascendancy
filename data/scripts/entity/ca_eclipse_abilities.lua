@@ -75,7 +75,7 @@ function EclipseAbilities.updateServer(timeStep)
         local function siphonTarget(target)
             if target and target.factionIndex ~= entity.factionIndex then
                 local dist = distance(entity.translationf, target.translationf)
-                if dist <= 1500.0 then -- 15km aura radius
+                if dist <= 1000.0 then -- 10km aura radius
                     local pShieldMax = target.shieldMaxDurability or 0
                     if pShieldMax > 0 and target.shieldDurability > 0 then
                         local drain = pShieldMax * 0.01 -- Drain 1% of max shield per 0.5s tick
@@ -100,17 +100,18 @@ function EclipseAbilities.updateServer(timeStep)
         for _, s in pairs(ships) do siphonTarget(s) end
         for _, s in pairs(stations) do siphonTarget(s) end
 
-        -- Transfer drained energy to shields first, then hull
+        -- Transfer drained energy to shields first, then hull (Heals for 25% of damage drained)
         if healAmount > 0 then
+            local adjustedHeal = healAmount * 0.25
             local bossShieldMax = entity.shieldMaxDurability or 0
             if bossShieldMax > 0 and entity.shieldDurability < bossShieldMax then
                 local shieldSpace = bossShieldMax - entity.shieldDurability
-                local toShields = math.min(shieldSpace, healAmount)
+                local toShields = math.min(shieldSpace, adjustedHeal)
                 entity.shieldDurability = entity.shieldDurability + toShields
-                healAmount = healAmount - toShields
+                adjustedHeal = adjustedHeal - toShields
             end
-            if healAmount > 0 then
-                entity.durability = math.min(entity.maxDurability, entity.durability + healAmount)
+            if adjustedHeal > 0 then
+                entity.durability = math.min(entity.maxDurability, entity.durability + adjustedHeal)
             end
         end
     end
@@ -174,9 +175,9 @@ function EclipseAbilities.onDamaged(objectIndex, amount, inflictor, damageSource
             end
         end
 
-        -- While the active resistance is engaged, heal back 75% of damage taken from that element
+        -- While the active resistance is engaged, heal back 50% of damage taken from that element
         if EclipseAbilities.activeResistance == damageType and damageType ~= DamageType.Physical then
-             entity.durability = math.min(entity.maxDurability, entity.durability + (amount * 0.75))
+             entity.durability = math.min(entity.maxDurability, entity.durability + (amount * 0.50))
         end
     end
 
@@ -204,10 +205,10 @@ function EclipseAbilities.onShieldDamaged(objectIndex, amount, inflictor, damage
     local maxShield = entity.shieldMaxDurability or 0
 
     if maxShield > 0 then
-        -- Void Shields Mechanic: Eclipse ships absorb 90% of incoming physical damage on shields
+        -- Void Shields Mechanic: Eclipse ships absorb 80% of incoming physical damage on shields
         -- This makes them highly resistant to kinetic weapons while their shields are up
         if damageType == DamageType.Physical then
-            local mitigated = amount * 0.90
+            local mitigated = amount * 0.80
             entity.shieldDurability = math.min(maxShield, entity.shieldDurability + mitigated)
         end
 
@@ -247,9 +248,9 @@ function EclipseAbilities.onShieldDamaged(objectIndex, amount, inflictor, damage
             end
         end
 
-        -- While adapted to an element, heal back 75% of that element's damage to shields
+        -- While adapted to an element, heal back 50% of that element's damage to shields
         if EclipseAbilities.activeResistance == damageType and damageType ~= DamageType.Physical then
-            entity.shieldDurability = math.min(maxShield, entity.shieldDurability + (amount * 0.75))
+            entity.shieldDurability = math.min(maxShield, entity.shieldDurability + (amount * 0.50))
         end
     end
 
@@ -265,7 +266,7 @@ function EclipseAbilities.triggerBlink()
     local entity = Entity()
     local now = Server().unpausedRuntime
 
-    if now - EclipseAbilities.lastBlink < 30.0 then return end
+    if now - EclipseAbilities.lastBlink < 45.0 then return end
     EclipseAbilities.lastBlink = now
 
     local sector = Sector()

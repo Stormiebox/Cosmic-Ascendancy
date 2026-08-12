@@ -22,42 +22,43 @@ Welcome to the **Cosmic Ascendancy** official player guide! This document breaks
 The **Eclipse** is a hyper-advanced, hostile faction that dynamically targets sectors containing high player or AI faction value. Their ships are jet-black monolithic structures accented by crimson energy fields.
 
 ### ⚔️ Combat Mechanics
-- **Void Shields:** Incoming physical damage (Cannons, Bolters, Chainguns) is mitigated by 90%. You **must** use high-tier Energy, Antimatter, or Plasma weapons to strip their shields.
+- **Void Shields:** Incoming physical damage (Cannons, Bolters, Chainguns) is mitigated by 80%. You **must** use high-tier Energy, Antimatter, or Plasma weapons to strip their shields.
 - **Armor Plating:** Their base Hull HP is multiplied by 2.5x relative to vanilla ships of the same volume.
 - **Weaponry:** The Eclipse exclusively utilizes massive EMP lasers and high-velocity Plasma Artillery, making them incredibly lethal against your shields.
 
 ### 🌌 Ancient Eclipse Abilities
 To make the faction feel uniquely terrifying, the Eclipse possess **5 devastating ancient mechanics** distributed across their classes:
-- **Dark Matter Blink (All Ships):** Upon taking 15% burst damage within 1 second, the ship will violently blink 5-10km away to escape, leaving behind a Void Rift (cooldown: 30s).
+- **Dark Matter Blink (All Ships):** Upon taking 15% burst damage within 1 second, the ship will violently blink 5-10km away to escape, leaving behind a Void Rift (cooldown: 45s).
 - **Ethereal Phase-Shift (Interceptors & Phantoms):** Slippery vanguards will instantly phase out of reality for 4 seconds upon shield break, becoming an invincible void-shadow to reposition.
-- **Adaptive Resistance (Defilers & Artillery):** These heavy combatants analyze incoming fire; taking 5% Hull damage from a specific element (e.g., Plasma) triggers a 75% resistance to that element for 15 seconds!
-- **Void Siphon Aura (Carriers, Cruisers, Dreadnoughts, Juggernauts):** Massive command ships constantly project a 3km devouring aura, draining 2% of the shield capacity of all nearby player ships per second to heal themselves.
-- **Singularity Implosion (All Large Capital Ships):** Upon death, these gargantuan reactors collapse. After a 3-second warning, they violently detonate, dealing 50,000 true-damage to everything within 3km!
+- **Adaptive Resistance (Defilers & Artillery):** These heavy combatants analyze incoming fire; taking 5% Hull damage from a specific element (e.g., Plasma) triggers a 15-second resistance to that element where they heal back 50% of the incoming damage!
+- **Void Siphon Aura (Carriers, Cruisers, Dreadnoughts, Juggernauts):** Massive command ships constantly project a 10km devouring aura, rapidly draining 2% of the shield capacity of all nearby player ships per second to heal themselves for 25% of the drained amount.
+- **Singularity Implosion (All Large Capital Ships):** Upon death, these gargantuan reactors collapse. After a 3-second warning, they violently detonate, stripping 15% of max hull as true-damage to everything within 15km!
 
 ### 🚨 The World-Eater Doomsday Event
-Every 2 to 3 hours of active playtime, the Eclipse will launch a **World-Eater** (a massively scaled Juggernaut) at a populated player sector. The global timer for this event **automatically pauses** if no players are online, protecting dedicated servers.
-- ⏰ A **15-minute countdown** will broadcast across the Galactic News Network.
+Every 3 to 5 hours of active playtime, the Eclipse will launch a **World-Eater** (a massively scaled Juggernaut) at a populated player sector. The global timer for this event **automatically pauses** if no players are online, protecting dedicated servers.
+- ⏰ A **20-minute countdown** will broadcast across the Galactic News Network.
 - 🛡️ **Royal Escort Fleet:** The World-Eater does not travel alone. It arrives with a massive Royal Escort Fleet composed of Carriers, Artillery, Defilers, and Interceptors.
 - 💪 **Apocalyptic Durability:** The World-Eater's physical volume is dynamically scaled up by a factor of 5.0, resulting in a **125x increase** to its native Hull HP!
 - 🔥 **The Boss Encounter:** Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal 5.9 kilometer Hull and dynamic mechanics:
   - **⛓️ Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains **100% invincible**, visually tethered to them by massive purple lasers.
   - **Nemesis Protocol:** You cannot instantly burst down the World-Eater. If it takes massive burst damage, the Nemesis Protocol engages, reducing all incoming damage by 90% dynamically.
-  - **World-Breaker Laser:** The boss is armed with a colossal coaxial laser capable of obliterating anything caught in its 15km path.
-  - **⚡ Quantum EMP:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting catastrophic energy damage.
-  - **⚫ Gravity Anomaly:** Periodically spawns a dark purple Black Hole at a player's location. This anomaly actively pulls all player ships towards the center, crippling your velocity and trapping you in the blast zone!
+  - **World-Breaker Laser:** The boss is armed with a colossal coaxial laser capable of obliterating anything caught in its 15km path, dealing 100% max shields and 50% max hull damage.
+  - **⚡ Quantum EMP:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting 25% max hull damage.
+  - **⚫ Gravity Anomaly:** Periodically spawns a dark purple Black Hole at a player's location. This anomaly actively pulls all player ships towards the center, draining 5% of max hull per second and trapping you in the blast zone!
   - **💥 The 6-Phase Gauntlet:** As its massive hull is chipped away, it triggers global desperation mechanics:
     - **80% HP:** Spawns 5 Defiler Escorts.
     - **70% HP:** Emits a Dark Matter EMP, instantly stripping 50% of the shield capacity from all players in the sector.
     - **60% HP:** Deploys 4 Eclipse Assassin Hunter-Killers.
-    - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 10% of its Max Hull.
+    - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 5% of its Max Hull.
     - **35% HP:** Blinks again, unleashes a second global EMP, and enters an **Enraged state** (+50% Fire Rate, +50% Global Damage) and projects a 15km sector-wide Dark Matter Aura that continuously drains Hull integrity from all hostile ships caught within it.
-- ☠️ If the World-Eater is not destroyed in 15 minutes, the entire sector is atomically wiped. All non-player entities are deleted, players are reduced to 1 HP, and the sector falls permanently to Eclipse control.
+- ☠️ If the World-Eater is not destroyed in 20 minutes, the entire sector is atomically wiped. All non-player entities are deleted, players are reduced to 1 HP, and the sector falls permanently to Eclipse control.
 
 ### 📡 The Summoning Beacon
 If you are prepared to face the ultimate threat on your own terms, you can forcefully summon the World-Eater!
 - **Raid Summoning:** Jettisoning an **Eclipse Datacore** from your cargo hold into space acts as a quantum beacon. If there are no other Eclipse ships currently in the sector, the datacore will violently collapse, tearing open a hyperspace rift and instantly summoning the **Eclipse World-Eater**!
 
 ### 🚨 Invasion Escalation
+- **Personal Ambushes:** The Eclipse actively hunts players. Every 25-45 minutes, there is a 40% chance that an elite Eclipse strike team will personally ambush the player's current sector.
 1.  **Scouting Phase:** Small, fast-moving Eclipse Interceptors arrive in a sector. If they are not destroyed within 5 minutes, they broadcast a beacon.
 2.  **Assault Phase:** Once the beacon is active, a massive invasion fleet warps in (typically 1 Dreadnought, 3 Cruisters, and 5-8 Corvettes).
 3.  **Eradication:** Eclipse fleets prioritize destroying Stations. Destroyed AI stations permanently drop local economic output, and destroyed Player stations are permanently lost!
@@ -71,14 +72,14 @@ When an Eclipse invasion is overwhelmingly successful, they will permanently occ
 
 
 ### ⚔️ Eclipse Combat Classes & Abilities
-- **Void Siphons:** Emitters projecting a massive **15km** radius field. If your shields drop to 0 within this field, the Siphon will aggressively drain your Hull (0.5% max hull per tick) to repair itself.
-- **Singularity Collapse (Dreadnoughts/Carriers):** When their core detonates upon death, it triggers a massive **15km** implosion dealing 250,000 true damage. During its 3-second windup, the core creates a **Gravity Well** that physically sucks all nearby ships toward the epicenter.
+- **Void Siphons:** Emitters projecting a massive **10km** radius field. If your shields drop to 0 within this field, the Siphon will aggressively drain your Hull (0.5% max hull per tick) to repair itself.
+- **Singularity Collapse (Dreadnoughts/Carriers):** When their core detonates upon death, it triggers a massive **3km** implosion stripping 15% of your max hull as true damage. During its 3-second windup, the core creates a **Gravity Well** that physically sucks all nearby ships toward the epicenter.
 - **Ethereal Phase Shifts (Phantoms/Interceptors):** Upon losing shields, they enter a 4-second invincible Phase Shift and actively **regenerate 25% of their Max Shields** while phased.
 - **Adaptive Memory (Defilers):** Their adaptive armor grants compounding resistance to elemental damage types, but the memory **safely decays** if they aren't hit by that element for 3 seconds.
 
 ### ⚙️ Mechanics
 - 🚫 **The Lockdown Matrix:** Citadels generate a sector-wide interdiction field. Ships cannot jump *out* of a Citadel sector unless the Citadel is destroyed.
-- 💣 **Siege Scale:** Citadels have `250,000,000` base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms.
+- 💣 **Siege Scale:** Citadels have `200,000,000` base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms.
 - 💰 **Loot & Rewards:** Destroying a Citadel guarantees a drop of 1-3 **Legendary** subsystems, massive quantities of Avorion ore, and unique crafting materials for the Ascendancy Forge.
 - ⏳ **Suppression Field:** Destroying a Citadel dynamically halts all Eclipse invasions within a 15-sector radius. The suppression lasts for a base of 6 real-time hours, plus an additional 2 hours for every 10 sectors the Eclipse currently own.
 </details>

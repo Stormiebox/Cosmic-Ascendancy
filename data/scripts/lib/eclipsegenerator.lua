@@ -301,8 +301,8 @@ function EclipseGenerator.createStation(position)
         plan = PlanGenerator.makeXsotanShipPlan(EclipseGenerator.getShipVolume(x, y) * 5, material)
     end
     
-    -- Scale the plan volume to match the target Citadel size (10x a standard Eclipse ship)
-    local volume = EclipseGenerator.getShipVolume() * 10
+    -- Scale the plan volume to match the target Citadel size (8x a standard Eclipse ship)
+    local volume = EclipseGenerator.getShipVolume() * 8
     local currentVolume = plan.volume
     if currentVolume > 0 then
         local scale = (volume / currentVolume) ^ (1/3)

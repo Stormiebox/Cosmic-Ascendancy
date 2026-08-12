@@ -3,6 +3,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 
 local EclipseAwakes = {}
 EclipseAwakes.invasionTimer = 0
+EclipseAwakes.awakenTimer = 0
 
 function EclipseAwakes.getUpdateInterval()
     return 5.0
@@ -67,21 +68,34 @@ function EclipseAwakes.updateServer(timeStep)
 
     local unleashed = server:getValue("the_eclipse_unleashed")
     if not unleashed then
-        -- Check if any player killed the guardian
-        for _, player in pairs({server:getPlayers()}) do
-            if player:getValue("wormhole_guardian_destroyed") then
-                server:setValue("the_eclipse_unleashed", true)
-                server:setValue("eclipse_awaken_time", server.unpausedRuntime + 10 * 60)
-                server:broadcastChatMessage("Server", 2, "An ominous shudder ripples through the fabric of subspace... The Guardian's death has broken an ancient seal."%_T)
-                break
+        -- Check if the Guardian was killed (global server timer set by vanilla script)
+        -- OR fallback to checking online players (for retro-active activation on old saves)
+        local guardianKilled = server:getValue("guardian_respawn_time") ~= nil
+        if not guardianKilled then
+            for _, player in pairs({server:getPlayers()}) do
+                if player:getValue("wormhole_guardian_destroyed") then
+                    guardianKilled = true
+                    break
+                end
+            end
+        end
+
+        if guardianKilled then
+            server:setValue("the_eclipse_unleashed", true)
+            -- NO LONGER SET eclipse_awaken_time as a Server Value
+            EclipseAwakes.awakenTimer = 0
+            server:broadcastChatMessage("Server", 2, "An ominous shudder ripples through the fabric of subspace... The Guardian's death has broken an ancient seal."%_T)
+            for _, p in pairs({server:getPlayers()}) do
+                p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+                p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "THE ECLIPSE AWAKENS", "data/sounds/siren.ogg")
             end
         end
         return
     end
 
-    local awakenTime = server:getValue("eclipse_awaken_time")
-    if awakenTime then
-        local timeRemaining = awakenTime - server.unpausedRuntime
+    if not server:getValue("eclipse_fully_awake") then
+        EclipseAwakes.awakenTimer = EclipseAwakes.awakenTimer + timeStep
+        local timeRemaining = (10 * 60) - EclipseAwakes.awakenTimer
 
         if timeRemaining > 0 then
             -- 15 seconds in (585 secs remaining) - Trigger the Forge the Ascendant OST
@@ -89,7 +103,7 @@ function EclipseAwakes.updateServer(timeStep)
                 server:setValue("eclipse_music_triggered", true)
                 for _, p in pairs({server:getPlayers()}) do
                     p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
-                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "playGuardianFellMusic")
+                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerGuardianFellMusic")
                 end
             end
 
@@ -99,7 +113,7 @@ function EclipseAwakes.updateServer(timeStep)
                 server:broadcastChatMessage("Server", 3, "WARNING: Massive hyperspace anomalies detected across all sectors. Something ancient is waking up."%_T)
                 for _, p in pairs({server:getPlayers()}) do
                     p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
-                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "showCinematicBanner", "MASSIVE HYPERSPACE ANOMALY", "data/sounds/siren.ogg")
+                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "MASSIVE HYPERSPACE ANOMALY", "data/sounds/siren.ogg")
                 end
             end
             -- 8 minutes in (2 mins remaining)
@@ -108,28 +122,31 @@ function EclipseAwakes.updateServer(timeStep)
                 server:broadcastChatMessage("Server", 3, "CRITICAL WARNING: The anomalies are stabilizing into jump signatures. Black Avorion reading off the charts!"%_T)
                 for _, p in pairs({server:getPlayers()}) do
                     p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
-                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "showCinematicBanner", "BLACK AVORION SIGNATURES DETECTED", "data/sounds/siren.ogg")
+                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "BLACK AVORION SIGNATURES DETECTED", "data/sounds/siren.ogg")
                 end
             end
             return
         else
-            if not server:getValue("eclipse_fully_awake") then
-                server:setValue("eclipse_fully_awake", true)
-                server:broadcastChatMessage("The Eclipse", 2, "Your ignorance has doomed this galaxy. We are The Eclipse. You will be erased."%_T)
-                Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_roaming_boss.lua")
-                Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_conquest_manager.lua")
-                Galaxy():addScriptOnce("data/scripts/galaxy/ca_world_eater_manager.lua")
-            end
+            server:setValue("eclipse_fully_awake", true)
+            server:broadcastChatMessage("The Eclipse", 2, "Your ignorance has doomed this galaxy. We are The Eclipse. You will be erased."%_T)
+            Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_roaming_boss.lua")
+            Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_conquest_manager.lua")
+            Galaxy():addScriptOnce("data/scripts/galaxy/ca_world_eater_manager.lua")
         end
     end
 
     -- The Eclipse is fully awake. Handle Global Player Invasions.
     if server:getValue("eclipse_fully_awake") then
-        EclipseAwakes.invasionTimer = EclipseAwakes.invasionTimer + timeStep
+        local now = server.unpausedRuntime
+        
+        -- Initialize the absolute timer if it hasn't been set yet
+        if not EclipseAwakes.nextInvasionTime or EclipseAwakes.nextInvasionTime == 0 then
+            EclipseAwakes.nextInvasionTime = now + (random():getInt(25, 45) * 60)
+        end
 
-        -- Every 25 to 45 minutes, attempt an invasion
-        if EclipseAwakes.invasionTimer > random():getInt(25, 45) * 60 then
-            EclipseAwakes.invasionTimer = 0
+        -- Check if the real-time timestamp has passed
+        if now >= EclipseAwakes.nextInvasionTime then
+            EclipseAwakes.nextInvasionTime = now + (random():getInt(25, 45) * 60)
             EclipseAwakes.triggerInvasion()
         end
     end
@@ -139,8 +156,8 @@ function EclipseAwakes.triggerInvasion()
     -- This is now handled globally by eclipse_conquest_manager.lua, but we still trigger personal player ambushes here
     local players = {Server():getPlayers()}
     for _, player in pairs(players) do
-        -- 60% chance to personally ambush a player in their sector
-        if random():getFloat(0, 1) > 0.4 then
+        -- 40% chance to personally ambush a player in their sector
+        if random():getFloat(0, 1) < 0.4 then
             -- before the first one finishes (e.g., if invasion timer fires while one is still running).
             -- addScriptOnce is idempotent — safe to call multiple times; will not stack.
             player:addScriptOnce("data/scripts/player/events/eclipseinvasion.lua")
@@ -149,12 +166,21 @@ function EclipseAwakes.triggerInvasion()
 end
 
 function EclipseAwakes.secure()
-    return {invasionTimer = EclipseAwakes.invasionTimer}
+    return {
+        nextInvasionTime = EclipseAwakes.nextInvasionTime,
+        awakenTimer = EclipseAwakes.awakenTimer
+    }
 end
 
 function EclipseAwakes.restore(data)
     if data then
-        EclipseAwakes.invasionTimer = data.invasionTimer or 0
+        -- Backwards compatibility: if they had invasionTimer, convert it approximately
+        if data.invasionTimer then
+            EclipseAwakes.nextInvasionTime = Server().unpausedRuntime + ((random():getInt(25, 45) * 60) - data.invasionTimer)
+        else
+            EclipseAwakes.nextInvasionTime = data.nextInvasionTime or 0
+        end
+        EclipseAwakes.awakenTimer = data.awakenTimer or 0
     end
 end
 function getUpdateInterval(...)

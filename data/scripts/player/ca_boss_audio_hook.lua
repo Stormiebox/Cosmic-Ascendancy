@@ -54,6 +54,27 @@ callable(CaBossAudioHook, "playBossMusic")
 callable(CaBossAudioHook, "stopBossMusic")
 callable(CaBossAudioHook, "playGuardianFellMusic")
 
+-- Server-to-Client Bridge Functions
+function CaBossAudioHook.triggerGuardianFellMusic()
+    if onClient() then return end
+    invokeClientFunction(Player(), "playGuardianFellMusic")
+end
+
+function CaBossAudioHook.triggerCinematicBanner(text, soundPath)
+    if onClient() then return end
+    invokeClientFunction(Player(), "showCinematicBanner", text, soundPath)
+end
+
+function CaBossAudioHook.triggerBossMusic(phase)
+    if onClient() then return end
+    invokeClientFunction(Player(), "playBossMusic", phase)
+end
+
+function CaBossAudioHook.triggerStopBossMusic()
+    if onClient() then return end
+    invokeClientFunction(Player(), "stopBossMusic")
+end
+
 function initialize(...)
     if CaBossAudioHook.initialize then return CaBossAudioHook.initialize(...) end
 end

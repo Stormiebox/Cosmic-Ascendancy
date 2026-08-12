@@ -7,6 +7,36 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.0.2] - Patch
+
+### 🐛 Bug Fix
+
+- [Bugfix] Fixed a critical server/client synchronization "Bridge" crash where server-side scripts (World Eater, Eclipse) were calling client-only UI and Audio functions directly. Implemented bridge functions in `ca_boss_audio_hook.lua` to properly route UI banners and boss music triggers to the client.
+- [Bugfix] Fixed an issue in `eclipse_awakes.lua` where the 10-minute awakening timer was tied to `server.unpausedRuntime`, causing it to reset entirely if a dedicated server restarted during the countdown. It now properly persists using script localization parameters.
+- [Bugfix] Fixed an issue in `ca_world_eater_manager.lua` where the 3-hour cooldown timer was not being serialized during server shutdowns. The timer will now correctly persist across server restarts, ensuring World Eaters actually spawn.
+- [Bugfix] **Eclipse Awakening Trigger:** Refactored the `eclipse_awakes.lua` trigger logic to seamlessly track Guardian kills via global `guardian_respawn_time` without polling players, fixing an edge-case where the event would fail to trigger if the killer disconnected immediately.
+
+### ⚖️ Balancing
+
+- [Balance] **Void Shields (Physical Mitigation):** Reduced from 90% to 80%. This gives Physical weapons (Cannons, Bolters, Chainguns) a slight fighting chance, though Energy/Plasma/Antimatter remain highly recommended.
+- [Balance] **Eclipse Citadel HP:** Reduced base HP from 250,000,000 to 200,000,000 to make Citadel sieges slightly less of a slog.
+- [Balance] **World Eater Spawn Timer:** Increased the global spawn timer from 2-3 hours to 3-5 hours to make the encounter feel more like a rare galactic event.
+- [Balance] **World Eater Doomsday Timer:** Increased the Doomsday Sector Annihilation timer from 15 minutes to 20 minutes, giving players more time to rally a fleet and reach the location.
+- [Balance] **Adaptive Armor (Defilers/Artillery):** Reduced the heal-back amount while Adaptive Armor is active from 75% to 50%.
+- [Balance] **Endgame Hazard Scaling:** Converted all major Eclipse endgame hazards from flat-damage numbers to percentage-based scaling damage to ensure they remain lethal against ultra-lategame players with Ascendancy Beacons.
+- [Balance] **Singularity Implosion:** Converted from 250,000 flat true-damage to stripping 15% of a player's Max Hull.
+- [Balance] **World Eater EMP Hazard:** Converted from 1,000,000 flat Energy damage to 25% Max Hull damage (after stripping 100% shields).
+- [Balance] **World Eater Breaker Laser:** Converted from 5,000,000 flat Energy damage to a blast that deals 100% of Max Shields + 50% of Max Hull.
+- [Balance] **World Eater Gravity Anomaly:** Converted from 50,000 flat Physical DoT to 5% Max Hull per second.
+- [Balance] **Eclipse Ambushes:** Reduced the chance for the Eclipse to personally ambush players in their sector every 25-45 minutes from 60% down to 40%.
+- [Balance] **Void Siphon Aura (Eclipse Command Ships):** Reduced the massive heal-back conversion from draining players from 100% of damage drained down to 25%. The boss will no longer become an unkillable sponge if you bring a large fleet. Also reduced the aura radius from 15km to 10km to allow for better kiting.
+- [Balance] **Dark Matter Blink (All Eclipse Ships):** Increased the cooldown of the emergency teleport from 30 seconds to 45 seconds to reduce frustration when chasing ships with high-DPS builds.
+- [Balance] **World-Eater Emergency Repairs:** Reduced the Phase 50% Emergency Repair heal from 10% of Max Hull to 5% of Max Hull.
+
+### ⚙️ Adjustments
+
+- [Changed] **Ambush Timer Persistence:** Converted ambush invasion timers to use absolute real-time stamps (`Server().unpausedRuntime`) rather than tick-based accumulation, preventing desync from server lag.
+
 ## [v1.0.1] - Patch
 
 ### 🐛 Bug Fix

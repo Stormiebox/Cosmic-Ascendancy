@@ -40,7 +40,7 @@ function WorldEaterManager.updateServer(timeStep)
                 Server():broadcastChatMessage("The Eclipse", 2, "WARNING: Doomsday weapon firing at [" .. tx .. ":" .. ty .. "] in " .. minsLeft .. " minute(s).")
                 for _, p in pairs({Server():getPlayers()}) do
                     p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
-                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "showCinematicBanner", "DOOMSDAY EVENT - " .. minsLeft .. " MINS", "data/sounds/siren.ogg")
+                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "DOOMSDAY EVENT - " .. minsLeft .. " MINS", "data/sounds/siren.ogg")
                 end
             end
         end
@@ -54,7 +54,7 @@ function WorldEaterManager.updateServer(timeStep)
         end
     else
         WorldEaterManager.timer = WorldEaterManager.timer + timeStep
-        if WorldEaterManager.timer > random():getInt(7200, 10800) then -- 2 to 3 hours
+        if WorldEaterManager.timer > random():getInt(10800, 18000) then -- 3 to 5 hours
             WorldEaterManager.timer = 0
             WorldEaterManager.triggerEvent()
         end
@@ -72,13 +72,13 @@ function WorldEaterManager.triggerEvent()
     local targetSector = knownSectors[random():getInt(1, #knownSectors)]
     local tx, ty = targetSector:getCoordinates()
 
-    WorldEaterManager.activeEvent = {x = tx, y = ty, timeLeft = 900}
+    WorldEaterManager.activeEvent = {x = tx, y = ty, timeLeft = 1200}
 
-    Server():broadcastChatMessage("Galactic News", 0, "CRITICAL ALERT: An Eclipse World-Eater has warped to coordinates [" .. tx .. ":" .. ty .. "]! 15 minutes to total annihilation!")
+    Server():broadcastChatMessage("Galactic News", 0, "CRITICAL ALERT: An Eclipse World-Eater has warped to coordinates [" .. tx .. ":" .. ty .. "]! 20 minutes to total annihilation!")
     if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "CRITICAL: World-Eater Detected!",
-            content = "A massive Eclipse super-structure has materialized at [" .. tx .. ":" .. ty .. "]. Energy signatures indicate it is charging a weapon capable of obliterating the entire sector. Forces have 15 minutes to intercept.",
+            content = "A massive Eclipse super-structure has materialized at [" .. tx .. ":" .. ty .. "]. Energy signatures indicate it is charging a weapon capable of obliterating the entire sector. Forces have 20 minutes to intercept.",
             category = "Galactic Dread"
         })
     end
@@ -90,7 +90,7 @@ function WorldEaterManager.triggerEvent()
 end
 
 function WorldEaterManager.injectSectorScript(x, y)
-    local timeLeft = WorldEaterManager.activeEvent and WorldEaterManager.activeEvent.timeLeft or 900
+    local timeLeft = WorldEaterManager.activeEvent and WorldEaterManager.activeEvent.timeLeft or 1200
     local code = [[
         function run(timeLeft)
             if not Sector():hasScript("events/ca_world_eater_event.lua") then
@@ -160,18 +160,31 @@ function WorldEaterManager.cancelEvent()
         local px, py = player:getSectorCoordinates()
         if px == tx and py == ty then
             player:receive("Received %1% Credits for destroying the World-Eater!"%_T, reward)
-            player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "stopBossMusic")
+            player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerStopBossMusic")
         end
     end
 end
 callable(WorldEaterManager, "cancelEvent")
 
 function WorldEaterManager.secure()
-    return WorldEaterManager.activeEvent
+    return {
+        activeEvent = WorldEaterManager.activeEvent,
+        timer = WorldEaterManager.timer
+    }
 end
 
 function WorldEaterManager.restore(data)
-    WorldEaterManager.activeEvent = data
+    if data then
+        if data.x then
+            -- Old save format: data itself is the activeEvent
+            WorldEaterManager.activeEvent = data
+            WorldEaterManager.timer = 0
+        else
+            -- New save format
+            WorldEaterManager.activeEvent = data.activeEvent
+            WorldEaterManager.timer = data.timer or 0
+        end
+    end
 end
 
 function getUpdateInterval(...)

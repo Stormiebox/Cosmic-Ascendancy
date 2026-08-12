@@ -64,7 +64,8 @@ function Detonation.updateServer(timeStep)
             if valid(target) and target.factionIndex ~= Detonation.factionIndex and not target.invincible then
                 local dist = distance(target.translationf, pos)
                 if dist <= 1500.0 then
-                    target.durability = math.max(1, target.durability - 250000)
+                    local damage = target.maxDurability * 0.15
+                    target.durability = math.max(1, target.durability - damage)
                 end
             end
         end
