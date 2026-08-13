@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.0.3] - Hotfix
+
+### 🐛 Bug Fix
+
+- [Bugfix] **Eclipse Awakening Failure:** Fixed a critical bug where The Eclipse failed to awaken after defeating the Wormhole Guardian. The core event scripts (`eclipse_awakes.lua` and `ca_expansion_manager.lua`) were missing the mandatory `data/scripts/` root path prefix when being attached to the `Galaxy()` singleton. Because the engine couldn't resolve the relative paths, it silently failed to load the scripts, causing the event listeners to never activate. The script initialization paths have been corrected and will retroactively detect the Guardian's death on existing saves.
+
 ## [v1.0.2] - Patch
 
 ### 🐛 Bug Fix
@@ -40,11 +46,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 ## [v1.0.1] - Patch
 
 ### 🐛 Bug Fix
+
 - [Bugfixed] Fixed an issue where the Rift Hazard anomaly would silently drain non-Eclipse shields without notifying the player. Entering a hazard zone now immediately broadcasts a high-priority UI and chat warning.
 
 ## [v1.0.0] - UNRELEASED WORKSHOP VERSION (PROJECT UNDER DEVELOPMENT)
 
 ### ✨ New Features & 📦 Content Additions
+
 - [Feature] **The World-Eater Boss Fight Overhaul:** The Eclipse World-Eater has been completely reimagined from a static sponge into a dynamic, multi-phase raid boss. It now features massive mechanics based on its Hull Integrity:
   - **Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains 100% invincible, visually tethered to them by massive purple lasers.
   - **Quantum EMP Hazards:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting catastrophic energy damage.
@@ -107,6 +115,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Content] **The Dark Sector:** Added a terrifying new environmental hazard deep within the Galactic Core (Barrier). Jumping into un-generated sectors near the core now carries a 20% risk of dropping you into a permanent Dark Matter Fog field, crawling with heavily guarded Eclipse Citadels and Juggernauts.
 
 ### ⚙️ Changed & ⚖️ Balanced
+
 - [Changed] **Eclipse Faction Architecture Overhaul:** ALL Eclipse ships and the Ascendancy Megastructures have been physically upscaled and mathematically upgraded to Avorion (Tier 6) material. The World-Eater now stands at an imposing 5.9 kilometers in length!
 - [Changed] **Dark Matter Aura (Constant Pressure):** Upon reaching the final 35% HP Enrage Phase, the boss projects a passive, sector-wide necrotic aura that constantly drains the hull and shields of all non-Eclipse entities at a rate of 0.25% Max HP per second.
 - [Changed] **Nemesis Protocol (Adaptive Resistance):** If the boss takes massive damage (5% of its Max HP) from a single damage type within a short window, it engages the Nemesis Protocol, gaining a 90% elemental heal-back resistance to that specific damage type for 60 seconds.
@@ -133,6 +142,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Balanced] **Eclipse World-Eater Hull Scaling:** The World-Eater's physical volume has been scaled natively by 5.0 (yielding a 125x Hull HP boost inherently via Avorion engine physics) ensuring it acts as a true sponge!
 
 ### 🐛 Bug Fixes & 🛠️ Optimization
+
 - [Bugfixed] **World-Eater Physics Crash:** Prevented a hard server crash in the gravity anomaly logic by replacing an invalid `vel:addVelocity` call with proper vector addition (`vel.velocity = vel.velocity + ...`).
 - [Bugfixed] **Permanent Cripple Exploit:** Prevented the World-Eater's black hole from infinitely stacking permanent debuffs on player ships via `addMultiplyableBias`. It now applies a safe, temporary physical dampener.
 - [Bugfixed] **Codex Crash Protection:** Hardened all Ascendancy Codex entries to prevent UI crashes if a registered `[Category]` goes missing.
