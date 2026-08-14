@@ -7,6 +7,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.0.5] - Hotfix
+
+### 🐛 Bug Fix
+
+- [Bugfix] **Flavor Text & Audio Silent Failure:** Fixed a critical cross-script execution failure where the Eclipse Awakening UI banner and audio triggers were silently failing. The bridge functions in the player audio hook were encapsulated inside a namespace table and lacked global wrapper functions, which caused Avorion's `invokeFunction` and `invokeClientFunction` to silently fail when searching the script's global scope.
+- [Bugfix] **Eclipse Ghost Broadcasts:** Fixed a bug where the Eclipse Doomsday broadcast would fire from a non-existent faction. The `eclipse_awakes.lua` script now explicitly instructs the engine to fully generate and register the Eclipse faction in the galaxy database at the exact moment the awakening timer hits zero, ensuring complete database stability for manager scripts.
+
 ## [v1.0.4] - Hotfix
 
 ### 🐛 Bug Fix
@@ -179,4 +186,5 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Bugfixed] **Boss Loot Drops:** Fixed severe API call crash (`dropPort`, `generateWeapon`) in `ca_citadel_loot.lua` that prevented the Citadel from dropping its legendary loot when destroyed. Fixed an exploitable bug where the `World Eater` roaming boss dropped permanently artificially buffed weapons (3x damage, 2x range) directly as raw loot, bypassing the Ascendancy Forge economy entirely.
 
 - [Bugfixed] **VFS Compliance:** Stripped redundant global wrapper functions from namespaced scripts to prevent silent double-execution logic loops and engine crashes.
+
 

@@ -128,6 +128,11 @@ function EclipseAwakes.updateServer(timeStep)
             return
         else
             server:setValue("eclipse_fully_awake", true)
+
+            -- Explicitly generate The Eclipse faction so it exists in the database
+            local EclipseGenerator = include("eclipsegenerator")
+            EclipseGenerator.getFaction()
+
             server:broadcastChatMessage("The Eclipse", 2, "Your ignorance has doomed this galaxy. We are The Eclipse. You will be erased."%_T)
             Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_roaming_boss.lua")
             Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_conquest_manager.lua")

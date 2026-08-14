@@ -54,6 +54,11 @@ callable(CaBossAudioHook, "playBossMusic")
 callable(CaBossAudioHook, "stopBossMusic")
 callable(CaBossAudioHook, "playGuardianFellMusic")
 
+callable(CaBossAudioHook, "triggerGuardianFellMusic")
+callable(CaBossAudioHook, "triggerCinematicBanner")
+callable(CaBossAudioHook, "triggerBossMusic")
+callable(CaBossAudioHook, "triggerStopBossMusic")
+
 -- Server-to-Client Bridge Functions
 function CaBossAudioHook.triggerGuardianFellMusic()
     if onClient() then return end
@@ -77,6 +82,32 @@ end
 
 function initialize(...)
     if CaBossAudioHook.initialize then return CaBossAudioHook.initialize(...) end
+end
+
+function triggerGuardianFellMusic(...)
+    if CaBossAudioHook.triggerGuardianFellMusic then return CaBossAudioHook.triggerGuardianFellMusic(...) end
+end
+function triggerCinematicBanner(...)
+    if CaBossAudioHook.triggerCinematicBanner then return CaBossAudioHook.triggerCinematicBanner(...) end
+end
+function triggerBossMusic(...)
+    if CaBossAudioHook.triggerBossMusic then return CaBossAudioHook.triggerBossMusic(...) end
+end
+function triggerStopBossMusic(...)
+    if CaBossAudioHook.triggerStopBossMusic then return CaBossAudioHook.triggerStopBossMusic(...) end
+end
+
+function showCinematicBanner(...)
+    if CaBossAudioHook.showCinematicBanner then return CaBossAudioHook.showCinematicBanner(...) end
+end
+function playBossMusic(...)
+    if CaBossAudioHook.playBossMusic then return CaBossAudioHook.playBossMusic(...) end
+end
+function stopBossMusic(...)
+    if CaBossAudioHook.stopBossMusic then return CaBossAudioHook.stopBossMusic(...) end
+end
+function playGuardianFellMusic(...)
+    if CaBossAudioHook.playGuardianFellMusic then return CaBossAudioHook.playGuardianFellMusic(...) end
 end
 
 return CaBossAudioHook
