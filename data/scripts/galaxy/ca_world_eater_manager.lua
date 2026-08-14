@@ -14,7 +14,7 @@ function WorldEaterManager.updateServer(timeStep)
     if not Server():getValue("eclipse_fully_awake") then return end
 
     -- Pause the Doomsday clock if no players are online (protects dedicated servers)
-    local players = {Server():getPlayers()}
+    local players = {Server():getOnlinePlayers()}
     if #players == 0 then return end
 
     if WorldEaterManager.activeEvent then
@@ -38,7 +38,7 @@ function WorldEaterManager.updateServer(timeStep)
                 WorldEaterManager.activeEvent.lastWarningInterval = currentInterval
                 local minsLeft = math.ceil(timeLeft / 60)
                 Server():broadcastChatMessage("The Eclipse", 2, "WARNING: Doomsday weapon firing at [" .. tx .. ":" .. ty .. "] in " .. minsLeft .. " minute(s).")
-                for _, p in pairs({Server():getPlayers()}) do
+                for _, p in pairs({Server():getOnlinePlayers()}) do
                     p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
                     p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "DOOMSDAY EVENT - " .. minsLeft .. " MINS", "data/sounds/siren.ogg")
                 end
@@ -46,7 +46,7 @@ function WorldEaterManager.updateServer(timeStep)
         end
 
         -- Check if any player is in the targeted sector to inject the actual boss ship
-        for _, player in pairs({Server():getPlayers()}) do
+        for _, player in pairs({Server():getOnlinePlayers()}) do
             local px, py = player:getSectorCoordinates()
             if px == WorldEaterManager.activeEvent.x and py == WorldEaterManager.activeEvent.y then
                 WorldEaterManager.injectSectorScript(px, py)
@@ -62,7 +62,7 @@ function WorldEaterManager.updateServer(timeStep)
 end
 
 function WorldEaterManager.triggerEvent()
-    local players = {Server():getPlayers()}
+    local players = {Server():getOnlinePlayers()}
     if #players == 0 then return end
 
     local player = players[random():getInt(1, #players)]
@@ -156,7 +156,7 @@ function WorldEaterManager.cancelEvent()
     end
 
     local reward = 50000000
-    for _, player in pairs({Server():getPlayers()}) do
+    for _, player in pairs({Server():getOnlinePlayers()}) do
         local px, py = player:getSectorCoordinates()
         if px == tx and py == ty then
             player:receive("Received %1% Credits for destroying the World-Eater!"%_T, reward)
@@ -202,3 +202,4 @@ end
 function restore(...)
     if WorldEaterManager.restore then return WorldEaterManager.restore(...) end
 end
+

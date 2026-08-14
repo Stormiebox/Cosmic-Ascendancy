@@ -33,7 +33,7 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     local generator = SectorGenerator(x, y)
     
     -- Add Dark Matter Fog (environmental hazard)
-    sector:addScriptOnce("data/scripts/sector/ca_darkmatterfog.lua")
+    sector:addScriptOnce("data/scripts/sector/cv_weather_controller.lua", "DarkMatterFog", -1)
     
     -- Spawn Eclipse Citadels (1-3)
     local EclipseGenerator = include("eclipsegenerator")

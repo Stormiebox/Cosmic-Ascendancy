@@ -52,7 +52,7 @@ function EclipseConquestManager.updateServer(timeStep)
     if not Server():getValue("eclipse_fully_awake") then return end
 
     -- Pause expansion if no players are online (protects 24/7 dedicated servers from offline wipes)
-    local players = {Server():getPlayers()}
+    local players = {Server():getOnlinePlayers()}
     if #players == 0 then return end
 
     EclipseConquestManager.timer = EclipseConquestManager.timer + timeStep
@@ -126,7 +126,7 @@ function EclipseConquestManager.expandEmpire()
             Server():broadcastChatMessage("The Eclipse", 2, "Crusade designated. Sector (" .. tx .. ":" .. ty .. ") has been marked for priority assimilation.")
         else
             -- No AI capitals left, fallback to player hunt
-            local players = {Server():getPlayers()}
+            local players = {Server():getOnlinePlayers()}
             if #players == 0 then return end
             local player = players[random():getInt(1, #players)]
             local knownSectors = {player:getKnownSectors()}
@@ -136,7 +136,7 @@ function EclipseConquestManager.expandEmpire()
         end
     else
         -- Normal Logic: Random player known sector
-        local players = {Server():getPlayers()}
+        local players = {Server():getOnlinePlayers()}
         if #players == 0 then return end
         local player = players[random():getInt(1, #players)]
         local knownSectors = {player:getKnownSectors()}
@@ -230,3 +230,4 @@ end
 function restore(...)
     if EclipseConquestManager.restore then return EclipseConquestManager.restore(...) end
 end
+

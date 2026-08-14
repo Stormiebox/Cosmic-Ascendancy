@@ -7,6 +7,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.0.4] - Hotfix
+
+### 🐛 Bug Fix
+
+- [Bugfix] **Flavor Text & Audio Missing:** Fixed a critical bug where the cinematic banner, music, and warning flavor text failed to display when the Wormhole Guardian was defeated. The global listener was using an invalid engine API (getPlayers()) instead of getOnlinePlayers(), causing the script to crash immediately after detecting the Guardian's death. This resolves the silent failure during the Eclipse awakening sequence.
+- [Bugfix] **Missing Dark Fog Logic:** Fixed a bug where jumping into a Dark Sector in the core attempted to load a non-existent weather script. Dark Sectors will now correctly spawn the Dark Matter Fog environmental hazard using the Vault API.
+- [Codex] **Dark Matter Fog:** Clarified the Codex entry for Dark Matter Fog. It does not deal passive damage-over-time; it solely imposes harsh debuffs on ship sensors and jump drives.
+
 ## [v1.0.3] - Hotfix
 
 ### 🐛 Bug Fix
@@ -171,3 +179,4 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Bugfixed] **Boss Loot Drops:** Fixed severe API call crash (`dropPort`, `generateWeapon`) in `ca_citadel_loot.lua` that prevented the Citadel from dropping its legendary loot when destroyed. Fixed an exploitable bug where the `World Eater` roaming boss dropped permanently artificially buffed weapons (3x damage, 2x range) directly as raw loot, bypassing the Ascendancy Forge economy entirely.
 
 - [Bugfixed] **VFS Compliance:** Stripped redundant global wrapper functions from namespaced scripts to prevent silent double-execution logic loops and engine crashes.
+

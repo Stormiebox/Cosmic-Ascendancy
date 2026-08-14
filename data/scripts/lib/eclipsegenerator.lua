@@ -67,7 +67,7 @@ function EclipseGenerator.getShipVolume(x, y)
     local maxTier = 0
     local cv_buffs = include("cosmicvaultbuffs")
     if cv_buffs.getGlobalTier then
-        for _, p in pairs({Server():getPlayers()}) do
+        for _, p in pairs({Server():getOnlinePlayers()}) do
             local tier = cv_buffs.getGlobalTier(p.index)
             if tier > maxTier then maxTier = tier end
         end
@@ -334,3 +334,4 @@ function EclipseGenerator.createStation(position)
 end
 
 return EclipseGenerator
+

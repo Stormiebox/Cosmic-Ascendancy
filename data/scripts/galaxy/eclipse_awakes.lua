@@ -72,7 +72,7 @@ function EclipseAwakes.updateServer(timeStep)
         -- OR fallback to checking online players (for retro-active activation on old saves)
         local guardianKilled = server:getValue("guardian_respawn_time") ~= nil
         if not guardianKilled then
-            for _, player in pairs({server:getPlayers()}) do
+            for _, player in pairs({server:getOnlinePlayers()}) do
                 if player:getValue("wormhole_guardian_destroyed") then
                     guardianKilled = true
                     break
@@ -85,7 +85,7 @@ function EclipseAwakes.updateServer(timeStep)
             -- NO LONGER SET eclipse_awaken_time as a Server Value
             EclipseAwakes.awakenTimer = 0
             server:broadcastChatMessage("Server", 2, "An ominous shudder ripples through the fabric of subspace... The Guardian's death has broken an ancient seal."%_T)
-            for _, p in pairs({server:getPlayers()}) do
+            for _, p in pairs({server:getOnlinePlayers()}) do
                 p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
                 p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "THE ECLIPSE AWAKENS", "data/sounds/siren.ogg")
             end
@@ -101,7 +101,7 @@ function EclipseAwakes.updateServer(timeStep)
             -- 15 seconds in (585 secs remaining) - Trigger the Forge the Ascendant OST
             if timeRemaining <= (10 * 60) - 15 and not server:getValue("eclipse_music_triggered") then
                 server:setValue("eclipse_music_triggered", true)
-                for _, p in pairs({server:getPlayers()}) do
+                for _, p in pairs({server:getOnlinePlayers()}) do
                     p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
                     p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerGuardianFellMusic")
                 end
@@ -111,7 +111,7 @@ function EclipseAwakes.updateServer(timeStep)
             if timeRemaining <= 7 * 60 and not server:getValue("eclipse_warning_1") then
                 server:setValue("eclipse_warning_1", true)
                 server:broadcastChatMessage("Server", 3, "WARNING: Massive hyperspace anomalies detected across all sectors. Something ancient is waking up."%_T)
-                for _, p in pairs({server:getPlayers()}) do
+                for _, p in pairs({server:getOnlinePlayers()}) do
                     p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
                     p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "MASSIVE HYPERSPACE ANOMALY", "data/sounds/siren.ogg")
                 end
@@ -120,7 +120,7 @@ function EclipseAwakes.updateServer(timeStep)
             if timeRemaining <= 2 * 60 and not server:getValue("eclipse_warning_2") then
                 server:setValue("eclipse_warning_2", true)
                 server:broadcastChatMessage("Server", 3, "CRITICAL WARNING: The anomalies are stabilizing into jump signatures. Black Avorion reading off the charts!"%_T)
-                for _, p in pairs({server:getPlayers()}) do
+                for _, p in pairs({server:getOnlinePlayers()}) do
                     p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
                     p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "BLACK AVORION SIGNATURES DETECTED", "data/sounds/siren.ogg")
                 end
@@ -154,7 +154,7 @@ end
 
 function EclipseAwakes.triggerInvasion()
     -- This is now handled globally by eclipse_conquest_manager.lua, but we still trigger personal player ambushes here
-    local players = {Server():getPlayers()}
+    local players = {Server():getOnlinePlayers()}
     for _, player in pairs(players) do
         -- 40% chance to personally ambush a player in their sector
         if random():getFloat(0, 1) < 0.4 then
@@ -203,3 +203,4 @@ end
 function onSectorGenerated(...)
     if EclipseAwakes.onSectorGenerated then return EclipseAwakes.onSectorGenerated(...) end
 end
+
