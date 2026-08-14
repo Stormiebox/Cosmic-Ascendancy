@@ -7,6 +7,16 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.0.6] - Hotfix
+
+### ⚙️ System
+
+- [Optimization] **Server Save Bloat:** Radically restructured how Eclipse Strongholds are flagged during galaxy generation. The generator now natively injects a localized sector script token instead of saving thousands of coordinate flags to the global `Server()` database. This permanently prevents massive save-file bloat and memory leaks on dedicated servers spanning long playthroughs.
+
+### ⚖️ Balance
+
+- [Balance] **Harbinger Re-Tune:** Reduced the Shield Durability Multiplier on Eclipse Harbingers from +3750% to +1000% to ensure that the Eclipse World-Eater Raid Boss properly retains its crown as the supreme flagship of the Ascendant fleets.
+
 ## [v1.0.5] - Hotfix
 
 ### 🐛 Bug Fix

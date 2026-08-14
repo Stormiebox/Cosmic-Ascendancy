@@ -168,7 +168,7 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
     
     -- If it's a Harbinger, inject Ascendant Multipliers
     if planType == "obelisk" then
-        ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 37.5) -- +3750% Shields
+        ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 10.0) -- +1000% Shields (Nerfed to preserve World-Eater supremacy)
         EclipseGenerator.applyDamageMultiplier(ship, 10.0) -- +1000% Damage (compensated for lost turrets)
         ship:addMultiplyableBias(StatsBonuses.FireRate, 1.0) -- +100% Fire Rate
         ship:addScriptOnce("entity/eclipse_boss_scaling.lua")

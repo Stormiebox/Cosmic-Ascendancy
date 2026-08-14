@@ -56,10 +56,14 @@ function EclipseAwakes.onSectorGenerated(x, y, regular)
     end
 
     if random:getFloat() < chance then
-        -- Flag coordinates globally instead of spawning stations immediately. 
-        -- `onSectorGenerated` lacks a physical sector instance context, so `ascendancyplayer.lua` 
-        -- handles the physical spawning when a player jumps in.
-        Server():setValue("eclipse_stronghold_" .. x .. "_" .. y, true)
+        -- Inject local Sector flag to avoid global server.xml bloat.
+        -- `onSectorGenerated` lacks a physical sector instance context, so `runSectorCode` safely queues it.
+        local code = [[
+            function run()
+                Sector():setValue("is_eclipse_stronghold", true)
+            end
+        ]]
+        runSectorCode(x, y, true, code, "run")
     end
 end
 

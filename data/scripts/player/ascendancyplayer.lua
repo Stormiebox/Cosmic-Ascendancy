@@ -49,15 +49,14 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
     end
 
     -- Spawn Eclipse Strongholds safely. 
-    -- The galaxy generation scripts flag coordinates globally; when a player jumps in, 
+    -- The galaxy generation scripts flag coordinates locally on the sector thread; when a player jumps in, 
     -- this script reads the flag and handles the physical entity spawning to avoid context crashes.
     if onServer() then
-        if Server():getValue("eclipse_stronghold_" .. x .. "_" .. y) then
-            local sector = Sector()
-            if not sector:getValue("eclipse_stronghold_spawned") then
-                sector:setValue("eclipse_stronghold_spawned", true)
-                local EclipseGenerator = include("eclipsegenerator")
-                local station = EclipseGenerator.createStation(Matrix())
+        local sector = Sector()
+        if sector:getValue("is_eclipse_stronghold") and not sector:getValue("eclipse_stronghold_spawned") then
+            sector:setValue("eclipse_stronghold_spawned", true)
+            local EclipseGenerator = include("eclipsegenerator")
+            local station = EclipseGenerator.createStation(Matrix())
                 
                 local defenderTypes = {"pyramid", "voidweaver", "phantom", "singularity", "juggernaut", "interceptor", "harvester", "defiler"}
                 for i = 1, 4 do
@@ -89,10 +88,7 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
                         defender:addScriptOnce("ai/patrol.lua")
                     end
                 end
-                
-                sector:setValue("is_eclipse_stronghold", true)
             end
-        end
         
 
         
