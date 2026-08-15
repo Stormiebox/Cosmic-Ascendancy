@@ -7,7 +7,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
-## [v1.0.6] - Hotfix
+## [v1.1.0] - Gameplay & Fixes
 
 ### ✨ Features & UI
 
