@@ -31,12 +31,12 @@ end
 function onInstalled(seed, rarity, permanent)
     local armed, unarmed, squads, energy, speed, jump = getBonuses(seed, rarity, permanent)
 
-    addMultiplyableBias(StatsBonuses.ArmedTurrets, armed)
-    addMultiplyableBias(StatsBonuses.UnarmedTurrets, unarmed)
-    addMultiplyableBias(StatsBonuses.FighterSquads, squads)
-    addMultiplier(StatsBonuses.GeneratedEnergy, 1.0 + energy)
-    addMultiplier(StatsBonuses.Velocity, 1.0 + speed)
-    addBaseMultiplier(StatsBonuses.HyperspaceReach, jump)
+    addAbsoluteBias(StatsBonuses.ArmedTurrets, armed)
+    addAbsoluteBias(StatsBonuses.UnarmedTurrets, unarmed)
+    addAbsoluteBias(StatsBonuses.FighterSquads, squads)
+    addBaseMultiplier(StatsBonuses.GeneratedEnergy, energy)
+    addBaseMultiplier(StatsBonuses.Velocity, speed)
+    addAbsoluteBias(StatsBonuses.HyperspaceReach, jump)
 end
 
 function onUninstalled(seed, rarity, permanent)
@@ -48,7 +48,7 @@ function getName(seed, rarity)
 end
 
 function getIcon(seed, rarity)
-    return "data/textures/icons/circuitry.png"
+    return "data/textures/icons/AscendantImplant.png"
 end
 
 function getPrice(seed, rarity)
@@ -63,7 +63,7 @@ function getTooltipLines(seed, rarity, permanent)
     table.insert(texts, {ltext = "Unarmed Turrets"%_t, rtext = string.format("%+d", unarmed), icon = "data/textures/icons/turret.png"})
     table.insert(texts, {ltext = "Fighter Squadrons"%_t, rtext = string.format("%+d", squads), icon = "data/textures/icons/fighter.png"})
     table.insert(texts, {ltext = "Generated Energy"%_t, rtext = string.format("%+d%%", math.floor(energy * 100)), icon = "data/textures/icons/electric.png"})
-    table.insert(texts, {ltext = "Max Velocity"%_t, rtext = string.format("%+d%%", math.floor(speed * 100)), icon = "data/textures/icons/up-wood.png"})
+    table.insert(texts, {ltext = "Max Velocity"%_t, rtext = string.format("%+d%%", math.floor(speed * 100)), icon = "data/textures/icons/acceleration.png"})
     table.insert(texts, {ltext = "Jump Reach"%_t, rtext = string.format("%+d", jump), icon = "data/textures/icons/stars-stack.png"})
 
     if not permanent then

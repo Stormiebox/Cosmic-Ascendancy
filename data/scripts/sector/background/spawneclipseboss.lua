@@ -33,7 +33,7 @@ function SpawnEclipseBoss.createBoss()
     local ugen = UpgradeGenerator()
     -- Must pass actual sector coordinates so pre-loaded loot scales to the correct material tier.
     local cx, cy = sector:getCoordinates()
-    local tgen = SectorTurretGenerator(cx, cy)
+    local tgen = SectorTurretGenerator(Sector().seed)
 
     for i = 1, 25 do
         -- Generate and insert a legendary upgrade into the boss's loot pool
@@ -61,8 +61,14 @@ function SpawnEclipseBoss.finish()
     local x, y = sector:getCoordinates()
 
     if random():getFloat() < 0.1 then
-        local generator = SectorGenerator(x, y)
-        local wormhole = generator:createWormhole(random():getInt(-500, 500), random():getInt(-500, 500), ColorRGB(0, 0, 0), 100)
+        local desc = WormholeDescriptor()
+        desc.position = MatrixLookUpPosition(vec3(0, 1, 0), vec3(1, 0, 0), vec3(random():getInt(-500, 500), random():getInt(-500, 500), random():getInt(-500, 500)))
+        local wormholeComponent = desc:getComponent(ComponentType.WormHole)
+        wormholeComponent:setTargetCoordinates(random():getInt(-400, 400), random():getInt(-400, 400))
+        wormholeComponent.visible = true
+        wormholeComponent.visualSize = 100
+        sector:createEntity(desc)
+
         Server():broadcastChatMessage("System"%_T, 1, "The World Eater has left a dimensional tear in sector \\s(%1%:%2%)!"%_T, x, y)
     else
         Server():broadcastChatMessage("System"%_T, 1, "The World Eater has vanished from sector \\s(%1%:%2%), leaving only dust."%_T, x, y)

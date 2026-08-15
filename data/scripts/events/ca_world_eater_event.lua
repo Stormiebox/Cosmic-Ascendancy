@@ -11,6 +11,11 @@ function WorldEaterEvent.initialize(timeLeft)
     local mat = MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), vec3(10000, 5000, -10000))
     local ship = EclipseGenerator.createWorldEater(mat)
 
+    if not valid(ship) then 
+        WorldEaterEvent.onWorldEaterDestroyed()
+        return 
+    end
+
     -- Spawn the Royal Escort Fleet
     local dir = mat.look
     local right = mat.right

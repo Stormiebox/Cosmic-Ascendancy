@@ -6,7 +6,6 @@ include("randomext")
 function initialize()
     if onServer() then
         Sector():registerCallback("onPlayerEntered", "onPlayerEntered")
-        deferredCallback(1.0, "updateServer", 1.0)
     end
 end
 
@@ -21,7 +20,7 @@ function onPlayerEntered(playerIndex)
     -- Only warn if the player's craft is vulnerable to the anomaly
     if not craft or craft.factionIndex ~= eclipseIndex then
         player:sendChatMessage("Rift Hazard", 2, "WARNING: Navigational hazard detected! Shields are actively draining.")
-        player:sendChatMessage("Rift Hazard", 3, "WARNING: Navigational hazard detected! Shields are actively draining.")
+        player:sendChatMessage("", 1, "WARNING: Navigational hazard detected! Shields are actively draining.")
     end
 end
 
@@ -54,10 +53,12 @@ function updateServer(timeStep)
 
     local entities = {sector:getEntitiesByType(EntityType.Ship)}
     for _, entity in pairs(entities) do
-        if entity.factionIndex ~= eclipseIndex then
-            if entity.shieldMaxDurability and entity.shieldMaxDurability > 0 then
-                local drain = entity.shieldMaxDurability * 0.05
-                entity.shieldDurability = math.max(0, entity.shieldDurability - drain)
+        if valid(entity) and entity.factionIndex ~= eclipseIndex then
+            local maxShield = entity.shieldMaxDurability or 0
+            if maxShield > 0 then
+                local drain = maxShield * 0.05
+                -- Properly use inflictDamage for environmental drain (DamageSource 1 = environmental/unknown)
+                entity:inflictDamage(drain, 1, DamageType.Energy, entity.translationf, entity.id)
             end
         end
     end

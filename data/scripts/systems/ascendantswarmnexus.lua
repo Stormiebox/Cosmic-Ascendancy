@@ -14,23 +14,23 @@ end
 
 function applyDynamicBuffs()
     removeDynamicBuffs()
-    
+
     local entity = Entity()
     if not entity then return end
-    
+
     local finalMultiplier = 1.0
     if cv_buffs and type(cv_buffs.getDynamicRelicMultiplier) == "function" then
         finalMultiplier = cv_buffs.getDynamicRelicMultiplier(entity.id)
     end
-    
+
     -- In Avorion, fighter damage cannot be modified via StatsBonuses.
     -- Instead, this subsystem maxes out Carrier capabilities and production.
     entity:addAbsoluteBias(StatsBonuses.FighterSquads, 10)
     entity:addAbsoluteBias(StatsBonuses.Pilots, 120)
     entity:addAbsoluteBias(StatsBonuses.FighterCargoPickup, 1)
-    
+
     -- Base capacity of 50,000 multiplied dynamically
-    entity:addMultiplyableBias(StatsBonuses.ProductionCapacity, 50000 * finalMultiplier)
+    entity:addAbsoluteBias(StatsBonuses.ProductionCapacity, 50000 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
@@ -64,7 +64,7 @@ function getName(seed, rarity)
 end
 
 function getIcon(seed, rarity)
-    return "data/textures/icons/fighter.png"
+    return "data/textures/icons/AscendantSwarm.png"
 end
 
 function getEnergy(seed, rarity)
@@ -81,11 +81,11 @@ function getTooltipLines(seed, rarity, permanent)
     table.insert(texts, {ltext = "Base Pilots"%_t, rtext = "+120", icon = "data/textures/icons/crew.png", boosted = false})
     table.insert(texts, {ltext = "Fighter Cargo Pickup"%_t, rtext = "Yes", icon = "data/textures/icons/fighter.png", boosted = false})
     table.insert(texts, {ltext = "Base Production Speed"%_t, rtext = "+50000", icon = "data/textures/icons/gears.png", boosted = false})
-    
+
     table.insert(texts, {ltext = "", rtext = "", icon = ""})
     table.insert(texts, {ltext = "\\c(e44)LIVING RELIC\\c()"%_t, rtext = "", icon = ""})
     table.insert(texts, {ltext = "Production scales dynamically with"%_t, rtext = "", icon = ""})
     table.insert(texts, {ltext = "Core Proximity & War Heat!"%_t, rtext = "", icon = ""})
-    
+
     return texts
 end

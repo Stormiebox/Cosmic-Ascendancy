@@ -53,10 +53,13 @@ function WorldEaterManager.updateServer(timeStep)
             end
         end
     else
-        WorldEaterManager.timer = WorldEaterManager.timer + timeStep
-        if WorldEaterManager.timer > random():getInt(10800, 18000) then -- 3 to 5 hours
-            WorldEaterManager.timer = 0
-            WorldEaterManager.triggerEvent()
+        local graceEnd = Server():getValue("eclipse_world_eater_grace_end") or 0
+        if Server().unpausedRuntime > graceEnd then
+            WorldEaterManager.timer = WorldEaterManager.timer + timeStep
+            if WorldEaterManager.timer > random():getInt(10800, 18000) then -- 3 to 5 hours
+                WorldEaterManager.timer = 0
+                WorldEaterManager.triggerEvent()
+            end
         end
     end
 end
@@ -105,6 +108,7 @@ function WorldEaterManager.executeDoomsday()
     local tx = WorldEaterManager.activeEvent.x
     local ty = WorldEaterManager.activeEvent.y
     WorldEaterManager.activeEvent = nil
+    Server():setValue("eclipse_world_eater_grace_end", Server().unpausedRuntime + 36000)
 
     local EclipseGenerator = include("eclipsegenerator")
     local eclipseFaction = EclipseGenerator.getFaction()
@@ -121,10 +125,9 @@ function WorldEaterManager.executeDoomsday()
 
     local CosmicVaultEconomy = include("cosmicvaulteconomy")
     if CosmicVaultEconomy then
-        for _, faction in pairs({Galaxy():getFactions()}) do
-            if faction.isAIFaction then
-                CosmicVaultEconomy.addFamineScore(faction.index, 250)
-            end
+        local nearestFaction = Galaxy():getNearestFaction(tx, ty)
+        if nearestFaction and nearestFaction.isAIFaction then
+            CosmicVaultEconomy.addFamineScore(nearestFaction.index, 250)
         end
         CosmicVaultEconomy.TriggerMarketEvent("All", 0, -50, 10, "crash")
     end
@@ -145,12 +148,13 @@ function WorldEaterManager.cancelEvent()
     if not WorldEaterManager.activeEvent then return end
     local tx, ty = WorldEaterManager.activeEvent.x, WorldEaterManager.activeEvent.y
     WorldEaterManager.activeEvent = nil
-    Server():broadcastChatMessage("Galactic News", 0, "The World-Eater has been destroyed! The sector is safe.")
+    Server():setValue("eclipse_world_eater_grace_end", Server().unpausedRuntime + 36000)
+    Server():broadcastChatMessage("Galactic News", 0, "The World-Eater has been destroyed! The galaxy enters a 10-hour Grace Period.")
 
     if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "World-Eater Destroyed!",
-            content = "Heroic forces have obliterated the Eclipse World-Eater, preventing the destruction of the sector.",
+            content = "Heroic forces have obliterated the Eclipse World-Eater, preventing the destruction of the sector. The Eclipse has retreated, granting the galaxy a 10-hour Grace Period.",
             category = "Heroic Victories"
         })
     end

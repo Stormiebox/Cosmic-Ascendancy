@@ -15,14 +15,19 @@ function AscendancyPlayer.initialize()
     end
 end
 
-local function applyToEntity(entityId)
+local function applyToEntity(entityId, playerIndex)
     local entity = Entity(entityId)
     if not entity then return end
 
+    if entity.type ~= EntityType.Ship and entity.type ~= EntityType.Station then return end
+
+    local p = Player(playerIndex)
+    if not p then return end
+
     -- Apply to ships/stations owned by the player, OR their alliance!
     local ownerIndex = entity.factionIndex
-    if ownerIndex ~= Player().index then
-        local allianceIndex = Player().allianceIndex
+    if ownerIndex ~= p.index then
+        local allianceIndex = p.allianceIndex
         if not allianceIndex or ownerIndex ~= allianceIndex then return end
     end
 
@@ -45,14 +50,33 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
     end
 
     for _, entity in pairs(entities) do
-        applyToEntity(entity.id)
+        applyToEntity(entity.id, playerIndex)
     end
 
     -- Spawn Eclipse Strongholds safely. 
-    -- The galaxy generation scripts flag coordinates locally on the sector thread; when a player jumps in, 
-    -- this script reads the flag and handles the physical entity spawning to avoid context crashes.
+    -- We dynamically roll the Stronghold flag on first player entry to bypass impossible Server() generation hooks
     if onServer() then
         local sector = Sector()
+        
+        if Server():getValue("eclipse_fully_awake") and not sector:getValue("eclipse_stronghold_rolled") then
+            sector:setValue("eclipse_stronghold_rolled", true)
+            
+            local SectorSpecifics = include("sectorspecifics")
+            local specs = SectorSpecifics(x, y, Server().seed)
+            if specs.regular then
+                local dist = math.sqrt(x*x + y*y)
+                local rand = Random(Seed(Server().seed + x + y))
+                local chance = 0.0
+                if dist <= 75 then chance = 0.50
+                elseif dist <= 150 then chance = 0.25
+                else chance = rand:getFloat(0.05, 0.15) end
+                
+                if rand:getFloat() < chance then
+                    sector:setValue("is_eclipse_stronghold", true)
+                end
+            end
+        end
+
         if sector:getValue("is_eclipse_stronghold") and not sector:getValue("eclipse_stronghold_spawned") then
             sector:setValue("eclipse_stronghold_spawned", true)
             local EclipseGenerator = include("eclipsegenerator")
@@ -101,5 +125,5 @@ end
 
 
 function AscendancyPlayer.onShipChanged(playerIndex, craftId)
-    applyToEntity(craftId)
+    applyToEntity(craftId, playerIndex)
 end

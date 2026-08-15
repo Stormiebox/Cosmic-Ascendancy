@@ -17,6 +17,8 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     if onClient() then return end
     
     local sector = Sector()
+    if not sector then return end
+    
     -- Only generate in regular sectors that haven't been visited/generated yet
     if sector.numEntities > 0 then return end
     
@@ -49,15 +51,21 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     
     -- Spawn heavily guarded Eclipse Fleets
     local numFleets = random():getInt(2, 4)
+    local spawnedFleets = {}
     for i = 1, numFleets do
         local pos = generator:createPositionInSector(1500)
-        EclipseGenerator.createJuggernaut(pos)
-        EclipseGenerator.createArtillery(pos)
-        EclipseGenerator.createAssassin(pos)
+        table.insert(spawnedFleets, EclipseGenerator.createJuggernaut(pos))
+        table.insert(spawnedFleets, EclipseGenerator.createArtillery(pos))
+        table.insert(spawnedFleets, EclipseGenerator.createAssassin(pos))
+    end
+    
+    local Placer = include("placer")
+    if Placer and Placer.resolveIntersections then
+        Placer.resolveIntersections(spawnedFleets)
     end
     
     -- Spawn dense resource asteroids (Ascendant Matter / Ogonite)
     generator:createAsteroidField(0.1)
     
-    Player():sendChatMessage("WARNING", 1, "WARNING! You have entered an Eclipse Dark Sector. Extreme Dark Matter Fog detected."%_t)
+    Player(playerIndex):sendChatMessage("WARNING", 1, "WARNING! You have entered an Eclipse Dark Sector. Extreme Dark Matter Fog detected."%_t)
 end

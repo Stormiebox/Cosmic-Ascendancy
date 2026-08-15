@@ -11,7 +11,6 @@ end
 
 function EclipseAwakes.initialize()
     local server = Server()
-    server:registerCallback("onSectorGenerated", "onSectorGenerated")
     
     local cv_dialogue = include("cosmicvaultdialogue")
     if cv_dialogue then
@@ -33,39 +32,7 @@ function EclipseAwakes.initialize()
     end
 end
 
-function EclipseAwakes.onSectorGenerated(x, y, regular)
-    if not regular then return end
 
-    local server = Server()
-    if not server:getValue("eclipse_fully_awake") then return end
-
-    local dist = math.sqrt(x*x + y*y)
-    local seed = server.seed
-    local random = Random(Seed(seed + x + y))
-
-    local chance = 0.0
-    if dist <= 75 then
-        -- 1/3rd of the inner core
-        chance = 0.50
-    elseif dist <= 150 then
-        -- Further inside the core
-        chance = 0.25
-    else
-        -- 5% to 15% for the rest of the galaxy
-        chance = random:getFloat(0.05, 0.15)
-    end
-
-    if random:getFloat() < chance then
-        -- Inject local Sector flag to avoid global server.xml bloat.
-        -- `onSectorGenerated` lacks a physical sector instance context, so `runSectorCode` safely queues it.
-        local code = [[
-            function run()
-                Sector():setValue("is_eclipse_stronghold", true)
-            end
-        ]]
-        runSectorCode(x, y, true, code, "run")
-    end
-end
 
 function EclipseAwakes.updateServer(timeStep)
     local server = Server()
@@ -208,8 +175,4 @@ function restore(...)
     if EclipseAwakes.restore then return EclipseAwakes.restore(...) end
 end
 
--- Global Event Callbacks
-function onSectorGenerated(...)
-    if EclipseAwakes.onSectorGenerated then return EclipseAwakes.onSectorGenerated(...) end
-end
 

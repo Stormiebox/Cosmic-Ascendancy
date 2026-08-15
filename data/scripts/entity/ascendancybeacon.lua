@@ -327,8 +327,8 @@ function AscendancyBeacon.updateServer(timeStep)
 
             -- Payout Treasury: transfer accumulated toll revenue to the beacon owner
             if AscendancyBeacon.treasury and AscendancyBeacon.treasury > 0 then
-                -- receive(msg, amount) is a valid Faction API (confirmed in merchantutility.lua:37)
-                owner:receive("Ascendancy Beacon Grand Toll Payout"%_t, AscendancyBeacon.treasury)
+                -- Avoid Faction:receive overload crash
+                owner.money = owner.money + AscendancyBeacon.treasury
                 owner:sendChatMessage("Beacon"%_t, 3, "Grand Toll Treasury Payout: %1% Credits received.", createMonetaryString(AscendancyBeacon.treasury))
                 AscendancyBeacon.treasury = 0
             end
@@ -430,3 +430,25 @@ function AscendancyBeacon.restore(data)
     nextSiegeInterval = data.nextSiegeInterval or random():getInt(3, 6) * 3600
     AscendancyBeacon.treasury = data.treasury or 0
 end
+
+-- Global Engine Callbacks & API Wrappers
+function initialize(...) if AscendancyBeacon.initialize then return AscendancyBeacon.initialize(...) end end
+function interactionPossible(...) if AscendancyBeacon.interactionPossible then return AscendancyBeacon.interactionPossible(...) end end
+function getIcon(...) if AscendancyBeacon.getIcon then return AscendancyBeacon.getIcon(...) end end
+function initUI(...) if AscendancyBeacon.initUI then return AscendancyBeacon.initUI(...) end end
+function onShowWindow(...) if AscendancyBeacon.onShowWindow then return AscendancyBeacon.onShowWindow(...) end end
+function getUpdateInterval(...) if AscendancyBeacon.getUpdateInterval then return AscendancyBeacon.getUpdateInterval(...) end end
+function updateServer(...) if AscendancyBeacon.updateServer then return AscendancyBeacon.updateServer(...) end end
+function secure(...) if AscendancyBeacon.secure then return AscendancyBeacon.secure(...) end end
+function restore(...) if AscendancyBeacon.restore then return AscendancyBeacon.restore(...) end end
+function onDestroyed(...) if AscendancyBeacon.onDestroyed then return AscendancyBeacon.onDestroyed(...) end end
+function onEntityEntered(...) if AscendancyBeacon.onEntityEntered then return AscendancyBeacon.onEntityEntered(...) end end
+function onTogglePressed(...) if AscendancyBeacon.onTogglePressed then return AscendancyBeacon.onTogglePressed(...) end end
+function onUpgradePressed(...) if AscendancyBeacon.onUpgradePressed then return AscendancyBeacon.onUpgradePressed(...) end end
+
+-- RPC Client/Server Wrappers
+function toggleBeacon(...) if AscendancyBeacon.toggleBeacon then return AscendancyBeacon.toggleBeacon(...) end end
+function upgradeTier(...) if AscendancyBeacon.upgradeTier then return AscendancyBeacon.upgradeTier(...) end end
+function sync(...) if AscendancyBeacon.sync then return AscendancyBeacon.sync(...) end end
+function syncCosts(...) if AscendancyBeacon.syncCosts then return AscendancyBeacon.syncCosts(...) end end
+function receiveCosts(...) if AscendancyBeacon.receiveCosts then return AscendancyBeacon.receiveCosts(...) end end

@@ -69,16 +69,15 @@ function StationOverdrive.activateOverdrive()
     -- Use Server().unpausedRuntime instead so the 1-hour timer only ticks during active gameplay.
     overdriveEndTime = Server().unpausedRuntime + OVERDRIVE_DURATION
 
-    -- The correct method is addMultiplyableBias, which adds a stacking bias to the multiplier pool.
-    -- A bias of 2.0 adds +200% on top of base = effective 3x production capacity.
-    entity:addMultiplyableBias(StatsBonuses.ProductionCapacity, 2.0)
+    -- The correct method is addBaseMultiplier, which multiplies the base capacity.
+    entity:addBaseMultiplier(StatsBonuses.ProductionCapacity, 2.0)
 
     owner:sendChatMessage("Overdrive"%_t, 0, "Ascendant Overdrive engaged! Production speed tripled for 1 hour."%_t)
     
     -- Send sync
     StationOverdrive.sync()
 end
-callable(StationOverdrive, "activateOverdrive")
+callable(nil, "activateOverdrive")
 
 function StationOverdrive.getUpdateInterval()
     return 10
@@ -138,7 +137,7 @@ function StationOverdrive.sync(data)
         end
     end
 end
-callable(StationOverdrive, "sync")
+callable(nil, "sync")
 
 function StationOverdrive.secure()
     return {
@@ -157,7 +156,7 @@ function StationOverdrive.restore(data)
         -- We must first strip the saved bias from the database before re-adding.
         local entity = Entity()
         entity:removeScriptBonuses()
-        entity:addMultiplyableBias(StatsBonuses.ProductionCapacity, 2.0)
+        entity:addBaseMultiplier(StatsBonuses.ProductionCapacity, 2.0)
     end
 end
 

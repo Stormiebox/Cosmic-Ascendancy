@@ -24,5 +24,5 @@ function initialize()
         
         local entity = Entity()
         -- Apply DPS scaling correctly via engine API (using FireRate as a DPS multiplier)
-        entity:addMultiplyableBias(StatsBonuses.FireRate, damageFactor - 1.0)
+        entity:addBaseMultiplier(StatsBonuses.FireRate, damageFactor - 1.0)
 end

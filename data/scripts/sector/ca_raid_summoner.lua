@@ -39,13 +39,23 @@ function onEntityCreated(entityId)
                 
                 -- Spawn the World Eater
                 local pos = MatrixLookUpPosition(vec3(0,0,1), vec3(0,1,0), vec3(0, 0, 0))
-                -- The boss will jump in from hyperspace
+                -- The boss will jump in from hyperspace natively via EntityArrivalType.Jump inside createWorldEater.
+                -- Do NOT call createHyperspaceJumpAnimation here, as that forces an EXIT animation.
                 local boss = EclipseGenerator.createWorldEater(pos)
                 if boss then
-                    sector:createHyperspaceJumpAnimation(boss, boss.look, ColorRGB(0.5, 0.0, 1.0), 1.0)
                     sector:broadcastChatMessage(boss.title, 2, "WHO DARES DISTURB THE VOID.")
                 end
             end
         end
+    end
+end
+
+function secure()
+    return {spawnedRaid = spawnedRaid}
+end
+
+function restore(data)
+    if data then
+        spawnedRaid = data.spawnedRaid or false
     end
 end

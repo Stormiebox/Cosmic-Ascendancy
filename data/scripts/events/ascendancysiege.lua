@@ -31,8 +31,9 @@ function AscendancySiege.initialize(t, ownerIndex)
     if cw_bridge.getFactionWarHeat then
         local factions = {Sector():getPresentFactions()}
         local warFaction = nil
-        for _, f in pairs(factions) do
-            if f.isAIFaction and f:getRelations(targetFactionIndex) < -40000 then
+        for _, fIndex in pairs(factions) do
+            local f = Faction(fIndex)
+            if f and f.isAIFaction and f:getRelations(targetFactionIndex) < -40000 then
                 warFaction = f
                 break
             end
@@ -182,9 +183,9 @@ function AscendancySiege.onVictory()
     -- Spawn massive loot explosion at sector center
     -- Also, UpgradeGenerator:generate(x,y,seed,rarity) is a TurretGenerator signature;
     -- the correct UpgradeGenerator method is :generateSystem(rarity).
-    local TurretGenerator = include("turretgenerator")
+    local SectorTurretGenerator = include("sectorturretgenerator")
     local UpgradeGenerator = include("upgradegenerator")
-    local turretGen = TurretGenerator(x, y)          -- Pass sector coords for correct material tier
+    local turretGen = SectorTurretGenerator(Sector().seed)          -- Use correct object constructor
     local upgradeGen = UpgradeGenerator()
     local lootRarity = Rarity(math.min(5, tier + 1)) -- Cap at Exotic (5) rarity
     local lootPos = vec3(0, 0, 0)                    -- Drop at sector center
@@ -196,7 +197,7 @@ function AscendancySiege.onVictory()
     local owner = Faction(targetFactionIndex)
     if owner then
         -- Reward the defending faction for surviving the siege
-        owner:receive("Ascendant Siege Defense Reward"%_t, tier * 2500000)
+        owner.money = owner.money + (tier * 2500000)
     end
 
     terminate()

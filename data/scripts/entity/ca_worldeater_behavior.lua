@@ -550,3 +550,18 @@ function CAWorldEater.onDamaged(objectIndex, amount, inflictor, damageSource, da
         end
     end
 end
+
+-- Global Engine Callbacks & RPC Wrappers
+function initialize(...) if CAWorldEater.initialize then return CAWorldEater.initialize(...) end end
+function getUpdateInterval(...) if CAWorldEater.getUpdateInterval then return CAWorldEater.getUpdateInterval(...) end end
+function updateServer(...) if CAWorldEater.updateServer then return CAWorldEater.updateServer(...) end end
+function updateClient(...) if CAWorldEater.updateClient then return CAWorldEater.updateClient(...) end end
+function secure(...) if CAWorldEater.secure then return CAWorldEater.secure(...) end end
+function restore(...) if CAWorldEater.restore then return CAWorldEater.restore(...) end end
+function onDestroyed(...) if CAWorldEater.onDestroyed then return CAWorldEater.onDestroyed(...) end end
+function onDamaged(...) if CAWorldEater.onDamaged then return CAWorldEater.onDamaged(...) end end
+function syncLasers(...) if CAWorldEater.syncLasers then return CAWorldEater.syncLasers(...) end end
+function createEmpGlow(...) if CAWorldEater.createEmpGlow then return CAWorldEater.createEmpGlow(...) end end
+function createAnomalyGlow(...) if CAWorldEater.createAnomalyGlow then return CAWorldEater.createAnomalyGlow(...) end end
+function createTargetLaserGlow(...) if CAWorldEater.createTargetLaserGlow then return CAWorldEater.createTargetLaserGlow(...) end end
+function createGlobalEmpGlow(...) if CAWorldEater.createGlobalEmpGlow then return CAWorldEater.createGlobalEmpGlow(...) end end

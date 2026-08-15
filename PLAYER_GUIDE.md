@@ -52,6 +52,7 @@ Every 3 to 5 hours of active playtime, the Eclipse will launch a **World-Eater**
     - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 5% of its Max Hull.
     - **35% HP:** Blinks again, unleashes a second global EMP, and enters an **Enraged state** (+50% Fire Rate, +50% Global Damage) and projects a 15km sector-wide Dark Matter Aura that continuously drains Hull integrity from all hostile ships caught within it.
 - ☠️ If the World-Eater is not destroyed in 20 minutes, the entire sector is atomically wiped. All non-player entities are deleted, players are reduced to 1 HP, and the sector falls permanently to Eclipse control.
+- **🕊️ The Grace Period:** Following the conclusion of a World-Eater event (whether the boss is destroyed or the sector is annihilated), the entire galaxy is granted a **10 real-time hour Grace Period**. During this time, the Doomsday clock is completely paused, allowing players to rebuild without fear of another immediate strike.
 
 ### 📡 The Summoning Beacon
 If you are prepared to face the ultimate threat on your own terms, you can forcefully summon the World-Eater!
@@ -147,7 +148,7 @@ To fuel the Ascendancy Forge, you will need massive quantities of **Ascendant Ma
 
 <details>
 <summary><b>Click to expand</b></summary>
-Uncharted sectors inside the Galactic Core (distance to center < 150) now have a 20% chance to instantly spawn as horrifying, Dark Matter Fog-choked "Dark Sectors". These sectors are permanently suffocated in an atmospheric hazard and heavily guarded by Eclipse Citadels surrounded by massive Dreadnought fleets. Dive in if you dare!
+Once the Eclipse awakens, uncharted regular sectors across the entire galaxy have a chance to instantly spawn as horrifying, Dark Matter Fog-choked "Dark Sectors" when first discovered. The probability scales with your proximity to the core: 5-15% in the outer galaxy, 25% inside the Barrier (distance <= 150), and a massive 50% in the deep inner-core (distance <= 75). These sectors are permanently suffocated in an atmospheric hazard and heavily guarded by Eclipse Citadels surrounded by massive Dreadnought fleets. Dive in if you dare!
 
 ## The World Eater (Endgame Raid Boss)
 <details>
@@ -191,6 +192,21 @@ Build Ascendant Gateways in your core sectors to automatically summon allied def
 
 ---
 
+## 💻 Player Commands
+<details>
+<summary><b>Click to expand</b></summary>
+
+Cosmic Ascendancy provides global chat commands that **all players** (not just admins) can use to track the status of the Eclipse Crisis.
+
+### `/eclipsestatus`
+Typing this into the chat window will query the server and privately output the remaining time on critical Eclipse cooldowns:
+- **Citadel Suppression Field:** Shows how much time is left on the 6+ hour invasion suppression caused by destroying an Eclipse Citadel.
+- **World-Eater Grace Period:** Shows how much time remains on the 10-hour Doomsday pause after a World-Eater event.
+
+</details>
+
+---
+
 ## 🤝 Synergies & Integrations
 <details>
 <summary><b>Click to expand</b></summary>
@@ -214,5 +230,5 @@ The Ascendancy Forge allows you to craft absurdly powerful technologies at great
 * **Ascendant Neural Implant:** A ship subsystem that wires the captain directly into the vessel's core processors. It provides massive scaling buffs to jump reach, velocity, turrets, and fighter squadrons.
 
 ### The Dark Sector
-* **Danger:** Un-generated sectors inside the Galactic Core (Barrier) have a high chance of being **Dark Sectors**.
+* **Danger:** When discovering un-generated regular sectors, they may instantly corrupt into **Dark Sectors**. The spawn chance is 5-15% in the outer galaxy, 25% inside the Barrier, and 50% in the deep inner-core.
 * **Details:** These are extreme threat zones bathed in thick Dark Matter Fog, containing Eclipse Citadels and massive Juggernaut fleets. Proceed with extreme caution and only with a heavily armed fleet.

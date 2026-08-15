@@ -32,7 +32,7 @@ function getName(seed, rarity)
 end
 
 function getIcon(seed, rarity)
-    return "data/textures/icons/circuitry.png"
+    return "data/textures/icons/EclipseBane.png"
 end
 
 function getPrice(seed, rarity)

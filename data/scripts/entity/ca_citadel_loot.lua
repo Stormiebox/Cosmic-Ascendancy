@@ -32,7 +32,7 @@ function onDestroyed()
     local UpgradeGenerator = include("upgradegenerator")
     local ugen = UpgradeGenerator()
     local cx, cy = sector:getCoordinates()
-    local tgen = SectorTurretGenerator(cx, cy)
+    local tgen = SectorTurretGenerator(sector.seed)
     
     for i = 1, random():getInt(8, 12) do
         local turret = tgen:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))

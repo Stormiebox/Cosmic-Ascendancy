@@ -64,14 +64,14 @@ function AscendancyForge.initUI()
     menu:registerWindow(window, "Stellar Forge"%_t, 11)
 
     local hsplit = UIHorizontalSplitter(Rect(window.size), 10, 10, 0.45)
-    
+
     AscendancyForge.inventory = window:createInventorySelection(hsplit.bottom, 12)
     AscendancyForge.inventory:setShowScrollArrows(true, true, 1.0)
     AscendancyForge.inventory.dragFromEnabled = 1
     AscendancyForge.inventory.onClickedFunction = "onInventoryClicked"
 
     local topSplit = UIVerticalSplitter(hsplit.top, 10, 10, 0.4)
-    
+
     window:createLabel(Rect(topSplit.left.lower.x, topSplit.left.lower.y, topSplit.left.upper.x, topSplit.left.lower.y + 25), "Blueprint:"%_t, 14)
     AscendancyForge.combo = window:createComboBox(Rect(topSplit.left.lower.x, topSplit.left.lower.y + 30, topSplit.left.upper.x, topSplit.left.lower.y + 60), "onComboChanged")
     for _, choice in pairs(weaponChoices) do
@@ -79,9 +79,9 @@ function AscendancyForge.initUI()
     end
 
     AscendancyForge.costLabel = window:createLabel(Rect(topSplit.left.lower.x, topSplit.left.lower.y + 70, topSplit.left.upper.x, topSplit.left.lower.y + 220), "", 12)
-    
+
     window:createLabel(Rect(topSplit.right.lower.x, topSplit.right.lower.y, topSplit.right.upper.x, topSplit.right.lower.y + 25), "Sacrifice Legendary/Exotic Subsystems:", 14)
-    
+
     AscendancyForge.sacrificeSelection = window:createSelection(Rect(topSplit.right.lower.x, topSplit.right.lower.y + 30, topSplit.right.lower.x + 350, topSplit.right.lower.y + 90), 5)
     AscendancyForge.sacrificeSelection.dropIntoEnabled = 1
     AscendancyForge.sacrificeSelection.entriesSelectable = 0
@@ -95,7 +95,7 @@ function AscendancyForge.initUI()
     AscendancyForge.claimBtn = window:createButton(Rect(topSplit.right.lower.x + 190, topSplit.right.lower.y + 140, topSplit.right.lower.x + 370, topSplit.right.lower.y + 180), "Claim Weapon"%_t, "onClaimPressed")
 
     AscendancyForge.statusLabel = window:createLabel(Rect(topSplit.right.lower.x, topSplit.right.lower.y + 190, topSplit.right.upper.x, topSplit.right.lower.y + 230), "", 16)
-    
+
     AscendancyForge.tierLabel = window:createLabel(Rect(topSplit.left.lower.x, topSplit.left.lower.y + 230, topSplit.left.upper.x, topSplit.left.lower.y + 250), "Global Ascendancy Tier: 0", 14)
     AscendancyForge.decryptBtn = window:createButton(Rect(topSplit.left.lower.x, topSplit.left.lower.y + 255, topSplit.left.upper.x, topSplit.left.lower.y + 285), "Decrypt Eclipse Datacore"%_t, "onDecryptPressed")
 
@@ -111,7 +111,7 @@ end
 function AscendancyForge.updateSelectedType(typ)
     selectedType = typ
 end
-callable(AscendancyForge, "updateSelectedType")
+callable(nil, "updateSelectedType")
 
 function AscendancyForge.onShowWindow()
     AscendancyForge.sync()
@@ -126,7 +126,7 @@ function AscendancyForge.updateSuccessRate()
             elseif item.item.rarity.value == RarityType.Exotic then rate = rate + 10 end
         end
     end
-    
+
     local scrapNeeded = math.max(0, math.ceil((100 - rate) / 2))
     local craft = Player().craft
     local scrapToConsume = 0
@@ -135,7 +135,7 @@ function AscendancyForge.updateSuccessRate()
         scrapToConsume = math.min(scrapAmount, scrapNeeded)
     end
     rate = rate + (scrapToConsume * 2)
-    
+
     rate = math.min(100, rate)
     AscendancyForge.successRateLabel.caption = "Success Rate: " .. tostring(rate) .. "%"
     if rate >= 100 then
@@ -192,7 +192,7 @@ end
 function AscendancyForge.onSacrificeReceived(selectionIndex, fkx, fky, item, fromIndex, toIndex, tkx, tky)
     if not item then return end
     if fromIndex == AscendancyForge.sacrificeSelection.index then return end
-    
+
     if item.item.rarity.value < RarityType.Exotic then
         -- Reject anything below exotic
         return
@@ -213,7 +213,7 @@ function AscendancyForge.onInventoryClicked(selectionIndex, kx, ky, item, button
     if button == 2 or button == 3 then
         if item.item.rarity.value < RarityType.Exotic then return end
         if item.favorite then return end
-        
+
         local items = AscendancyForge.sacrificeSelection:getItems()
         if tablelength(items) < 5 then
             AscendancyForge.moveItem(item, AscendancyForge.inventory, AscendancyForge.sacrificeSelection, ivec2(kx, ky), nil)
@@ -230,7 +230,7 @@ function AscendancyForge.getCosts()
 
     local creditCost = math.floor(50000000 * scale)
     local matCost = random():getInt(25, 50)
-    
+
     local ores = {}
     ores[1] = math.floor(1000000 * scale) -- Iron
     ores[2] = math.floor(800000 * scale)  -- Titanium
@@ -248,7 +248,7 @@ function AscendancyForge.syncCosts()
     local creditCost, matName, matCost, ores = AscendancyForge.getCosts()
     invokeClientFunction(Player(callingPlayer), "receiveCosts", creditCost, matName, matCost, ores)
 end
-callable(AscendancyForge, "syncCosts")
+callable(nil, "syncCosts")
 
 function AscendancyForge.receiveCosts(creditCost, matName, matCost, ores)
     if not AscendancyForge.costLabel then return end
@@ -298,7 +298,7 @@ function AscendancyForge.startForging(itemIndices)
         owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient Ores to fuel the Forge!"%_t)
         return
     end
-    
+
     local cargoAmount = craft:getCargoAmount(matName) or 0
     if cargoAmount < matCost then
         owner:sendChatMessage("Stellar Forge"%_t, 1, "Insufficient %s in your ship's cargo hold!"%_t, matName)
@@ -326,17 +326,17 @@ function AscendancyForge.startForging(itemIndices)
     local scrapNeeded = math.max(0, math.ceil((100 - successRate) / 2))
     local scrapAmount = craft:getCargoAmount("Ascendant Scrap") or 0
     local scrapToConsume = math.min(scrapAmount, scrapNeeded)
-    
+
     successRate = successRate + (scrapToConsume * 2)
 
     -- Consume Costs
     owner:pay(creditCost, ores[1], ores[2], ores[3], ores[4], ores[5], ores[6], ores[7])
     craft:removeCargo(Good(matName), matCost)
-    
+
     if scrapToConsume > 0 then
         craft:removeCargo(Good("Ascendant Scrap"), scrapToConsume)
     end
-    
+
     if itemIndices then
         for index, amount in pairs(itemIndices) do
             for i = 1, amount do
@@ -364,7 +364,7 @@ function AscendancyForge.startForging(itemIndices)
 
     AscendancyForge.sync()
 end
-callable(AscendancyForge, "startForging")
+callable(nil, "startForging")
 
 function AscendancyForge.onClaimPressed()
     if onClient() then invokeServerFunction("claimWeapon"); return end
@@ -394,7 +394,7 @@ function AscendancyForge.claimWeapon()
             }
             local turret = CosmicVaultArsenal.GenerateTurret(config)
             if turret then
-                turret.icon = "data/textures/icons/weapon/laser.png"
+                turret.icon = "data/textures/icons/weapon/AscendantWorldBreaker.png"
                 owner:getInventory():add(turret)
                 owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed Ascendant World-Breaker!")
             end
@@ -450,7 +450,7 @@ function AscendancyForge.claimWeapon()
     willSucceed = false
     AscendancyForge.sync()
 end
-callable(AscendancyForge, "claimWeapon")
+callable(nil, "claimWeapon")
 
 function AscendancyForge.getUpdateInterval() return 60 end
 
@@ -523,7 +523,7 @@ function AscendancyForge.decryptDatacore()
     end
     AscendancyForge.sync()
 end
-callable(AscendancyForge, "decryptDatacore")
+callable(nil, "decryptDatacore")
 
 function AscendancyForge.sync(data)
     if onServer() then
@@ -573,19 +573,31 @@ function AscendancyForge.sync(data)
         invokeServerFunction("syncCosts")
     end
 end
-callable(AscendancyForge, "sync")
+callable(nil, "sync")
 
-function getUpdateInterval(...)
-    if AscendancyForge.getUpdateInterval then return AscendancyForge.getUpdateInterval(...) end
-end
-function updateServer(...)
-    if AscendancyForge.updateServer then return AscendancyForge.updateServer(...) end
-end
-function secure(...)
-    if AscendancyForge.secure then return AscendancyForge.secure(...) end
-end
-function restore(...)
-    if AscendancyForge.restore then return AscendancyForge.restore(...) end
-end
+function getUpdateInterval(...) if AscendancyForge.getUpdateInterval then return AscendancyForge.getUpdateInterval(...) end end
+function updateServer(...) if AscendancyForge.updateServer then return AscendancyForge.updateServer(...) end end
+function secure(...) if AscendancyForge.secure then return AscendancyForge.secure(...) end end
+function restore(...) if AscendancyForge.restore then return AscendancyForge.restore(...) end end
+
+-- UI & RPC Global Wrappers
+function interactionPossible(...) if AscendancyForge.interactionPossible then return AscendancyForge.interactionPossible(...) end end
+function getIcon(...) if AscendancyForge.getIcon then return AscendancyForge.getIcon(...) end end
+function initUI(...) if AscendancyForge.initUI then return AscendancyForge.initUI(...) end end
+function onComboChanged(...) if AscendancyForge.onComboChanged then return AscendancyForge.onComboChanged(...) end end
+function updateSelectedType(...) if AscendancyForge.updateSelectedType then return AscendancyForge.updateSelectedType(...) end end
+function onShowWindow(...) if AscendancyForge.onShowWindow then return AscendancyForge.onShowWindow(...) end end
+function onSacrificeReceived(...) if AscendancyForge.onSacrificeReceived then return AscendancyForge.onSacrificeReceived(...) end end
+function onSacrificeClicked(...) if AscendancyForge.onSacrificeClicked then return AscendancyForge.onSacrificeClicked(...) end end
+function onInventoryClicked(...) if AscendancyForge.onInventoryClicked then return AscendancyForge.onInventoryClicked(...) end end
+function receiveCosts(...) if AscendancyForge.receiveCosts then return AscendancyForge.receiveCosts(...) end end
+function onForgePressed(...) if AscendancyForge.onForgePressed then return AscendancyForge.onForgePressed(...) end end
+function startForging(...) if AscendancyForge.startForging then return AscendancyForge.startForging(...) end end
+function onClaimPressed(...) if AscendancyForge.onClaimPressed then return AscendancyForge.onClaimPressed(...) end end
+function claimWeapon(...) if AscendancyForge.claimWeapon then return AscendancyForge.claimWeapon(...) end end
+function onDecryptPressed(...) if AscendancyForge.onDecryptPressed then return AscendancyForge.onDecryptPressed(...) end end
+function decryptDatacore(...) if AscendancyForge.decryptDatacore then return AscendancyForge.decryptDatacore(...) end end
+function syncCosts(...) if AscendancyForge.syncCosts then return AscendancyForge.syncCosts(...) end end
+function sync(...) if AscendancyForge.sync then return AscendancyForge.sync(...) end end
 
 return AscendancyForge

@@ -92,6 +92,7 @@ A global crisis managed by the galaxy engine.
     - **35% HP:** Blinks again, unleashes a second global EMP, and enters an **Enraged state** (+50% Fire Rate, +50% Global Damage) and projects a 15km sector-wide Dark Matter Aura that continuously drains Hull integrity from all hostile ships caught within it!
 - **The Outcome:** If not destroyed within 20 minutes, the sector is completely wiped (all stations/AI ships deleted, player ships set to 1 HP) and ownership transfers to The Eclipse.
 - **💰 Loot:** Successfully destroying the World-Eater yields an enormous amount of **Ascendant Matter** and high-tier subsystems.
+- **🕊️ The Grace Period:** Following the conclusion of a World-Eater event (whether the boss is destroyed or the sector is annihilated), the entire galaxy is granted a **10 real-time hour Grace Period**. During this time, the Doomsday clock is completely paused, allowing players to rebuild without fear of another immediate strike.
 
 ### 📡 The Summoning Beacon
 If you are prepared to face the ultimate threat on your own terms, you can forcefully summon the World-Eater!
@@ -236,9 +237,24 @@ Cosmic Ascendancy leverages the APIs of the other Cosmic mods to create a deeply
 - **Rift Spillage:** Eclipse Invasions now have a **10% chance** to destabilize local space, tearing a massive subspace rift that drains sector shields. You must destroy the **Eclipse Rift Stabilizer** to close the tear and end the hazard.
 </details>
 
+---
+
+## 💻 Player Commands
+<details>
+<summary><b>Click to expand</b></summary>
+
+Cosmic Ascendancy provides global chat commands that **all players** (not just admins) can use to track the status of the Eclipse Crisis.
+
+### `/eclipsestatus`
+Typing this into the chat window will query the server and privately output the remaining time on critical Eclipse cooldowns:
+- **Citadel Suppression Field:** Shows how much time is left on the 6+ hour invasion suppression caused by destroying an Eclipse Citadel.
+- **World-Eater Grace Period:** Shows how much time remains on the 10-hour Doomsday pause after a World-Eater event.
+
+</details>
 
 ### Dark Sectors
-* Deep within the Galactic Core (distance < 150), un-generated sectors have a 20% chance of spawning as **Dark Sectors**.
+* Once the Eclipse is awake, discovering un-generated regular sectors triggers a dynamic probability roll to spawn a **Dark Sector**.
+* The spawn chance scales aggressively toward the core: **5-15%** in the outer galaxy, **25%** inside the mid-core (distance <= 150), and **50%** in the deep inner-core (distance <= 75).
 * These sectors are encased in environmental **Dark Matter Fog** and feature Eclipse Citadels guarded by Juggernauts.
 
 ### Ascendant Neural Implants & Titan Weaponry

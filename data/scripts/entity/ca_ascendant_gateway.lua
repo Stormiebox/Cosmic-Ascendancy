@@ -18,8 +18,8 @@ function updateServer(timeStep)
     
     local factions = {sector:getPresentFactions()}
     for _, f in pairs(factions) do
-        if f.index ~= playerFaction.index and playerFaction:getRelations(f.index) < -10000 then
-            local ships = {sector:getEntitiesByFaction(f.index)}
+        if f ~= playerFaction.index and playerFaction:getRelations(f) < -10000 then
+            local ships = {sector:getEntitiesByFaction(f)}
             for _, ship in pairs(ships) do
                 if ship.isShip then
                     enemiesPresent = true
@@ -55,8 +55,8 @@ function updateServer(timeStep)
                 defender:addScriptOnce("ai/patrol.lua")
                 -- Apply a permanent multiplicative bonus to fire rate to act as a 3x DPS multiplier
                 -- since modifying the damageMultiplier property directly is discarded by the engine.
-                defender:addMultiplyableBias(StatsBonuses.FireRate, 2.0)
-                defender:addMultiplyableBias(StatsBonuses.ShieldDurability, 3.0)
+                defender:addBaseMultiplier(StatsBonuses.FireRate, 2.0)
+                defender:addBaseMultiplier(StatsBonuses.ShieldDurability, 3.0)
                 
                 -- Fill shields to max so defenders spawn battle-ready
                 defender.shieldDurability = defender.shieldMaxDurability

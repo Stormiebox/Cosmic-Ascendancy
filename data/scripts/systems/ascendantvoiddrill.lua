@@ -14,21 +14,21 @@ end
 
 function applyDynamicBuffs()
     removeDynamicBuffs()
-    
+
     local entity = Entity()
     if not entity then return end
-    
+
     local finalMultiplier = 1.0
     if cv_buffs and type(cv_buffs.getDynamicRelicMultiplier) == "function" then
         finalMultiplier = cv_buffs.getDynamicRelicMultiplier(entity.id)
     end
-    
-    entity:addAbsoluteBias(StatsBonuses.UnarmedTurrets, 15)
-    
+
+    entity:addAbsoluteBias(StatsBonuses.UnarmedTurrets, math.floor(15 * finalMultiplier))
+
     -- Dynamically scaled capabilities
     entity:addAbsoluteBias(StatsBonuses.LootCollectionRange, 5000 * finalMultiplier)
     entity:addAbsoluteBias(StatsBonuses.TransporterRange, 5000 * finalMultiplier)
-    entity:addMultiplyableBias(StatsBonuses.GeneratedEnergy, 5.0 * finalMultiplier)
+    entity:addBaseMultiplier(StatsBonuses.GeneratedEnergy, 5.0 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
@@ -62,7 +62,7 @@ function getName(seed, rarity)
 end
 
 function getIcon(seed, rarity)
-    return "data/textures/icons/mining-laser.png"
+    return "data/textures/icons/AscendantVoidDrill.png"
 end
 
 function getEnergy(seed, rarity)
@@ -79,11 +79,11 @@ function getTooltipLines(seed, rarity, permanent)
     table.insert(texts, {ltext = "Base Loot Range"%_t, rtext = "+5000", icon = "data/textures/icons/magnet.png", boosted = false})
     table.insert(texts, {ltext = "Base Transporter Range"%_t, rtext = "+5000", icon = "data/textures/icons/processor.png", boosted = false})
     table.insert(texts, {ltext = "Base Energy Generation"%_t, rtext = "+500%", icon = "data/textures/icons/electric.png", boosted = false})
-    
+
     table.insert(texts, {ltext = "", rtext = "", icon = ""})
     table.insert(texts, {ltext = "\\c(e44)LIVING RELIC\\c()"%_t, rtext = "", icon = ""})
     table.insert(texts, {ltext = "Utility scales dynamically with"%_t, rtext = "", icon = ""})
     table.insert(texts, {ltext = "Core Proximity & War Heat!"%_t, rtext = "", icon = ""})
-    
+
     return texts
 end

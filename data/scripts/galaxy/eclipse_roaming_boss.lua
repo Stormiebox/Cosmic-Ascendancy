@@ -21,7 +21,7 @@ function EclipseRoamingBoss.hasPlayerStations(galaxy, x, y)
     local view = galaxy:getSectorView(x, y)
     if not view then return false end
     for index, stations in pairs(view:getStationsByFaction()) do
-        if stations > 0 and galaxy:playerFactionExists(index) then
+        if stations > 0 and (galaxy:playerFactionExists(index) or galaxy:allianceFactionExists(index)) then
             return true
         end
     end

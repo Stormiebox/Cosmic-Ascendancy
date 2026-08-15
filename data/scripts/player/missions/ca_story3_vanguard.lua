@@ -16,6 +16,10 @@ mission.data.title = "The Vanguard Assault"
 
 mission.phases[1] = {}
 mission.phases[1].onBeginServer = function()
+    local x, y = Sector():getCoordinates()
+    mission.data.custom.targetX = x
+    mission.data.custom.targetY = y
+    
     mission.data.description = "A massive Eclipse Vanguard Juggernaut is warping in! Defend the sector at all costs."
     
     local EclipseGenerator = include("eclipsegenerator")
@@ -39,6 +43,9 @@ mission.phases[1].onBeginServer = function()
 end
 
 mission.phases[1].updateServer = function()
+    local x, y = Sector():getCoordinates()
+    if x ~= mission.data.custom.targetX or y ~= mission.data.custom.targetY then return end
+    
     local boss = {Sector():getEntitiesByScriptValue("ca_eclipse_boss")}
     if #boss == 0 then
         Player():sendChatMessage("Ship Computer", 0, "The Juggernaut is destroyed! Its core is destabilizing... wait, it's beaming a data packet to the rest of their fleet!")

@@ -33,18 +33,19 @@ function LoreAnomalies.onSectorEntered(playerIndex, x, y, sectorChangeType)
     end
 
     if random():getFloat() < spawnChance then
-        LoreAnomalies.spawnAnomaly(x, y)
+        LoreAnomalies.spawnAnomaly(playerIndex, x, y)
     end
 end
 
-function LoreAnomalies.spawnAnomaly(x, y)
+function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
     local sector = Sector()
+    if not sector then return end
 
     -- Only spawn in empty or unexplored sectors to avoid cluttering populated ones
     if sector:getEntitiesByComponent(ComponentType.Station) then return end
 
     local generator = SectorGenerator(x, y)
-    local pos = generator:getPositionInSector(5000)
+    local pos = generator:createPositionInSector(5000)
 
     -- Pick a random lore snippet
     local snippets = {
@@ -89,7 +90,7 @@ function LoreAnomalies.spawnAnomaly(x, y)
     end
 
     -- Send the lore directly to the player's chat
-    Player():sendChatMessage("Ship Sensors", 3, loreText)
+    Player(playerIndex):sendChatMessage("Ship Sensors", 3, loreText)
 
     -- Synergy: Report Lore Anomaly to Cosmic Vault News
     local cvn = include("cosmicvaultnews")
@@ -109,3 +110,5 @@ end
 function onSectorEntered(...)
     if LoreAnomalies.onSectorEntered then return LoreAnomalies.onSectorEntered(...) end
 end
+
+return LoreAnomalies

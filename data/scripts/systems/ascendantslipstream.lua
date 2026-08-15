@@ -15,18 +15,18 @@ end
 
 function applyDynamicBuffs()
     removeDynamicBuffs()
-    
+
     local entity = Entity()
     if not entity then return end
-    
+
     local finalMultiplier = 1.0
     if cv_buffs and type(cv_buffs.getDynamicRelicMultiplier) == "function" then
         finalMultiplier = cv_buffs.getDynamicRelicMultiplier(entity.id)
     end
-    
+
     -- Slipstream Core gives massive Velocity, Jump Reach, and Cooldown reduction
-    entity:addMultiplier(StatsBonuses.Velocity, 1.5 * finalMultiplier)
-    entity:addAbsoluteBias(StatsBonuses.HyperspaceReach, math.floor(10 * finalMultiplier))
+    entity:addBaseMultiplier(StatsBonuses.Velocity, 5.0 * finalMultiplier)
+    entity:addAbsoluteBias(StatsBonuses.HyperspaceReach, math.floor(25 * finalMultiplier))
     entity:addBaseMultiplier(StatsBonuses.HyperspaceCooldown, -0.8) -- Cap cooldown naturally, maybe not multiply to avoid negative infinity?
 end
 
@@ -61,7 +61,7 @@ function getName(seed, rarity)
 end
 
 function getIcon(seed, rarity)
-    return "data/textures/icons/engine.png"
+    return "data/textures/icons/AscendantSlipstreamCore.png"
 end
 
 function getEnergy(seed, rarity)
@@ -74,14 +74,14 @@ end
 
 function getTooltipLines(seed, rarity, permanent)
     local texts = {}
-    table.insert(texts, {ltext = "Base Velocity"%_t, rtext = "+500%", icon = "data/textures/icons/sprint.png", boosted = false})
-    table.insert(texts, {ltext = "Base Jump Reach"%_t, rtext = "+25", icon = "data/textures/icons/radar-sweep.png", boosted = false})
+    table.insert(texts, {ltext = "Base Velocity"%_t, rtext = "+500%", icon = "data/textures/icons/acceleration.png", boosted = false})
+    table.insert(texts, {ltext = "Base Jump Reach"%_t, rtext = "+25", icon = "data/textures/icons/vortex.png", boosted = false})
     table.insert(texts, {ltext = "Hyperspace Cooldown"%_t, rtext = "-80%", icon = "data/textures/icons/hourglass.png", boosted = false})
-    
+
     table.insert(texts, {ltext = "", rtext = "", icon = ""})
     table.insert(texts, {ltext = "\\c(e44)LIVING RELIC\\c()"%_t, rtext = "", icon = ""})
     table.insert(texts, {ltext = "Stats multiply based on"%_t, rtext = "", icon = ""})
     table.insert(texts, {ltext = "Core Proximity & War Heat!"%_t, rtext = "", icon = ""})
-    
+
     return texts
 end

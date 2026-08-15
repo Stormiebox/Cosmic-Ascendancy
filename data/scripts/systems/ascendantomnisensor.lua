@@ -15,20 +15,20 @@ end
 
 function applyDynamicBuffs()
     removeDynamicBuffs()
-    
+
     local entity = Entity()
     if not entity then return end
-    
+
     local finalMultiplier = 1.0
     if cv_buffs and type(cv_buffs.getDynamicRelicMultiplier) == "function" then
         finalMultiplier = cv_buffs.getDynamicRelicMultiplier(entity.id)
     end
-    
+
     -- Omni-Sensor gives Radar, Hidden Sector, Cargo, and Loot Range
-    entity:addAbsoluteBias(StatsBonuses.RadarReach, math.floor(10 * finalMultiplier))
-    entity:addAbsoluteBias(StatsBonuses.HiddenSectorRadarReach, math.floor(5 * finalMultiplier))
-    entity:addMultiplier(StatsBonuses.CargoHold, 1.5 * finalMultiplier)
-    entity:addMultiplier(StatsBonuses.LootCollectionRange, 1.5 * finalMultiplier)
+    entity:addAbsoluteBias(StatsBonuses.RadarReach, math.floor(20 * finalMultiplier))
+    entity:addAbsoluteBias(StatsBonuses.HiddenSectorRadarReach, math.floor(15 * finalMultiplier))
+    entity:addBaseMultiplier(StatsBonuses.CargoHold, 10.0 * finalMultiplier)
+    entity:addBaseMultiplier(StatsBonuses.LootCollectionRange, 5.0 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
@@ -64,7 +64,7 @@ function getName(seed, rarity)
 end
 
 function getIcon(seed, rarity)
-    return "data/textures/icons/radar-sweep.png"
+    return "data/textures/icons/AscendantOmniSensor.png"
 end
 
 function getEnergy(seed, rarity)
@@ -81,11 +81,11 @@ function getTooltipLines(seed, rarity, permanent)
     table.insert(texts, {ltext = "Base Hidden Sectors"%_t, rtext = "+15", icon = "data/textures/icons/radar-sweep.png", boosted = false})
     table.insert(texts, {ltext = "Base Cargo Hold"%_t, rtext = "+1000%", icon = "data/textures/icons/sell.png", boosted = false})
     table.insert(texts, {ltext = "Base Loot Range"%_t, rtext = "+500%", icon = "data/textures/icons/domino-mask.png", boosted = false})
-    
+
     table.insert(texts, {ltext = "", rtext = "", icon = ""})
     table.insert(texts, {ltext = "\\c(e44)LIVING RELIC\\c()"%_t, rtext = "", icon = ""})
     table.insert(texts, {ltext = "Stats multiply based on"%_t, rtext = "", icon = ""})
     table.insert(texts, {ltext = "Core Proximity & War Heat!"%_t, rtext = "", icon = ""})
-    
+
     return texts
 end

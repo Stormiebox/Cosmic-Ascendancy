@@ -45,15 +45,17 @@ mission.phases[2].onBeginServer = function()
         plan = generator:getBasicWreckagePlan()
     end
     
-    local wreck = generator:createWreckage(nil, plan, 10)
-    if wreck then wreck.translationf = pos end
-    mission.data.custom.wreckId = wreck.index.string
+    local wreck = generator:createWreckage(nil, plan, 10, pos)
+    if wreck then mission.data.custom.wreckId = wreck.index.string end
 end
 
 mission.phases[2].updateServer = function(timeStep)
     local player = Player()
     local craft = player.craft
     if not craft then return end
+    
+    local x, y = Sector():getCoordinates()
+    if x ~= mission.data.custom.targetX or y ~= mission.data.custom.targetY then return end
     
     local wreck = Sector():getEntity(Uuid(mission.data.custom.wreckId))
     if not wreck then
@@ -87,6 +89,9 @@ mission.phases[3].onBeginServer = function()
 end
 
 mission.phases[3].updateServer = function(timeStep)
+    local x, y = Sector():getCoordinates()
+    if x ~= mission.data.custom.targetX or y ~= mission.data.custom.targetY then return end
+    
     local enemies = {Sector():getEntitiesByScriptValue("ca_eclipse_ambush")}
     if #enemies == 0 then
         Player():sendChatMessage("Ship Computer", 0, "Hostiles eliminated. Their shielding tech is unbelievable. We need to find a way to upgrade our weapons if we are to survive this.")

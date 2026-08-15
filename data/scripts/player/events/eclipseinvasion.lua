@@ -2,6 +2,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 include("stringutility")
+include("player")
 local EclipseGenerator = include("eclipsegenerator")
 local Placer = include ("placer")
 
@@ -35,6 +36,8 @@ end
 
 function createEnemies()
     local sector = Sector()
+    if not sector then return end
+
 
     local dir = normalize(vec3(getFloat(-1, 1), getFloat(-1, 1), getFloat(-1, 1)))
     local up = vec3(0, 1, 0)

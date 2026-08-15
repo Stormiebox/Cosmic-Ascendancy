@@ -21,7 +21,7 @@ function EclipseConquestManager.initialize()
             description = "A hyper-dense dark energy composite synthesized by Eclipse Harvesters.",
             price = 250000,
             size = 2.5,
-            icon = "data/textures/icons/PHOTON.png",
+            icon = "data/textures/icons/AscendantMatter.png",
             illegal = true,
             dangerous = true,
             tags = {ascendant = true}
@@ -31,7 +31,7 @@ function EclipseConquestManager.initialize()
             description = "An encrypted quantum datacore extracted from a high-ranking Eclipse vessel.",
             price = 1000000,
             size = 5.0,
-            icon = "data/textures/icons/circuit-board.png",
+            icon = "data/textures/icons/EclipseDatacore.png",
             illegal = true,
             tags = {ascendant = true}
         })
@@ -40,7 +40,7 @@ function EclipseConquestManager.initialize()
             description = "Failed remnants of an Ascendant forging process. Highly sought after by underground tech brokers.",
             price = 100000,
             size = 1.0,
-            icon = "data/textures/icons/metal-scales.png",
+            icon = "data/textures/icons/AscendantScrap.png",
             illegal = true,
             tags = {ascendant = true}
         })
@@ -70,7 +70,7 @@ function EclipseConquestManager.expandEmpire()
 
     local conqueredCount = Server():getValue("eclipse_conquered_sectors") or 0
     local isFallenEmpire = Server():getValue("eclipse_fallen_empire")
-    
+
     -- Suppression Field Logic: Halt invasions dynamically (6 hours base + 2 hours per 10 sectors owned) after a Citadel dies
     local citadelDestroyed = Server():getValue("eclipse_citadel_destroyed_time") or 0
     local suppressionDuration = (6 + math.floor(conqueredCount / 10) * 2) * 3600
@@ -101,13 +101,13 @@ function EclipseConquestManager.expandEmpire()
             local sx = random():getInt(-490, 490)
             local sy = random():getInt(-490, 490)
             local faction = Galaxy():getControllingFaction(sx, sy)
-            
+
             if faction and faction.isAIFaction and not faction:getValue("is_eclipse") and faction.name ~= "The Eclipse" then
                 local isEradicated = false
                 if FactionEradicationUtility and FactionEradicationUtility.isFactionEradicated then
                     isEradicated = FactionEradicationUtility.isFactionEradicated(faction.index)
                 end
-                
+
                 if not isEradicated then
                     local hx, hy = faction:getHomeSectorCoordinates()
                     if hx and hy and (hx ~= 0 or hy ~= 0) then
@@ -115,7 +115,7 @@ function EclipseConquestManager.expandEmpire()
                     end
                 end
             end
-            
+
             -- Stop once we have enough valid crusade candidates
             if #targets >= 5 then break end
         end
@@ -194,7 +194,7 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
     -- To forcefully strip faction ownership, we briefly force the server to load the sector.
     -- This guarantees the `ca_delayed_annihilation.lua` script fires immediately and physically destroys the stations,
     -- which naturally recalculates the map ownership to Neutral, preventing Ghost claims.
-    
+
     local code = [[
         function run()
             if not Sector():hasScript("sector/ca_delayed_annihilation.lua") then

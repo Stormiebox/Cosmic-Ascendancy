@@ -28,15 +28,17 @@ function CaBossAudioHook.playBossMusic(phase)
         musicPath = "data/music/world_eater_enraged.ogg"
     end
 
-    -- In a real implementation, I would use Avorion's Sound() API or Music() API.
-    -- Placeholder for the Boss Audio hook:
-    -- Music():play(musicPath)
+    if musicPath ~= "" then
+        Music():fadeOut(1.0)
+        Music():playTrack(musicPath, true, 1.0)
+    end
     print("Cosmic Ascendancy Hook: Playing boss music " .. musicPath)
 end
 
 function CaBossAudioHook.stopBossMusic()
     if onServer() then return end
     CaBossAudioHook.bossPhase = 0
+    Music():fadeOut(3.0)
     print("Cosmic Ascendancy Hook: Stopping boss music.")
 end
 
@@ -49,15 +51,15 @@ function CaBossAudioHook.playGuardianFellMusic()
     print("Cosmic Ascendancy Hook: Playing Forge The Ascendant OST.")
 end
 
-callable(CaBossAudioHook, "showCinematicBanner")
-callable(CaBossAudioHook, "playBossMusic")
-callable(CaBossAudioHook, "stopBossMusic")
-callable(CaBossAudioHook, "playGuardianFellMusic")
+callable(nil, "showCinematicBanner")
+callable(nil, "playBossMusic")
+callable(nil, "stopBossMusic")
+callable(nil, "playGuardianFellMusic")
 
-callable(CaBossAudioHook, "triggerGuardianFellMusic")
-callable(CaBossAudioHook, "triggerCinematicBanner")
-callable(CaBossAudioHook, "triggerBossMusic")
-callable(CaBossAudioHook, "triggerStopBossMusic")
+callable(nil, "triggerGuardianFellMusic")
+callable(nil, "triggerCinematicBanner")
+callable(nil, "triggerBossMusic")
+callable(nil, "triggerStopBossMusic")
 
 -- Server-to-Client Bridge Functions
 function CaBossAudioHook.triggerGuardianFellMusic()

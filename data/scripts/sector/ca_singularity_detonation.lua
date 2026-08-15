@@ -1,5 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
+include("callable")
+
 local Detonation = {}
 Detonation.posX = 0
 Detonation.posY = 0
@@ -26,7 +28,7 @@ function Detonation.playSingularityWarning(x, y, z)
         playSound("interface/warning", SoundType.UI, 1.0)
     end
 end
-callable(Detonation, "playSingularityWarning")
+callable(nil, "playSingularityWarning")
 
 function Detonation.getUpdateInterval()
     -- Fast interval for gravity pull
@@ -65,7 +67,7 @@ function Detonation.updateServer(timeStep)
                 local dist = distance(target.translationf, pos)
                 if dist <= 1500.0 then
                     local damage = target.maxDurability * 0.15
-                    target.durability = math.max(1, target.durability - damage)
+                    target:inflictDamage(damage, 1.0, DamageType.Energy, target.translationf)
                 end
             end
         end

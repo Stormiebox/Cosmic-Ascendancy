@@ -25,7 +25,9 @@ function initialize()
         for _, entity in pairs(entities) do
             if entity.type == EntityType.Station or entity.type == EntityType.Ship then
                 if entity.factionIndex ~= eclipseFaction.index then
-                    sector:deleteEntity(entity)
+                    if not entity.playerOwned and not entity.allianceOwned then
+                        sector:deleteEntity(entity)
+                    end
                 end
             end
         end
