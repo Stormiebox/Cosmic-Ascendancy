@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.2.1]
+
+### 🐛 Bug Fixes
+- [Bugfix] **Audio Hook Syntax & Synchronization:** Fixed critical server desyncs in `ca_boss_audio_hook.lua`. Removed legacy global C++ wrappers shadowing the engine\'s internal callback handler and properly bound all client/server RPCs natively to the `CaBossAudioHook` namespace.
+- [Bugfix] **Linux Case Sensitivity:** Fixed a critical bug where `ca_darksector_generator.lua` and `ca_spawn_envoy.lua` used lowercase `include("sectorgenerator")`, which causes a fatal `module not found` crash on strict Linux dedicated servers.
+
 ## [v1.2.0] - The Ascendant Envoy Update
 
 ### ✨ Features & UI

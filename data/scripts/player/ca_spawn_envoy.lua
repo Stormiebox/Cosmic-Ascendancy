@@ -1,7 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
-local SectorGenerator = include ("sectorgenerator")
+local SectorGenerator = include ("SectorGenerator")
 local ShipUtility = include ("shiputility")
 
 function initialize()

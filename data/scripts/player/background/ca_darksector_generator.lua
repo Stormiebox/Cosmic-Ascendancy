@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include("utility")
-local SectorGenerator = include("sectorgenerator")
+local SectorGenerator = include("SectorGenerator")
 
 -- Dark Sector Generator
 -- This script runs in the background for players. 
