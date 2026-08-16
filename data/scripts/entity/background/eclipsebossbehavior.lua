@@ -79,25 +79,3 @@ function EclipseBossBehavior.onDestroyed(index, lastDamageInflictor)
     end
 end
 
-function initialize(...)
-    if EclipseBossBehavior.initialize then return EclipseBossBehavior.initialize(...) end
-end
-function getUpdateInterval(...)
-    if EclipseBossBehavior.getUpdateInterval then return EclipseBossBehavior.getUpdateInterval(...) end
-end
-function updateClient(...)
-    if EclipseBossBehavior.updateClient then return EclipseBossBehavior.updateClient(...) end
-end
-function updateServer(...)
-    if EclipseBossBehavior.updateServer then return EclipseBossBehavior.updateServer(...) end
-end
-
--- Global Event Callbacks
-function onDestroyed(...)
-    if EclipseBossBehavior.onDestroyed then return EclipseBossBehavior.onDestroyed(...) end
-end
-function onDamaged(...)
-    if EclipseBossBehavior.onDamaged then return EclipseBossBehavior.onDamaged(...) end
-end
-
-return EclipseBossBehavior

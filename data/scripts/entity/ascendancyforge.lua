@@ -111,7 +111,6 @@ end
 function AscendancyForge.updateSelectedType(typ)
     selectedType = typ
 end
-callable(nil, "updateSelectedType")
 
 function AscendancyForge.onShowWindow()
     AscendancyForge.sync()
@@ -248,7 +247,6 @@ function AscendancyForge.syncCosts()
     local creditCost, matName, matCost, ores = AscendancyForge.getCosts()
     invokeClientFunction(Player(callingPlayer), "receiveCosts", creditCost, matName, matCost, ores)
 end
-callable(nil, "syncCosts")
 
 function AscendancyForge.receiveCosts(creditCost, matName, matCost, ores)
     if not AscendancyForge.costLabel then return end
@@ -364,7 +362,6 @@ function AscendancyForge.startForging(itemIndices)
 
     AscendancyForge.sync()
 end
-callable(nil, "startForging")
 
 function AscendancyForge.onClaimPressed()
     if onClient() then invokeServerFunction("claimWeapon"); return end
@@ -450,7 +447,6 @@ function AscendancyForge.claimWeapon()
     willSucceed = false
     AscendancyForge.sync()
 end
-callable(nil, "claimWeapon")
 
 function AscendancyForge.getUpdateInterval() return 60 end
 
@@ -523,7 +519,6 @@ function AscendancyForge.decryptDatacore()
     end
     AscendancyForge.sync()
 end
-callable(nil, "decryptDatacore")
 
 function AscendancyForge.sync(data)
     if onServer() then
@@ -573,7 +568,6 @@ function AscendancyForge.sync(data)
         invokeServerFunction("syncCosts")
     end
 end
-callable(nil, "sync")
 
 function getUpdateInterval(...) if AscendancyForge.getUpdateInterval then return AscendancyForge.getUpdateInterval(...) end end
 function updateServer(...) if AscendancyForge.updateServer then return AscendancyForge.updateServer(...) end end
@@ -599,5 +593,12 @@ function onDecryptPressed(...) if AscendancyForge.onDecryptPressed then return A
 function decryptDatacore(...) if AscendancyForge.decryptDatacore then return AscendancyForge.decryptDatacore(...) end end
 function syncCosts(...) if AscendancyForge.syncCosts then return AscendancyForge.syncCosts(...) end end
 function sync(...) if AscendancyForge.sync then return AscendancyForge.sync(...) end end
+
+callable(nil, "updateSelectedType")
+callable(nil, "syncCosts")
+callable(nil, "startForging")
+callable(nil, "claimWeapon")
+callable(nil, "decryptDatacore")
+callable(nil, "sync")
 
 return AscendancyForge

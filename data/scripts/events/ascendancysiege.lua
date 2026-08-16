@@ -249,20 +249,4 @@ function AscendancySiege.restore(data_in)
     active = data_in.active or false
 end
 
-function initialize(...)
-    if AscendancySiege.initialize then return AscendancySiege.initialize(...) end
-end
-function getUpdateInterval(...)
-    if AscendancySiege.getUpdateInterval then return AscendancySiege.getUpdateInterval(...) end
-end
-function updateServer(...)
-    if AscendancySiege.updateServer then return AscendancySiege.updateServer(...) end
-end
-function secure(...)
-    if AscendancySiege.secure then return AscendancySiege.secure(...) end
-end
-function restore(...)
-    if AscendancySiege.restore then return AscendancySiege.restore(...) end
-end
 
-return AscendancySiege

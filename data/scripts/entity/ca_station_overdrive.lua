@@ -77,7 +77,7 @@ function StationOverdrive.activateOverdrive()
     -- Send sync
     StationOverdrive.sync()
 end
-callable(nil, "activateOverdrive")
+callable(StationOverdrive, "activateOverdrive")
 
 function StationOverdrive.getUpdateInterval()
     return 10
@@ -137,7 +137,7 @@ function StationOverdrive.sync(data)
         end
     end
 end
-callable(nil, "sync")
+callable(StationOverdrive, "sync")
 
 function StationOverdrive.secure()
     return {
@@ -160,34 +160,3 @@ function StationOverdrive.restore(data)
     end
 end
 
-
-function getUpdateInterval(...)
-    if StationOverdrive.getUpdateInterval then return StationOverdrive.getUpdateInterval(...) end
-end
-function updateServer(...)
-    if StationOverdrive.updateServer then return StationOverdrive.updateServer(...) end
-end
-function secure(...)
-    if StationOverdrive.secure then return StationOverdrive.secure(...) end
-end
-function restore(...)
-    if StationOverdrive.restore then return StationOverdrive.restore(...) end
-end
-function initialize(...)
-    if StationOverdrive.initialize then return StationOverdrive.initialize(...) end
-end
-function interactionPossible(...)
-    if StationOverdrive.interactionPossible then return StationOverdrive.interactionPossible(...) end
-end
-function initUI(...)
-    if StationOverdrive.initUI then return StationOverdrive.initUI(...) end
-end
-function onOverdrivePressed(...)
-    if StationOverdrive.onOverdrivePressed then return StationOverdrive.onOverdrivePressed(...) end
-end
-function activateOverdrive(...)
-    if StationOverdrive.activateOverdrive then return StationOverdrive.activateOverdrive(...) end
-end
-function sync(...)
-    if StationOverdrive.sync then return StationOverdrive.sync(...) end
-end

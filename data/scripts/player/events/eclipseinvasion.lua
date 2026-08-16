@@ -47,19 +47,19 @@ function createEnemies()
     local spawned = {}
 
     -- Spawn 1 Harbinger (Boss)
-    local harbinger = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), "obelisk")
+    local harbinger = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), "ca_harbinger")
     table.insert(spawned, harbinger)
     pos = pos + right * 200
 
     -- Spawn 3 randomized heavy/specialized ships
-    local heavyTypes = {"voidweaver", "singularity", "juggernaut", "defiler"}
+    local heavyTypes = {"ca_voidweaver", "ca_singularity", "ca_juggernaut", "ca_defiler"}
     for i = 1, 3 do
         local hType = heavyTypes[random():getInt(1, #heavyTypes)]
         local heavy
-        if hType == "voidweaver" then heavy = EclipseGenerator.createCarrier(MatrixLookUpPosition(-dir, up, pos))
-        elseif hType == "singularity" then heavy = EclipseGenerator.createArtillery(MatrixLookUpPosition(-dir, up, pos))
-        elseif hType == "juggernaut" then heavy = EclipseGenerator.createJuggernaut(MatrixLookUpPosition(-dir, up, pos))
-        elseif hType == "defiler" then heavy = EclipseGenerator.createDefiler(MatrixLookUpPosition(-dir, up, pos))
+        if hType == "ca_voidweaver" then heavy = EclipseGenerator.createCarrier(MatrixLookUpPosition(-dir, up, pos))
+        elseif hType == "ca_singularity" then heavy = EclipseGenerator.createArtillery(MatrixLookUpPosition(-dir, up, pos))
+        elseif hType == "ca_juggernaut" then heavy = EclipseGenerator.createJuggernaut(MatrixLookUpPosition(-dir, up, pos))
+        elseif hType == "ca_defiler" then heavy = EclipseGenerator.createDefiler(MatrixLookUpPosition(-dir, up, pos))
         else heavy = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), hType) end
 
         table.insert(spawned, heavy)
@@ -67,13 +67,13 @@ function createEnemies()
     end
 
     -- Spawn 4 randomized light/specialized ships
-    local lightTypes = {"pyramid", "phantom", "interceptor", "harvester"}
+    local lightTypes = {"ca_obliterator", "ca_phantom", "ca_interceptor", "ca_harvester"}
     for i = 1, 4 do
         local lType = lightTypes[random():getInt(1, #lightTypes)]
         local light
-        if lType == "phantom" then light = EclipseGenerator.createAssassin(MatrixLookUpPosition(-dir, up, pos))
-        elseif lType == "interceptor" then light = EclipseGenerator.createInterceptor(MatrixLookUpPosition(-dir, up, pos))
-        elseif lType == "harvester" then light = EclipseGenerator.createHarvester(MatrixLookUpPosition(-dir, up, pos))
+        if lType == "ca_phantom" then light = EclipseGenerator.createAssassin(MatrixLookUpPosition(-dir, up, pos))
+        elseif lType == "ca_interceptor" then light = EclipseGenerator.createInterceptor(MatrixLookUpPosition(-dir, up, pos))
+        elseif lType == "ca_harvester" then light = EclipseGenerator.createHarvester(MatrixLookUpPosition(-dir, up, pos))
         else light = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), lType) end
 
         table.insert(spawned, light)

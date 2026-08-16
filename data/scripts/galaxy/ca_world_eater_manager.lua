@@ -168,7 +168,7 @@ function WorldEaterManager.cancelEvent()
         end
     end
 end
-callable(WorldEaterManager, "cancelEvent")
+
 
 function WorldEaterManager.secure()
     return {
@@ -206,4 +206,9 @@ end
 function restore(...)
     if WorldEaterManager.restore then return WorldEaterManager.restore(...) end
 end
+function cancelEvent(...)
+    if WorldEaterManager.cancelEvent then return WorldEaterManager.cancelEvent(...) end
+end
+
+callable(nil, "cancelEvent")
 

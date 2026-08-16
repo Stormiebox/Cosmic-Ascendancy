@@ -107,11 +107,4 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
     end
 end
 
-function getUpdateInterval(...)
-    if CosmicAscendancyExpansionManager.getUpdateInterval then return CosmicAscendancyExpansionManager.getUpdateInterval(...) end
-end
-function updateServer(...)
-    if CosmicAscendancyExpansionManager.updateServer then return CosmicAscendancyExpansionManager.updateServer(...) end
-end
 
-return CosmicAscendancyExpansionManager

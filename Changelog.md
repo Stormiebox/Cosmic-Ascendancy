@@ -7,6 +7,15 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.1.1] - Hotfix
+
+### 🐛 Bug Fix
+
+- [Bugfix] **Namespace RPC Registries:** Fixed a critical structural flaw across `ascendancyforge.lua`, `ascendancybeacon.lua`, `ca_station_overdrive.lua`, `ca_boss_audio_hook.lua`, `ca_singularity_detonation.lua`, `ca_world_eater_manager.lua`, `eclipsebossbehavior.lua`, `ascendancysiege.lua`, `ca_expansion_manager.lua`, `cc_newsgenerator.lua`, and `cosmicchronicles_rumormonger.lua`. Corrected `callable()` RPC registries based on whether the script utilizes a module namespace. Scripts with `-- namespace` declarations (e.g. `ascendancybeacon.lua`, `ca_station_overdrive.lua`) now properly bind their RPCs to their internal namespaces without global wrappers, while scripts executing in the global scope correctly retain their `callable(nil)` registries, restoring full UI interactivity and event synchronization for multiplayer.
+
+### 📦 Content Additions
+[Added] New .xml ship and station designs for The Eclipse.
+
 ## [v1.1.0] - Gameplay & Fixes
 
 ### ✨ Features & UI

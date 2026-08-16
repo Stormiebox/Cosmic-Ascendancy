@@ -82,26 +82,26 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
             local EclipseGenerator = include("eclipsegenerator")
             local station = EclipseGenerator.createStation(Matrix())
                 
-                local defenderTypes = {"pyramid", "voidweaver", "phantom", "singularity", "juggernaut", "interceptor", "harvester", "defiler"}
+                local defenderTypes = {"ca_obliterator", "ca_voidweaver", "ca_phantom", "ca_singularity", "ca_juggernaut", "ca_interceptor", "ca_harvester", "ca_defiler"}
                 for i = 1, 4 do
                     local typeIdx = random():getInt(1, #defenderTypes)
                     local sType = defenderTypes[typeIdx]
                     local pos = MatrixLookUpPosition(vec3(0,0,1), vec3(0,1,0), vec3(random():getInt(-1000, 1000), 0, random():getInt(-1000, 1000)))
                     
                     local defender
-                    if sType == "voidweaver" then
+                    if sType == "ca_voidweaver" then
                         defender = EclipseGenerator.createCarrier(pos)
-                    elseif sType == "phantom" then
+                    elseif sType == "ca_phantom" then
                         defender = EclipseGenerator.createAssassin(pos)
-                    elseif sType == "singularity" then
+                    elseif sType == "ca_singularity" then
                         defender = EclipseGenerator.createArtillery(pos)
-                    elseif sType == "juggernaut" then
+                    elseif sType == "ca_juggernaut" then
                         defender = EclipseGenerator.createJuggernaut(pos)
-                    elseif sType == "interceptor" then
+                    elseif sType == "ca_interceptor" then
                         defender = EclipseGenerator.createInterceptor(pos)
-                    elseif sType == "harvester" then
+                    elseif sType == "ca_harvester" then
                         defender = EclipseGenerator.createHarvester(pos)
-                    elseif sType == "defiler" then
+                    elseif sType == "ca_defiler" then
                         defender = EclipseGenerator.createDefiler(pos)
                     else
                         defender = EclipseGenerator.createShip(pos, sType)

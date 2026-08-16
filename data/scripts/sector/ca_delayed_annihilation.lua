@@ -33,7 +33,7 @@ function initialize()
         end
 
         local EclipseGenerator = include("eclipsegenerator")
-        local ship = EclipseGenerator.createShip(Matrix(), "monolith")
+        local ship = EclipseGenerator.createShip(Matrix(), "ca_obliterator")
         ship:setTitle("Eclipse Obliterator", {})
         ship:addScriptOnce("data/scripts/entity/ca_heroic_defense.lua")
 

@@ -28,7 +28,6 @@ function Detonation.playSingularityWarning(x, y, z)
         playSound("interface/warning", SoundType.UI, 1.0)
     end
 end
-callable(nil, "playSingularityWarning")
 
 function Detonation.getUpdateInterval()
     -- Fast interval for gravity pull
@@ -118,3 +117,5 @@ end
 function playSingularityWarning(...)
     if Detonation.playSingularityWarning then return Detonation.playSingularityWarning(...) end
 end
+
+callable(nil, "playSingularityWarning")

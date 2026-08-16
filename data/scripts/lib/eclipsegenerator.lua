@@ -127,7 +127,7 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
     position = position or Matrix()
     local faction = EclipseGenerator.getFaction()
 
-    local planPath = "data/plans/eclipse/" .. (planType or "monolith") .. ".xml"
+    local planPath = "data/plans/eclipse/" .. (planType or "ca_obliterator") .. ".xml"
     local plan = LoadPlanFromFile(planPath)
     if not plan then
         -- Fallback if not found
@@ -151,9 +151,9 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
 
     EclipseGenerator.addTurrets(ship, turretCount or 15)
 
-    if planType == "monolith" then
+    if planType == "ca_obliterator" then
         ship:setTitle("Eclipse Obliterator"%_T, {})
-    elseif planType == "obelisk" then
+    elseif planType == "ca_harbinger" then
         ship:setTitle("Eclipse Harbinger"%_T, {})
     else
         ship:setTitle("Eclipse Nullifier"%_T, {})
@@ -167,7 +167,7 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
     ship:addScriptOnce("utility/aiundockable.lua")
 
     -- If it's a Harbinger, inject Ascendant Multipliers
-    if planType == "obelisk" then
+    if planType == "ca_harbinger" then
         ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 10.0) -- +1000% Shields (Nerfed to preserve World-Eater supremacy)
         EclipseGenerator.applyDamageMultiplier(ship, 10.0) -- +1000% Damage (compensated for lost turrets)
         ship:addMultiplyableBias(StatsBonuses.FireRate, 1.0) -- +100% Fire Rate
@@ -189,7 +189,7 @@ end
 
 function EclipseGenerator.createWorldEater(position)
     -- The World-Eater is a massive Pyramid
-    local ship = EclipseGenerator.createShip(position, "pyramid", 150.0, 150)
+    local ship = EclipseGenerator.createShip(position, "ca_worldeater", 150.0, 150)
     ship:setTitle("Eclipse World Eater"%_T, {})
 
     -- The World Eater gets an extra multiplier
@@ -206,7 +206,7 @@ function EclipseGenerator.createWorldEater(position)
 end
 
 function EclipseGenerator.createCarrier(position)
-    local ship = EclipseGenerator.createShip(position, "voidweaver")
+    local ship = EclipseGenerator.createShip(position, "ca_voidweaver")
     ship:setTitle("Eclipse Void-Weaver"%_T, {})
 
     ship:addScriptOnce("ai/carrier.lua")
@@ -218,7 +218,7 @@ function EclipseGenerator.createCarrier(position)
 end
 
 function EclipseGenerator.createAssassin(position)
-    local ship = EclipseGenerator.createShip(position, "phantom")
+    local ship = EclipseGenerator.createShip(position, "ca_phantom")
     ship:setTitle("Eclipse Phantom"%_T, {})
 
     EclipseGenerator.applyDamageMultiplier(ship, 3.0) -- +300% burst damage
@@ -228,7 +228,7 @@ function EclipseGenerator.createAssassin(position)
 end
 
 function EclipseGenerator.createArtillery(position)
-    local ship = EclipseGenerator.createShip(position, "singularity")
+    local ship = EclipseGenerator.createShip(position, "ca_singularity")
     ship:setTitle("Eclipse Singularity"%_T, {})
 
     ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 0.5) -- 50% weaker shields
@@ -250,7 +250,7 @@ function EclipseGenerator.createArtillery(position)
 end
 
 function EclipseGenerator.createJuggernaut(position)
-    local ship = EclipseGenerator.createShip(position, "juggernaut")
+    local ship = EclipseGenerator.createShip(position, "ca_juggernaut")
     ship:setTitle("Eclipse Juggernaut"%_T, {})
 
     ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 2.0) -- +200% Shields
@@ -262,7 +262,7 @@ function EclipseGenerator.createJuggernaut(position)
 end
 
 function EclipseGenerator.createInterceptor(position)
-    local ship = EclipseGenerator.createShip(position, "interceptor")
+    local ship = EclipseGenerator.createShip(position, "ca_interceptor")
     ship:setTitle("Eclipse Interceptor"%_T, {})
 
     ship:addMultiplyableBias(StatsBonuses.Velocity, 1.5) -- +150% Speed
@@ -272,7 +272,7 @@ function EclipseGenerator.createInterceptor(position)
 end
 
 function EclipseGenerator.createHarvester(position)
-    local ship = EclipseGenerator.createShip(position, "harvester")
+    local ship = EclipseGenerator.createShip(position, "ca_harvester")
     ship:setTitle("Eclipse Harvester"%_T, {})
 
     ship:addMultiplyableBias(StatsBonuses.CargoHold, 5.0) -- +500% Cargo
@@ -281,7 +281,7 @@ function EclipseGenerator.createHarvester(position)
 end
 
 function EclipseGenerator.createDefiler(position)
-    local ship = EclipseGenerator.createShip(position, "defiler")
+    local ship = EclipseGenerator.createShip(position, "ca_defiler")
     ship:setTitle("Eclipse Defiler"%_T, {})
 
     EclipseGenerator.applyDamageMultiplier(ship, 1.5) -- +150% Damage
@@ -293,7 +293,7 @@ function EclipseGenerator.createStation(position)
     position = position or Matrix()
     local faction = EclipseGenerator.getFaction()
 
-    local planPath = "data/plans/eclipse/citadel.xml"
+    local planPath = "data/plans/eclipse/ca_citadel.xml"
     local plan = LoadPlanFromFile(planPath)
     if not plan then
         local x, y = 0, 0

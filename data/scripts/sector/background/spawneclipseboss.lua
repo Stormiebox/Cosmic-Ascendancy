@@ -17,7 +17,7 @@ function SpawnEclipseBoss.createBoss()
     local sector = Sector()
     local position = MatrixLookUpPosition(vec3(0,0,1), vec3(0,1,0), vec3(500, 500, 500))
 
-    local boss = EclipseGenerator.createShip(position, "monolith")
+    local boss = EclipseGenerator.createShip(position, "ca_worldeater")
     boss.title = "World Eater"%_T
     boss.name = "World Eater"%_T
 

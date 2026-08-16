@@ -167,7 +167,7 @@ function AscendancyBeacon.onEntityEntered(entityId)
     AscendancyBeacon.treasury = (AscendancyBeacon.treasury or 0) + finalToll
 end
 
-callable(AscendancyBeacon, "toggleBeacon")
+
 function AscendancyBeacon.toggleBeacon()
     if not onServer() then return end
     local owner = Faction(Entity().factionIndex)
@@ -229,6 +229,7 @@ function AscendancyBeacon.toggleBeacon()
 
     AscendancyBeacon.sync()
 end
+callable(AscendancyBeacon, "toggleBeacon")
 
 function AscendancyBeacon.deactivate()
     if not active then return end
@@ -252,7 +253,7 @@ function AscendancyBeacon.deactivate()
     AscendancyBeacon.sync()
 end
 
-callable(AscendancyBeacon, "upgradeTier")
+
 function AscendancyBeacon.upgradeTier()
     if not onServer() then return end
     if not active then return end
@@ -294,6 +295,7 @@ function AscendancyBeacon.upgradeTier()
 
     AscendancyBeacon.sync()
 end
+callable(AscendancyBeacon, "upgradeTier")
 
 function AscendancyBeacon.onDestroyed()
     if active then AscendancyBeacon.deactivate() end
@@ -388,6 +390,7 @@ function AscendancyBeacon.sync(data)
 end
 callable(AscendancyBeacon, "sync")
 
+
 function AscendancyBeacon.syncCosts()
     if not onServer() then return end
     local creditCost, mat, matCost = AscendancyBeacon.getUpkeepCost()
@@ -400,6 +403,7 @@ function AscendancyBeacon.syncCosts()
     invokeClientFunction(Player(callingPlayer), "receiveCosts", creditCost, mat.name, matCost, upCreditCost, upMat.name, upMatCost)
 end
 callable(AscendancyBeacon, "syncCosts")
+
 
 function AscendancyBeacon.receiveCosts(creditCost, matName, matCost, upCreditCost, upMatName, upMatCost)
     if not AscendancyBeacon.costLabel then return end
@@ -431,24 +435,3 @@ function AscendancyBeacon.restore(data)
     AscendancyBeacon.treasury = data.treasury or 0
 end
 
--- Global Engine Callbacks & API Wrappers
-function initialize(...) if AscendancyBeacon.initialize then return AscendancyBeacon.initialize(...) end end
-function interactionPossible(...) if AscendancyBeacon.interactionPossible then return AscendancyBeacon.interactionPossible(...) end end
-function getIcon(...) if AscendancyBeacon.getIcon then return AscendancyBeacon.getIcon(...) end end
-function initUI(...) if AscendancyBeacon.initUI then return AscendancyBeacon.initUI(...) end end
-function onShowWindow(...) if AscendancyBeacon.onShowWindow then return AscendancyBeacon.onShowWindow(...) end end
-function getUpdateInterval(...) if AscendancyBeacon.getUpdateInterval then return AscendancyBeacon.getUpdateInterval(...) end end
-function updateServer(...) if AscendancyBeacon.updateServer then return AscendancyBeacon.updateServer(...) end end
-function secure(...) if AscendancyBeacon.secure then return AscendancyBeacon.secure(...) end end
-function restore(...) if AscendancyBeacon.restore then return AscendancyBeacon.restore(...) end end
-function onDestroyed(...) if AscendancyBeacon.onDestroyed then return AscendancyBeacon.onDestroyed(...) end end
-function onEntityEntered(...) if AscendancyBeacon.onEntityEntered then return AscendancyBeacon.onEntityEntered(...) end end
-function onTogglePressed(...) if AscendancyBeacon.onTogglePressed then return AscendancyBeacon.onTogglePressed(...) end end
-function onUpgradePressed(...) if AscendancyBeacon.onUpgradePressed then return AscendancyBeacon.onUpgradePressed(...) end end
-
--- RPC Client/Server Wrappers
-function toggleBeacon(...) if AscendancyBeacon.toggleBeacon then return AscendancyBeacon.toggleBeacon(...) end end
-function upgradeTier(...) if AscendancyBeacon.upgradeTier then return AscendancyBeacon.upgradeTier(...) end end
-function sync(...) if AscendancyBeacon.sync then return AscendancyBeacon.sync(...) end end
-function syncCosts(...) if AscendancyBeacon.syncCosts then return AscendancyBeacon.syncCosts(...) end end
-function receiveCosts(...) if AscendancyBeacon.receiveCosts then return AscendancyBeacon.receiveCosts(...) end end

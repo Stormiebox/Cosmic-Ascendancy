@@ -51,15 +51,7 @@ function CaBossAudioHook.playGuardianFellMusic()
     print("Cosmic Ascendancy Hook: Playing Forge The Ascendant OST.")
 end
 
-callable(nil, "showCinematicBanner")
-callable(nil, "playBossMusic")
-callable(nil, "stopBossMusic")
-callable(nil, "playGuardianFellMusic")
 
-callable(nil, "triggerGuardianFellMusic")
-callable(nil, "triggerCinematicBanner")
-callable(nil, "triggerBossMusic")
-callable(nil, "triggerStopBossMusic")
 
 -- Server-to-Client Bridge Functions
 function CaBossAudioHook.triggerGuardianFellMusic()
@@ -111,5 +103,15 @@ end
 function playGuardianFellMusic(...)
     if CaBossAudioHook.playGuardianFellMusic then return CaBossAudioHook.playGuardianFellMusic(...) end
 end
+
+callable(nil, "showCinematicBanner")
+callable(nil, "playBossMusic")
+callable(nil, "stopBossMusic")
+callable(nil, "playGuardianFellMusic")
+
+callable(nil, "triggerGuardianFellMusic")
+callable(nil, "triggerCinematicBanner")
+callable(nil, "triggerBossMusic")
+callable(nil, "triggerStopBossMusic")
 
 return CaBossAudioHook
