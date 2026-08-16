@@ -19,6 +19,7 @@ local selectedType = 1
 
 local FORGE_TIME = 24 * 3600
 
+-- namespace AscendancyForge
 AscendancyForge = {}
 
 local weaponChoices = {
@@ -569,36 +570,9 @@ function AscendancyForge.sync(data)
     end
 end
 
-function getUpdateInterval(...) if AscendancyForge.getUpdateInterval then return AscendancyForge.getUpdateInterval(...) end end
-function updateServer(...) if AscendancyForge.updateServer then return AscendancyForge.updateServer(...) end end
-function secure(...) if AscendancyForge.secure then return AscendancyForge.secure(...) end end
-function restore(...) if AscendancyForge.restore then return AscendancyForge.restore(...) end end
-
--- UI & RPC Global Wrappers
-function interactionPossible(...) if AscendancyForge.interactionPossible then return AscendancyForge.interactionPossible(...) end end
-function getIcon(...) if AscendancyForge.getIcon then return AscendancyForge.getIcon(...) end end
-function initUI(...) if AscendancyForge.initUI then return AscendancyForge.initUI(...) end end
-function onComboChanged(...) if AscendancyForge.onComboChanged then return AscendancyForge.onComboChanged(...) end end
-function updateSelectedType(...) if AscendancyForge.updateSelectedType then return AscendancyForge.updateSelectedType(...) end end
-function onShowWindow(...) if AscendancyForge.onShowWindow then return AscendancyForge.onShowWindow(...) end end
-function onSacrificeReceived(...) if AscendancyForge.onSacrificeReceived then return AscendancyForge.onSacrificeReceived(...) end end
-function onSacrificeClicked(...) if AscendancyForge.onSacrificeClicked then return AscendancyForge.onSacrificeClicked(...) end end
-function onInventoryClicked(...) if AscendancyForge.onInventoryClicked then return AscendancyForge.onInventoryClicked(...) end end
-function receiveCosts(...) if AscendancyForge.receiveCosts then return AscendancyForge.receiveCosts(...) end end
-function onForgePressed(...) if AscendancyForge.onForgePressed then return AscendancyForge.onForgePressed(...) end end
-function startForging(...) if AscendancyForge.startForging then return AscendancyForge.startForging(...) end end
-function onClaimPressed(...) if AscendancyForge.onClaimPressed then return AscendancyForge.onClaimPressed(...) end end
-function claimWeapon(...) if AscendancyForge.claimWeapon then return AscendancyForge.claimWeapon(...) end end
-function onDecryptPressed(...) if AscendancyForge.onDecryptPressed then return AscendancyForge.onDecryptPressed(...) end end
-function decryptDatacore(...) if AscendancyForge.decryptDatacore then return AscendancyForge.decryptDatacore(...) end end
-function syncCosts(...) if AscendancyForge.syncCosts then return AscendancyForge.syncCosts(...) end end
-function sync(...) if AscendancyForge.sync then return AscendancyForge.sync(...) end end
-
-callable(nil, "updateSelectedType")
-callable(nil, "syncCosts")
-callable(nil, "startForging")
-callable(nil, "claimWeapon")
-callable(nil, "decryptDatacore")
-callable(nil, "sync")
-
-return AscendancyForge
+callable(AscendancyForge, "updateSelectedType")
+callable(AscendancyForge, "syncCosts")
+callable(AscendancyForge, "startForging")
+callable(AscendancyForge, "claimWeapon")
+callable(AscendancyForge, "decryptDatacore")
+callable(AscendancyForge, "sync")

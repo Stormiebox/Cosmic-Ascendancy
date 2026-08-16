@@ -11,11 +11,26 @@ Welcome to the **Cosmic Ascendancy** official wiki! This document contains the f
 - [🧬 Mod Identity & Narrative Concept](#-mod-identity--narrative-concept)
 - [🌑 The Eclipse Crisis (Deep Dive)](#-the-eclipse-crisis-deep-dive)
 - [🚨 The World-Eater Doomsday Event](#-the-world-eater-doomsday-event)
+- [📖 The Ascendant Campaign](#-the-ascendant-campaign)
 - [🏰 Eclipse Citadels](#-eclipse-citadels)
 - [🗼 The Ascendancy Beacon](#-the-ascendancy-beacon)
 - [🗺️ Dynamic Faction Expansion](#️-dynamic-faction-expansion)
 - [🛠️ The Ascendancy Forge (Crafting & Math)](#️-the-ascendancy-forge-crafting--math)
 - [🤝 Synergies & Integrations](#-synergies--integrations)
+
+---
+
+## 📖 The Ascendant Campaign
+<details>
+<summary><b>Click to expand</b></summary>
+
+Upon defeating the Wormhole Guardian and unleashing The Eclipse, the engine will intercept the player by dynamically spawning **Aegis, The Ascendant Envoy**—a fully voiced AI construct that drives the mod's narrative.
+
+- **Physical Rendezvous:** Rather than sending passive radio messages to your inbox, the engine injects a series of "Rendezvous Sectors" onto the galaxy map. You must physically fly your fleet to these sectors to meet Aegis' projection. She is spawned completely invincible and non-dockable, ensuring she cannot be destroyed by crossfire.
+- **5-Part Narrative:** Aegis acts as the mission controller for a 5-part storyline, feeding you the lore behind The Eclipse, unlocking the coordinates to the Ascendancy Forge, and alerting you to Citadel and World-Eater incursions.
+- **Dynamic Reward Payouts:** The dialogue tree dynamically analyzes your mission phase variables (`ca_ready_for_debrief_X`) to prevent sequence breaking. Upon returning to Aegis to debrief a major objective, she will natively inject massive credit payouts (scaling from 2.5M up to 25M) and high-tier subsystem/turret drops (scaling up to Exotic and Legendary rarities) directly into your inventory.
+- **Multiplayer Sector Scaling:** In a multiplayer server environment, Aegis does not despawn instantly after a single player accepts a mission. She is bound to a custom `ca_envoy_despawn.lua` script that registers the `onPlayerLeft` sector callback. Aegis will persistently remain in the rendezvous sector until the final player leaves, allowing an entire alliance to independently talk to her, receive their own personal rewards, and acquire the quest!
+</details>
 
 ---
 

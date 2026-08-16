@@ -5,11 +5,6 @@ local SectorGenerator = include ("SectorGenerator")
 
 local LoreAnomalies = {}
 
-function LoreAnomalies.initialize()
-    if onServer() then
-        Player():registerCallback("onSectorEntered", "onSectorEntered")
-    end
-end
 
 function LoreAnomalies.onSectorEntered(playerIndex, x, y, sectorChangeType)
     if sectorChangeType ~= SectorChangeType.Jump then return end
@@ -45,7 +40,7 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
     if sector:getEntitiesByComponent(ComponentType.Station) then return end
 
     local generator = SectorGenerator(x, y)
-    local pos = generator:createPositionInSector(5000)
+    local pos = generator:getPositionInSector(5000)
 
     -- Pick a random lore snippet
     local snippets = {
@@ -65,7 +60,7 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
 
     -- Spawn a stash container with loot scaled by distance to core
     local stashPos = pos + vec3(random():getFloat(50, 100), random():getFloat(50, 100), random():getFloat(50, 100))
-    local stash = sector:createContainer(MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), stashPos), nil, "")
+    local stash = generator:createContainer(nil, MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), stashPos), 0)
     stash.title = "Corrupted Databank Stash"%_t
 
     local dist = math.sqrt(x*x + y*y)
@@ -79,15 +74,16 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
     elseif dist < 400 then distMat = 2 -- Naonite
     end
 
-    -- Add resources to stash
+    -- Pass scaling values to the new dedicated stash script
     local amount = random():getInt(10000, 50000)
-    stash:addDrop(Material(distMat), amount)
-
-    -- Drop random system upgrades
     local numUpgrades = random():getInt(1, 3)
-    for i = 1, numUpgrades do
-        stash:addDrop(SystemUpgradeTemplate("data/scripts/systems/randomupgrade.lua", Rarity(random():getInt(1, 3)), Seed(1)))
-    end
+
+    stash:setValue("ca_anomaly_mat", distMat)
+    stash:setValue("ca_anomaly_amt", amount)
+    stash:setValue("ca_anomaly_upgrades", numUpgrades)
+
+    -- Attach the custom interaction script to make the container openable
+    stash:addScriptOnce("data/scripts/entity/ca_anomaly_stash.lua")
 
     -- Send the lore directly to the player's chat
     Player(playerIndex):sendChatMessage("Ship Sensors", 3, loreText)
@@ -104,11 +100,5 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
     end
 end
 
-function initialize(...)
-    if LoreAnomalies.initialize then return LoreAnomalies.initialize(...) end
-end
-function onSectorEntered(...)
-    if LoreAnomalies.onSectorEntered then return LoreAnomalies.onSectorEntered(...) end
-end
 
 return LoreAnomalies

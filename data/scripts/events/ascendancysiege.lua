@@ -191,7 +191,7 @@ function AscendancySiege.onVictory()
     local lootPos = vec3(0, 0, 0)                    -- Drop at sector center
     for i = 1, 5 + tier * 2 do
         Sector():dropTurret(lootPos, nil, nil, turretGen:generateArmed(x, y, 0, lootRarity))
-        Sector():dropUpgrade(lootPos, nil, nil, upgradeGen:generateSystem(lootRarity))
+        Sector():dropUpgrade(lootPos, nil, nil, upgradeGen:generateSectorSystem(x, y, lootRarity))
     end
 
     local owner = Faction(targetFactionIndex)

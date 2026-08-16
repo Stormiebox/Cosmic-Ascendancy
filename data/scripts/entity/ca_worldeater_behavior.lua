@@ -499,7 +499,7 @@ function CAWorldEater.onDestroyed()
     for i = 1, random():getInt(5, 10) do
         local turret = turretGen:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))
         if turret then
-            turret.tech = 52
+            -- tech level scales natively with cx, cy
             sector:dropTurret(pos, nil, nil, turret)
         end
     end
@@ -508,7 +508,7 @@ function CAWorldEater.onDestroyed()
     local UpgradeGenerator = include("upgradegenerator")
     local generator = UpgradeGenerator()
     for i = 1, random():getInt(5, 10) do
-        local upgrade = generator:generateSystem(Rarity(RarityType.Legendary))
+        local upgrade = generator:generateSectorSystem(cx, cy, Rarity(RarityType.Legendary))
         if upgrade then
             sector:dropUpgrade(pos, nil, nil, upgrade)
         end

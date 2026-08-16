@@ -11,7 +11,7 @@ end
 mission._Name = "Forging the Defense"
 mission._Debug = 0
 
-mission.data.description = "The Eclipse are real, and they possess shielding technology that adapts to our weapons. The Adventurer mentioned an ancient, planet-sized failsafe built by the Ascendants: the 'Ascendancy Forge'."
+mission.data.description = "The Eclipse are real, and they possess shielding technology that adapts to our weapons. Aegis mentioned an ancient, planet-sized failsafe built by the Ascendants: the 'Ascendancy Forge'."
 mission.data.title = "Forging the Defense"
 
 mission.phases[1] = {}
@@ -21,7 +21,7 @@ mission.phases[1].onBeginServer = function()
     local targetX, targetY = getTargetSector(x, y)
     mission.data.custom.targetX = targetX
     mission.data.custom.targetY = targetY
-    mission.data.description = "The Adventurer gave you a set of ancient encrypted coordinates. Jump to (" .. targetX .. ":" .. targetY .. ") to investigate."
+    mission.data.description = "Aegis uploaded a set of ancient encrypted coordinates. Jump to (" .. targetX .. ":" .. targetY .. ") to investigate."
 end
 
 mission.phases[1].onSectorEntered = function(x, y)
@@ -43,14 +43,14 @@ end
 mission.phases[2].updateServer = function()
     if Server().unpausedRuntime >= mission.data.custom.waitTime then
         Player():sendChatMessage("Rover Alpha", 0, "Download complete! It's blueprints for an 'Ascendancy Forge'. We're returning to the ship.")
-        Player():sendChatMessage("Ship Computer", 0, "Analyzing blueprints... This structure requires an immense amount of raw materials to construct. Specifically, Avorion.")
+        Player():sendChatMessage("Aegis", 0, "Commander, the blueprints are secured. However, to power the primary reactor and begin forging weapons capable of piercing Eclipse armor, the facility requires a massive influx of raw Avorion as a catalyst.")
         nextPhase()
     end
 end
 
 mission.phases[3] = {}
 mission.phases[3].onBeginServer = function()
-    mission.data.description = "To power the Ascendancy Forge's primary reactor, you need to gather an initial supply of 50,000 Avorion."
+    mission.data.description = "To power the Ascendancy Forge's primary reactor, you need to gather an initial supply of 50,000 Avorion to act as a catalyst."
 end
 
 mission.phases[3].updateServer = function()
@@ -58,10 +58,42 @@ mission.phases[3].updateServer = function()
     local iron, tit, nao, tri, xan, ogo, avo = player:getResources()
     if avo >= 50000 then
         player:pay(0, 0, 0, 0, 0, 0, 0, 50000)
-        Player():sendChatMessage("Ship Computer", 0, "50,000 Avorion gathered and fed into the primary reactor schematic. Ascendancy Forge blueprints are fully unlocked and ready for construction.")
+        Player():sendChatMessage("Aegis", 0, "Catalyst accepted. The Ascendancy Forge blueprints are fully unlocked. Commander, a new threat has emerged while you were gathering materials. Meet me at these coordinates immediately.")
         Player():setValue("ca_forge_unlocked", true)
-        Player():addScriptOnce("data/scripts/player/missions/ca_story3_vanguard.lua")
-        finish()
+        
+        local x, y = Sector():getCoordinates()
+        local rx, ry = getTargetSector(x, y)
+        mission.data.custom.aegisX = rx
+        mission.data.custom.aegisY = ry
+        nextPhase()
+    end
+end
+
+mission.phases[4] = {}
+mission.phases[4].showUpdateOnEnd = true
+mission.phases[4].onBeginServer = function()
+    mission.data.description = "Rendezvous with Aegis at (" .. mission.data.custom.aegisX .. ":" .. mission.data.custom.aegisY .. ")."
+end
+
+mission.phases[4].onSectorEntered = function(x, y)
+    if x == mission.data.custom.aegisX and y == mission.data.custom.aegisY then
+        if not mission.data.custom.aegisSpawned then
+            mission.data.custom.aegisSpawned = true
+            local generator = include("SectorGenerator")(Sector():getCoordinates())
+            local faction = Galaxy():getNearestFaction(0, 0)
+            local ship = generator:createShip(faction, "data/scripts/entity/story/ca_ascendant_envoy.lua")
+            ship.name = "Aegis, The Ascendant Envoy"
+            ship.title = "Ascendant AI Construct"
+            ship:setInvincible(true)
+            ship.dockable = false
+            ship:addScriptOnce("entity/ca_envoy_despawn.lua")
+            local plan = LoadPlanFromFile("data/plans/ascendant/ca_aegis.xml")
+            if plan then ship:setPlan(plan) end
+            local ShipUtility = include("shiputility")
+            ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
+            Player():sendChatMessage(ship.name, 0, "Commander. Approach my projection and initiate contact.")
+        end
+        Player():setValue("ca_ready_for_debrief_2", true)
     end
 end
 

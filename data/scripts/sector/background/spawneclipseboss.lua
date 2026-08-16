@@ -37,11 +37,11 @@ function SpawnEclipseBoss.createBoss()
 
     for i = 1, 25 do
         -- Generate and insert a legendary upgrade into the boss's loot pool
-        Loot(boss):insert(ugen:generateSystem(Rarity(RarityType.Legendary)))
+        Loot(boss):insert(ugen:generateSectorSystem(cx, cy, Rarity(RarityType.Legendary)))
 
         local turret = tgen:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))
         if turret then
-            turret.tech = 52
+            -- tech level scales natively with cx, cy
             Loot(boss):insert(InventoryTurret(turret))
         end
     end

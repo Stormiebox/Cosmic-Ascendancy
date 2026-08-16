@@ -19,8 +19,12 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     local sector = Sector()
     if not sector then return end
     
-    -- Only generate in regular sectors that haven't been visited/generated yet
-    if sector.numEntities > 0 then return end
+    -- Ensure this check only happens once per sector
+    if sector:getValue("ca_darksector_checked") then return end
+    sector:setValue("ca_darksector_checked", true)
+
+    -- Do not generate over faction territory, asteroid bases, or populated sectors
+    if sector:getEntitiesByComponent(ComponentType.Station) then return end
     
     -- Check if inside the core
     local dist = length(vec2(x, y))
@@ -42,7 +46,7 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     local numCitadels = random():getInt(1, 3)
     
     for i = 1, numCitadels do
-        local pos = generator:createPositionInSector(1000)
+        local pos = generator:getPositionInSector(1000)
         local citadel = EclipseGenerator.createStation(pos)
         if citadel then
             citadel:addScriptOnce("data/scripts/entity/ca_eclipse_abilities.lua")
@@ -53,7 +57,7 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     local numFleets = random():getInt(2, 4)
     local spawnedFleets = {}
     for i = 1, numFleets do
-        local pos = generator:createPositionInSector(1500)
+        local pos = generator:getPositionInSector(1500)
         table.insert(spawnedFleets, EclipseGenerator.createJuggernaut(pos))
         table.insert(spawnedFleets, EclipseGenerator.createArtillery(pos))
         table.insert(spawnedFleets, EclipseGenerator.createAssassin(pos))

@@ -38,29 +38,30 @@ function EclipseAwakes.updateServer(timeStep)
     local server = Server()
 
     local unleashed = server:getValue("the_eclipse_unleashed")
-    if not unleashed then
-        -- Check if the Guardian was killed (global server timer set by vanilla script)
-        -- OR fallback to checking online players (for retro-active activation on old saves)
-        local guardianKilled = server:getValue("guardian_respawn_time") ~= nil
-        if not guardianKilled then
-            for _, player in pairs({server:getOnlinePlayers()}) do
-                if player:getValue("wormhole_guardian_destroyed") then
-                    guardianKilled = true
-                    break
+
+    -- Check all online players to spawn the Envoy for them individually if they killed the Guardian
+    for _, player in pairs({server:getOnlinePlayers()}) do
+        if player:getValue("wormhole_guardian_destroyed") and not player:getValue("ca_envoy_spawned") then
+            player:setValue("ca_envoy_spawned", true)
+            
+            -- Add the player script that will wait 10 seconds and spawn Aegis
+            player:addScriptOnce("data/scripts/player/ca_spawn_envoy.lua")
+
+            -- If this is the FIRST time any player has killed it, trigger the global awakening
+            if not unleashed then
+                server:setValue("the_eclipse_unleashed", true)
+                unleashed = true
+                EclipseAwakes.awakenTimer = 0
+                server:broadcastChatMessage("Server", 2, "An ominous shudder ripples through the fabric of subspace... The Guardian's death has broken an ancient seal."%_T)
+                for _, p in pairs({server:getOnlinePlayers()}) do
+                    p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "THE ECLIPSE AWAKENS", "data/sounds/siren.ogg")
                 end
             end
         end
+    end
 
-        if guardianKilled then
-            server:setValue("the_eclipse_unleashed", true)
-            -- NO LONGER SET eclipse_awaken_time as a Server Value
-            EclipseAwakes.awakenTimer = 0
-            server:broadcastChatMessage("Server", 2, "An ominous shudder ripples through the fabric of subspace... The Guardian's death has broken an ancient seal."%_T)
-            for _, p in pairs({server:getOnlinePlayers()}) do
-                p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
-                p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "THE ECLIPSE AWAKENS", "data/sounds/siren.ogg")
-            end
-        end
+    if not unleashed then
         return
     end
 

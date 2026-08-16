@@ -11,7 +11,7 @@ end
 mission._Name = "The Eclipse Awakening"
 mission._Debug = 0
 
-mission.data.description = "The Wormhole Guardian was not a final boss. It was the keystone of the Ascendants' ancient dimensional prison. Now that the knot is unraveled, investigate the anomalous dark energy readings the Hermit provided."
+mission.data.description = "Aegis, an Ascendant AI, revealed that the Wormhole Guardian was a keystone holding back the algorithmic plague known as The Eclipse. Now that the seal is broken, you must investigate the first detected subspace anomaly."
 mission.data.title = "The Eclipse Awakening"
 
 mission.phases[1] = {}
@@ -21,7 +21,7 @@ mission.phases[1].onBeginServer = function()
     local targetX, targetY = getTargetSector(x, y)
     mission.data.custom.targetX = targetX
     mission.data.custom.targetY = targetY
-    mission.data.description = "Jump to the coordinates the Hermit provided: (" .. targetX .. ":" .. targetY .. ")\n\nThe Hermit's last transmission was filled with static. 'The lock is broken. The algorithm... The Eclipse... they are returning to sanitize the galaxy. You must see it for yourself.'"
+    mission.data.description = "Jump to the anomaly coordinates Aegis provided: (" .. targetX .. ":" .. targetY .. ")\n\nAegis warned that The Eclipse does not conquer—it sanitizes. Be prepared for anything."
 end
 
 mission.phases[1].onSectorEntered = function(x, y)
@@ -40,7 +40,7 @@ mission.phases[2].onBeginServer = function()
     local generator = include("SectorGenerator")(Sector():getCoordinates())
     local pos = generator:getPositionInSector(5000)
 
-    local plan = LoadPlanFromFile("data/plans/Ascendant/ascendancy_anomaly.xml")
+    local plan = LoadPlanFromFile("data/plans/ascendant/ascendancy_anomaly.xml")
     if not plan then
         plan = generator:getBasicWreckagePlan()
     end
@@ -65,7 +65,7 @@ mission.phases[2].updateServer = function(timeStep)
     end
 
     if distance(craft.translationf, wreck.translationf) < 500 then
-        Player():sendChatMessage("Ship Computer", 0, "Scanning monolithic structure... Architecture is older than the Xsotan. It's functioning as a subspace beacon... Wait. It's activating!")
+        Player():sendChatMessage("Aegis", 0, "The anomaly is a subspace beacon. It's activating... Commander, prepare yourself. A Vanguard fleet has locked onto your position.")
         wreck:addScriptOnce("entity/delete.lua") -- Delete the wreck
         nextPhase()
     end
@@ -94,9 +94,39 @@ mission.phases[3].updateServer = function(timeStep)
 
     local enemies = {Sector():getEntitiesByScriptValue("ca_eclipse_ambush")}
     if #enemies == 0 then
-        Player():sendChatMessage("Ship Computer", 0, "Hostiles eliminated. Their shielding tech is unbelievable. We need to find a way to upgrade our weapons if we are to survive this.")
-        Player():addScriptOnce("data/scripts/player/missions/ca_story2_forge.lua")
-        finish()
+        Player():sendChatMessage("Aegis", 0, "Hostiles eliminated. More will come. We must meet. I am transmitting secure rendezvous coordinates.")
+        local rx, ry = getTargetSector(x, y)
+        mission.data.custom.aegisX = rx
+        mission.data.custom.aegisY = ry
+        nextPhase()
+    end
+end
+
+mission.phases[4] = {}
+mission.phases[4].showUpdateOnEnd = true
+mission.phases[4].onBeginServer = function()
+    mission.data.description = "Rendezvous with Aegis at (" .. mission.data.custom.aegisX .. ":" .. mission.data.custom.aegisY .. ")."
+end
+
+mission.phases[4].onSectorEntered = function(x, y)
+    if x == mission.data.custom.aegisX and y == mission.data.custom.aegisY then
+        if not mission.data.custom.aegisSpawned then
+            mission.data.custom.aegisSpawned = true
+            local generator = include("SectorGenerator")(Sector():getCoordinates())
+            local faction = Galaxy():getNearestFaction(0, 0)
+            local ship = generator:createShip(faction, "data/scripts/entity/story/ca_ascendant_envoy.lua")
+            ship.name = "Aegis, The Ascendant Envoy"
+            ship.title = "Ascendant AI Construct"
+            ship:setInvincible(true)
+            ship.dockable = false
+            ship:addScriptOnce("entity/ca_envoy_despawn.lua")
+            local plan = LoadPlanFromFile("data/plans/ascendant/ca_aegis.xml")
+            if plan then ship:setPlan(plan) end
+            local ShipUtility = include("shiputility")
+            ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
+            Player():sendChatMessage(ship.name, 0, "Commander. Approach my projection and initiate contact.")
+        end
+        Player():setValue("ca_ready_for_debrief_1", true)
     end
 end
 

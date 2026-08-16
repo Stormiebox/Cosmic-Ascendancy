@@ -37,13 +37,13 @@ function onDestroyed()
     for i = 1, random():getInt(8, 12) do
         local turret = tgen:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))
         if turret then
-            turret.tech = 52
+            -- tech level scales natively with cx, cy
             sector:dropTurret(pos, nil, nil, turret)
         end
     end
     
     for i = 1, random():getInt(8, 12) do
-        local upgrade = ugen:generateSectorSystem(0, 0, Rarity(RarityType.Legendary))
+        local upgrade = ugen:generateSectorSystem(cx, cy, Rarity(RarityType.Legendary))
         if upgrade then
             sector:dropUpgrade(pos, nil, nil, upgrade)
         end

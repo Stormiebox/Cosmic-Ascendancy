@@ -7,6 +7,12 @@ function CaBossAudioHook.initialize()
     if onServer() then return end
 end
 
+-- Invoked from Server to bridge to Client
+function CaBossAudioHook.triggerCinematicBanner(text, soundPath)
+    if onClient() then return end
+    invokeClientFunction(Player(), "showCinematicBanner", text, soundPath)
+end
+
 -- Invoked by the server to show the Cinematic UI Banner for Doomsday
 function CaBossAudioHook.showCinematicBanner(text, soundPath)
     if onServer() then return end

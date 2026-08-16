@@ -7,6 +7,18 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.2.0] - The Ascendant Envoy Update
+
+### ✨ Features & UI
+
+- [Feature] **Aegis, The Ascendant Envoy:** Added a completely new story NPC, Aegis, who spawns to guide players through the Eclipse lore after defeating the Wormhole Guardian. The NPC features an invincible, non-collidable hologram projection format.
+- [Feature] **Expanded Campaign:** Vastly expanded the end-game campaign into 5 distinct, sequential missions (The Seal is Broken, The Vanguard, Forging the Defense, The Citadel Threat, and The World-Eater). Replaced generic NPC mentions with Aegis and fully refreshed the dialogue.
+
+### 🐛 Bug Fixes
+
+- [Bugfix] **Engine Pathing:** Fixed a critical bug where `server.lua` was placed in the wrong folder structure for global initialization, failing to trigger the Aegis events upon Guardian death. Restored to `data/scripts/galaxy/server.lua`.
+- [Bugfix] **Cinematic Audio & Banners:** Fixed a broken server-to-client RPC hook (`ca_boss_audio_hook.lua`) that was preventing ominous music and red Doomsday banners from appearing on players' screens when an Eclipse boss spawns.
+
 ## [v1.1.1] - Hotfix
 
 ### 🐛 Bug Fix

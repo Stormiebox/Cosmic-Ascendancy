@@ -63,26 +63,3 @@ function AscendancyKeepAlive.restore(data_in)
 end
 
 
-function initialize(...)
-    if AscendancyKeepAlive.initialize then return AscendancyKeepAlive.initialize(...) end
-end
-
-
--- Global Event Callbacks
-function onAscendancyBeaconPing(...)
-    if AscendancyKeepAlive.onAscendancyBeaconPing then return AscendancyKeepAlive.onAscendancyBeaconPing(...) end
-end
-function onAscendancyBeaconActivated(...)
-    if AscendancyKeepAlive.onAscendancyBeaconActivated then return AscendancyKeepAlive.onAscendancyBeaconActivated(...) end
-end
-function onAscendancyBeaconDeactivated(...)
-    if AscendancyKeepAlive.onAscendancyBeaconDeactivated then return AscendancyKeepAlive.onAscendancyBeaconDeactivated(...) end
-end
-function secure(...)
-    if AscendancyKeepAlive.secure then return AscendancyKeepAlive.secure(...) end
-end
-function restore(...)
-    if AscendancyKeepAlive.restore then return AscendancyKeepAlive.restore(...) end
-end
-
-return AscendancyKeepAlive

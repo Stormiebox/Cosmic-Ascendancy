@@ -7,11 +7,26 @@ Welcome to the **Cosmic Ascendancy** official player guide! This document breaks
 ## 📑 Table of Contents
 - [🌑 The Eclipse Crisis](#-the-eclipse-crisis)
 - [🏰 Eclipse Citadels](#-eclipse-citadels)
+- [📖 The Ascendant Campaign](#-the-ascendant-campaign)
 - [📈 Dynamic Faction Expansion](#-dynamic-faction-expansion)
 - [👑 The Fallen Empire Awakening](#-the-fallen-empire-awakening)
 - [🛠️ The Ascendancy Forge](#️-the-ascendancy-forge)
 - [🗼 The Ascendancy Beacon](#️-the-ascendancy-beacon)
 - [🤝 Synergies & Integrations](#-synergies--integrations)
+
+---
+
+## 📖 The Ascendant Campaign
+<details>
+<summary><b>Click to expand</b></summary>
+
+Upon defeating the Wormhole Guardian and unleashing The Eclipse, you will not be left to fight alone. You will be physically intercepted by **Aegis, The Ascendant Envoy**—an ancient AI construct designed by the creators of the dimensional prison.
+
+- **Physical Rendezvous:** Instead of receiving basic radio messages, Aegis will transmit secure rendezvous coordinates to you. You must physically fly to these sectors to meet her projection and initiate contact.
+- **5-Part Storyline:** She will guide you through a fully-scripted 5-mission campaign detailing the origins of The Eclipse, the location of the Ascendancy Forge, the Citadel threat, and the incoming World-Eater.
+- **Massive Rewards:** Every time you complete a major campaign objective and return to Aegis for your debrief, she will inject massive credit payouts (scaling up to 25 Million!) and high-tier subsystem/turret drops (up to Legendary rarity) directly into your cargo hold.
+- **Multiplayer Support:** If you are playing with an alliance, Aegis will patiently remain stationed at the rendezvous point until *all* players in the sector have had a chance to speak with her and claim their own personal rewards!
+</details>
 
 ---
 
