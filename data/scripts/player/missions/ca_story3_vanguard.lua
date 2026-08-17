@@ -9,6 +9,10 @@ end
 
 
 mission._Name = "The Vanguard Assault"
+
+abandon = nil -- this mission is not abandonable
+mission.data.brief = mission._Name
+mission.data.icon = "data/textures/icons/story-mission.png"
 mission._Debug = 0
 
 mission.data.description = "The Eclipse are mounting a massive assault against your position. They have tracked the energy signature of the Ascendancy Forge blueprints."

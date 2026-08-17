@@ -7,6 +7,10 @@ include("structuredmission")
 mission._Debug = 0
 mission._Name = "A Mysterious Summons"
 
+abandon = nil -- this mission is not abandonable
+mission.data.brief = mission._Name
+mission.data.icon = "data/textures/icons/story-mission.png"
+
 mission.data.title = "A Mysterious Summons"
 mission.data.description = "You have received an encrypted transmission from an entity claiming to be 'Aegis'. The destruction of the Wormhole Guardian has seemingly triggered a response. You should investigate the coordinates provided."
 

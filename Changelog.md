@@ -7,6 +7,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.2.2]
+
+### 🐛 Bug Fixes
+- [Bugfix] **Aegis Legacy Save Compatibility:** Fixed an issue where loading into a legacy save with the Wormhole Guardian already destroyed would trigger the Aegis encounter instantly without any narrative delay. `ca_spawn_envoy.lua` now properly utilizes a 10-second `updateServer` background delay before initiating contact.
+- [Bugfix] **Dark Sector Premature Spawning:** Fixed a bug in `ca_darksector_generator.lua` where players could encounter Eclipse fleets and Dark Matter Fog in the deep core before actually defeating the Wormhole Guardian and awakening them.
+- [Bugfix] **Story Mission UI Polish & Softlocks:** Safely patched all 6 stages of the Cosmic Ascendancy narrative campaign (`ca_story0` through `ca_story5`). The missions are now explicitly marked as un-abandonable (`abandon = nil`), preventing players from accidentally aborting the questline and soft-locking their playthrough. Added missing `mission.data.brief` descriptions and assigned the official yellow story-mission icons.
+
 ## [v1.2.1]
 
 ### ✨ Features & UI

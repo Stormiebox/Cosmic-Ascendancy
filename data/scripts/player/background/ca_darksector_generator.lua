@@ -23,6 +23,8 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     if sector:getValue("ca_darksector_checked") then return end
     sector:setValue("ca_darksector_checked", true)
 
+    if not Server():getValue("the_eclipse_unleashed") then return end
+
     -- Do not generate over faction territory, asteroid bases, or populated sectors
     if #({sector:getEntitiesByType(EntityType.Station)}) > 0 then return end
     

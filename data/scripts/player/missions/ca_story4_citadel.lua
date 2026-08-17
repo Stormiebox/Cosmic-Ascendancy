@@ -9,6 +9,10 @@ end
 
 
 mission._Name = "The Citadel Threat"
+
+abandon = nil -- this mission is not abandonable
+mission.data.brief = mission._Name
+mission.data.icon = "data/textures/icons/story-mission.png"
 mission._Debug = 0
 
 mission.data.description = "Aegis has detected a massive localized space-time distortion. The Eclipse are attempting to anchor a Citadel in a nearby sector to begin mass sterilization."
