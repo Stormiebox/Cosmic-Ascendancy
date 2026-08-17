@@ -1,5 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
+include("stringutility")
 
 local cv_news = include("cosmicvaultnews")
 

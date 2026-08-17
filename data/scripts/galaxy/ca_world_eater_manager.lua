@@ -1,4 +1,5 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
+include("stringutility")
 local cv_news = include("cosmicvaultnews")
 
 local WorldEaterManager = {}

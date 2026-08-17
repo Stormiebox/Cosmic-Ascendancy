@@ -5,6 +5,7 @@ local cv_fleet = include("cosmicvaultfleet")
 local cv_anomalies = include("cosmicvaultanomalies")
 
 -- namespace EclipseBossBehavior
+include("stringutility")
 EclipseBossBehavior = {}
 local self = EclipseBossBehavior
 

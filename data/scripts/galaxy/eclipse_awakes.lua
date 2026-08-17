@@ -1,5 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
+include("stringutility")
 
 local EclipseAwakes = {}
 EclipseAwakes.invasionTimer = 0
@@ -70,14 +71,8 @@ function EclipseAwakes.updateServer(timeStep)
         local timeRemaining = (10 * 60) - EclipseAwakes.awakenTimer
 
         if timeRemaining > 0 then
-            -- 15 seconds in (585 secs remaining) - Trigger the Forge the Ascendant OST
-            if timeRemaining <= (10 * 60) - 15 and not server:getValue("eclipse_music_triggered") then
-                server:setValue("eclipse_music_triggered", true)
-                for _, p in pairs({server:getOnlinePlayers()}) do
-                    p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
-                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerGuardianFellMusic")
-                end
-            end
+            -- Music trigger has been moved to ca_story0_meet_aegis.lua to play when encountering Aegis
+
 
             -- 3 minutes in (7 mins remaining)
             if timeRemaining <= 7 * 60 and not server:getValue("eclipse_warning_1") then

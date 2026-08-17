@@ -46,8 +46,8 @@ end
 
 function CaBossAudioHook.playGuardianFellMusic()
     if onServer() then return end
-    -- Fade out the Wormhole Guardian combat music or other music smoothly over 3 seconds
-    Music():fadeOut(3.0)
+    -- Immediately kill the vanilla combat/background music so it doesn't overlap
+    Music():stop()
     -- Start the Forge The Ascendant OST
     Music():playTrack("data/music/special/forge_the_ascendant.ogg", false, 1.0)
     print("Cosmic Ascendancy Hook: Playing Forge The Ascendant OST.")

@@ -24,7 +24,7 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     sector:setValue("ca_darksector_checked", true)
 
     -- Do not generate over faction territory, asteroid bases, or populated sectors
-    if sector:getEntitiesByComponent(ComponentType.Station) then return end
+    if #({sector:getEntitiesByType(EntityType.Station)}) > 0 then return end
     
     -- Check if inside the core
     local dist = length(vec2(x, y))
@@ -73,3 +73,4 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     
     Player(playerIndex):sendChatMessage("WARNING", 1, "WARNING! You have entered an Eclipse Dark Sector. Extreme Dark Matter Fog detected."%_t)
 end
+

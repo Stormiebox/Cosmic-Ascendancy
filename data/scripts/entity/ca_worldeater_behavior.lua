@@ -6,6 +6,7 @@ include("utility")
 local EclipseGenerator = include("eclipsegenerator")
 
 -- namespace CAWorldEater
+include("stringutility")
 CAWorldEater = {}
 
 local data = {}

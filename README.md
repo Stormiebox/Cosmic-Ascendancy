@@ -16,7 +16,7 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 
 - **Dynamic Faction Expansion:** Watch the galaxy come alive as AI Factions and Pirates natively expand their borders into uncharted sectors over time, driven by an optimized background simulation.
 - **The Ascendancy Beacon:** Establish a permanent, 24/7 simulated capital megastructure to buff your entire fleet.
-- **Story Campaign:** A written, multi-stage epic narrative questline.
+- **Story Campaign:** A fully-scripted, multi-stage epic narrative questline guided by Priority Mail dispatches and safe, isolated Rendezvous Sectors.
 - **The Ascendancy Forge:** Craft Ascendant-tier technologies by sacrificing vast resources.
 - **Dynamic Strongholds:** Eclipse Citadels naturally spawn and conquer sectors.
 - **Eclipse Rift Spillage:** Eclipse Invasions now have a 10% chance to destabilize local space, tearing a massive subspace rift that drains sector shields. You must destroy the Eclipse Rift Stabilizer to close the tear and end the hazard.

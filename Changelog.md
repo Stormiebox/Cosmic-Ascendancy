@@ -9,8 +9,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [v1.2.1]
 
+### ✨ Features & UI
+- [Feature] **Aegis Contact Flow:** Completely overhauled the initial encounter with Aegis, the Ascendant Envoy. Instead of abruptly spawning at sector 0:0 during the unskippable end-credits sequence, Aegis now formally contacts the player via a secure, priority in-game Mail and grants a mission (`A Mysterious Summons`) directing them to a nearby rendezvous coordinate. 
+
 ### 🐛 Bug Fixes
-- [Bugfix] **Audio Hook Syntax & Synchronization:** Fixed critical server desyncs in `ca_boss_audio_hook.lua`. Removed legacy global C++ wrappers shadowing the engine\'s internal callback handler and properly bound all client/server RPCs natively to the `CaBossAudioHook` namespace.
+- [Bugfix] **Aegis Despawn Softlock:** Fixed a critical progression softlock during the new Aegis rendezvous encounter. If a player warped to her sector but jumped away before initiating contact (causing her to naturally despawn to prevent sector clutter), the game previously permanently locked her out. The mission now dynamically scans the sector and safely respawns her upon the player's return.
+- [Bugfix] **Cinematic Music Overlap:** Fixed an issue where the custom "Forge the Ascendant" OST would awkwardly overlap with the Wormhole Guardian's end-credits track. The OST trigger has been removed from a hardcoded 15-second timer and moved to the exact moment the player enters Aegis's rendezvous sector, explicitly silencing all vanilla battle music (`Music():stop()`) before playing.
+- [Bugfix] **StringUtility API Crash:** Fixed a severe, widespread background thread crash affecting 21 scripts across the Cosmic Ascendancy module (including `ca_worldeater_behavior`, `eclipse_awakes`, and `eclipse_roaming_boss`). These scripts utilized the `%_T` localized string macro but failed to `include("stringutility")`, causing fatal arithmetic runtime errors when triggered.
+- [Bugfix] **Audio Hook Syntax & Synchronization:** Fixed critical server desyncs in `ca_boss_audio_hook.lua`. Removed legacy global C++ wrappers shadowing the engine's internal callback handler and properly bound all client/server RPCs natively to the `CaBossAudioHook` namespace.
 - [Bugfix] **Linux Case Sensitivity:** Fixed a critical bug where `ca_darksector_generator.lua` and `ca_spawn_envoy.lua` used lowercase `include("sectorgenerator")`, which causes a fatal `module not found` crash on strict Linux dedicated servers.
 
 ## [v1.2.0] - The Ascendant Envoy Update

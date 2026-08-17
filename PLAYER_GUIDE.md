@@ -22,8 +22,9 @@ Welcome to the **Cosmic Ascendancy** official player guide! This document breaks
 
 Upon defeating the Wormhole Guardian and unleashing The Eclipse, you will not be left to fight alone. You will be physically intercepted by **Aegis, The Ascendant Envoy**—an ancient AI construct designed by the creators of the dimensional prison.
 
-- **Physical Rendezvous:** Instead of receiving basic radio messages, Aegis will transmit secure rendezvous coordinates to you. You must physically fly to these sectors to meet her projection and initiate contact.
-- **5-Part Storyline:** She will guide you through a fully-scripted 5-mission campaign detailing the origins of The Eclipse, the location of the Ascendancy Forge, the Citadel threat, and the incoming World-Eater.
+- **Priority Mail Dispatch:** Instead of receiving basic radio messages, Aegis will send a Priority Mail directly to your ship's inbox containing secure rendezvous coordinates.
+- **Safe Rendezvous Sectors:** You must physically fly to these sectors to meet her projection. To ensure your safety, Aegis and all major story Bosses will always spawn in isolated, "empty" sectors (5 to 30 jumps away) rather than contested faction territory.
+- **6-Part Storyline:** She will guide you through a fully-scripted 5-mission campaign detailing the origins of The Eclipse, the location of the Ascendancy Forge, the Citadel threat, and the incoming World-Eater.
 - **Massive Rewards:** Every time you complete a major campaign objective and return to Aegis for your debrief, she will inject massive credit payouts (scaling up to 25 Million!) and high-tier subsystem/turret drops (up to Legendary rarity) directly into your cargo hold.
 - **Multiplayer Support:** If you are playing with an alliance, Aegis will patiently remain stationed at the rendezvous point until *all* players in the sector have had a chance to speak with her and claim their own personal rewards!
 </details>

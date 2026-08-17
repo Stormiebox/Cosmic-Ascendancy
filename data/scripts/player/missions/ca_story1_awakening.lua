@@ -110,8 +110,12 @@ end
 
 mission.phases[4].onSectorEntered = function(x, y)
     if x == mission.data.custom.aegisX and y == mission.data.custom.aegisY then
-        if not mission.data.custom.aegisSpawned then
-            mission.data.custom.aegisSpawned = true
+        local aegisExists = false
+        local entities = {Sector():getEntitiesByScript("entity/story/ca_ascendant_envoy.lua")}
+        if #entities > 0 then
+            aegisExists = true
+        end
+        if not aegisExists then
             local generator = include("SectorGenerator")(Sector():getCoordinates())
             local faction = Galaxy():getNearestFaction(0, 0)
             local ship = generator:createShip(faction, "data/scripts/entity/story/ca_ascendant_envoy.lua")
@@ -131,6 +135,14 @@ mission.phases[4].onSectorEntered = function(x, y)
 end
 
 function getTargetSector(x, y)
-    local random = Random()
-    return x + random:getInt(-5, 5), y + random:getInt(-5, 5)
+    local MissionUT = include("missionutility")
+    local insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
+    local targetX, targetY = MissionUT.getEmptySector(x, y, 5, 30, insideBarrier)
+    
+    if not targetX or not targetY then 
+        local random = Random()
+        return x + random:getInt(-30, 30), y + random:getInt(-30, 30)
+    end
+    
+    return targetX, targetY
 end
