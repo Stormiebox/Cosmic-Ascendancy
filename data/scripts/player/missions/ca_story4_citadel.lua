@@ -42,29 +42,33 @@ mission.phases[2].onBeginServer = function()
     local EclipseGenerator = include("eclipsegenerator")
     local faction = EclipseGenerator.getFaction()
     
-    -- Spawn Citadel Boss
-    local dir = normalize(vec3(random():getFloat(-1, 1), random():getFloat(-1, 1), random():getFloat(-1, 1)))
-    local pos = dir * 2000
-    -- If there's no createCitadel, we can use createJuggernaut or just create a very large ship with the citadel plan later.
-    -- Assuming createJuggernaut is the highest for now, we'll scale it up.
-    local boss = EclipseGenerator.createJuggernaut(MatrixLookUpPosition(-dir, vec3(0,1,0), pos))
-    
-    boss.title = "Eclipse Citadel Prototype"
-    boss:setValue("ca_eclipse_citadel", true)
-    
-    -- Add Interceptors as escorts
-    for i = 1, 6 do
-        local escortPos = MatrixLookUpPosition(-dir, vec3(0,1,0), pos + vec3(random():getFloat(-400, 400), random():getFloat(-400, 400), random():getFloat(-400, 400)))
-        local escort = EclipseGenerator.createInterceptor(escortPos)
-        escort:setValue("ca_eclipse_ambush", true)
+    local existingBoss = {Sector():getEntitiesByScriptValue("ca_eclipse_citadel")}
+    if #existingBoss == 0 then
+        -- Spawn Citadel Boss
+        local dir = normalize(vec3(random():getFloat(-1, 1), random():getFloat(-1, 1), random():getFloat(-1, 1)))
+        local pos = dir * 2000
+        -- Spawn Citadel Boss using the proper station generator and xml plan
+        local boss = EclipseGenerator.createStation(MatrixLookUpPosition(-dir, vec3(0,1,0), pos))
+        
+        boss.title = "Eclipse Citadel Prototype"
+        boss:setValue("ca_eclipse_citadel", true)
+        
+        -- Add Interceptors as escorts
+        for i = 1, 6 do
+            local escortPos = MatrixLookUpPosition(-dir, vec3(0,1,0), pos + vec3(random():getFloat(-400, 400), random():getFloat(-400, 400), random():getFloat(-400, 400)))
+            local escort = EclipseGenerator.createInterceptor(escortPos)
+            escort:setValue("ca_eclipse_ambush", true)
+        end
+        
+        Player():sendChatMessage("The Eclipse", 2, "Sanitation node establishing. Resistance is a chaotic anomaly that will be rectified.")
     end
-    
-    Player():sendChatMessage("The Eclipse", 2, "Sanitation node establishing. Resistance is a chaotic anomaly that will be rectified.")
+    mission.data.custom.bossSpawned = true
 end
 
 mission.phases[2].updateServer = function()
     local x, y = Sector():getCoordinates()
     if x ~= mission.data.custom.targetX or y ~= mission.data.custom.targetY then return end
+    if not mission.data.custom.bossSpawned then return end
     
     local boss = {Sector():getEntitiesByScriptValue("ca_eclipse_citadel")}
     if #boss == 0 then

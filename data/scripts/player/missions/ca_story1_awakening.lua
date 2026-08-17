@@ -83,18 +83,23 @@ mission.phases[3].onBeginServer = function()
     local EclipseGenerator = include("eclipsegenerator")
     local faction = EclipseGenerator.getFaction()
 
-    Player():sendChatMessage("Unknown Transmission", 2, "Chaotic biological variables detected. Sanitation protocol initiated. We are The Eclipse.")
+    local existing = {Sector():getEntitiesByScriptValue("ca_eclipse_ambush")}
+    if #existing == 0 then
+        Player():sendChatMessage("Unknown Transmission", 2, "Chaotic biological variables detected. Sanitation protocol initiated. We are The Eclipse.")
 
-    for i = 1, 3 do
-        local ship = generator.createMilitaryShip(faction, Matrix(), Sector():getCoordinates())
-        ship.title = "Eclipse Vanguard Scout"
-        ship:setValue("ca_eclipse_ambush", true)
+        for i = 1, 3 do
+            local ship = EclipseGenerator.createInterceptor(Matrix())
+            ship.title = "Eclipse Vanguard Scout"
+            ship:setValue("ca_eclipse_ambush", true)
+        end
     end
+    mission.data.custom.bossSpawned = true
 end
 
 mission.phases[3].updateServer = function(timeStep)
     local x, y = Sector():getCoordinates()
     if x ~= mission.data.custom.targetX or y ~= mission.data.custom.targetY then return end
+    if not mission.data.custom.bossSpawned then return end
 
     local enemies = {Sector():getEntitiesByScriptValue("ca_eclipse_ambush")}
     if #enemies == 0 then

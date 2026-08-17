@@ -23,11 +23,12 @@ end
 function CAAegisEnvoy.makeDialog()
     local player = Player()
     
-    -- Check specific debrief flags to avoid sequence-breaking exploits
     if player:getValue("ca_ready_for_debrief_5") then
         return CAAegisEnvoy.makeDialogStory5()
     elseif player:getValue("ca_ready_for_debrief_4") then
         return CAAegisEnvoy.makeDialogStory4()
+    elseif player:getValue("ca_ready_for_debrief_3") then
+        return CAAegisEnvoy.makeDialogStory3()
     elseif player:getValue("ca_ready_for_debrief_2") then
         return CAAegisEnvoy.makeDialogStory2()
     elseif player:getValue("ca_ready_for_debrief_1") then
@@ -121,14 +122,14 @@ function CAAegisEnvoy.onAcceptStory1()
 end
 
 -- ==========================================
--- END OF STORY 2 (Grants Mission 4 + Rewards)
+-- END OF STORY 2 (Grants Mission 3 + Rewards)
 -- ==========================================
 function CAAegisEnvoy.makeDialogStory2()
     local d0_Hail = {}
-    d0_Hail.text = "The Ascendancy Forge is fully operational! We now possess the means to retaliate. However... I have intercepted a terrifying transmission. An Eclipse Citadel is attempting to anchor itself into our dimension."%_t
-    d0_Hail.answers = {{answer = "A Citadel?"%_t, followUp = {
-        text = "A massive mobile fortress capable of suppressing all hyperspace activity in the region. If it fully anchors, we will lose this sector entirely. You must destroy it. Take these supplies.",
-        answers = {{answer = "It won't survive.", onEnd = "onAcceptStory2"}}
+    d0_Hail.text = "The Ascendancy Forge is fully operational! We now possess the means to retaliate. However... I detect a massive energy spike warping directly to our location!"%_t
+    d0_Hail.answers = {{answer = "What is it?"%_t, followUp = {
+        text = "An Eclipse Vanguard Juggernaut. It must have tracked the Forge's energy signature! Defend this sector at all costs. I am transferring emergency combat supplies to your hold.",
+        answers = {{answer = "We will hold them off!", onEnd = "onAcceptStory2"}}
     }}}
     return d0_Hail
 end
@@ -138,7 +139,7 @@ function CAAegisEnvoy.onAcceptStory2()
         local player = Player()
         player:setValue("ca_ready_for_debrief_2", nil)
         player:removeScript("ca_story2_forge.lua")
-        player:addScriptOnce("data/scripts/player/missions/ca_story4_citadel.lua")
+        player:addScriptOnce("data/scripts/player/missions/ca_story3_vanguard.lua")
         
         -- Rewards (5M, 2 Turrets, 2 Systems)
         player:receive("Ascendant Support Funding", 5000000)
@@ -149,6 +150,38 @@ function CAAegisEnvoy.onAcceptStory2()
             player:getInventory():add(InventoryTurret(turret))
         end
         for i=1, 2 do player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exceptional))) end
+    end
+end
+
+-- ==========================================
+-- END OF STORY 3 (Grants Mission 4 + Rewards)
+-- ==========================================
+function CAAegisEnvoy.makeDialogStory3()
+    local d0_Hail = {}
+    d0_Hail.text = "The Vanguard assault is repelled. Exceptional work. However... I have intercepted a terrifying transmission. An Eclipse Citadel is attempting to anchor itself into our dimension."%_t
+    d0_Hail.answers = {{answer = "A Citadel?"%_t, followUp = {
+        text = "A massive mobile fortress capable of suppressing all hyperspace activity in the region. If it fully anchors, we will lose this sector entirely. You must destroy it. Take these supplies.",
+        answers = {{answer = "It won't survive.", onEnd = "onAcceptStory3"}}
+    }}}
+    return d0_Hail
+end
+
+function CAAegisEnvoy.onAcceptStory3()
+    if onServer() then
+        local player = Player()
+        player:setValue("ca_ready_for_debrief_3", nil)
+        player:removeScript("ca_story3_vanguard.lua")
+        player:addScriptOnce("data/scripts/player/missions/ca_story4_citadel.lua")
+        
+        -- Rewards (7.5M, 2 Turrets, 1 System)
+        player:receive("Ascendant Support Funding", 7500000)
+        local x, y = Sector():getCoordinates()
+        local generator = SectorTurretGenerator(Seed(x + y))
+        for i=1, 2 do
+            local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exotic))
+            player:getInventory():add(InventoryTurret(turret))
+        end
+        player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exotic)))
     end
 end
 
@@ -219,5 +252,6 @@ end
 callable(CAAegisEnvoy, "onAcceptIntro")
 callable(CAAegisEnvoy, "onAcceptStory1")
 callable(CAAegisEnvoy, "onAcceptStory2")
+callable(CAAegisEnvoy, "onAcceptStory3")
 callable(CAAegisEnvoy, "onAcceptStory4")
 callable(CAAegisEnvoy, "onAcceptStory5")

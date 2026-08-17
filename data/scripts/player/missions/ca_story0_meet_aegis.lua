@@ -11,6 +11,7 @@ abandon = nil -- this mission is not abandonable
 mission.data.brief = mission._Name
 mission.data.icon = "data/textures/icons/story-mission.png"
 
+mission.data.autoTrackMission = true
 mission.data.title = "A Mysterious Summons"
 mission.data.description = "You have received an encrypted transmission from an entity claiming to be 'Aegis'. The destruction of the Wormhole Guardian has seemingly triggered a response. You should investigate the coordinates provided."
 
@@ -18,11 +19,18 @@ mission.phases[1] = {}
 mission.phases[1].showUpdateOnEnd = true
 mission.phases[1].onBeginServer = function()
     local player = Player()
-    local x, y = Sector():getCoordinates()
+    local x, y = player:getSectorCoordinates()
     
     -- Target a random nearby empty sector (5 to 30 jumps away)
     local MissionUT = include("missionutility")
-    local insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
+    local insideBarrier = false
+    if x and y then
+        insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
+    else
+        x, y = 0, 0
+        insideBarrier = true
+    end
+    
     local targetX, targetY = MissionUT.getEmptySector(x, y, 5, 30, insideBarrier)
     
     -- Fallback in case the search fails to find one
@@ -96,7 +104,7 @@ end
 mission.phases[1].updateServer = function()
     local player = Player()
     if mission.data.custom.targetX and mission.data.custom.targetY then
-        local x, y = Sector():getCoordinates()
+        local x, y = player:getSectorCoordinates()
         if x == mission.data.custom.targetX and y == mission.data.custom.targetY then
             -- If Aegis removed the flag, it means the player talked to her and got mission 1.
             if player:getValue("ca_ready_for_debrief_intro") == nil then

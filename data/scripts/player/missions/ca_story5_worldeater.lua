@@ -42,33 +42,38 @@ mission.phases[2].onBeginServer = function()
     local EclipseGenerator = include("eclipsegenerator")
     local faction = EclipseGenerator.getFaction()
     
-    -- Spawn World Eater
-    local dir = normalize(vec3(random():getFloat(-1, 1), random():getFloat(-1, 1), random():getFloat(-1, 1)))
-    local pos = dir * 2500
-    -- Assuming createWorldEater exists or we use Juggernaut
-    local boss = nil
-    if EclipseGenerator.createWorldEater then
-        boss = EclipseGenerator.createWorldEater(MatrixLookUpPosition(-dir, vec3(0,1,0), pos))
-    else
-        boss = EclipseGenerator.createJuggernaut(MatrixLookUpPosition(-dir, vec3(0,1,0), pos))
+    local existingBoss = {Sector():getEntitiesByScriptValue("ca_eclipse_worldeater")}
+    if #existingBoss == 0 then
+        -- Spawn World Eater
+        local dir = normalize(vec3(random():getFloat(-1, 1), random():getFloat(-1, 1), random():getFloat(-1, 1)))
+        local pos = dir * 2500
+        -- Assuming createWorldEater exists or we use Juggernaut
+        local boss = nil
+        if EclipseGenerator.createWorldEater then
+            boss = EclipseGenerator.createWorldEater(MatrixLookUpPosition(-dir, vec3(0,1,0), pos))
+        else
+            boss = EclipseGenerator.createJuggernaut(MatrixLookUpPosition(-dir, vec3(0,1,0), pos))
+        end
+        
+        boss.title = "Eclipse World-Eater"
+        boss:setValue("ca_eclipse_worldeater", true)
+        
+        -- Add heavy escorts
+        for i = 1, 8 do
+            local escortPos = MatrixLookUpPosition(-dir, vec3(0,1,0), pos + vec3(random():getFloat(-600, 600), random():getFloat(-600, 600), random():getFloat(-600, 600)))
+            local escort = EclipseGenerator.createInterceptor(escortPos)
+            escort:setValue("ca_eclipse_ambush", true)
+        end
+        
+        Player():sendChatMessage("The Eclipse", 2, "Absolute zero. Absolute silence. Absolute order.")
     end
-    
-    boss.title = "Eclipse World-Eater"
-    boss:setValue("ca_eclipse_worldeater", true)
-    
-    -- Add heavy escorts
-    for i = 1, 8 do
-        local escortPos = MatrixLookUpPosition(-dir, vec3(0,1,0), pos + vec3(random():getFloat(-600, 600), random():getFloat(-600, 600), random():getFloat(-600, 600)))
-        local escort = EclipseGenerator.createInterceptor(escortPos)
-        escort:setValue("ca_eclipse_ambush", true)
-    end
-    
-    Player():sendChatMessage("The Eclipse", 2, "Absolute zero. Absolute silence. Absolute order.")
+    mission.data.custom.bossSpawned = true
 end
 
 mission.phases[2].updateServer = function()
     local x, y = Sector():getCoordinates()
     if x ~= mission.data.custom.targetX or y ~= mission.data.custom.targetY then return end
+    if not mission.data.custom.bossSpawned then return end
     
     local boss = {Sector():getEntitiesByScriptValue("ca_eclipse_worldeater")}
     if #boss == 0 then
