@@ -7,6 +7,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.2.4]
+
+### 🐛 Bug Fixes
+- [Bugfix] **Aegis Spawn Fatal Crash:** Fixed a severe legacy bug carried over through all campaign stages (`ca_story0` through `ca_story5`). The scripts were attempting to spawn the Aegis Envoy ship using an invalid `SectorGenerator:createShip(...)` API call, which would trigger a fatal silent crash the moment a player entered the rendezvous sector, failing to progress the questline. Successfully migrated all Aegis spawns to the robust `sector:createShip` pipeline with proper missing-plan fallbacks and manually re-hooked the despawn scripts.
 ## [v1.2.3]
 
 ### 🐛 Bug Fixes

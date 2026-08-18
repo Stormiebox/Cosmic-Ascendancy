@@ -52,7 +52,7 @@ mission.phases[1].onBeginServer = function()
     mail.sender = "Aegis"%_T
     player:addMail(mail)
     
-    player:sendChatMessage("Ship Computer"%_T, 3, "New rendezvous coordinates received: \\s(%1%:%2%)"%_T, targetX, targetY)
+    player:sendChatMessage("Ship Computer"%_T, 3, "New rendezvous coordinates received: \\s(%1%:%2%)"%_T, tostring(targetX), tostring(targetY))
 end
 
 function getUpdateInterval()
@@ -72,21 +72,27 @@ mission.phases[1].onSectorEntered = function(x, y)
         
         if not aegisExists then
             -- Spawn Aegis
-            local generator = include("SectorGenerator")(sector:getCoordinates())
             local faction = Galaxy():getNearestFaction(0, 0)
-            local ship = generator:createShip(faction, "data/scripts/entity/story/ca_ascendant_envoy.lua")
-            ship.name = "Aegis, The Ascendant Envoy"%_T
-            ship.title = "Ascendant AI Construct"%_T
-            ship:setInvincible(true)
-            ship.dockable = false
-            ship.crew = ship.minCrew
-            
             local plan = LoadPlanFromFile("data/plans/ascendant/ca_aegis.xml")
-            if plan then ship:setPlan(plan) end
+            if not plan then
+                plan = BlockPlan()
+                plan:addBlock(vec3(0,0,0), vec3(2,2,2), BlockDefaults.GetHullBlockIndex(), -1, ColorRGB(1,1,1), Material(0), Matrix(), BlockType.Hull)
+            end
             
-            local ShipUtility = include("shiputility")
-            ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
-            ship:addScriptOnce("entity/ca_envoy_despawn.lua")
+            local ship = sector:createShip(faction, "", plan, Matrix())
+            
+            if ship then
+                ship.name = "Aegis, The Ascendant Envoy"%_T
+                ship.title = "Ascendant AI Construct"%_T
+                ship:setInvincible(true)
+                ship.dockable = false
+                ship.crew = ship.minCrew
+                
+                local ShipUtility = include("shiputility")
+                ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
+                ship:addScriptOnce("entity/ca_envoy_despawn.lua")
+                ship:addScriptOnce("entity/story/ca_ascendant_envoy.lua")
+            end
         end
         
         player:sendChatMessage("Aegis, The Ascendant Envoy"%_T, 0, "Commander. Approach my projection and initiate contact."%_T)

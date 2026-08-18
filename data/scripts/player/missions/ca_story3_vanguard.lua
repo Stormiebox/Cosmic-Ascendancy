@@ -90,19 +90,27 @@ mission.phases[2].onSectorEntered = function(x, y)
             aegisExists = true
         end
         if not aegisExists then
-            local generator = include("SectorGenerator")(Sector():getCoordinates())
             local faction = Galaxy():getNearestFaction(0, 0)
-            local ship = generator:createShip(faction, "data/scripts/entity/story/ca_ascendant_envoy.lua")
-            ship.name = "Aegis, The Ascendant Envoy"
-            ship.title = "Ascendant AI Construct"
-            ship:setInvincible(true)
-            ship.dockable = false
-            ship:addScriptOnce("entity/ca_envoy_despawn.lua")
             local plan = LoadPlanFromFile("data/plans/ascendant/ca_aegis.xml")
-            if plan then ship:setPlan(plan) end
-            local ShipUtility = include("shiputility")
-            ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
-            Player():sendChatMessage(ship.name, 0, "Commander. Approach my projection and initiate contact.")
+            if not plan then
+                plan = BlockPlan()
+                plan:addBlock(vec3(0,0,0), vec3(2,2,2), BlockDefaults.GetHullBlockIndex(), -1, ColorRGB(1,1,1), Material(0), Matrix(), BlockType.Hull)
+            end
+            
+            local ship = Sector():createShip(faction, "", plan, Matrix())
+            if ship then
+                ship.name = "Aegis, The Ascendant Envoy"%_T
+                ship.title = "Ascendant AI Construct"%_T
+                ship:setInvincible(true)
+                ship.dockable = false
+                
+                local ShipUtility = include("shiputility")
+                ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
+                ship:addScriptOnce("entity/ca_envoy_despawn.lua")
+                ship:addScriptOnce("entity/story/ca_ascendant_envoy.lua")
+                
+                Player():sendChatMessage(ship.name, 0, "Commander. Approach my projection and initiate contact."%_T)
+            end
         end
         Player():setValue("ca_ready_for_debrief_3", true)
     end
