@@ -37,7 +37,8 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
     if not sector then return end
 
     -- Only spawn in empty or unexplored sectors to avoid cluttering populated ones
-    if sector:getEntitiesByComponent(ComponentType.Station) then return end
+    local stations = {sector:getEntitiesByType(EntityType.Station)}
+    if #stations > 0 then return end
 
     local generator = SectorGenerator(x, y)
     local pos = generator:getPositionInSector(5000)
@@ -54,9 +55,8 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
     local loreText = snippets[random():getInt(1, #snippets)]
 
     -- Spawn a generic wreckage (Corrupted Databank / Lost Ship)
-    local plan = generator:getBasicWreckagePlan()
-    local wreck = generator:createWreckage(nil, plan, 10)
-    if wreck then wreck.translationf = pos end
+    local faction = Galaxy():getNearestFaction(x, y)
+    local wreck = generator:createWreckage(faction, nil, 10, pos)
 
     -- Spawn a stash container with loot scaled by distance to core
     local stashPos = pos + vec3(random():getFloat(50, 100), random():getFloat(50, 100), random():getFloat(50, 100))

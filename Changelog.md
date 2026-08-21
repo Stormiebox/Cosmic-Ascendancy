@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.2.5]
+
+### 🐛 Bug Fixes
+- [Bugfix] **Lore Anomaly Crash Fixes:** Fixed two critical server crashes in `ca_story_lore_anomalies.lua` when spawning deep-space corrupted databanks. First, replaced an invalid enum `ComponentType.Station` with proper `sector:getEntitiesByType(EntityType.Station)` checks to accurately verify empty sectors. Second, removed a defunct `getBasicWreckagePlan` call that was crashing the `SectorGenerator` by defaulting to the engine's built-in `createUnstrippedWreckage` logic, allowing anomalies to finally spawn flawlessly!
+
 ## [v1.2.4]
 
 ### 🐛 Bug Fixes
@@ -17,7 +22,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - [Bugfix] **Aegis Mail Trigger Crash:** Fixed a critical hyperspace race-condition crash in `ca_story0_meet_aegis.lua`. If a player jumped to a new sector at the exact millisecond the 10-second Aegis delay timer elapsed, the mission would fail to grab the sector coordinates and silently crash, failing to deliver the rendezvous mail or objective. Replaced the static `Sector():getCoordinates()` API with the robust `player:getSectorCoordinates()` to ensure it safely resolves coordinates even during loading screens and hyperspace jumps.
 - [Bugfix] **Aegis Mission UI:** Added the explicit `mission.data.autoTrackMission = true` flag to the Aegis story mission. Now, the moment Aegis contacts the player and assigns the rendezvous coordinates, it will properly force the objective to appear on the player's right-hand HUD immediately, preventing players from missing the event.
 - [Bugfix] **Restored Missing Campaign Stage:** Fixed a severe progression gap in `ca_ascendant_envoy.lua` where the entire 3rd stage of the campaign (`ca_story3_vanguard.lua`) was accidentally skipped, causing the story to jump straight from the Forge to the Citadel. The Vanguard Assault has now been properly wired back into the main storyline, bridging the gap between stages 2 and 4. Stage 3 now correctly spawns an Aegis debrief after defeating the Juggernaut, granting exclusive mid-game rewards.
-- [Networking] **Multiplayer & Alliance Safety Nets:** Overhauled all story mission scripts (`ca_story1` through `ca_story5`) to be fully cooperative and dedicated-server safe. 
+- [Networking] **Multiplayer & Alliance Safety Nets:** Overhauled all story mission scripts (`ca_story1` through `ca_story5`) to be fully cooperative and dedicated-server safe.
   - **Duplicate Prevention:** Co-op players arriving in the same sector will no longer accidentally spawn duplicate bosses on top of each other.
   - **Co-op Progression:** If multiple players have the same mission stage active in the sector, defeating the boss cooperatively will properly advance the quest for all of them simultaneously.
   - **Race Condition Fix:** Added `spawnConfirmed` flags to `updateServer` loops to prevent dedicated server desyncs from instantly auto-completing missions before the boss fully loads into the engine.
