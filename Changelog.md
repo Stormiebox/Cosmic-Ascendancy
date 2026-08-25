@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.3.1]
+
+### 🐛 Bug Fixes
+- [Bugfix] **Lore Anomalies:** Fixed a C++ API logic exception (invalid type 'Matrix' expected 'vec3') when calculating randomized anomaly stash generation, preventing the lore databanks from appearing.
+
 ## [v1.3.0]
 
 ### ⭐ Features
@@ -14,9 +19,6 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - **Slipstream Drift:** Jumping into a sector with the Ascendant Slipstream Drive equipped now grants a massive +50% velocity boost for 10 seconds, simulating the momentum of exiting the hyperspace tunnel.
 - **Void Drill Overclocking:** The immense power draw of the Ascendant Void Drill now occasionally causes your ship to vent massive, harmless plasma bursts. 
 - **Anomaly Resurgence:** When extracting databanks from a Lore Anomaly, there is now a 10% chance for the anomaly to resonate and spawn a secondary, smaller stash nearby containing bonus loot!
-
-### 🐛 Bug Fixes
-- [Bugfix] **Lore Anomalies:** Fixed a C++ API logic exception (invalid type 'Matrix' expected 'vec3') when calculating randomized anomaly stash generation, preventing the lore databanks from appearing.
 
 
 ## [v1.2.5]

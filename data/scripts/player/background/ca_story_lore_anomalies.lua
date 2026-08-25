@@ -59,7 +59,7 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
     local wreck = generator:createWreckage(faction, nil, 10, pos)
 
     -- Spawn a stash container with loot scaled by distance to core
-    local stashPos = pos.translation + vec3(random():getFloat(50, 100), random():getFloat(50, 100), random():getFloat(50, 100))
+    local stashPos = pos.pos + vec3(random():getFloat(50, 100), random():getFloat(50, 100), random():getFloat(50, 100))
     local stash = generator:createContainer(nil, MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), stashPos), 0)
     stash.title = "Corrupted Databank Stash"%_t
 
