@@ -12,6 +12,25 @@ function updateServer(timeStep)
     applyDynamicBuffs()
 end
 
+local ventTimer = 0
+local nextVent = 60
+
+function updateClient(timeStep)
+    ventTimer = ventTimer + timeStep
+    if ventTimer > nextVent then
+        ventTimer = 0
+        nextVent = 60 + random():getInt(0, 60)
+        
+        local entity = Entity()
+        if entity then
+            -- Create a visually cool plasma vent explosion that deals no damage
+            local pos = entity.translationf
+            Sector():createExplosion(pos, 5, true)
+            Sector():createExplosion(pos, 10, true)
+        end
+    end
+end
+
 function applyDynamicBuffs()
     removeDynamicBuffs()
 

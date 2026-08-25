@@ -2,6 +2,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 include("stringutility")
 local cv_news = include("cosmicvaultnews")
 
+-- namespace WorldEaterManager
 local WorldEaterManager = {}
 WorldEaterManager.timer = 0
 WorldEaterManager.activeEvent = nil -- {x=x, y=y, timeLeft=900}
@@ -170,7 +171,6 @@ function WorldEaterManager.cancelEvent()
     end
 end
 
-
 function WorldEaterManager.secure()
     return {
         activeEvent = WorldEaterManager.activeEvent,
@@ -192,24 +192,5 @@ function WorldEaterManager.restore(data)
     end
 end
 
-function getUpdateInterval(...)
-    if WorldEaterManager.getUpdateInterval then return WorldEaterManager.getUpdateInterval(...) end
-end
-function initialize(...)
-    if WorldEaterManager.initialize then return WorldEaterManager.initialize(...) end
-end
-function updateServer(...)
-    if WorldEaterManager.updateServer then return WorldEaterManager.updateServer(...) end
-end
-function secure(...)
-    if WorldEaterManager.secure then return WorldEaterManager.secure(...) end
-end
-function restore(...)
-    if WorldEaterManager.restore then return WorldEaterManager.restore(...) end
-end
-function cancelEvent(...)
-    if WorldEaterManager.cancelEvent then return WorldEaterManager.cancelEvent(...) end
-end
-
-callable(nil, "cancelEvent")
+callable(WorldEaterManager, "cancelEvent")
 

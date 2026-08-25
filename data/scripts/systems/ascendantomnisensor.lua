@@ -28,7 +28,7 @@ function applyDynamicBuffs()
     entity:addAbsoluteBias(StatsBonuses.RadarReach, math.floor(20 * finalMultiplier))
     entity:addAbsoluteBias(StatsBonuses.HiddenSectorRadarReach, math.floor(15 * finalMultiplier))
     entity:addBaseMultiplier(StatsBonuses.CargoHold, 10.0 * finalMultiplier)
-    entity:addBaseMultiplier(StatsBonuses.LootCollectionRange, 5.0 * finalMultiplier)
+    entity:addAbsoluteBias(StatsBonuses.LootCollectionRange, 2500 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
@@ -38,11 +38,49 @@ function removeDynamicBuffs()
 end
 
 function onInstalled(seed, rarity, permanent)
-    if onServer() then applyDynamicBuffs() end
+    if onServer() then 
+        applyDynamicBuffs() 
+        Entity():registerCallback("onSectorEntered", "onSectorEntered")
+    end
 end
 
 function onUninstalled(seed, rarity, permanent)
-    if onServer() then removeDynamicBuffs() end
+    if onServer() then 
+        removeDynamicBuffs() 
+        Entity():unregisterCallback("onSectorEntered", "onSectorEntered")
+    end
+end
+
+function onSectorEntered(playerIndex, x, y, sectorChangeType)
+    if onServer() then
+        local sector = Sector()
+        local player = Player(playerIndex)
+        if not player then return end
+
+        local stashesFound = 0
+        local asteroidsFound = 0
+
+        local wreckages = {sector:getEntitiesByType(EntityType.Wreckage)}
+        for _, w in pairs(wreckages) do
+            if w.title == "Hidden Stash" or w.title == "Corrupted Databank Stash"%_t then
+                stashesFound = stashesFound + 1
+            end
+        end
+
+        local asteroids = {sector:getEntitiesByType(EntityType.Asteroid)}
+        for _, a in pairs(asteroids) do
+            if a:hasScript("claim.lua") then
+                asteroidsFound = asteroidsFound + 1
+            end
+        end
+
+        if stashesFound > 0 or asteroidsFound > 0 then
+            local msg = "Omni-Sensor Deep Scan Complete. Detected: "
+            if stashesFound > 0 then msg = msg .. stashesFound .. " Hidden Stash(es). " end
+            if asteroidsFound > 0 then msg = msg .. asteroidsFound .. " Claimable Asteroid(s)." end
+            player:sendChatMessage("Omni-Sensor", 3, msg)
+        end
+    end
 end
 
 -- ================= PERSISTENCE HOOKS =================
@@ -80,7 +118,7 @@ function getTooltipLines(seed, rarity, permanent)
     table.insert(texts, {ltext = "Base Radar Reach"%_t, rtext = "+20", icon = "data/textures/icons/radar-sweep.png", boosted = false})
     table.insert(texts, {ltext = "Base Hidden Sectors"%_t, rtext = "+15", icon = "data/textures/icons/radar-sweep.png", boosted = false})
     table.insert(texts, {ltext = "Base Cargo Hold"%_t, rtext = "+1000%", icon = "data/textures/icons/sell.png", boosted = false})
-    table.insert(texts, {ltext = "Base Loot Range"%_t, rtext = "+500%", icon = "data/textures/icons/domino-mask.png", boosted = false})
+    table.insert(texts, {ltext = "Base Loot Range"%_t, rtext = "+2500", icon = "data/textures/icons/domino-mask.png", boosted = false})
 
     table.insert(texts, {ltext = "", rtext = "", icon = ""})
     table.insert(texts, {ltext = "\\c(e44)LIVING RELIC\\c()"%_t, rtext = "", icon = ""})

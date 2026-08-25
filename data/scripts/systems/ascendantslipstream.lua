@@ -37,11 +37,28 @@ function removeDynamicBuffs()
 end
 
 function onInstalled(seed, rarity, permanent)
-    if onServer() then applyDynamicBuffs() end
+    if onServer() then 
+        applyDynamicBuffs() 
+        Entity():registerCallback("onSectorEntered", "onSectorEntered")
+    end
 end
 
 function onUninstalled(seed, rarity, permanent)
-    if onServer() then removeDynamicBuffs() end
+    if onServer() then 
+        removeDynamicBuffs() 
+        Entity():unregisterCallback("onSectorEntered", "onSectorEntered")
+    end
+end
+
+function onSectorEntered(playerIndex, x, y, sectorChangeType)
+    if onServer() then
+        if sectorChangeType == SectorChangeType.Jump then
+            local entity = Entity()
+            if entity then
+                entity:addScriptOnce("data/scripts/systems/slipstream_drift_buff.lua")
+            end
+        end
+    end
 end
 
 local base_secure = secure

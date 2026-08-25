@@ -76,6 +76,20 @@ function CaAnomalyStash.onOpenPressed()
         end
     end
 
+    -- Anomaly Resurgence (10% chance)
+    if random():getFloat() < 0.10 then
+        player:sendChatMessage("Ship Sensors", 3, "The anomaly has resonated, revealing another fragment nearby!")
+        local resPos = position + vec3(random():getFloat(20, 50), random():getFloat(20, 50), random():getFloat(20, 50))
+        local generator = SectorGenerator(x, y)
+        local stash2 = generator:createContainer(nil, MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), resPos), 0)
+        stash2.title = "Resonated Databank Stash"%_t
+        stash2:setValue("ca_anomaly_mat", distMat)
+        stash2:setValue("ca_anomaly_amt", math.floor(amount * 0.5))
+        stash2:setValue("ca_anomaly_upgrades", 1)
+        stash2:addScriptOnce("data/scripts/entity/ca_anomaly_stash.lua")
+        sector:createExplosion(resPos, 10, true)
+    end
+
     -- Delete the stash after dropping the loot
     sector:deleteEntity(entity)
 end
