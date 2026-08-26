@@ -87,7 +87,6 @@ function CaAnomalyStash.onOpenPressed()
         stash2:setValue("ca_anomaly_amt", math.floor(amount * 0.5))
         stash2:setValue("ca_anomaly_upgrades", 1)
         stash2:addScriptOnce("data/scripts/entity/ca_anomaly_stash.lua")
-        sector:createExplosion(resPos, 10, true)
     end
 
     -- Delete the stash after dropping the loot

@@ -17,7 +17,6 @@ function Detonation.initialize(x, y, z, factionIndex)
     Detonation.factionIndex = factionIndex or -1
 
     local sector = Sector()
-    sector:createGlow(vec3(x, y, z), 1500, ColorRGB(1.0, 0.0, 0.0))
     
     sector:broadcastChatMessage("System", 3, "WARNING: SINGULARITY CORE COLLAPSE DETECTED.")
     broadcastInvokeClientFunction("playSingularityWarning", x, y, z)
@@ -26,6 +25,7 @@ end
 function Detonation.playSingularityWarning(x, y, z)
     if onClient() then
         playSound("interface/warning", SoundType.UI, 1.0)
+        Sector():createGlow(vec3(x, y, z), 1500, ColorRGB(1.0, 0.0, 0.0))
     end
 end
 
@@ -58,8 +58,7 @@ function Detonation.updateServer(timeStep)
         end
     else
         -- Detonation Phase
-        sector:createExplosion(pos, 1500, true)
-        sector:createGlow(pos, 3000, ColorRGB(1.0, 0.0, 0.0))
+        broadcastInvokeClientFunction("playDetonationVisuals", pos)
 
         local function blastTarget(target)
             if valid(target) and target.factionIndex ~= Detonation.factionIndex and not target.invincible then
@@ -108,6 +107,13 @@ end
 function updateServer(...)
     if Detonation.updateServer then return Detonation.updateServer(...) end
 end
+function Detonation.playDetonationVisuals(pos)
+    if onClient() then
+        Sector():createExplosion(pos, 1500, true)
+        Sector():createGlow(pos, 3000, ColorRGB(1.0, 0.0, 0.0))
+    end
+end
+
 function secure(...)
     if Detonation.secure then return Detonation.secure(...) end
 end
@@ -117,5 +123,9 @@ end
 function playSingularityWarning(...)
     if Detonation.playSingularityWarning then return Detonation.playSingularityWarning(...) end
 end
+function playDetonationVisuals(...)
+    if Detonation.playDetonationVisuals then return Detonation.playDetonationVisuals(...) end
+end
 
 callable(nil, "playSingularityWarning")
+callable(nil, "playDetonationVisuals")

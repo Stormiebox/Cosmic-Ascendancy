@@ -221,7 +221,7 @@ function CAWorldEater.processHazards(timeStep)
         emp.timer = emp.timer - timeStep
         if emp.timer <= 0 then
             -- Detonate!
-            sector:createExplosion(emp.position, 1000, false)
+            broadcastInvokeClientFunction("showExplosion", emp.position, 1000, false)
 
             local ships = {sector:getEntitiesByLocation(Sphere(emp.position, emp.radius))}
             for _, ship in pairs(ships) do
@@ -249,7 +249,7 @@ function CAWorldEater.processHazards(timeStep)
                 local dist = distance(boss.translationf, ship.translationf)
                 if dist < 20000 then -- 20km range
                     -- Detonate laser!
-                    sector:createExplosion(ship.translationf, 200, false)
+                    broadcastInvokeClientFunction("showExplosion", ship.translationf, 200, false)
                     -- Deal 100% Max Shields + 50% Max Hull damage
                     local damage = (ship.shieldMaxDurability or 0) + (ship.maxDurability * 0.50)
                     ship:inflictDamage(damage, 1, DamageType.Energy, 0, ship.translationf, boss.id)
@@ -557,4 +557,8 @@ function CAWorldEater.onDamaged(objectIndex, amount, inflictor, damageSource, da
     end
 end
 
-
+function CAWorldEater.showExplosion(pos, size, silent)
+    if onClient() then
+        Sector():createExplosion(pos, size, silent)
+    end
+end

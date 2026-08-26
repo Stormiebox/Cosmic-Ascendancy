@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.4.1]
+
+### 🪲 Bug Fixes
+- [Bugfix] **Visual Desync & Server Crash Prevention:** Fixed a critical server-side crash in `ca_worldeater_behavior.lua`, `ca_singularity_detonation.lua`, and `ca_anomaly_stash.lua` where the engine would attempt to execute `Sector():createExplosion()` or `createGlow()` directly on the server thread. All visual detonation logic has been strictly isolated and routed through `broadcastInvokeClientFunction`, ensuring massive cinematic explosions properly render for all clients in the sector without crashing the dedicated server.
+- [Bugfix] **API Call Accuracy:** Ensured correct namespace and global function wrapper registrations for visual RPC callbacks across all affected scripts.
+
 ## [v1.4.0]
 
 ### 🛠️ Architecture & Optimization
