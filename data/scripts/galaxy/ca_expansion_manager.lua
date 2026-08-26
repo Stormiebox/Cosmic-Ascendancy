@@ -53,6 +53,9 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
         end
     else
         -- Standard AI Faction Expansion
+        local cpuTimer = HighResolutionTimer()
+        cpuTimer:start()
+        
         local faction
         for tries = 1, 50 do
             local x = random():getInt(-490, 490)
@@ -62,6 +65,9 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
                 faction = f
                 break
             end
+            
+            -- CPU Tick Safety
+            if cpuTimer.seconds > 0.05 then break end
         end
 
         if not faction then return end
@@ -97,6 +103,9 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
                 -- Hit another faction's territory
                 break
             end
+            
+            -- CPU Tick Safety
+            if cpuTimer.seconds > 0.05 then break end
         end
 
         if targetX and targetY then

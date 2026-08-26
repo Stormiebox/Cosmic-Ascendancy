@@ -107,20 +107,9 @@ function EclipseAwakes.updateServer(timeStep)
         end
     end
 
-    -- The Eclipse is fully awake. Handle Global Player Invasions.
+    -- The Eclipse is fully awake. (Timer migrated to Threat Economy in eclipse_conquest_manager.lua)
     if server:getValue("eclipse_fully_awake") then
-        local now = server.unpausedRuntime
-        
-        -- Initialize the absolute timer if it hasn't been set yet
-        if not EclipseAwakes.nextInvasionTime or EclipseAwakes.nextInvasionTime == 0 then
-            EclipseAwakes.nextInvasionTime = now + (random():getInt(25, 45) * 60)
-        end
-
-        -- Check if the real-time timestamp has passed
-        if now >= EclipseAwakes.nextInvasionTime then
-            EclipseAwakes.nextInvasionTime = now + (random():getInt(25, 45) * 60)
-            EclipseAwakes.triggerInvasion()
-        end
+        -- We now rely on the Threat Economy to dictate the pace of invasions.
     end
 end
 
@@ -139,20 +128,27 @@ end
 
 function EclipseAwakes.secure()
     return {
-        nextInvasionTime = EclipseAwakes.nextInvasionTime,
         awakenTimer = EclipseAwakes.awakenTimer
     }
 end
 
 function EclipseAwakes.restore(data)
     if data then
-        -- Backwards compatibility: if they had invasionTimer, convert it approximately
-        if data.invasionTimer then
-            EclipseAwakes.nextInvasionTime = Server().unpausedRuntime + ((random():getInt(25, 45) * 60) - data.invasionTimer)
-        else
-            EclipseAwakes.nextInvasionTime = data.nextInvasionTime or 0
-        end
         EclipseAwakes.awakenTimer = data.awakenTimer or 0
+        
+        -- Legacy Timer Migration to Threat Economy
+        if data.nextInvasionTime and data.nextInvasionTime > 0 then
+            local currentThreat = Server():getValue("eclipse_threat") or 0
+            if currentThreat == 0 then
+                -- Give them a burst of threat based on how close they were to an invasion
+                local remaining = data.nextInvasionTime - Server().unpausedRuntime
+                if remaining < 0 then remaining = 0 end
+                local threat = 10000 - (remaining * (10000 / 2700)) 
+                if threat < 0 then threat = 0 end
+                if threat > 10000 then threat = 10000 end
+                Server():setValue("eclipse_threat", threat)
+            end
+        end
     end
 end
 function getUpdateInterval(...)

@@ -55,11 +55,16 @@ function EclipseConquestManager.updateServer(timeStep)
     local players = {Server():getOnlinePlayers()}
     if #players == 0 then return end
 
-    EclipseConquestManager.timer = EclipseConquestManager.timer + timeStep
+    local conqueredCount = Server():getValue("eclipse_conquered_sectors") or 0
+    local threat = Server():getValue("eclipse_threat") or 0
+    
+    -- Threat generation: Base 300 per minute + (20 per held sector per minute)
+    local threatPerSecond = (300 + (conqueredCount * 20)) / 60.0
+    threat = threat + (threatPerSecond * timeStep)
+    Server():setValue("eclipse_threat", threat)
 
-    -- Every 30 to 45 minutes, the Eclipse expand
-    if EclipseConquestManager.timer > random():getInt(30, 45) * 60 then
-        EclipseConquestManager.timer = 0
+    if threat >= 10000 then
+        Server():setValue("eclipse_threat", threat - 10000)
         EclipseConquestManager.expandEmpire()
     end
 end
@@ -92,11 +97,14 @@ function EclipseConquestManager.expandEmpire()
     end
 
     local tx, ty
+    local crusadeTargetFound = false
 
     if isFallenEmpire then
         -- Crusade Logic: Seek out an AI Faction Capital
         -- We randomly sample coordinates to find an active, non-eradicated AI faction
         local targets = {}
+        local cpuTimer = HighResolutionTimer()
+        cpuTimer:start()
         for i = 1, 100 do
             local sx = random():getInt(-490, 490)
             local sy = random():getInt(-490, 490)
@@ -118,14 +126,45 @@ function EclipseConquestManager.expandEmpire()
 
             -- Stop once we have enough valid crusade candidates
             if #targets >= 5 then break end
+            
+            -- CPU Tick Safety: Abort if loop takes longer than 50ms
+            if cpuTimer.seconds > 0.05 then break end
         end
 
         if #targets > 0 then
             local target = targets[random():getInt(1, #targets)]
             tx, ty = target.x, target.y
             Server():broadcastChatMessage("The Eclipse", 2, "Crusade designated. Sector (" .. tx .. ":" .. ty .. ") has been marked for priority assimilation.")
-        else
-            -- No AI capitals left, fallback to player hunt
+            crusadeTargetFound = true
+        end
+    end
+
+    if not crusadeTargetFound then
+        -- Normal Logic: Geographic Infection Spread
+        local territoryString = Server():getValue("eclipse_held_territory") or ""
+        local coords = {}
+        for match in string.gmatch(territoryString, "(%-?%d+_%-?%d+),") do
+            table.insert(coords, match)
+        end
+        
+        if #coords > 0 then
+            local maxAttempts = 10
+            for attempt = 1, maxAttempts do
+                local target = coords[random():getInt(1, #coords)]
+                local ox, oy = string.match(target, "(%-?%d+)_(%-?%d+)")
+                ox, oy = tonumber(ox), tonumber(oy)
+                tx = ox + random():getInt(-3, 3)
+                ty = oy + random():getInt(-3, 3)
+                
+                local checkString = tx .. "_" .. ty .. ","
+                if not string.find(territoryString, checkString, 1, true) then
+                    break -- Valid target
+                end
+            end
+        end
+
+        -- Fallback: Random player known sector if no territory is held or random selection failed
+        if not tx or not ty then
             local players = {Server():getOnlinePlayers()}
             if #players == 0 then return end
             local player = players[random():getInt(1, #players)]
@@ -134,15 +173,6 @@ function EclipseConquestManager.expandEmpire()
             local targetSector = knownSectors[random():getInt(1, #knownSectors)]
             tx, ty = targetSector:getCoordinates()
         end
-    else
-        -- Normal Logic: Random player known sector
-        local players = {Server():getOnlinePlayers()}
-        if #players == 0 then return end
-        local player = players[random():getInt(1, #players)]
-        local knownSectors = {player:getKnownSectors()}
-        if #knownSectors == 0 then return end
-        local targetSector = knownSectors[random():getInt(1, #knownSectors)]
-        tx, ty = targetSector:getCoordinates()
     end
 
     -- 40% chance to Conquest (Boarding/Siege via Cosmic War)
@@ -155,18 +185,21 @@ function EclipseConquestManager.expandEmpire()
             CosmicVaultTerritory.setContestedZone(tx, ty, eclipseFaction.index, defFactionIndex, 120)
             Server():broadcastChatMessage("The Eclipse", 2, "Commencing assimilation of coordinates (" .. tx .. ":" .. ty .. "). Resistance is biologically inefficient.")
 
-              -- Inject the siege event safely into the sector thread
-              local code = [[
-                  function run()
-                      if not Sector():hasScript("events/siegeevent.lua") then
-                          Sector():addScriptOnce("data/scripts/events/siegeevent.lua")
-                      end
-                  end
-              ]]
-              runSectorCode(tx, ty, true, code, "run")
+            -- PROGRESSIVE MATERIALIZATION (Lag Fix)
+            local pendingSieges = Server():getValue("eclipse_pending_sieges") or ""
+            local entry = tx .. "_" .. ty .. ","
+            if not string.find(pendingSieges, entry, 1, true) then
+                Server():setValue("eclipse_pending_sieges", pendingSieges .. entry)
+            end
 
             -- Increment counter since it's a conquest attempt that will turn the sector
             Server():setValue("eclipse_conquered_sectors", conqueredCount + 1)
+            
+            -- Track for geographic expansion
+            local held = Server():getValue("eclipse_held_territory") or ""
+            if not string.find(held, entry, 1, true) then
+                Server():setValue("eclipse_held_territory", held .. entry)
+            end
         else
             -- Cosmic War not installed or hooked, fallback to Annihilation
             EclipseConquestManager.annihilateSector(tx, ty, eclipseFaction, conqueredCount)
@@ -191,18 +224,19 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
     -- Increment global conquest tracker
     Server():setValue("eclipse_conquered_sectors", (conqueredCount or Server():getValue("eclipse_conquered_sectors") or 0) + 1)
 
-    -- To forcefully strip faction ownership, we briefly force the server to load the sector.
-    -- This guarantees the `ca_delayed_annihilation.lua` script fires immediately and physically destroys the stations,
-    -- which naturally recalculates the map ownership to Neutral, preventing Ghost claims.
-
-    local code = [[
-        function run()
-            if not Sector():hasScript("sector/ca_delayed_annihilation.lua") then
-                Sector():addScriptOnce("data/scripts/sector/ca_delayed_annihilation.lua")
-            end
-        end
-    ]]
-    runSectorCode(x, y, true, code, "run")
+    -- PROGRESSIVE MATERIALIZATION (Lag Fix)
+    -- Instead of forcefully loading the sector and causing CPU spikes, we append it to the pending list.
+    local pending = Server():getValue("eclipse_pending_annihilations") or ""
+    local entry = x .. "_" .. y .. ","
+    if not string.find(pending, entry, 1, true) then
+        Server():setValue("eclipse_pending_annihilations", pending .. entry)
+    end
+    
+    -- Also track for geographic expansion
+    local held = Server():getValue("eclipse_held_territory") or ""
+    if not string.find(held, entry, 1, true) then
+        Server():setValue("eclipse_held_territory", held .. entry)
+    end
 end
 
 function EclipseConquestManager.secure()

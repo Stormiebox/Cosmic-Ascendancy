@@ -58,6 +58,72 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
     if onServer() then
         local sector = Sector()
         
+        -- PROGRESSIVE MATERIALIZATION INTERCEPT (Lag Fix)
+        local pendingAnnihilations = Server():getValue("eclipse_pending_annihilations") or ""
+        local pendingSieges = Server():getValue("eclipse_pending_sieges") or ""
+        local coordStr = x .. "_" .. y .. ","
+        local escapedCoordStr = string.gsub(coordStr, "%-", "%%-")
+        
+        if string.find(pendingAnnihilations, escapedCoordStr) then
+            -- Remove from pending list
+            Server():setValue("eclipse_pending_annihilations", string.gsub(pendingAnnihilations, escapedCoordStr, ""))
+            if not sector:hasScript("sector/ca_delayed_annihilation.lua") then
+                sector:addScriptOnce("data/scripts/sector/ca_delayed_annihilation.lua")
+            end
+        end
+        
+        if string.find(pendingSieges, escapedCoordStr) then
+            -- Remove from pending list
+            Server():setValue("eclipse_pending_sieges", string.gsub(pendingSieges, escapedCoordStr, ""))
+            if not sector:hasScript("events/siegeevent.lua") then
+                sector:addScriptOnce("data/scripts/events/siegeevent.lua")
+            end
+        end
+        
+        -- AI / Pirate Expansion Intercept (Cosmic Vault)
+        local pendingExpansions = Server():getValue("CosmicVault_PendingExpansions") or ""
+        local vaultPrefix = string.gsub(x .. "__" .. y .. "__", "%-", "%%-")
+        local vaultPattern = vaultPrefix .. "([%-%w]+)__([%w]+),"
+        local factionStr, pirateStr = string.match(pendingExpansions, vaultPattern)
+
+        if factionStr and pirateStr then
+            local isPirate = (pirateStr == "true")
+            local factionIndex = tonumber(factionStr)
+            
+            local entryToRemove = x .. "__" .. y .. "__" .. factionStr .. "__" .. pirateStr .. ","
+            local escapedEntry = string.gsub(entryToRemove, "%-", "%%-")
+            Server():setValue("CosmicVault_PendingExpansions", string.gsub(pendingExpansions, escapedEntry, ""))
+            
+            -- Generate the Outpost/Hideout natively!
+            if isPirate then
+                local PirateGenerator = include("pirategenerator")
+                local level = Balancing_GetPirateLevel(x, y)
+                local faction = Galaxy():getPirateFaction(level)
+                if faction then
+                    local SectorGenerator = include("SectorGenerator")
+                    local generator = SectorGenerator(x, y)
+                    if random():getFloat() < 0.5 then
+                        generator:createStation(faction, "data/scripts/entity/merchants/smugglersmarket.lua").title = "Smuggler's Hideout"
+                    else
+                        generator:createStation(faction, "data/scripts/entity/merchants/shipyard.lua").title = "Pirate Shipyard"
+                    end
+                end
+            else
+                local faction = Faction(factionIndex)
+                if faction then
+                    local SectorGenerator = include("SectorGenerator")
+                    local generator = SectorGenerator(x, y)
+                    local types = {
+                        "data/scripts/entity/merchants/militaryoutpost.lua",
+                        "data/scripts/entity/merchants/resourcedepot.lua",
+                        "data/scripts/entity/merchants/tradingpost.lua",
+                        "data/scripts/entity/merchants/researchstation.lua"
+                    }
+                    generator:createStation(faction, types[random():getInt(1, #types)])
+                end
+            end
+        end
+        
         if Server():getValue("eclipse_fully_awake") and not sector:getValue("eclipse_stronghold_rolled") then
             sector:setValue("eclipse_stronghold_rolled", true)
             

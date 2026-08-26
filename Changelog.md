@@ -7,6 +7,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.4.0]
+
+### 🛠️ Architecture & Optimization
+- [Optimized] **Progressive Materialization:** Completely overhauled the `ca_expansion_manager.lua` and `ascendancyplayer.lua` API. When The Eclipse faction expands or annihilates a sector, they no longer force the server to physically load the sector into memory to generate stations or delete entities (which caused massive server stutters). 
+- [Feature] **Lazy Loading API:** Eclipse expansions and sector annihilations are now queued mathematically in a global `CosmicAscendancy_PendingExpansions` string. When a player jumps into the affected sector, the game seamlessly intercepts the loading screen and instantly applies the changes. Zero stutter!
+- [Optimized] **Threat Economy Safety:** Added a 50ms CPU intercept check via `HighResolutionTimer` inside the Eclipse Threat Economy manager (`eclipse_conquest_manager.lua`). This prevents the server from freezing when validating thousands of sectors against the Annihilation engine.
+
 ## [v1.3.1]
 
 ### 🐛 Bug Fixes

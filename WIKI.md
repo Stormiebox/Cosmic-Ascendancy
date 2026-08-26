@@ -180,6 +180,7 @@ Vanilla Avorion features a static map. With Cosmic Ascendancy, **civilized AI fa
 - 🗺️ **Organic Growth:** Civilized factions will trace outward from their home sectors to claim contiguous empty sectors, spawning new space stations and officially annexing the territory.
 - 🏴‍☠️ **Pirate Bases:** Deep space is no longer permanently safe. Pirates will occasionally establish Smuggler's Hideouts and Pirate Shipyards in completely uncharted systems.
 - 📰 **News Alerts:** All major territorial expansions are broadcast live via the Cosmic Chronicles News Network.
+- ⚡ **Zero-Stutter Performance:** Built on the V4 Progressive Materialization architecture, all territory expansion and station generation is queued natively in the background and materialized instantly upon a player jumping into the sector. This completely eliminates the massive server lag spikes caused by traditional "background sector loading."
 </details>
 
 ---
