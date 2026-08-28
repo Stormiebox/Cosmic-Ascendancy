@@ -2,7 +2,8 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 include("stringutility")
 
-local EclipseAwakes = {}
+-- namespace EclipseAwakes
+EclipseAwakes = {}
 EclipseAwakes.invasionTimer = 0
 EclipseAwakes.awakenTimer = 0
 
@@ -113,18 +114,6 @@ function EclipseAwakes.updateServer(timeStep)
     end
 end
 
-function EclipseAwakes.triggerInvasion()
-    -- This is now handled globally by eclipse_conquest_manager.lua, but we still trigger personal player ambushes here
-    local players = {Server():getOnlinePlayers()}
-    for _, player in pairs(players) do
-        -- 40% chance to personally ambush a player in their sector
-        if random():getFloat(0, 1) < 0.4 then
-            -- before the first one finishes (e.g., if invasion timer fires while one is still running).
-            -- addScriptOnce is idempotent — safe to call multiple times; will not stack.
-            player:addScriptOnce("data/scripts/player/events/eclipseinvasion.lua")
-        end
-    end
-end
 
 function EclipseAwakes.secure()
     return {
@@ -151,20 +140,3 @@ function EclipseAwakes.restore(data)
         end
     end
 end
-function getUpdateInterval(...)
-    if EclipseAwakes.getUpdateInterval then return EclipseAwakes.getUpdateInterval(...) end
-end
-function initialize(...)
-    if EclipseAwakes.initialize then return EclipseAwakes.initialize(...) end
-end
-function updateServer(...)
-    if EclipseAwakes.updateServer then return EclipseAwakes.updateServer(...) end
-end
-function secure(...)
-    if EclipseAwakes.secure then return EclipseAwakes.secure(...) end
-end
-function restore(...)
-    if EclipseAwakes.restore then return EclipseAwakes.restore(...) end
-end
-
-

@@ -3,7 +3,7 @@ include("stringutility")
 local cv_news = include("cosmicvaultnews")
 
 -- namespace WorldEaterManager
-local WorldEaterManager = {}
+WorldEaterManager = {}
 WorldEaterManager.timer = 0
 WorldEaterManager.activeEvent = nil -- {x=x, y=y, timeLeft=900}
 
@@ -57,9 +57,11 @@ function WorldEaterManager.updateServer(timeStep)
     else
         local graceEnd = Server():getValue("eclipse_world_eater_grace_end") or 0
         if Server().unpausedRuntime > graceEnd then
+            WorldEaterManager.threshold = WorldEaterManager.threshold or random():getInt(10800, 18000)
             WorldEaterManager.timer = WorldEaterManager.timer + timeStep
-            if WorldEaterManager.timer > random():getInt(10800, 18000) then -- 3 to 5 hours
+            if WorldEaterManager.timer > WorldEaterManager.threshold then
                 WorldEaterManager.timer = 0
+                WorldEaterManager.threshold = nil
                 WorldEaterManager.triggerEvent()
             end
         end
@@ -74,7 +76,20 @@ function WorldEaterManager.triggerEvent()
     local knownSectors = {player:getKnownSectors()}
     if #knownSectors == 0 then return end
 
-    local targetSector = knownSectors[random():getInt(1, #knownSectors)]
+    local targetSector = nil
+    local validSectors = {}
+    for _, view in pairs(knownSectors) do
+        if view and (view.stations or 0) > 0 then
+            table.insert(validSectors, view)
+        end
+    end
+
+    if #validSectors > 0 then
+        targetSector = validSectors[random():getInt(1, #validSectors)]
+    else
+        targetSector = knownSectors[random():getInt(1, #knownSectors)]
+    end
+    
     local tx, ty = targetSector:getCoordinates()
 
     WorldEaterManager.activeEvent = {x = tx, y = ty, timeLeft = 1200}
@@ -174,7 +189,8 @@ end
 function WorldEaterManager.secure()
     return {
         activeEvent = WorldEaterManager.activeEvent,
-        timer = WorldEaterManager.timer
+        timer = WorldEaterManager.timer,
+        threshold = WorldEaterManager.threshold
     }
 end
 
@@ -188,6 +204,7 @@ function WorldEaterManager.restore(data)
             -- New save format
             WorldEaterManager.activeEvent = data.activeEvent
             WorldEaterManager.timer = data.timer or 0
+            WorldEaterManager.threshold = data.threshold
         end
     end
 end

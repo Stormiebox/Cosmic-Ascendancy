@@ -114,6 +114,7 @@ mission.phases[3].onSectorEntered = function(x, y)
                 ship.title = "Ascendant AI Construct"%_T
                 ship:setInvincible(true)
                 ship.dockable = false
+                ship.crew = ship.minCrew
                 
                 local ShipUtility = include("shiputility")
                 ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
@@ -124,6 +125,18 @@ mission.phases[3].onSectorEntered = function(x, y)
             end
         end
         Player():setValue("ca_ready_for_debrief_5", true)
+    end
+end
+
+mission.phases[3].updateServer = function()
+    local player = Player()
+    if mission.data.custom.aegisX and mission.data.custom.aegisY then
+        local x, y = player:getSectorCoordinates()
+        if x == mission.data.custom.aegisX and y == mission.data.custom.aegisY then
+            if player:getValue("ca_ready_for_debrief_5") == nil then
+                finish()
+            end
+        end
     end
 end
 

@@ -4,6 +4,7 @@ include("stringutility")
 
 local cv_news = include("cosmicvaultnews")
 
+-- namespace EclipseRoamingBoss
 EclipseRoamingBoss = {}
 local self = EclipseRoamingBoss
 
@@ -118,21 +119,3 @@ function EclipseRoamingBoss.restore(data_in)
     data = data_in or {}
     data.countDown = data.countDown or (5 * 60)
 end
-
-function getUpdateInterval(...)
-    if EclipseRoamingBoss.getUpdateInterval then return EclipseRoamingBoss.getUpdateInterval(...) end
-end
-function initialize(...)
-    if EclipseRoamingBoss.initialize then return EclipseRoamingBoss.initialize(...) end
-end
-function updateServer(...)
-    if EclipseRoamingBoss.updateServer then return EclipseRoamingBoss.updateServer(...) end
-end
-function secure(...)
-    if EclipseRoamingBoss.secure then return EclipseRoamingBoss.secure(...) end
-end
-function restore(...)
-    if EclipseRoamingBoss.restore then return EclipseRoamingBoss.restore(...) end
-end
-
-return EclipseRoamingBoss

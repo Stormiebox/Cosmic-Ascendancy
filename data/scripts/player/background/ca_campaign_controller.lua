@@ -1,7 +1,8 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
-local AscendancyCampaign = {}
+-- namespace AscendancyCampaign
+AscendancyCampaign = {}
 
 function AscendancyCampaign.initialize()
     if onServer() then
@@ -19,9 +20,3 @@ function AscendancyCampaign.onSectorEntered(playerIndex, x, y, changeType)
     end
 end
 
-function initialize(...)
-    if AscendancyCampaign.initialize then return AscendancyCampaign.initialize(...) end
-end
-function onSectorEntered(...)
-    if AscendancyCampaign.onSectorEntered then return AscendancyCampaign.onSectorEntered(...) end
-end

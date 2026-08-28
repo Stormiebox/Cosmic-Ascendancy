@@ -47,9 +47,9 @@ mission.phases[1].onBeginServer = function()
     
     -- Send Mail
     local mail = Mail()
-    mail.text = "Commander. Do not be alarmed by my intrusion into your systems. I am Aegis.\n\nBy destroying the Keystone, you have unraveled the dimensional knot. We must speak immediately. I have transmitted secure rendezvous coordinates to your ship's computer.\n\nDo not delay."%_T
-    mail.header = "Secure Transmission"%_T
-    mail.sender = "Aegis"%_T
+    mail.text = Format("Commander. Do not be alarmed by my intrusion into your systems. I am Aegis.\n\nBy destroying the Keystone, you have unraveled the dimensional knot. We must speak immediately. I have transmitted secure rendezvous coordinates to your ship's computer.\n\nDo not delay."%_T)
+    mail.header = Format("Secure Transmission"%_T)
+    mail.sender = Format("Aegis"%_T)
     player:addMail(mail)
     
     player:sendChatMessage("Ship Computer"%_T, 3, "New rendezvous coordinates received: \\s(%1%:%2%)"%_T, tostring(targetX), tostring(targetY))

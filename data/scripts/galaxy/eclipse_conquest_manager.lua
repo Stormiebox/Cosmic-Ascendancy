@@ -7,7 +7,8 @@ local cv_news = include("cosmicvaultnews")
 local FactionEradicationUtility = include("factioneradicationutility")
 CosmicVaultTerritory = include("cosmicvaultterritory")
 
-local EclipseConquestManager = {}
+-- namespace EclipseConquestManager
+EclipseConquestManager = {}
 EclipseConquestManager.timer = 0
 
 function EclipseConquestManager.getUpdateInterval()
@@ -81,6 +82,15 @@ function EclipseConquestManager.expandEmpire()
     local suppressionDuration = (6 + math.floor(conqueredCount / 10) * 2) * 3600
     if Server().unpausedRuntime - citadelDestroyed < suppressionDuration then
         return -- Suppressed
+    end
+
+    -- Personal Ambush Logic (Migrated from legacy timer)
+    local players = {Server():getOnlinePlayers()}
+    for _, player in pairs(players) do
+        -- 40% chance to personally ambush a player in their sector when threat peaks
+        if random():getFloat(0, 1) < 0.4 then
+            player:addScriptOnce("data/scripts/player/events/eclipseinvasion.lua")
+        end
     end
 
     -- Check if we should awaken
@@ -247,21 +257,5 @@ function EclipseConquestManager.restore(data)
     if data then
         EclipseConquestManager.timer = data.timer or 0
     end
-end
-
-function getUpdateInterval(...)
-    if EclipseConquestManager.getUpdateInterval then return EclipseConquestManager.getUpdateInterval(...) end
-end
-function initialize(...)
-    if EclipseConquestManager.initialize then return EclipseConquestManager.initialize(...) end
-end
-function updateServer(...)
-    if EclipseConquestManager.updateServer then return EclipseConquestManager.updateServer(...) end
-end
-function secure(...)
-    if EclipseConquestManager.secure then return EclipseConquestManager.secure(...) end
-end
-function restore(...)
-    if EclipseConquestManager.restore then return EclipseConquestManager.restore(...) end
 end
 

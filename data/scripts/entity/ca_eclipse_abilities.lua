@@ -1,6 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local EclipseAbilities = {}
+-- namespace EclipseAbilities
+EclipseAbilities = {}
 
 -- State tracking
 EclipseAbilities.lastBlink = 0
@@ -329,23 +330,3 @@ function EclipseAbilities.onDestroyed()
     end
 end
 
-function initialize(...)
-    if EclipseAbilities.initialize then return EclipseAbilities.initialize(...) end
-end
-function getUpdateInterval(...)
-    if EclipseAbilities.getUpdateInterval then return EclipseAbilities.getUpdateInterval(...) end
-end
-function updateServer(...)
-    if EclipseAbilities.updateServer then return EclipseAbilities.updateServer(...) end
-end
-
--- Global Event Callbacks
-function onDamaged(...)
-    if EclipseAbilities.onDamaged then return EclipseAbilities.onDamaged(...) end
-end
-function onShieldDamaged(...)
-    if EclipseAbilities.onShieldDamaged then return EclipseAbilities.onShieldDamaged(...) end
-end
-function onDestroyed(...)
-    if EclipseAbilities.onDestroyed then return EclipseAbilities.onDestroyed(...) end
-end

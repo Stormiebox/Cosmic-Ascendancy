@@ -1,6 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local WorldEaterEvent = {}
+-- namespace WorldEaterEvent
+WorldEaterEvent = {}
 WorldEaterEvent.worldEaterId = nil
 
 function WorldEaterEvent.initialize(timeLeft)
@@ -97,23 +98,3 @@ function WorldEaterEvent.restore(data)
     end
 end
 
-function initialize(...)
-    if WorldEaterEvent.initialize then return WorldEaterEvent.initialize(...) end
-end
-
-function secure(...)
-    if WorldEaterEvent.secure then return WorldEaterEvent.secure(...) end
-end
-
-function restore(...)
-    if WorldEaterEvent.restore then return WorldEaterEvent.restore(...) end
-end
-
--- Global Event Callbacks
-function onWorldEaterDestroyed(...)
-    if WorldEaterEvent.onWorldEaterDestroyed then return WorldEaterEvent.onWorldEaterDestroyed(...) end
-end
-
-function onPlayerEntered(...)
-    if WorldEaterEvent.onPlayerEntered then return WorldEaterEvent.onPlayerEntered(...) end
-end

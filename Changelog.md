@@ -7,6 +7,16 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.5.0]
+
+### 🛠️ Architecture & Optimization
+- [Optimized] **Global Wrapper Purge:** Completely overhauled the internal C++ API wrapper structure across `galaxy/`, `lib/`, `events/`, `entity/`, and `sector/` scripts. Removed dozens of invalid `function updateServer() return Namespace.updateServer() end` wrappers that were causing silent multiplayer linkage failures, strictly adhering to Avorion VFS constraints.
+- [Optimized] **Namespace Alignment:** All `callable()` RPC registries and state persistence hooks (`secure()`/`restore()`) have been rigorously audited and mapped directly to their correct namespace objects, guaranteeing flawless dedicated server synchronization.
+
+### 🪲 Bug Fixes
+- [Bugfix] **Aegis Campaign State Machine:** Fixed a severe structural logic flaw across the entire 5-part Aegis Story Campaign (`ca_story1` through `ca_story5`). Previously, the `ca_ascendant_envoy.lua` dialog script would brute-force delete the mission scripts via `removeScript()` when advancing the questline, which prevented the missions from naturally calling `finish()` and logging as "Completed" in the player's quest journal. All 5 missions have been refactored to include an `updateServer()` state hook that listens for the Envoy to clear the `ca_ready_for_debrief` flag, allowing them to terminate cleanly.
+- [Bugfix] **Callback Registrations:** Patched `ca_singularity_detonation.lua` and several other entity scripts to correct `callable` namespace targets that were previously pointing to `nil`, restoring missing visual and mechanical effects.
+
 ## [v1.4.1]
 
 ### 🪲 Bug Fixes

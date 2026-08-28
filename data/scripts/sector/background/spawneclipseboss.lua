@@ -5,6 +5,7 @@ include("stringutility")
 local EclipseGenerator = include("eclipsegenerator")
 local SectorGenerator = include ("SectorGenerator")
 
+-- namespace SpawnEclipseBoss
 SpawnEclipseBoss = {}
 local self = SpawnEclipseBoss
 
@@ -96,8 +97,3 @@ function SpawnEclipseBoss.finish()
     terminate()
 end
 
-function initialize(...)
-    if SpawnEclipseBoss.initialize then return SpawnEclipseBoss.initialize(...) end
-end
-
-return SpawnEclipseBoss

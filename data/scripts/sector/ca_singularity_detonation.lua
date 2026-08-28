@@ -2,7 +2,8 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 
 include("callable")
 
-local Detonation = {}
+-- namespace Detonation
+Detonation = {}
 Detonation.posX = 0
 Detonation.posY = 0
 Detonation.posZ = 0
@@ -98,15 +99,7 @@ function Detonation.restore(data)
     Detonation.factionIndex = data.factionIndex or -1
 end
 
-function initialize(...)
-    if Detonation.initialize then return Detonation.initialize(...) end
-end
-function getUpdateInterval(...)
-    if Detonation.getUpdateInterval then return Detonation.getUpdateInterval(...) end
-end
-function updateServer(...)
-    if Detonation.updateServer then return Detonation.updateServer(...) end
-end
+
 function Detonation.playDetonationVisuals(pos)
     if onClient() then
         Sector():createExplosion(pos, 1500, true)
@@ -114,18 +107,7 @@ function Detonation.playDetonationVisuals(pos)
     end
 end
 
-function secure(...)
-    if Detonation.secure then return Detonation.secure(...) end
-end
-function restore(...)
-    if Detonation.restore then return Detonation.restore(...) end
-end
-function playSingularityWarning(...)
-    if Detonation.playSingularityWarning then return Detonation.playSingularityWarning(...) end
-end
-function playDetonationVisuals(...)
-    if Detonation.playDetonationVisuals then return Detonation.playDetonationVisuals(...) end
-end
 
-callable(nil, "playSingularityWarning")
-callable(nil, "playDetonationVisuals")
+
+callable(Detonation, "playSingularityWarning")
+callable(Detonation, "playDetonationVisuals")

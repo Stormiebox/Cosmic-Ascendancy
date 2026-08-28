@@ -106,7 +106,7 @@ function CAAegisEnvoy.onAcceptStory1()
     if onServer() then
         local player = Player()
         player:setValue("ca_ready_for_debrief_1", nil)
-        player:removeScript("ca_story1_awakening.lua")
+
         player:addScriptOnce("data/scripts/player/missions/ca_story2_forge.lua")
         
         -- Rewards (2.5M, 2 Turrets, 1 System)
@@ -138,7 +138,7 @@ function CAAegisEnvoy.onAcceptStory2()
     if onServer() then
         local player = Player()
         player:setValue("ca_ready_for_debrief_2", nil)
-        player:removeScript("ca_story2_forge.lua")
+
         player:addScriptOnce("data/scripts/player/missions/ca_story3_vanguard.lua")
         
         -- Rewards (5M, 2 Turrets, 2 Systems)
@@ -170,7 +170,7 @@ function CAAegisEnvoy.onAcceptStory3()
     if onServer() then
         local player = Player()
         player:setValue("ca_ready_for_debrief_3", nil)
-        player:removeScript("ca_story3_vanguard.lua")
+
         player:addScriptOnce("data/scripts/player/missions/ca_story4_citadel.lua")
         
         -- Rewards (7.5M, 2 Turrets, 1 System)
@@ -202,7 +202,7 @@ function CAAegisEnvoy.onAcceptStory4()
     if onServer() then
         local player = Player()
         player:setValue("ca_ready_for_debrief_4", nil)
-        player:removeScript("ca_story4_citadel.lua")
+
         player:addScriptOnce("data/scripts/player/missions/ca_story5_worldeater.lua")
         
         -- Rewards (10M, 3 Turrets, 2 Systems)
@@ -234,7 +234,7 @@ function CAAegisEnvoy.onAcceptStory5()
     if onServer() then
         local player = Player()
         player:setValue("ca_ready_for_debrief_5", nil)
-        player:removeScript("ca_story5_worldeater.lua")
+
         
         -- Rewards (25M, 5 Legendary Turrets, 3 Legendary Systems)
         player:receive("Ascendant Heritage", 25000000)
