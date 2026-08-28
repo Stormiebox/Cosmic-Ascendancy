@@ -1,9 +1,10 @@
+
 meta =
 {
     -- ID of your mod; Make sure this is unique!
     -- Will be used for identifying the mod in dependency lists
     -- Will be changed to workshop ID (ensuring uniqueness) when you upload the mod to the workshop
-    id = "CosmicAscendancy",
+    id = "3778706754",
 
     -- Name of your mod; You may want this to be unique, but it's not absolutely necessary.
     -- This is an additional helper attribute for you to easily identify your mod in the Mods() list
@@ -16,11 +17,10 @@ meta =
     type = "mod",
 
     -- Description of your mod that will be displayed to players
-    description =
-    "Following the destruction of the Wormhole Guardian, a darker, ancient adversary awakens: The Eclipse. Cosmic Ascendancy introduces an epic endgame narrative campaign where you must track a mysterious distress signal, uncover the truth behind The Eclipse, and unlock the Ascendancy Forge to craft the weapons needed to survive.",
+    description = "Following the destruction of the Wormhole Guardian, a darker, ancient adversary awakens: The Eclipse. Cosmic Ascendancy introduces an epic endgame narrative campaign where you must track a mysterious distress signal, uncover the truth behind The Eclipse, and unlock the Ascendancy Forge to craft the weapons needed to survive.",
 
     -- Insert all authors into this list
-    authors = { "Stormbox" },
+    authors = {"Stormbox"},
 
     -- Version of your mod, should be in format 1.0.0 (major.minor.patch) or 1.0 (major.minor)
     -- This will be used to check for unmet dependencies or incompatibilities, and to check compatibility between clients and dedicated servers with mods.
@@ -44,12 +44,9 @@ meta =
     --      {id = "OptionalMod", min = "0.2", optional = true}, -- we support OptionalMod optionally, starting at version 0.2
     -- },
     dependencies = {
-        { id = "3684665566", incompatible = true },      -- Outlands: Sectors Keep-Alive
-        { id = "3727542782", min = "1.0", max = "*.*" }, -- Cosmic Vault
-        { id = "3732507615", min = "1.0", max = "*.*" }, -- Cosmic Chronicles
-        { id = "3315794988", min = "1.0", max = "*.*" }, -- Cosmic Overhaul
-        { id = "3727544356", min = "1.0", max = "*.*" }, -- Cosmic War
-        { id = "Avorion",    min = "1.0", max = "*.*" }
+        { id = "3684665566", incompatible = true }, -- Outlands: Sectors Keep-Alive
+        { id = "3727542782", min = "1.0",        max = "*.*" }, -- Cosmic Vault
+        {id = "Avorion", min = "1.0", max = "*.*"}
     },
 
     -- Set to true if the mod only has to run on the server. Clients will get notified that the mod is running on the server, but they won't download it to themselves
@@ -65,4 +62,3 @@ meta =
     -- Contact info for other users to reach you in case they have questions
     contact = "Contact me on Discord: stormbox - I am also on the official Avorion Discord!",
 }
-
