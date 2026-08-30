@@ -1,0 +1,390 @@
+[i]Version 1.5.1[/i]
+[hr][/hr]
+[h1]v1.5.1 🐛BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This patch resolves some of the most elusive bugs reported by the community![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Linux Dedicated Server Fixes:[/b] Fixed a widespread issue where event scripts and campaigns were completely failing to load on Linux Dedicated Servers due to path-case sensitivity. The Eclipse and the Aegis campaign will now trigger flawlessly for multiplayer server hosts!
+[*]🐛 [b]Script Crash Prevention:[/b] Fixed several hidden crashes where the engine would quietly fail when players or factions tried to pay for things (like Ascendancy Beacon upgrades) because of incorrect internal money assignments. The story missions and mega-structures are now much more stable.
+[*]🐛 [b]Multiplayer UI & Interactivity:[/b] Repaired broken client-to-server communications across several custom UI windows. Buttons that were previously greyed out or completely unresponsive (such as the Ascendancy Beacon) will now work flawlessly in multiplayer!
+[*]🐛 [b]Ascendancy Beacon Fixes:[/b] Fixed a nasty bug where trying to pay upkeep or activate the Ascendancy Beacon with ores (like Xanion or Avorion) would instantly crash the beacon's interface.
+[/list]
+
+[i]Version 1.5.0[/i]
+[hr][/hr]
+[h1]v1.5.0 🛠️ARCHITECTURE & OPTIMIZATION UPDATE!🛠️[/h1]
+[hr][/hr]
+[b]🛠️ CORE ARCHITECTURE PATCH[/b]
+[i]This minor update implements a total structural audit while bugfixing and tweaking the story campaign.[/i]
+
+[b]🛠️ ARCHITECTURE & OPTIMIZATION[/b]
+[list]
+[*]⚡ [b]Global Wrapper Purge:[/b] Completely overhauled the internal C++ API wrapper structure across the codebase. Removed dozens of invalid legacy wrappers that were causing silent multiplayer linkage failures, aligning the entire mod with strict Avorion VFS constraints.
+[*]⚡ [b]Namespace Alignment:[/b] All RPC registries and state persistence hooks have been rigorously audited and mapped directly to their correct namespace objects, guaranteeing flawless dedicated server synchronization.
+[/list]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Aegis Campaign:[/b] Fixed a severe structural logic flaw across the entire 5-part Aegis Story Campaign. Previously, Aegis would brute-force delete the mission scripts from your ship when handing out the next mission, which prevented them from officially logging as "Completed" in your quest log. All missions now gracefully detect when Aegis finishes speaking to you, allowing them to naturally call their completion logic and finish cleanly.
+[*]🐛 [b]Callback Registrations:[/b] Patched the Singularity Detonation mechanics and several other entity scripts to correct target pointers that were missing their namespaces, restoring missing visual and mechanical effects.
+[/list]
+
+[i]Version 1.4.1[/i]
+[hr][/hr]
+[h1]v1.4.1 🐛BUGFIX UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix targets issues regarding visual effects![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Visual Desync & Server Crash Prevention:[/b] Fixed a critical server-side crash in `ca_worldeater_behavior.lua`, `ca_singularity_detonation.lua`, and `ca_anomaly_stash.lua` where the engine would attempt to execute `Sector():createExplosion()` or `createGlow()` directly on the server thread. All visual detonation logic has been strictly isolated and routed through `broadcastInvokeClientFunction`, ensuring massive cinematic explosions properly render for all clients in the sector without crashing the dedicated server.
+[/list]
+
+[i]Version 1.4.0[/i]
+[hr][/hr]
+[h1]v1.4.0 🛠️ARCHITECTURE & OPTIMIZATION UPDATE!🛠️[/h1]
+[hr][/hr]
+[b]🛠️ CORE ARCHITECTURE PATCH[/b]
+[i]This update implements Progressive Materialization to eliminate massive lag spikes during Eclipse expansions![/i]
+
+[b]🛠️ ARCHITECTURE & OPTIMIZATION[/b]
+[list]
+[*]⚡ [b]Progressive Materialization (Lag Fix):[/b] Completely overhauled the [i]ca_expansion_manager[/i] API. When The Eclipse faction expands or annihilates a sector, they no longer force the server to physically load the sector into memory to generate stations or delete entities (which caused massive server stutters).
+[*]⚡ [b]Lazy Loading API:[/b] Eclipse expansions and sector annihilations are now queued mathematically. When a player jumps into the affected sector, the game seamlessly intercepts the loading screen and instantly applies the changes. Zero stutter!
+[*]⚡ [b]Threat Economy Safety:[/b] Added a 50ms CPU intercept check inside the Eclipse Threat Economy manager. This prevents the server from freezing when validating thousands of sectors against the Annihilation engine.
+[/list]
+
+[i]Version 1.3.1[/i]
+[hr][/hr]
+[h1]v1.3.1 🐛BUGFIX UPDATE![/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix targets a Matrix math crash![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Lore Anomalies:[/b] Fixed a C++ API logic exception (invalid type 'Matrix' expected 'vec3') when calculating randomized anomaly stash generation, preventing the lore databanks from appearing.
+[/list]
+
+[i]Version 1.3.0[/i]
+[hr][/hr]
+[h1]v1.3.0 ✨FEATURE & 🐛BUGFIX UPDATE![/h1]
+[hr][/hr]
+[b]🛠️ MINOR EXPANSION PATCH[/b]
+[i]Minor Features expansion![/i]
+
+[b]✨FEATURES[/b]
+[list]
+[*]🔥 [b]Omni-Sensor Deep Scan:[/b] The Ascendant Omni-Sensor now automatically performs a deep scan upon entering a sector, printing the exact coordinates of any claimable asteroids or hidden stashes directly to your chat interface.
+[*]🔥 [b]Slipstream Drift:[/b] Jumping into a sector with the Ascendant Slipstream Drive equipped now grants a massive +50% velocity boost for 10 seconds, simulating the momentum of exiting the hyperspace tunnel.
+[*]🔥 [b]Void Drill Overclocking:[/b] The immense power draw of the Ascendant Void Drill now occasionally causes your ship to vent massive, harmless plasma bursts.
+[*]🔥 [b]Anomaly Resurgence:[/b] When extracting databanks from a Lore Anomaly, there is now a 10% chance for the anomaly to resonate and spawn a secondary, smaller stash nearby containing bonus loot!
+[/list]
+
+[i]Version 1.2.5[/i]
+[hr][/hr]
+[h1]v1.2.5 🐛CRITICAL BUGFIX PATCH UPDATE![/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This hotfix directly addresses a severe crash that prevented deep-space anomalies from spawning correctly![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Lore Anomaly Crash Fixes:[/b] Fixed two critical server crashes when spawning deep-space corrupted databanks. The script was utilizing invalid and defunct logic to verify empty sectors and spawn wreckages, which would silently kill the sector thread. Anomalies will now properly detect empty sectors and natively spawn wreckages flawlessly!
+[/list]
+
+[i]Version 1.2.4[/i]
+[hr][/hr]
+[h1]v1.2.4 🐛CRITICAL BUGFIX PATCH UPDATE![/h1]
+[hr][/hr]
+[b]🛠️ GAMEPLAY PATCH[/b]
+[i]This hotfix directly addresses a severe crash that prevented Aegis from spawning when players entered her rendezvous coordinates![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Aegis Spawn Crash:[/b] Fixed a severe legacy bug carried over through all campaign stages that caused the game backend to fail when attempting to spawn the Aegis Envoy ship. The mission will now correctly spawn Aegis when you arrive at the coordinates, allowing the questline to progress!
+[/list]
+
+[i]Version 1.2.3[/i]
+[hr][/hr]
+[h1]v1.2.3 🐛CRITICAL BUGFIX PATCH UPDATE![/h1]
+[hr][/hr]
+[b]🛠️ GAMEPLAY PATCH[/b]
+[i]This hotfix directly addresses a severe race-condition crash that prevented Aegis from properly delivering her mail to players who immediately warped away after killing the Guardian![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Aegis Mail Trigger Crash:[/b] Fixed a critical hyperspace race-condition crash in `ca_story0`. If a player jumped to a new sector at the exact millisecond the 10-second Aegis delay timer elapsed, the mission would fail to grab the sector coordinates and silently crash, failing to deliver the rendezvous mail or objective. Replaced the static `Sector():getCoordinates()` API with the robust `player:getSectorCoordinates()` to ensure it safely resolves coordinates even during loading screens and hyperspace jumps.
+[*]🐛 [b]Aegis Mission UI:[/b] Added the explicit `autoTrackMission = true` flag to the Aegis story mission. Now, the moment Aegis contacts the player and assigns the rendezvous coordinates, it will properly force the objective to appear on the player's right-hand HUD immediately, preventing players from missing the event.
+[/list]
+
+[i]Version 1.2.2[/i]
+[hr][/hr]
+[h1]v1.2.2 🐛BUGFIX & UI POLISH PATCH UPDATE![/h1]
+[hr][/hr]
+[b]🛠️ GAMEPLAY PATCH[/b]
+[i]This small patch addresses legacy save compatibility and polishes the story mission user interface![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Aegis Legacy Save Compatibility:[/b] Fixed an issue where loading into an older save with the Wormhole Guardian already destroyed would trigger the Aegis encounter instantly without any narrative delay. Aegis will now properly wait a few moments before initiating contact.
+[*]🐛 [b]Story Mission UI Polish & Softlocks:[/b] Safely patched all stages of the Cosmic Ascendancy narrative campaign. The missions are now explicitly marked as un-abandonable, preventing players from accidentally aborting the questline and soft-locking their playthrough. Also added missing descriptions and assigned the official story-mission icons for a cleaner mission log experience!
+[*]🐛 [b]Dark Sector Premature Spawning:[/b] Fixed an issue where players exploring the deep core could stumble into Eclipse fleets and Dark Matter Fog before actually defeating the Wormhole Guardian to awaken them.
+[/list]
+
+[i]Version 1.2.1[/i]
+[hr][/hr]
+[h1]v1.2.1 ✨FEATURES & 🐛BUGFIX PATCH UPDATE![/h1]
+[hr][/hr]
+[b]🛠️ GAMEPLAY PATCH[/b]
+[i]This patch completely overhauls the initial Aegis encounter, fixes music overlaps, and resolves severe background crashes across many scripts![/i]
+
+[b]📦New Features[/b]
+[list]
+[*]✨ [b]Aegis Contact Flow:[/b] Completely overhauled the initial encounter with Aegis, the Ascendant Envoy. Instead of abruptly spawning at sector 0:0 during the unskippable end-credits sequence, Aegis now formally contacts the player via a secure, priority in-game Mail and grants a mission directing them to a nearby rendezvous coordinate.
+[/list]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Cinematic Music Overlap:[/b] Fixed an issue where the custom "Forge the Ascendant" OST would awkwardly overlap with the Wormhole Guardian's end-credits track.
+[*]🐛 [b]StringUtility API Crash:[/b] Fixed a severe, widespread background thread crash affecting many scripts.
+[*]🐛 [b]Audio Hooks:[/b] Fixed a syntax glitch and syncing issue with the boss music/audio hooks in multiplayer.
+[*]🐛 [b]Linux Servers:[/b] Fixed a fatal crash for Linux Dedicated Servers when spawning envoys or generating dark sectors.
+[/list]
+
+[i]Version 1.2.0[/i]
+[hr][/hr]
+[h1]✨v1.2.0 THE ASCENDANT ENVOY UPDATE!✨[/h1]
+[hr][/hr]
+[b]🛠️ GAMEPLAY PATCH[/b]
+[i]This update completely overhauls the endgame campaign and introduces a new guide NPC while fixing some bugs![/i]
+
+[b]📦New Features & Campaign Extension[/b]
+[list]
+[*]✨ [b]Aegis, The Ascendant Envoy:[/b] Added a completely new story NPC, Aegis, who spawns to guide players through the Eclipse lore after defeating the Wormhole Guardian. The NPC features an invincible, non-collidable hologram projection format.
+[*]✨ [b]Expanded Campaign:[/b] Vastly expanded the end-game campaign into 5 distinct, sequential missions (The Seal is Broken, The Vanguard, Forging the Defense, The Citadel Threat, and The World-Eater). Replaced generic NPC mentions with Aegis and fully refreshed the dialogue.
+[/list]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Cinematic Audio & Banners:[/b] Fixed a broken server-to-client RPC hook that was preventing ominous music and red Doomsday banners from appearing on players' screens when an Eclipse boss spawns.
+[/list]
+
+[i]Version 1.1.1[/i]
+[hr][/hr]
+[h1]🐛v1.1.1 BUGFIX PATCH UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ GAMEPLAY PATCH[/b]
+[i]This small patch addresses some namespace issues while adding in new faction designs![/i]
+
+[b]📦New Designs[/b]
+[list]
+[*][b]New Eclipse Designs:[/b] New .xml ship and station designs for The Eclipse faction.
+[/list]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Namespace RPC Registries:[/b] Fixed a critical structural flaw across several scripts. RPC registries based on whether the script utilizes a module namespace.
+[/list]
+
+[i]Version 1.1.0[/i]
+[hr][/hr]
+[h1]v1.1.0 MASSIVE 🐛BUGFIX, ⚖️BALANCING, ⚙️ADJUSTMENTS AND ✨FEATURES PATCH UPDATE![/h1]
+[hr][/hr]
+[b]🛠️ GAMEPLAY PATCH[/b]
+[i]This massive patch fixes severe server crashes, invalid API calls, API synchronization errors, and dangerous sector-wiping bugs while adjusting gameplay and adding in new features![/i]
+
+[b]📦New Features[/b]
+[list]
+[*]✨ [b]World-Eater Grace Period:[/b] After defeating the Eclipse World-Eater (or surviving an execution), the entire galaxy is granted a 10 real-time hour Grace Period where the Doomsday timer is paused.
+[*]✨ [b]Global Status Command:[/b] Added a new `/eclipsestatus` chat command available to all players. It allows players to check the remaining duration of the Citadel Suppression Field and the World-Eater Grace Period.
+[/list]
+
+[b]🖥️BALANCING[/b]
+[list]
+[*]⚖️ [b]Harbinger Re-Tune:[/b] Reduced the Shield Durability Multiplier on Eclipse Harbingers from +3750% to +1000% to ensure that the Eclipse World-Eater Raid Boss properly retains its crown as the supreme flagship of the Ascendant fleets.
+[*]⚖️ [b]Living Relics True Power:[/b] Fixed tooltips and scaling for Ascendant Living Relics to ensure they grant the intended extreme stat bonuses.
+[/list]
+
+[b]🔧ADJUSTMENTS[/b]
+[list]
+[*]⚙️ [b]Server Save Bloat:[/b] Restructured Eclipse Stronghold generation to use localized scripts instead of global database flags, permanently preventing save-file bloat.
+[/list]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]World-Eater Crash:[/b] Fixed a fatal server crash during the doomsday sequence by correcting an invalid API call.
+[*]🐛 [b]Ascendant Forge UI Failure:[/b] Fixed a catastrophic bug where station UI buttons failed to function. Exposed all UI hooks via global wrappers.
+[*]🐛 [b]Gateway Entity Crash:[/b] Fixed a severe null-reference crash when scanning for hostile forces during siege events.
+[*]🐛 [b]Gateway DPS Scaling:[/b] Replaced invalid `addMultiplyableBias` API call to properly grant Ascendant Guardians massive percentage DPS/Shield boosts.
+[*]🐛 [b]Citadel Loot Monotony:[/b] Fixed identical turret drops from destroyed Citadels by properly seeding `SectorTurretGenerator`.
+[*]🐛 [b]Payout Null-Crash:[/b] Replaced an unstable `player:receive()` API call in the World-Eater bounty loop with direct economy updates to prevent crashes.
+[*]🐛 [b]Story Hyperspace Exploit:[/b] Patched a major exploit allowing players to skip boss fights by jumping to adjacent sectors. Missions now strictly validate player coordinates.
+[*]🐛 [b]Monolith Math Desync:[/b] Fixed a fatal Lua crash caused by invalid matrix math during story anomaly generation.
+[*]🐛 [b]Ascendant Overdrive UI:[/b] Fixed non-functional "Ascendant Overdrive" UI buttons and corrected its production capacity buff multiplier.
+[*]🐛 [b]World-Eater Mechanics Breakdown:[/b] Fixed a catastrophic issue where the boss's core combat loop failed due to missing global lifecycle wrappers.
+[*]🐛 [b]World-Eater DPS Scaling:[/b] Corrected invalid API usage to ensure the boss's damage scales properly with multiple players.
+[*]🐛 [b]Ascendancy Beacon Failure:[/b] Fixed the beacon script failing to execute by exposing its hooks globally.
+[*]🐛 [b]Beacon Toll Crash:[/b] Replaced a dangerous `owner:receive()` API call with direct assignment to prevent crashes during AI toll collection.
+[*]🐛 [b]Siege Loot Generation Crash:[/b] Fixed a namespace call crash that terminated the script upon siege victory, restoring legendary rewards.
+[*]🐛 [b]World-Eater Spawn Hang:[/b] Fixed a critical bug causing the Doomsday tracker and music to lock if the boss failed to spawn.
+[*]🐛 [b]Siege Faction Desync:[/b] Fixed a server crash caused by treating raw integers as faction models and repaired siege defense rewards.
+[*]🐛 [b]Boss Spawner Crash:[/b] Fixed a crash caused by calling a non-existent wormhole API and corrected turret generator arguments.
+[*]🐛 [b]Ascendant Relic Buff Fixes:[/b] Audited all 8 endgame Living Relics to correctly grant percentage buffs via `addBaseMultiplier`.
+[*]🐛 [b]Rift Hazard Engine Drain:[/b] Fixed a performance loop and integrated the shield drain with the native `inflictDamage` combat state API.
+[*]🐛 [b]Script Injection Optimization:[/b] Added entity safeguards to prevent script injection into lightweight fighters, eliminating console spam.
+[*]🐛 [b]Audio Hook Resolution:[/b] Integrated native `Music():playTrack()` implementations and fixed global wrapper RPC resolution.
+[*]🐛 [b]Invasion Ghost Event:[/b] Fixed a crash during Eclipse invasions by including the native player library and adding hyperspace safety checks.
+[*]🐛 [b]Campaign Desyncs:[/b] Fixed quest progression desyncs when entering sectors via gateway structures, and patched null-reference crashes.
+[*]🐛 [b]Dark Sector Physics Collision:[/b] Fixed collision failures and physics lag by resolving fleet intersections during Dark Sector generation.
+[*]🐛 [b]Alliance Territory Targeting:[/b] Updated World-Eater targeting to correctly protect player Alliance territories.
+[*]🐛 [b]Eclipse Stronghold Generation:[/b] Fixed a missing callback hook error that prevented Strongholds from spawning.
+[*]🐛 [b]Lore Anomaly Logic:[/b] Fixed a crash caused by invalid API calls and repaired library loading issues for the background event chain.
+[*]🐛 [b]Singularity Turret Scope Crash:[/b] Fixed a crash when spawning Singularity ships by properly routing through the `Weapons` component.
+[*]🐛 [b]World-Eater Summoning & Desync:[/b] Fixed state saving issues to prevent multiple simultaneous World-Eater spawns after reboots.
+[*]🐛 [b]Singularity Detonation Engine Bug:[/b] Fixed a crash caused by missing imports and shifted damage to use the `inflictDamage` API.
+[*]🐛 [b]Delayed Annihilation Instant-Death Trap:[/b] Fixed a bug where background sector annihilation would incorrectly wipe active player ships.
+[/list]
+
+[i]Version 1.0.5[/i]
+[hr][/hr]
+[h1]🐛v1.0.5 BUGFIX PATCH UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This patch fixes silent errors and crashes during the Eclipse Awakening sequence![/i]
+
+[*]🐛 [b]Flavor Text & Audio Silent Failure:[/b] Fixed a critical cross-script execution failure where the Eclipse Awakening UI banner and audio triggers were silently failing. The bridge functions in the player audio hook were encapsulated inside a namespace table and lacked global wrapper functions, which caused Avorion's `invokeFunction` and `invokeClientFunction` to silently fail when searching the script's global scope.
+
+[*]🐛 [b]Eclipse Ghost Broadcasts:[/b] Fixed a bug where the Eclipse Doomsday broadcast would fire from a non-existent faction. The `eclipse_awakes.lua` script now explicitly instructs the engine to fully generate and register the Eclipse faction in the galaxy database at the exact moment the awakening timer hits zero, ensuring complete database stability for manager scripts.
+
+
+[i]Version 1.0.4[/i]
+[hr][/hr]
+[h1]🐛V1.0.4 BUGFIX & CODEX PATCH!📖[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX & CODEX PATCH[/b]
+[i]This patch fixes a silent crash during the Eclipse awakening sequence![/i]
+
+[*]🐛 [b]Flavor Text & Audio Missing:[/b] Fixed a critical bug where the cinematic banner, music, and warning flavor text failed to display when the Wormhole Guardian was defeated. The global listener was using an invalid engine API (getPlayers() instead of getOnlinePlayers()), causing the script to crash immediately after detecting the Guardian's death. This resolves the silent failure during the Eclipse awakening sequence.
+
+[*]🐛 [b]Missing Dark Fog Logic:[/b] Fixed a bug where jumping into a Dark Sector in the core attempted to load a non-existent weather script. Dark Sectors will now correctly spawn the Dark Matter Fog environmental hazard using the Vault API.
+
+[*]📖 [b]Dark Matter Fog:[/b] Clarified the Codex entry for Dark Matter Fog. It does not deal passive damage-over-time; it solely imposes harsh debuffs on ship sensors and jump drives.
+
+[i]Version 1.0.3[/i]
+[hr][/hr]
+[h1]V1.0.3 🐛CRITICAL BUGFIX PATCH UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ CRITICAL HOTFIX PATCH[/b]
+[i]This patch fixes a serious issue where The Eclipse would not properly load in![/i]
+[*]🐛 [b]Eclipse Awakening Failure:[/b] Fixed a critical bug where The Eclipse failed to awaken after defeating the Wormhole Guardian. The core event scripts (`eclipse_awakes.lua` and `ca_expansion_manager.lua`) were missing the mandatory `data/scripts/` root path prefix when being attached to the `Galaxy()` singleton. Because the engine couldn't resolve the relative paths, it silently failed to load the scripts, causing the event listeners to never activate. The script initialization paths have been corrected and will retroactively detect the Guardian's death on existing saves.
+
+[i]Version 1.0.2[/i]
+[hr][/hr]
+[h1]V1.0.2 🐛BUGFIX, ⚖️BALANCING & ⚙️ADJUSTMENTS PATCH UPDATE![/h1]
+[hr][/hr]
+[b]🛠️ GAMEPLAY PATCH[/b]
+[i]This patch fixes various bugs, balances many mechanics and numbers. Adjustments made to backend clockwork![/i]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 Fixed a critical server/client synchronization "Bridge" crash where server-side scripts (World Eater, Eclipse) were calling client-only UI and Audio functions directly. Implemented bridge functions in `ca_boss_audio_hook.lua` to properly route UI banners and boss music triggers to the client.
+[*]🐛 Fixed an issue in `eclipse_awakes.lua` where the 10-minute awakening timer was tied to `server.unpausedRuntime`, causing it to reset entirely if a dedicated server restarted during the countdown. It now properly persists using script localization parameters.
+[*]🐛 Fixed an issue in `ca_world_eater_manager.lua` where the 3-hour cooldown timer was not being serialized during server shutdowns. The timer will now correctly persist across server restarts, ensuring World Eaters actually spawn.
+[*]🐛 [b]Eclipse Awakening Trigger:[/b] Refactored the `eclipse_awakes.lua` trigger logic to seamlessly track Guardian kills via global `guardian_respawn_time` without polling players, fixing an edge-case where the event would fail to trigger if the killer disconnected immediately.
+[/list]
+
+[b]🖥️BALANCING[/b]
+[list]
+[*]⚖️ [b]Void Shields (Physical Mitigation):[/b] Reduced from 90% to 80%. This gives Physical weapons (Cannons, Bolters, Chainguns) a slight fighting chance, though Energy/Plasma/Antimatter remain highly recommended.
+[*]⚖️ [b]Eclipse Citadel HP:[/b] Reduced base HP from 250,000,000 to 200,000,000 to make Citadel sieges slightly less of a slog.
+[*]⚖️ [b]World Eater Spawn Timer:[/b] Increased the global spawn timer from 2-3 hours to 3-5 hours to make the encounter feel more like a rare galactic event.
+[*]⚖️ [b]World Eater Doomsday Timer:[/b] Increased the Doomsday Sector Annihilation timer from 15 minutes to 20 minutes, giving players more time to rally a fleet and reach the location.
+[*]⚖️ [b]Adaptive Armor (Defilers/Artillery):[/b] Reduced the heal-back amount while Adaptive Armor is active from 75% to 50%.
+[*]⚖️ [b]Endgame Hazard Scaling:[/b] Converted all major Eclipse endgame hazards from flat-damage numbers to percentage-based scaling damage to ensure they remain lethal against ultra-lategame players with Ascendancy Beacons.
+[*]⚖️ [b]Singularity Implosion:[/b] Converted from 250,000 flat true-damage to stripping 15% of a player's Max Hull.
+[*]⚖️ [b]World Eater EMP Hazard:[/b] Converted from 1,000,000 flat Energy damage to 25% Max Hull damage (after stripping 100% shields).
+[*]⚖️ [b]World Eater Breaker Laser:[/b] Converted from 5,000,000 flat Energy damage to a blast that deals 100% of Max Shields + 50% of Max Hull.
+[*]⚖️ [b]World Eater Gravity Anomaly:[/b] Converted from 50,000 flat Physical DoT to 5% Max Hull per second.
+[*]⚖️ [b]Eclipse Ambushes:[/b] Reduced the chance for the Eclipse to personally ambush players in their sector every 25-45 minutes from 60% down to 40%.
+[*]⚖️ [b]Void Siphon Aura (Eclipse Command Ships):[/b] Reduced the massive heal-back conversion from draining players from 100% of damage drained down to 25%. The boss will no longer become an unkillable sponge if you bring a large fleet. Also reduced the aura radius from 15km to 10km to allow for better kiting.
+[*]⚖️ [b]Dark Matter Blink (All Eclipse Ships):[/b] Increased the cooldown of the emergency teleport from 30 seconds to 45 seconds to reduce frustration when chasing ships with high-DPS builds.
+[*]⚖️ [b]World-Eater Emergency Repairs:[/b] Reduced the Phase 50% Emergency Repair heal from 10% of Max Hull to 5% of Max Hull.
+[/list]
+
+[b]🔧ADJUSTMENTS[/b]
+[list]
+[*]⚙️ [b]Ambush Timer Persistence:[/b] Converted ambush invasion timers to use absolute real-time stamps (`Server().unpausedRuntime`) rather than tick-based accumulation, preventing desync from server lag.
+[/list]
+
+[i]Version 1.0.1[/i]
+[hr][/hr]
+[h1]🐛V1.0.1 BUGFIX PATCH UPDATE!🐛[/h1]
+[hr][/hr]
+[b]🛠️ HOTFIX PATCH[/b]
+[i]This small patch fixes an issue regarding the Rift Hazard anomaly![/i]
+[*]🐛 Fixed an issue where the Rift Hazard anomaly would silently drain shields without notifying the player. Entering a hazard zone now immediately broadcasts a high-priority UI and chat warning. The Eclipse ships are unaffected by this anomaly.
+
+[h1]⭐ [THE ASCENSION ERA] - Cosmic Ascendancy Official Release! ⭐[/h1]
+
+[hr][/hr]
+
+[h3]📡 Welcome to the Endgame![/h3]
+The wait is over! Cosmic Ascendancy officially launches onto the Workshop as the ultimate capstone to the Cosmic Series. This expansion introduces a terrifying late-game crisis, god-tier crafting mechanics, and colossal megastructures that permanently alter your galaxy!
+
+[b]⚠️ NEW SAVE FILE HARD REQUIRED ⚠️[/b]
+Ascendancy relies on the massive architectural overhauls introduced across the Core 5 mods. You must start a new galaxy!
+
+[hr][/hr]
+
+💀 [b]THE ECLIPSE CRISIS & BOSS RAIDS[/b]
+[list]
+[*]🔥 [b]The Eclipse Crisis:[/b] Defeating the Wormhole Guardian triggers a galaxy-wide invasion! They permanently conquer sectors, deploy Lockdown Citadels, and unleash Rift Spillage hazards.
+[*]☠️ [b]The World-Eater Boss Raid:[/b] An apocalyptic 5.9km Juggernaut! Features a 6-Phase Gauntlet with Quantum EMPs, Gravity Anomalies, Anchor Pylons, and Dark Matter Blinks! Summon it by jettisoning an Eclipse Datacore into space.
+[*]🛡️ [b]Ancient Eclipse Mechanics:[/b] Eclipse vessels wield devastating abilities like Dark Matter Blinks, Ethereal Phase-Shifting, Adaptive Elemental Resistances, Void Siphon Auras, and Singularity Implosion death-blasts!
+[*]⚔️ [b]The Fallen Empire Awakening:[/b] If The Eclipse annihilates 10 sectors, they enter a 'Fallen Empire' state, launching massive Crusade fleets to systematically hunt down and wipe out AI Faction Capitals.
+[/list]
+
+🏛️ [b]MEGASTRUCTURES & EMPIRE ECONOMY[/b]
+[list]
+[*]🏰 [b]The Ascendancy Beacon:[/b] Build a towering checkpoint that natively keeps your capital sector loaded 24/7! Upgrade it to Tier 5 to unlock permanent, account-wide multipliers to Hull, Shields, and Damage for all your ships.
+[*]💰 [b]The Grand Toll:[/b] AI Factions and traders jumping into your Ascendant Capital are charged an entry tax. Warring factions pay a +50% premium for safe harbor! Taxes are stored safely and paid out as a massive lump sum every 45 minutes.
+[*]🚨 [b]Capital Sieges:[/b] Defend your Ascendancy Beacon every 3 to 6 hours from devastating invasion fleets. If the beacon falls, your global buffs collapse!
+[*]🏭 [b]Ascendant Overdrive:[/b] Feed 50 Ascendant Matter to any factory you own to activate Overdrive, instantly tripling (3.0x) its production capacity for 1 real-time hour!
+[/list]
+
+⚔️ [b]THE STELLAR FORGE & GOD-TIER ARSENAL[/b]
+[list]
+[*]⚒️ [b]The Stellar Forge:[/b] Extract Ascendant Matter from dead titans to asynchronously forge custom God-Tier weapons and Titan-Class Coaxial Lasers over 24 real-time hours.
+[*]📈 [b]Wartime & Core Forging:[/b] Forging weapons near the Galactic Core during active wars yields exponential damage multipliers (up to 9.0x super-weapons)!
+[*]♻️ [b]Ascendant Scrap System:[/b] Sacrifice Legendary or Exotic subsystems to boost crafting success. Failures yield 'Ascendant Scrap', which can be consumed to guarantee future crafts.
+[*]💎 [b]Ascendant Subsystems (Living Relics):[/b] Equip game-breaking artifacts (War-Drive, Aegis Matrix, Swarm Nexus) that exponentially multiply their power (up to 7.5x) based on Core Proximity and active War Heat!
+[*]🧠 [b]Ascendant Neural Implants:[/b] Wire your captain directly into the ship's core for massive bonuses to Jump Reach, Velocity, and Fighter Squadrons.
+[*]💥 [b]Ascendant World-Breaker:[/b] A massive Titan-Class Coaxial weapon available in the Forge, delivering 250,000 baseline continuous damage to completely vaporize threats.
+[/list]
+
+🌌 [b]GALAXY EXPANSION & LORE[/b]
+[list]
+[*]📖 [b]Epic Story Campaign:[/b] Experience a 3-part narrative campaign to uncover the origins of the Eclipse, unlock the Stellar Forge, and claim The Eclipse Bane artifact!
+[*]🗺️ [b]Faction AI 4x Expansion:[/b] AI Factions and Pirates now organically expand their borders, establish new stations in uncharted sectors, and utilize siege mechanics to conquer territory!
+[*]🌑 [b]The Dark Sector:[/b] A terrifying new environmental hazard inside the Galactic Core. Jumping into un-generated sectors carries a 20% risk of dropping into a permanent Dark Matter Fog field crawling with Eclipse Juggernauts.
+[*]📰 [b]Galactic Dread News:[/b] Server-wide breaking news broadcasts whenever The Eclipse annihilates a sector or you secure a Heroic Victory against a World-Eater.
+[*]🤝 [b]Seamless Cross-Mod Synergy:[/b] Deeply integrated with Cosmic Vault (Global APIs), Cosmic War (Dynamic Tolls & Forge Multipliers), Cosmic Starfall (Eclipse Arsenal), and Cosmic Chronicles (Lore).
+[*]🎵 [b]Custom OST Integration:[/b] The "Forge The Ascendant" custom soundtrack plays dynamically after the Wormhole Guardian's defeat.
+[/list]
+
+🛠️ [b]MULTIPLAYER STABILITY & OPTIMIZATION[/b]
+[list]
+[*]⚡ [b]Keep-Alive Engine:[/b] Custom background galaxy script natively handles 24/7 sector loading for the Beacon without dragging down server TPS.
+[*]🔒 [b]Multiplayer RNG Sync:[/b] Built with deterministic Avorion `random()` engines to prevent massive multiplayer desyncs during Eclipse Vanguard invasions and procedural generation.
+[*]🧠 [b]Memory Leak & Exploit Protection:[/b] Sealed volatile stat-stacking exploits on Living Relics. Safely handles Alliance inventory pulling for the Stellar Forge, preventing desyncs.
+[*]🛡️ [b]Engine Crash Prevention:[/b] Hardened physics math to prevent gravity anomalies from crashing the server. Fixed multiple C++ index exceptions and native engine boundary crashes for flawless late-game stability.
+[/list]
+
+
+[b]Bug Fixes[/b]
+- Fixed an architectural namespace violation in the World Eater Manager script where global wrapper functions were improperly defined, which could cause duplicate hook execution and VFS instability.
