@@ -58,7 +58,7 @@ function trackAndCheckRetreat(entity, amount, damageType)
     end
 end
 
-function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
+function onDamaged(objectIndex, amount, inflictor, damageType)
     local entity = Entity()
     if not entity then return end
     
@@ -75,7 +75,7 @@ function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
     trackAndCheckRetreat(entity, amount, damageType)
 end
 
-function onShieldDamaged(objectIndex, amount, inflictor, damageSource, damageType)
+function onShieldDamaged(objectIndex, amount, damageType, inflictor)
     local entity = Entity()
     if not entity then return end
     

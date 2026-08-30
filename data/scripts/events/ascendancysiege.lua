@@ -197,7 +197,7 @@ function AscendancySiege.onVictory()
     local owner = Faction(targetFactionIndex)
     if owner then
         -- Reward the defending faction for surviving the siege
-        owner.money = owner.money + (tier * 2500000)
+        owner:receive("Capital Siege Defense Reward"%_t, tier * 2500000)
     end
 
     terminate()

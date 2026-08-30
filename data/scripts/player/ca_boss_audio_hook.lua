@@ -1,6 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include("callable")
 
+-- namespace CaBossAudioHook
 local CaBossAudioHook = {}
 CaBossAudioHook.bossPhase = 0
 
@@ -85,4 +86,3 @@ callable(CaBossAudioHook, "triggerCinematicBanner")
 callable(CaBossAudioHook, "triggerBossMusic")
 callable(CaBossAudioHook, "triggerStopBossMusic")
 
-return CaBossAudioHook

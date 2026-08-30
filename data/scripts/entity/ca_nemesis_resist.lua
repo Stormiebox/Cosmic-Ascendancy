@@ -27,7 +27,7 @@ function restore(data)
     resistType = data.type
 end
 
-function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
+function onDamaged(objectIndex, amount, inflictor, damageType)
     local entity = Entity()
     local maxDurability = entity.maxDurability
     local maxTotalHealth = maxDurability + (entity.shieldMaxDurability or 0)
@@ -47,7 +47,7 @@ function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
     end
 end
 
-function onShieldDamaged(objectIndex, amount, inflictor, damageSource, damageType)
+function onShieldDamaged(objectIndex, amount, damageType, inflictor)
     local entity = Entity()
     local maxShield = entity.shieldMaxDurability
     if not maxShield or maxShield <= 0 then return end

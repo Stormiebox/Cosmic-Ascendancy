@@ -518,7 +518,7 @@ function CAWorldEater.onDestroyed()
     sector:broadcastChatMessage("System", 0, "The World Eater has been completely eradicated. The Void is calm once more.")
 end
 
-function CAWorldEater.onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
+function CAWorldEater.onDamaged(objectIndex, amount, inflictor, damageType)
     if not onServer() then return end
     if data.nemesisActive then
         if damageType == data.activeNemesisType then

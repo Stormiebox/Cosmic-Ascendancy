@@ -7,6 +7,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.5.1]
+
+### 🪲 Bug Fixes
+- [Bugfix] **Linux Dedicated Server Compatibility:** Fixed massive, game-breaking case-sensitivity issues across multiple scripts (such as `include("sectorgenerator")`) that completely prevented event scripts from loading on Linux dedicated servers, causing story and spawn logic to silently abort.
+- [Bugfix] **API Hard Crash Preventions:** Corrected severe issues where scripts attempted to directly modify read-only properties (like `player.money` or `owner.money`). Direct assignments caused the Lua engine to quietly abort the entire thread, halting mission execution. Replaced with proper `player:pay()` and `faction:receive()` economy APIs.
+- [Bugfix] **Multiplayer RPC Exploits:** Re-wired server/client API calls in namespaced files that incorrectly used `callable(nil, ...)`. This resolves silent server rejections when clients interacted with custom UI, allowing multiplayer functions to execute securely.
+- [Bugfix] **Signature Mismatches & UI Crashes:** Fixed incorrect engine API parameters for `UpgradeGenerator`, event hooks (`onDamaged` vs `onShieldDamaged`), and resource transactions (`Faction:getResources()`) that caused the Ascendancy Beacon interface to grey out and crash upon activation.
+
 ## [v1.5.0]
 
 ### 🛠️ Architecture & Optimization

@@ -3,6 +3,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 
 include("stringutility")
 include("player")
+include("randomext")
 local EclipseGenerator = include("eclipsegenerator")
 local Placer = include ("placer")
 

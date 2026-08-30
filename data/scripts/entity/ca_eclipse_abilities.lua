@@ -118,7 +118,7 @@ function EclipseAbilities.updateServer(timeStep)
     end
 end
 
-function EclipseAbilities.onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
+function EclipseAbilities.onDamaged(objectIndex, amount, inflictor, damageType)
     local entity = Entity()
     local now = Server().unpausedRuntime
 
@@ -190,7 +190,7 @@ function EclipseAbilities.onDamaged(objectIndex, amount, inflictor, damageSource
     end
 end
 
-function EclipseAbilities.onShieldDamaged(objectIndex, amount, inflictor, damageSource, damageType)
+function EclipseAbilities.onShieldDamaged(objectIndex, amount, damageType, inflictor)
     local entity = Entity()
     local now = Server().unpausedRuntime
 

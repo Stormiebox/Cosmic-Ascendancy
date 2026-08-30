@@ -187,13 +187,14 @@ function AscendancyBeacon.toggleBeacon()
         local creditCost, mat, matCost = AscendancyBeacon.getUpkeepCost()
 
         -- Try initial payment
-        if owner.money < creditCost or owner:getInventory():getAmount(mat.value) < matCost then
+        local resources = {owner:getResources()}
+        if owner.money < creditCost or (resources[mat.value + 1] or 0) < matCost then
             owner:sendChatMessage("Beacon"%_t, 1, "Insufficient resources to activate beacon."%_t)
             return
         end
 
-        owner:pay(creditCost)
-        owner:getInventory():remove(mat.value, matCost)
+        owner:pay("Ascendancy Beacon Activation"%_t, creditCost)
+        owner:payResource("Ascendancy Beacon Activation"%_t, mat, matCost)
 
         owner:setValue("ascendancy_beacons_count", count + 1)
         active = true
@@ -265,13 +266,14 @@ function AscendancyBeacon.upgradeTier()
     local nextTier = currentTier + 1
     local creditCost, mat, matCost = AscendancyBeacon.getUpgradeCost(nextTier)
 
-    if owner.money < creditCost or owner:getInventory():getAmount(mat.value) < matCost then
+    local resources = {owner:getResources()}
+    if owner.money < creditCost or (resources[mat.value + 1] or 0) < matCost then
         owner:sendChatMessage("Beacon"%_t, 1, "Insufficient resources to upgrade to Tier %1%."%_t, nextTier)
         return
     end
 
-    owner:pay(creditCost)
-    owner:getInventory():remove(mat.value, matCost)
+    owner:pay("Ascendancy Beacon Upgrade"%_t, creditCost)
+    owner:payResource("Ascendancy Beacon Upgrade"%_t, mat, matCost)
 
     currentTier = nextTier
 
@@ -320,17 +322,18 @@ function AscendancyBeacon.updateServer(timeStep)
         -- Time to pay!
         local creditCost, mat, matCost = AscendancyBeacon.getUpkeepCost()
         local owner = Faction(Entity().factionIndex)
+        local resources = owner and {owner:getResources()} or {}
 
-        if owner and owner.money >= creditCost and owner:getInventory():getAmount(mat.value) >= matCost then
-            owner:pay(creditCost)
-            owner:getInventory():remove(mat.value, matCost)
+        if owner and owner.money >= creditCost and (resources[mat.value + 1] or 0) >= matCost then
+            owner:pay("Ascendancy Beacon Upkeep"%_t, creditCost)
+            owner:payResource("Ascendancy Beacon Upkeep"%_t, mat, matCost)
             lastUpkeepTime = now
             owner:sendChatMessage("Beacon"%_t, 3, "Ascendancy Beacon Upkeep Paid: %1% Cr, %2% %3%", createMonetaryString(creditCost), createMonetaryString(matCost), mat.name)
 
             -- Payout Treasury: transfer accumulated toll revenue to the beacon owner
             if AscendancyBeacon.treasury and AscendancyBeacon.treasury > 0 then
-                -- Avoid Faction:receive overload crash
-                owner.money = owner.money + AscendancyBeacon.treasury
+                -- Use receive() since Faction.money is read-only
+                owner:receive("Grand Toll Treasury Payout", AscendancyBeacon.treasury)
                 owner:sendChatMessage("Beacon"%_t, 3, "Grand Toll Treasury Payout: %1% Credits received.", createMonetaryString(AscendancyBeacon.treasury))
                 AscendancyBeacon.treasury = 0
             end

@@ -69,8 +69,7 @@ function EclipseBossBehavior.onDestroyed(index, lastDamageInflictor)
 
     local players = {sector:getPlayers()}
     for _, player in pairs(players) do
-        player.money = player.money + 5000000000
-        player:sendChatMessage("System", 0, "Received 5,000,000,000 Credits bounty.")
+        player:receive("Received %1% Credits bounty for destroying The World Eater!"%_T, 5000000000)
         player:sendChatMessage("Recovered Datapad", 0, "'The World Eater operates at peak efficiency. The galaxy will be purged, just as the architect intended. Project Stormbox is a complete success.'")
     end
 
