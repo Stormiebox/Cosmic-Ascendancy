@@ -57,7 +57,10 @@ function updateServer(timeStep)
             if maxShield > 0 then
                 local drain = maxShield * 0.05
                 -- Properly use inflictDamage for environmental drain (DamageSource 1 = environmental/unknown)
-                entity:inflictDamage(drain, 1, DamageType.Energy, entity.translationf, entity.id)
+                -- Entity:inflictDamage(amount, damageSource, damageType, index, location, inflictorId) — the
+                -- index arg (0 = whole-entity, not a specific block) was missing, which shifted translationf
+                -- into the index slot and dropped the entity id out of the call entirely.
+                entity:inflictDamage(drain, 1, DamageType.Energy, 0, entity.translationf, entity.id)
             end
         end
     end

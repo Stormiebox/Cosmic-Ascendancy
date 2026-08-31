@@ -4,6 +4,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 include("randomext")
 include("utility")
 local EclipseGenerator = include("eclipsegenerator")
+local SectorTurretGenerator = include("sectorturretgenerator")
 
 -- namespace CAWorldEater
 include("stringutility")

@@ -11,6 +11,13 @@ CosmicVaultTerritory = include("cosmicvaultterritory")
 EclipseConquestManager = {}
 EclipseConquestManager.timer = 0
 
+-- These coordinate lists only delimit entries with a trailing comma (e.g. "25_10,5_10,"), so a
+-- plain substring search for "5_10," would false-positive inside "25_10,". Anchor both sides by
+-- also requiring the leading comma so entries can't match as a substring of a longer coordinate.
+local function listHasCoord(list, entry)
+    return string.find("," .. list, "," .. entry, 1, true) ~= nil
+end
+
 function EclipseConquestManager.getUpdateInterval()
     return 60.0
 end
@@ -165,7 +172,7 @@ function EclipseConquestManager.expandEmpire()
                 ty = oy + random():getInt(-3, 3)
                 
                 local checkString = tx .. "_" .. ty .. ","
-                if not string.find(territoryString, checkString, 1, true) then
+                if not listHasCoord(territoryString, checkString) then
                     break -- Valid target
                 end
             end
@@ -196,16 +203,16 @@ function EclipseConquestManager.expandEmpire()
             -- PROGRESSIVE MATERIALIZATION (Lag Fix)
             local pendingSieges = Server():getValue("eclipse_pending_sieges") or ""
             local entry = tx .. "_" .. ty .. ","
-            if not string.find(pendingSieges, entry, 1, true) then
+            if not listHasCoord(pendingSieges, entry) then
                 Server():setValue("eclipse_pending_sieges", pendingSieges .. entry)
             end
 
             -- Increment counter since it's a conquest attempt that will turn the sector
             Server():setValue("eclipse_conquered_sectors", conqueredCount + 1)
-            
+
             -- Track for geographic expansion
             local held = Server():getValue("eclipse_held_territory") or ""
-            if not string.find(held, entry, 1, true) then
+            if not listHasCoord(held, entry) then
                 Server():setValue("eclipse_held_territory", held .. entry)
             end
         else
@@ -236,13 +243,13 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
     -- Instead of forcefully loading the sector and causing CPU spikes, we append it to the pending list.
     local pending = Server():getValue("eclipse_pending_annihilations") or ""
     local entry = x .. "_" .. y .. ","
-    if not string.find(pending, entry, 1, true) then
+    if not listHasCoord(pending, entry) then
         Server():setValue("eclipse_pending_annihilations", pending .. entry)
     end
-    
+
     -- Also track for geographic expansion
     local held = Server():getValue("eclipse_held_territory") or ""
-    if not string.find(held, entry, 1, true) then
+    if not listHasCoord(held, entry) then
         Server():setValue("eclipse_held_territory", held .. entry)
     end
 end

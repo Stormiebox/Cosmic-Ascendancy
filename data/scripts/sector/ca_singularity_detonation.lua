@@ -66,7 +66,9 @@ function Detonation.updateServer(timeStep)
                 local dist = distance(target.translationf, pos)
                 if dist <= 1500.0 then
                     local damage = target.maxDurability * 0.15
-                    target:inflictDamage(damage, 1.0, DamageType.Energy, target.translationf)
+                    -- index arg (0 = whole-entity) was missing, which shifted translationf into the
+                    -- integer index slot instead of the location slot.
+                    target:inflictDamage(damage, 1.0, DamageType.Energy, 0, target.translationf)
                 end
             end
         end

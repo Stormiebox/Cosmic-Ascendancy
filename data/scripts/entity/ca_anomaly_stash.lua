@@ -8,10 +8,13 @@ include ("faction")
 include ("callable")
 local UpgradeGenerator = include ("upgradegenerator")
 local SectorTurretGenerator = include ("sectorturretgenerator")
+local SectorGenerator = include ("SectorGenerator")
 
 -- namespace CaAnomalyStash
 CaAnomalyStash = {}
 CaAnomalyStash.interactionDistance = 20
+
+local opened = false
 
 function CaAnomalyStash.interactionPossible(playerIndex, option)
     local player = Player(playerIndex)
@@ -40,6 +43,9 @@ function CaAnomalyStash.onOpenPressed()
         invokeServerFunction("onOpenPressed")
         return
     end
+
+    if opened then return end
+    opened = true
 
     local entity = Entity()
     local sector = Sector()

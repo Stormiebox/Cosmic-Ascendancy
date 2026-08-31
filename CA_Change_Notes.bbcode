@@ -16,6 +16,10 @@
 [*]🐛 [b]Fixed Two Broken Relic Effects:[/b] The Ascendant Omni-Sensor's "Deep Scan" report and the Ascendant Slipstream Core's post-jump speed boost were both silently non-functional. Both now work as advertised.
 [*]🐛 [b]Fixed The Eclipse Bane Reward:[/b] This unique weapon system, rewarded for defeating the Vanguard boss, was granting none of its bonuses when installed. It now works correctly.
 [*]🐛 [b]Corrected Forge Instructions:[/b] Fixed the in-game Codex entry for the Ascendancy Forge, which described the wrong item for unlocking it. It now correctly tells you to decrypt an Eclipse Datacore.
+[*]🐛 [b]Fixed Corrupted Databank Stash Exploit & Crash:[/b] Opening one of these lore stashes had no protection against being triggered more than once, letting its loot be duplicated, and its rare "resonated" bonus stash could crash the game outright. Both are now fixed.
+[*]🐛 [b]Fixed World-Eater Loot Crash:[/b] Defeating the World-Eater superboss could crash right as it tried to drop its full haul of legendary turrets and upgrades, sometimes leaving nothing behind. It will now always finish dropping its complete reward pool.
+[*]🐛 [b]Fixed Environmental Damage Not Registering:[/b] The Eclipse Rift Stabilizer's shield-draining hazard and a Singularity-class ship's death blast were sending a malformed damage instruction to the engine, which could stop them from actually damaging nearby ships. Both now correctly deal their intended damage.
+[*]🐛 [b]Fixed Rare Sector Mixup During Eclipse Conquest:[/b] In specific coordinate combinations, the Eclipse's internal tracking could mistake one sector for a completely different one, wiping or besieging the wrong location. Sector matching is now exact.
 [*]🐛 [b]Various Under-the-Hood Fixes:[/b] Closed several smaller gaps found during a full audit of the mod's code, mostly around save/reload reliability.
 [/list]
 

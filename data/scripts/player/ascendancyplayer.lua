@@ -63,18 +63,23 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
         local pendingSieges = Server():getValue("eclipse_pending_sieges") or ""
         local coordStr = x .. "_" .. y .. ","
         local escapedCoordStr = string.gsub(coordStr, "%-", "%%-")
-        
-        if string.find(pendingAnnihilations, escapedCoordStr) then
+        -- These lists only delimit entries with a trailing comma (e.g. "25_10,5_10,"), so a bare
+        -- "5_10," pattern would false-match as a substring inside "25_10,". Anchor the leading
+        -- side too by searching/replacing against a "," + haystack, then restore the original
+        -- (no-leading-comma) convention with :sub(2) after any removal.
+        local anchoredPattern = "," .. escapedCoordStr
+
+        if string.find("," .. pendingAnnihilations, anchoredPattern) then
             -- Remove from pending list
-            Server():setValue("eclipse_pending_annihilations", string.gsub(pendingAnnihilations, escapedCoordStr, ""))
+            Server():setValue("eclipse_pending_annihilations", string.gsub("," .. pendingAnnihilations, anchoredPattern, ","):sub(2))
             if not sector:hasScript("sector/ca_delayed_annihilation.lua") then
                 sector:addScriptOnce("data/scripts/sector/ca_delayed_annihilation.lua")
             end
         end
-        
-        if string.find(pendingSieges, escapedCoordStr) then
+
+        if string.find("," .. pendingSieges, anchoredPattern) then
             -- Remove from pending list
-            Server():setValue("eclipse_pending_sieges", string.gsub(pendingSieges, escapedCoordStr, ""))
+            Server():setValue("eclipse_pending_sieges", string.gsub("," .. pendingSieges, anchoredPattern, ","):sub(2))
             if not sector:hasScript("events/siegeevent.lua") then
                 sector:addScriptOnce("data/scripts/events/siegeevent.lua")
             end
