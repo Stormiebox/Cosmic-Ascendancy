@@ -24,10 +24,12 @@ function secure()
 end
 
 function restore(data)
-    resistType = data.type
+    if data then
+        resistType = data.type
+    end
 end
 
-function onDamaged(objectIndex, amount, inflictor, damageType)
+function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
     local entity = Entity()
     local maxDurability = entity.maxDurability
     local maxTotalHealth = maxDurability + (entity.shieldMaxDurability or 0)

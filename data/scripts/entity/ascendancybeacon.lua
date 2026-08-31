@@ -213,10 +213,12 @@ function AscendancyBeacon.toggleBeacon()
         end
 
         if cw_bridge.addWarHeat then
-            -- Find nearest hostile AI faction and add war heat
-            local factions = {Sector():getPresentFactions()}
-            for _, f in pairs(factions) do
-                if f.isAIFaction and (f:getTrait("aggressive") or 0) > 0.5 then
+            -- Find nearest hostile AI faction and add war heat.
+            -- Sector():getPresentFactions() returns raw faction indices, not Faction objects.
+            local factionIndices = {Sector():getPresentFactions()}
+            for _, index in pairs(factionIndices) do
+                local f = Faction(index)
+                if f and f.isAIFaction and (f:getTrait("aggressive") or 0) > 0.5 then
                     cw_bridge.addWarHeat(f, 50)
                 end
             end
@@ -430,6 +432,7 @@ function AscendancyBeacon.secure()
 end
 
 function AscendancyBeacon.restore(data)
+    data = data or {}
     active = data.active or false
     currentTier = data.currentTier or 1
     lastUpkeepTime = data.lastUpkeepTime or Server().unpausedRuntime

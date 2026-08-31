@@ -147,9 +147,10 @@ function StationOverdrive.secure()
 end
 
 function StationOverdrive.restore(data)
+    data = data or {}
     isOverdriven = data.isOverdriven or false
     overdriveEndTime = data.overdriveEndTime or 0
-    
+
     if isOverdriven and onServer() then
         -- In case the server restarted while overdriven, re-apply the multiplier.
         -- addMultiplyableBias is volatile and does not persist across restarts unless re-added.

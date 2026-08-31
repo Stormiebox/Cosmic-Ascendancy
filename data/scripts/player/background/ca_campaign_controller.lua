@@ -11,8 +11,6 @@ function AscendancyCampaign.initialize()
 end
 
 function AscendancyCampaign.onSectorEntered(playerIndex, x, y, changeType)
-    local player = Player(playerIndex)
-
     -- Trigger Lore Anomalies dynamically
     local LoreAnomalies = include("player/background/ca_story_lore_anomalies")
     if LoreAnomalies and LoreAnomalies.onSectorEntered then

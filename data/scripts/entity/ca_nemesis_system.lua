@@ -16,6 +16,7 @@ function secure()
 end
 
 function restore(data)
+    data = data or {}
     damageTracker = data.damageTracker or {}
 end
 
@@ -58,7 +59,7 @@ function trackAndCheckRetreat(entity, amount, damageType)
     end
 end
 
-function onDamaged(objectIndex, amount, inflictor, damageType)
+function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
     local entity = Entity()
     if not entity then return end
     

@@ -12,16 +12,17 @@ function AscendancyKeepAlive.initialize()
         Galaxy():registerCallback("onAscendancyBeaconPing", "onAscendancyBeaconPing")
         Galaxy():registerCallback("onAscendancyBeaconActivated", "onAscendancyBeaconActivated")
         Galaxy():registerCallback("onAscendancyBeaconDeactivated", "onAscendancyBeaconDeactivated")
-        
-        -- On server restart, force load all active beacons so their scripts wake up
-        for coords, _ in pairs(data.activeBeacons) do
-            local parts = {coords:match("([^:]+):([^:]+)")}
-            if #parts == 2 then
-                local cx = tonumber(parts[1])
-                local cy = tonumber(parts[2])
-                if cx and cy then
-                    Galaxy():keepOrGetSector(cx, cy, 90)
-                end
+    end
+end
+
+local function forceLoadActiveBeacons()
+    for coords, _ in pairs(data.activeBeacons) do
+        local parts = {coords:match("([^:]+):([^:]+)")}
+        if #parts == 2 then
+            local cx = tonumber(parts[1])
+            local cy = tonumber(parts[2])
+            if cx and cy then
+                Galaxy():keepOrGetSector(cx, cy, 90)
             end
         end
     end
@@ -60,6 +61,12 @@ end
 function AscendancyKeepAlive.restore(data_in)
     data = data_in or {}
     data.activeBeacons = data.activeBeacons or {}
+
+    -- initialize() always runs before restore() (even when loading a save), so the
+    -- restart-recovery pass has to live here where data.activeBeacons is actually populated.
+    if onServer() then
+        forceLoadActiveBeacons()
+    end
 end
 
 

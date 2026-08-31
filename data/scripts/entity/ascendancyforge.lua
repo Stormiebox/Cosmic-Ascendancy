@@ -476,6 +476,7 @@ function AscendancyForge.secure()
 end
 
 function AscendancyForge.restore(data)
+    data = data or {}
     isForging = data.isForging or false
     forgeFinishTime = data.forgeFinishTime or 0
     hasCompletedItem = data.hasCompletedItem or false

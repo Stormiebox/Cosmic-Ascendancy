@@ -92,7 +92,7 @@ function EclipseGenerator.addTurrets(ship, numTurrets)
     -- Try to use Starfall if available (soft dependency — no crash if not installed)
     local status, starfall = pcall(include, "starfall")
 
-    local numTurrets = numTurrets or 20
+    numTurrets = numTurrets or 20
 
     -- Build a pool of turrets scaled to the sector location
     for i = 1, numTurrets do

@@ -37,16 +37,18 @@ function removeDynamicBuffs()
 end
 
 function onInstalled(seed, rarity, permanent)
-    if onServer() then 
-        applyDynamicBuffs() 
-        Entity():registerCallback("onSectorEntered", "onSectorEntered")
+    if onServer() then
+        applyDynamicBuffs()
+        -- Entity's onSectorEntered(entityId, x, y) has a different, 3-arg signature —
+        -- this handler needs the 4-arg Player callback (playerIndex, x, y, sectorChangeType).
+        Player():registerCallback("onSectorEntered", "onSectorEntered")
     end
 end
 
 function onUninstalled(seed, rarity, permanent)
-    if onServer() then 
-        removeDynamicBuffs() 
-        Entity():unregisterCallback("onSectorEntered", "onSectorEntered")
+    if onServer() then
+        removeDynamicBuffs()
+        Player():unregisterCallback("onSectorEntered", "onSectorEntered")
     end
 end
 

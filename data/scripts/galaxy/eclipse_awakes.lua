@@ -12,8 +12,6 @@ function EclipseAwakes.getUpdateInterval()
 end
 
 function EclipseAwakes.initialize()
-    local server = Server()
-    
     local cv_dialogue = include("cosmicvaultdialogue")
     if cv_dialogue then
         cv_dialogue.registerLine({
@@ -41,9 +39,22 @@ function EclipseAwakes.updateServer(timeStep)
 
     local unleashed = server:getValue("the_eclipse_unleashed")
 
+    -- Vanilla only sets wormhole_guardian_destroyed on players physically present in
+    -- Sector():getPlayers() at the exact instant WormholeGuardian.onDestroyed() fires
+    -- (data/scripts/entity/story/wormholeguardian.lua). A player who lands the killing
+    -- blow and warps out the same tick, or gets finished off by residual/DOT damage after
+    -- leaving, can complete the vanilla "Kill the Guardian" mission (which tracks via a much
+    -- looser Sector():getEntitiesByScript() poll) without ever receiving that flag, silently
+    -- softlocking the entire Eclipse/Envoy/Aegis chain for them.
+    -- guardian_respawn_time is set unconditionally and galaxy-wide the moment the Guardian
+    -- dies (wormholeguardian.lua:79) and only clears ~2 hours later on respawn, well after
+    -- the 10-minute awakening window below always latches "the_eclipse_unleashed" — so it's
+    -- a safe, reliable fallback signal that the kill happened even when presence wasn't caught.
+    local guardianConfirmedDead = server:getValue("guardian_respawn_time") ~= nil
+
     -- Check all online players to spawn the Envoy for them individually if they killed the Guardian
     for _, player in pairs({server:getOnlinePlayers()}) do
-        if player:getValue("wormhole_guardian_destroyed") and not player:getValue("ca_envoy_spawned") then
+        if (player:getValue("wormhole_guardian_destroyed") or guardianConfirmedDead) and not player:getValue("ca_envoy_spawned") then
             player:setValue("ca_envoy_spawned", true)
             
             -- Add the player script that will wait 10 seconds and spawn Aegis

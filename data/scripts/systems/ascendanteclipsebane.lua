@@ -14,7 +14,6 @@ function getFixedStats()
 end
 
 function onInstalled(seed, rarity, permanent)
-    if not permanent then return end
     for _, bonus in pairs(getFixedStats()) do
         if bonus.stat == StatsBonuses.ArbitraryTurrets or bonus.stat == StatsBonuses.HyperspaceReach then
             addAbsoluteBias(bonus.stat, bonus.amount)

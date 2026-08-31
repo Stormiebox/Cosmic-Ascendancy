@@ -146,7 +146,7 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
         if sector:getValue("is_eclipse_stronghold") and not sector:getValue("eclipse_stronghold_spawned") then
             sector:setValue("eclipse_stronghold_spawned", true)
             local EclipseGenerator = include("eclipsegenerator")
-            local station = EclipseGenerator.createStation(Matrix())
+            EclipseGenerator.createStation(Matrix())
                 
                 local defenderTypes = {"ca_obliterator", "ca_voidweaver", "ca_phantom", "ca_singularity", "ca_juggernaut", "ca_interceptor", "ca_harvester", "ca_defiler"}
                 for i = 1, 4 do

@@ -2,7 +2,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 include("callable")
 
 -- namespace CaBossAudioHook
-local CaBossAudioHook = {}
+CaBossAudioHook = {}
 CaBossAudioHook.bossPhase = 0
 
 function CaBossAudioHook.initialize()

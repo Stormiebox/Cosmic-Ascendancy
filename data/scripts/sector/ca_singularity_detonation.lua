@@ -76,7 +76,7 @@ function Detonation.updateServer(timeStep)
         for _, s in pairs(ships) do blastTarget(s) end
         for _, s in pairs(stations) do blastTarget(s) end
 
-        sector:removeScript("ca_singularity_detonation.lua")
+        sector:removeScript("sector/ca_singularity_detonation.lua")
     end
 end
 

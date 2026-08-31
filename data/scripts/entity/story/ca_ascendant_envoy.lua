@@ -81,12 +81,21 @@ function CAAegisEnvoy.makeDialogIntro()
 end
 
 function CAAegisEnvoy.onAcceptIntro()
-    if onServer() then
-        local player = Player()
-        player:setValue("ca_ready_for_debrief_intro", nil)
-        player:addScriptOnce("data/scripts/player/missions/ca_story1_awakening.lua")
-        -- Removed warpAway() to allow other players in the sector to interact.
+    -- ScriptUI():interactShowDialog() only exists client-side, so dialog onEnd handlers
+    -- always fire on the client first and must be forwarded to the server (vanilla does
+    -- this in every onEnd handler, e.g. Adventurer1.givePlayerGoodie in adventurer1.lua).
+    if onClient() then
+        invokeServerFunction("onAcceptIntro")
+        return
     end
+
+    if data.given["intro" .. callingPlayer] then return end
+    data.given["intro" .. callingPlayer] = true
+
+    local player = Player(callingPlayer)
+    player:setValue("ca_ready_for_debrief_intro", nil)
+    player:addScriptOnce("data/scripts/player/missions/ca_story1_awakening.lua")
+    -- Removed warpAway() to allow other players in the sector to interact.
 end
 
 -- ==========================================
@@ -103,22 +112,28 @@ function CAAegisEnvoy.makeDialogStory1()
 end
 
 function CAAegisEnvoy.onAcceptStory1()
-    if onServer() then
-        local player = Player()
-        player:setValue("ca_ready_for_debrief_1", nil)
-
-        player:addScriptOnce("data/scripts/player/missions/ca_story2_forge.lua")
-        
-        -- Rewards (2.5M, 2 Turrets, 1 System)
-        player:receive("Ascendant Support Funding", 2500000)
-        local x, y = Sector():getCoordinates()
-        local generator = SectorTurretGenerator(Seed(x + y))
-        for i=1, 2 do
-            local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Rare))
-            player:getInventory():add(InventoryTurret(turret))
-        end
-        player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Rare)))
+    if onClient() then
+        invokeServerFunction("onAcceptStory1")
+        return
     end
+
+    if data.given["story1" .. callingPlayer] then return end
+    data.given["story1" .. callingPlayer] = true
+
+    local player = Player(callingPlayer)
+    player:setValue("ca_ready_for_debrief_1", nil)
+
+    player:addScriptOnce("data/scripts/player/missions/ca_story2_forge.lua")
+
+    -- Rewards (2.5M, 2 Turrets, 1 System)
+    player:receive("Ascendant Support Funding", 2500000)
+    local x, y = Sector():getCoordinates()
+    local generator = SectorTurretGenerator(Seed(x + y))
+    for i=1, 2 do
+        local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Rare))
+        player:getInventory():add(InventoryTurret(turret))
+    end
+    player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Rare)))
 end
 
 -- ==========================================
@@ -135,22 +150,28 @@ function CAAegisEnvoy.makeDialogStory2()
 end
 
 function CAAegisEnvoy.onAcceptStory2()
-    if onServer() then
-        local player = Player()
-        player:setValue("ca_ready_for_debrief_2", nil)
-
-        player:addScriptOnce("data/scripts/player/missions/ca_story3_vanguard.lua")
-        
-        -- Rewards (5M, 2 Turrets, 2 Systems)
-        player:receive("Ascendant Support Funding", 5000000)
-        local x, y = Sector():getCoordinates()
-        local generator = SectorTurretGenerator(Seed(x + y))
-        for i=1, 2 do
-            local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exceptional))
-            player:getInventory():add(InventoryTurret(turret))
-        end
-        for i=1, 2 do player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exceptional))) end
+    if onClient() then
+        invokeServerFunction("onAcceptStory2")
+        return
     end
+
+    if data.given["story2" .. callingPlayer] then return end
+    data.given["story2" .. callingPlayer] = true
+
+    local player = Player(callingPlayer)
+    player:setValue("ca_ready_for_debrief_2", nil)
+
+    player:addScriptOnce("data/scripts/player/missions/ca_story3_vanguard.lua")
+
+    -- Rewards (5M, 2 Turrets, 2 Systems)
+    player:receive("Ascendant Support Funding", 5000000)
+    local x, y = Sector():getCoordinates()
+    local generator = SectorTurretGenerator(Seed(x + y))
+    for i=1, 2 do
+        local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exceptional))
+        player:getInventory():add(InventoryTurret(turret))
+    end
+    for i=1, 2 do player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exceptional))) end
 end
 
 -- ==========================================
@@ -167,22 +188,28 @@ function CAAegisEnvoy.makeDialogStory3()
 end
 
 function CAAegisEnvoy.onAcceptStory3()
-    if onServer() then
-        local player = Player()
-        player:setValue("ca_ready_for_debrief_3", nil)
-
-        player:addScriptOnce("data/scripts/player/missions/ca_story4_citadel.lua")
-        
-        -- Rewards (7.5M, 2 Turrets, 1 System)
-        player:receive("Ascendant Support Funding", 7500000)
-        local x, y = Sector():getCoordinates()
-        local generator = SectorTurretGenerator(Seed(x + y))
-        for i=1, 2 do
-            local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exotic))
-            player:getInventory():add(InventoryTurret(turret))
-        end
-        player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exotic)))
+    if onClient() then
+        invokeServerFunction("onAcceptStory3")
+        return
     end
+
+    if data.given["story3" .. callingPlayer] then return end
+    data.given["story3" .. callingPlayer] = true
+
+    local player = Player(callingPlayer)
+    player:setValue("ca_ready_for_debrief_3", nil)
+
+    player:addScriptOnce("data/scripts/player/missions/ca_story4_citadel.lua")
+
+    -- Rewards (7.5M, 2 Turrets, 1 System)
+    player:receive("Ascendant Support Funding", 7500000)
+    local x, y = Sector():getCoordinates()
+    local generator = SectorTurretGenerator(Seed(x + y))
+    for i=1, 2 do
+        local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exotic))
+        player:getInventory():add(InventoryTurret(turret))
+    end
+    player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exotic)))
 end
 
 -- ==========================================
@@ -199,22 +226,28 @@ function CAAegisEnvoy.makeDialogStory4()
 end
 
 function CAAegisEnvoy.onAcceptStory4()
-    if onServer() then
-        local player = Player()
-        player:setValue("ca_ready_for_debrief_4", nil)
-
-        player:addScriptOnce("data/scripts/player/missions/ca_story5_worldeater.lua")
-        
-        -- Rewards (10M, 3 Turrets, 2 Systems)
-        player:receive("Ascendant Support Funding", 10000000)
-        local x, y = Sector():getCoordinates()
-        local generator = SectorTurretGenerator(Seed(x + y))
-        for i=1, 3 do
-            local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exotic))
-            player:getInventory():add(InventoryTurret(turret))
-        end
-        for i=1, 2 do player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exotic))) end
+    if onClient() then
+        invokeServerFunction("onAcceptStory4")
+        return
     end
+
+    if data.given["story4" .. callingPlayer] then return end
+    data.given["story4" .. callingPlayer] = true
+
+    local player = Player(callingPlayer)
+    player:setValue("ca_ready_for_debrief_4", nil)
+
+    player:addScriptOnce("data/scripts/player/missions/ca_story5_worldeater.lua")
+
+    -- Rewards (10M, 3 Turrets, 2 Systems)
+    player:receive("Ascendant Support Funding", 10000000)
+    local x, y = Sector():getCoordinates()
+    local generator = SectorTurretGenerator(Seed(x + y))
+    for i=1, 3 do
+        local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exotic))
+        player:getInventory():add(InventoryTurret(turret))
+    end
+    for i=1, 2 do player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exotic))) end
 end
 
 -- ==========================================
@@ -231,21 +264,26 @@ function CAAegisEnvoy.makeDialogStory5()
 end
 
 function CAAegisEnvoy.onAcceptStory5()
-    if onServer() then
-        local player = Player()
-        player:setValue("ca_ready_for_debrief_5", nil)
-
-        
-        -- Rewards (25M, 5 Legendary Turrets, 3 Legendary Systems)
-        player:receive("Ascendant Heritage", 25000000)
-        local x, y = Sector():getCoordinates()
-        local generator = SectorTurretGenerator(Seed(x + y))
-        for i=1, 5 do
-            local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Legendary))
-            player:getInventory():add(InventoryTurret(turret))
-        end
-        for i=1, 3 do player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Legendary))) end
+    if onClient() then
+        invokeServerFunction("onAcceptStory5")
+        return
     end
+
+    if data.given["story5" .. callingPlayer] then return end
+    data.given["story5" .. callingPlayer] = true
+
+    local player = Player(callingPlayer)
+    player:setValue("ca_ready_for_debrief_5", nil)
+
+    -- Rewards (25M, 5 Legendary Turrets, 3 Legendary Systems)
+    player:receive("Ascendant Heritage", 25000000)
+    local x, y = Sector():getCoordinates()
+    local generator = SectorTurretGenerator(Seed(x + y))
+    for i=1, 5 do
+        local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Legendary))
+        player:getInventory():add(InventoryTurret(turret))
+    end
+    for i=1, 3 do player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Legendary))) end
 end
 
 -- Ensure it's globally callable in the namespace

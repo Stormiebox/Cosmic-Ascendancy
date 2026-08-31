@@ -46,8 +46,6 @@ function EclipseConquestManager.initialize()
             tags = {ascendant = true}
         })
     end
-
-    if not Server():getValue("eclipse_fully_awake") then return end
 end
 function EclipseConquestManager.updateServer(timeStep)
     if not Server():getValue("eclipse_fully_awake") then return end

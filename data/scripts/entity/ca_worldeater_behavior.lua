@@ -25,9 +25,8 @@ data.damageHistory = {
 }
 data.activeNemesisType = -1
 data.laserTargets = {}
-
-local activeGlows = {}
-local activeAnomalies = {}
+data.activeGlows = {}
+data.activeAnomalies = {}
 
 data.phasesTriggered = {
     tethers50 = false,
@@ -42,9 +41,6 @@ data.phasesTriggered = {
 function CAWorldEater.initialize()
     local entity = Entity()
     if onServer() then
-        -- Register boss healthbar globally
-        registerBoss(entity.index)
-
         -- Make boss invincible initially until tether logic runs
         entity.invincible = true
 
@@ -54,6 +50,10 @@ function CAWorldEater.initialize()
         entity:registerCallback("onDestroyed", "onDestroyed")
         entity:registerCallback("onDamaged", "onDamaged")
     else
+        -- registerBoss() is client-only (Documentation/Functions.html) — calling it inside the
+        -- onServer() branch above would throw and abort every server-side setup line after it,
+        -- including both registerCallback() calls (so the boss would drop no loot on death).
+        registerBoss(entity.index)
         invokeServerFunction("syncLasers")
     end
 end
@@ -179,7 +179,7 @@ function CAWorldEater.castRandomAbility()
         sector:broadcastChatMessage(boss.title, 2, "INITIATING QUANTUM EMP.")
 
         -- Store the hazard
-        table.insert(activeGlows, {
+        table.insert(data.activeGlows, {
             position = targetShip.translationf,
             timer = 3.0, -- detonates in 3 seconds
             radius = 3000
@@ -192,7 +192,7 @@ function CAWorldEater.castRandomAbility()
         sector:broadcastChatMessage(boss.title, 2, "DEPLOYING GRAVITY ANOMALY.")
 
         -- Spawn the anomaly at their current position
-        table.insert(activeAnomalies, {
+        table.insert(data.activeAnomalies, {
             position = targetShip.translationf,
             timer = 15.0, -- lasts 15 seconds
             radius = 4000,
@@ -216,8 +216,8 @@ function CAWorldEater.processHazards(timeStep)
     local boss = Entity()
 
     -- Process EMPs
-    for i = #activeGlows, 1, -1 do
-        local emp = activeGlows[i]
+    for i = #data.activeGlows, 1, -1 do
+        local emp = data.activeGlows[i]
         emp.timer = emp.timer - timeStep
         if emp.timer <= 0 then
             -- Detonate!
@@ -234,7 +234,7 @@ function CAWorldEater.processHazards(timeStep)
                 end
             end
 
-            table.remove(activeGlows, i)
+            table.remove(data.activeGlows, i)
         end
     end
 
@@ -260,11 +260,11 @@ function CAWorldEater.processHazards(timeStep)
     end
 
     -- Process Gravity Anomalies
-    for i = #activeAnomalies, 1, -1 do
-        local anom = activeAnomalies[i]
+    for i = #data.activeAnomalies, 1, -1 do
+        local anom = data.activeAnomalies[i]
         anom.timer = anom.timer - timeStep
         if anom.timer <= 0 then
-            table.remove(activeAnomalies, i)
+            table.remove(data.activeAnomalies, i)
         else
             local ships = {sector:getEntitiesByLocation(Sphere(anom.position, anom.radius))}
             for _, ship in pairs(ships) do
@@ -358,16 +358,22 @@ end
 
 function CAWorldEater.restore(data_in)
     data = data_in or data
+    -- Guard against saves made before activeGlows/activeAnomalies were tracked in `data`.
+    data.activeGlows = data.activeGlows or {}
+    data.activeAnomalies = data.activeAnomalies or {}
 end
 
 function CAWorldEater.checkPhases()
     local boss = Entity()
     local sector = Sector()
 
-    -- Early-out once all 5 phases are triggered to save processing time on idle math.
+    -- Early-out once every phase is triggered to save processing time on idle math.
+    -- tethers25 (25% HP) must be included here: its threshold is always crossed after p35's
+    -- (35% HP), so p35 alone would otherwise go true first and permanently gate out the
+    -- tethers25 branch below before HP could ever reach 25% in a normal, gradual fight.
     local allTriggered = data.phasesTriggered.p80 and data.phasesTriggered.p70 and
                          data.phasesTriggered.p60 and data.phasesTriggered.p50 and
-                         data.phasesTriggered.p35
+                         data.phasesTriggered.p35 and data.phasesTriggered.tethers25
     if allTriggered then return end
 
     local hpPct = boss.durability / boss.maxDurability
@@ -518,7 +524,7 @@ function CAWorldEater.onDestroyed()
     sector:broadcastChatMessage("System", 0, "The World Eater has been completely eradicated. The Void is calm once more.")
 end
 
-function CAWorldEater.onDamaged(objectIndex, amount, inflictor, damageType)
+function CAWorldEater.onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
     if not onServer() then return end
     if data.nemesisActive then
         if damageType == data.activeNemesisType then

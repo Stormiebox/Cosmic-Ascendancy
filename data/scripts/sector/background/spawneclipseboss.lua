@@ -85,9 +85,9 @@ function SpawnEclipseBoss.finish()
         local entities = {sector:getEntitiesByComponent(ComponentType.Owner)}
         for _, entity in pairs(entities) do
             if entity:hasComponent(ComponentType.Durability) and entity.aiOwned then
-                -- SectorGenerator:createWreckage(faction, plan, breaks) takes the Plan directly.
+                -- SectorGenerator:createWreckage(faction, plan, breaks, position) takes the Plan directly.
                 local plan = Plan(entity.id)
-                local wreckage = generator:createWreckage(nil, plan, 0)
+                local wreckage = generator:createWreckage(nil, plan, 0, entity.position)
                 entity:clearCargoBay()
                 sector:deleteEntity(entity)
             end

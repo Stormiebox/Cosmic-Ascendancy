@@ -181,8 +181,8 @@ function AscendancySiege.onVictory()
     Sector():broadcastChatMessage("System"%_t, 3, "Siege Defeated! The Ascendant Capital stands strong."%_t)
 
     -- Spawn massive loot explosion at sector center
-    -- Also, UpgradeGenerator:generate(x,y,seed,rarity) is a TurretGenerator signature;
-    -- the correct UpgradeGenerator method is :generateSystem(rarity).
+    -- generateSectorSystem(x, y, rarity) is used deliberately over generateSystem(rarity) so the
+    -- material tier of dropped upgrades scales with this sector's location, like the turret loot below.
     local SectorTurretGenerator = include("sectorturretgenerator")
     local UpgradeGenerator = include("upgradegenerator")
     local turretGen = SectorTurretGenerator(Sector().seed)          -- Use correct object constructor
