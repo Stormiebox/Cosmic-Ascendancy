@@ -89,6 +89,16 @@ function createEnemies()
         local stabilizerPos = MatrixLookUpPosition(-dir, up, pos + right * 300)
         local stabilizer = EclipseGenerator.createStation(stabilizerPos)
         stabilizer.title = "Eclipse Rift Stabilizer"
+        -- createStation() is the mod's only station factory, so it's also the only option here, but
+        -- it unconditionally attaches the Lockdown Matrix (entity/ca_citadel_blocker.lua), which
+        -- prevents jumping out of the sector until the structure is destroyed. That's the correct
+        -- behavior for an actual Citadel siege objective, but this Stabilizer is a random 10% side
+        -- effect of a single-player personal ambush, not a deliberate invasion the player chose to
+        -- engage. The WIKI's own description of Rift Spillage only promises a shield-draining
+        -- hazard, never being trapped in the sector by a full 200M-HP structure. Remove just the
+        -- trapping behavior so the hazard matches what's actually documented. The rest of
+        -- createStation()'s stats and loot are left as-is.
+        stabilizer:removeScript("entity/ca_citadel_blocker.lua")
         stabilizer:addScriptOnce("entity/ca_rift_stabilizer.lua")
         table.insert(spawned, stabilizer)
 

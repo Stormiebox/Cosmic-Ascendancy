@@ -12,10 +12,14 @@ function WorldEaterEvent.initialize(timeLeft)
     local mat = MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), vec3(10000, 5000, -10000))
     local ship = EclipseGenerator.createWorldEater(mat)
 
-    if not valid(ship) then 
+    if not valid(ship) then
         WorldEaterEvent.onWorldEaterDestroyed()
-        return 
+        return
     end
+
+    -- See EclipseGenerator.applyWorldEaterMultiplayerScaling for why this runs here rather than
+    -- inside createWorldEater() itself (also called from ca_raid_summoner.lua for the same reason).
+    EclipseGenerator.applyWorldEaterMultiplayerScaling(ship)
 
     -- Spawn the Royal Escort Fleet
     local dir = mat.look
@@ -67,8 +71,11 @@ end
 
 function WorldEaterEvent.onPlayerEntered(playerIndex)
     local player = Player(playerIndex)
+    -- If the boss already enraged before this player arrived (see the p35 branch in
+    -- ca_worldeater_behavior.lua), start them on the enraged track instead of always defaulting to phase 1.
+    local phase = Sector():getValue("ca_worldeater_enraged") and 2 or 1
     player:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
-    player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerBossMusic", 1)
+    player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerBossMusic", phase)
 end
 
 function WorldEaterEvent.onWorldEaterDestroyed()

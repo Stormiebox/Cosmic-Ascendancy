@@ -1,14 +1,36 @@
-[i]Version 1.5.2[/i]
+[i]Version 1.6.0[/i]
 [hr][/hr]
-[h1]v1.5.2 🐛BUGFIX UPDATE!🐛[/h1]
+[h1]v1.6.0 ✨FEATURE & 🐛BUGFIX UPDATE!✨[/h1]
 [hr][/hr]
 [b]🛠️ HOTFIX PATCH[/b]
-[i]This is a big one — a full pass through the entire mod fixed the Eclipse questline getting stuck after the Guardian, Aegis not responding to you, and several boss fights not working as intended![/i]
+[i]This is a big one — a full pass through the entire mod fixed the Eclipse questline getting stuck after the Guardian, Aegis not responding to you, and several boss fights not working as intended, plus four brand-new features![/i]
+
+[b]📖 CODEX UPDATED[/b]
+[list]
+📖[*] Updated Cosmic Ascendancy's codex entry with up-to-date information.
+[/list]
+
+[b]✨NEW FEATURES✨[/b]
+[list]
+[*]✨ [b]Eclipse Threat Dashboard:[/b] /eclipsestatus now gives you the full picture: how many sectors the Eclipse holds, how close they are to their next move, whether they've gone Fallen Empire (and where they last struck), any wounded Nemesis currently on the run, and how far Remnant Escalation has climbed.
+[*]✨ [b]Hunt the Dread-Lord:[/b] When a Nemesis retreats near death, it no longer just disappears for good. It flees to a nearby sector to lick its wounds, and shows up there the moment you or anyone else arrives, ready for a rematch. Finish it off for a bounty.
+[*]✨ [b]Ascendancy Beacon Sanctuary Field:[/b] Upgrade your Beacon to Tier 3 or higher and it starts actively shielding the surrounding sectors from Eclipse conquest and annihilation attempts, growing to a 12-sector radius at max tier. Your ultimate defensive payoff for going all-in on a Beacon.
+[*]✨ [b]Eclipse Remnant Escalation:[/b] Keep wiping out World-Eaters and Citadels, and the Eclipse's surviving remnants adapt: tougher shields, more hull, harder-hitting attacks, and a shorter fuse before the next World-Eater shows up. A long-running galaxy never plateaus.
+[/list]
+
+[b]⚖️BALANCE[/b]
+[list]
+[*]⚖️ [b]World-Eater Now Scales With Your Group:[/b] Fighting the World-Eater alone used to feel the same as fighting it with a full alliance backing you up. It now grows tougher shields, more hull, and harder-hitting attacks for every extra defender in the sector when it spawns, whether it's the natural Doomsday Event or one you summoned yourself with an Eclipse Datacore, so a solo fight still hits its intended difficulty and a group fight stays a real fight too. Let us know how it feels across different group sizes; the numbers may need another pass.
+[*]⚖️ [b]The Eclipse Now Actually Spreads From The Core:[/b] The Eclipse was always meant to emerge from the galactic core and creep outward from there, but its actual territory-grabbing logic ignored that and could start expanding from anywhere. Their first foothold now genuinely appears near the core, and their later expansion leans outward from it over time instead of wandering completely at random.
+[*]⚖️ [b]Fallen Empire Now Also Hunts Player Territory:[/b] Once the Eclipse becomes a Fallen Empire (75+ conquered sectors), it used to only ever go after AI faction homeworlds. It will now also occasionally set its sights on player and alliance sectors that have a station on them, on its own slower cooldown so it can't camp the same target back-to-back. Losing a targeted sector this way never deletes your stations, worst case it turns hostile until you clear it out.
+[*]⚖️ [b]Killing a Citadel Now Actually Pushes The Eclipse Back:[/b] Destroying a Citadel used to only pause the Eclipse's expansion clock, without changing anything they already held. It now also liberates the Citadel's own sector plus nearby sectors the Eclipse controlled, rolling their territory back for real.
+[/list]
 
 [b]🪲BUGFIXES[/b]
 [list]
 [*]🐛 [b]Fixed the "Nothing Happens After the Guardian" Bug:[/b] Some players were killing the Wormhole Guardian, seeing the galaxy-wide warning that the Eclipse has awakened, and then... nothing. No envoy ship, no new quest. This is now fixed — the Eclipse will always properly reach out to you once it awakens, no matter how you happened to kill the Guardian.
 [*]🐛 [b]Fixed Aegis Not Responding:[/b] Even players who did get contacted by Aegis could talk to her, click all the way through the conversation, and have nothing happen — no new mission, no rewards, stuck in a loop. This was actually the deeper bug behind the whole "questline doesn't progress" problem, and it's now fixed. Talking to Aegis will always properly advance the story and hand out your rewards.
+[*]🐛 [b]Fixed Aegis Going Silent After Your First Chat:[/b] Even with the fix above, Aegis could still stop responding after your very first conversation with her. Every time you flew to a new rendezvous point for a debrief, she'd just sit there, never speaking to you, with no way to trigger her dialog. You can now always walk up and talk to her directly, whether or not she greets you automatically.
 [*]🐛 [b]World-Eater Boss Fixes:[/b] Fixed a bug where the World-Eater could spawn with several of its core mechanics broken, including a bug that could make it drop zero loot when defeated. It will now always fight and reward you as intended, including its final "last stand" anchor pylon phase which could previously fail to trigger.
 [*]🐛 [b]Elemental Resistance Fixes:[/b] Fixed several Eclipse enemies — including elite "Nemesis" ships — misreading what type of damage they were taking, which was breaking their adaptive shielding behavior.
 [*]🐛 [b]Singularity Explosion Fix:[/b] Fixed a bug where a dying Singularity-class ship's death explosion could keep detonating over and over instead of just once.
@@ -20,6 +42,13 @@
 [*]🐛 [b]Fixed World-Eater Loot Crash:[/b] Defeating the World-Eater superboss could crash right as it tried to drop its full haul of legendary turrets and upgrades, sometimes leaving nothing behind. It will now always finish dropping its complete reward pool.
 [*]🐛 [b]Fixed Environmental Damage Not Registering:[/b] The Eclipse Rift Stabilizer's shield-draining hazard and a Singularity-class ship's death blast were sending a malformed damage instruction to the engine, which could stop them from actually damaging nearby ships. Both now correctly deal their intended damage.
 [*]🐛 [b]Fixed Rare Sector Mixup During Eclipse Conquest:[/b] In specific coordinate combinations, the Eclipse's internal tracking could mistake one sector for a completely different one, wiping or besieging the wrong location. Sector matching is now exact.
+[*]🐛 [b]Removed a Second, Fake World-Eater:[/b] An old leftover spawner from early development could still trigger and drop a second "World Eater" into the galaxy, one with none of the real boss's mechanics and a bounty far bigger than it should have paid out. Only the real Doomsday Event World-Eater spawns now.
+[*]🐛 [b]Fixed a Crash on Installing The Eclipse Bane:[/b] The unique reward for defeating the Vanguard boss could throw an error the moment you installed it, because of one broken stat entry. It now installs cleanly, with a bigger Shield Durability bonus in place of the broken one.
+[*]🐛 [b]Eclipse Turret Loot Variety:[/b] Some sectors were quietly generating the exact same set of Eclipse turret drops as other, unrelated sectors, because of a coordinate math slip in the loot roller. Fixed, so turret variety across sectors is now properly random again.
+[*]🐛 [b]World-Eater Enrage Music Fixed:[/b] The World-Eater has always had a second, more intense music track meant to kick in once it enters its Enrage phase at 35% health. It turns out that track never actually played, this whole time, in any fight. Fixed, so the fight now properly escalates musically once things get desperate.
+[*]🐛 [b]Dark Sectors Now Actually Spawn:[/b] A flag meant to stop a sector from being re-checked was quietly getting set way too early, on almost every sector explorers passed through before the Eclipse even woke up. In practice this meant most sectors never got a real shot at becoming a Dark Sector once the crisis actually started. Fixed.
+[*]🐛 [b]Dark Sector Citadels No Longer Overlap or Teleport:[/b] Multiple Citadels spawning in the same Dark Sector could physically overlap each other, causing violent collision glitches, and they were also picking up a stray teleport-away ability that made no sense for a stationary fortress. Both fixed.
+[*]🐛 [b]Eclipse Rift Spillage Could Trap Solo Players:[/b] The Rift Stabilizer that occasionally spawns during a personal Eclipse ambush was built using the same tool used for full Citadels, which meant it could also lock you in the sector until it was destroyed, something that was never supposed to happen for this hazard. You can now always leave the sector as intended; the shield-draining hazard itself is unchanged.
 [*]🐛 [b]Various Under-the-Hood Fixes:[/b] Closed several smaller gaps found during a full audit of the mod's code, mostly around save/reload reliability.
 [/list]
 

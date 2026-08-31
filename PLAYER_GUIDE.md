@@ -53,6 +53,7 @@ To make the faction feel uniquely terrifying, the Eclipse possess **5 devastatin
 ### 🚨 The World-Eater Doomsday Event
 Every 3 to 5 hours of active playtime, the Eclipse will launch a **World-Eater** (a massively scaled Juggernaut) at a populated player sector. The global timer for this event **automatically pauses** if no players are online, protecting dedicated servers.
 - ⏰ A **20-minute countdown** will broadcast across the Galactic News Network.
+- 🤝 **Scales With Your Group:** The World-Eater's shields, hull, and damage scale up for every extra defender present when it spawns, whether it's this natural event or one you summon yourself below. Fighting it solo is exactly as tuned; bringing an alliance means facing a genuinely tougher boss instead of trivializing the fight.
 - 🛡️ **Royal Escort Fleet:** The World-Eater does not travel alone. It arrives with a massive Royal Escort Fleet composed of Carriers, Artillery, Defilers, and Interceptors.
 - 💪 **Apocalyptic Durability:** The World-Eater's physical volume is dynamically scaled up by a factor of 5.0, resulting in a **125x increase** to its native Hull HP!
 - 🔥 **The Boss Encounter:** Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal 5.9 kilometer Hull and dynamic mechanics:
@@ -79,6 +80,9 @@ If you are prepared to face the ultimate threat on your own terms, you can force
 1.  **Scouting Phase:** Small, fast-moving Eclipse Interceptors arrive in a sector. If they are not destroyed within 5 minutes, they broadcast a beacon.
 2.  **Assault Phase:** Once the beacon is active, a massive invasion fleet warps in (typically 1 Dreadnought, 3 Cruisters, and 5-8 Corvettes).
 3.  **Eradication:** Eclipse fleets prioritize destroying Stations. Destroyed AI stations permanently drop local economic output, and destroyed Player stations are permanently lost!
+
+### 🌌 Territorial Conquest
+The Eclipse's first foothold always appears near the galactic core, where their rupture first tore open, and their territory spreads outward toward the rim from there over time rather than growing in a random direction. Each conquered sector is either a **Conquest** (a contested siege, if Cosmic War is installed) or an outright **Annihilation** (a total wipe).
 </details>
 
 ## 🏰 Eclipse Citadels
@@ -98,7 +102,8 @@ When an Eclipse invasion is overwhelmingly successful, they will permanently occ
 - 🚫 **The Lockdown Matrix:** Citadels generate a sector-wide interdiction field. Ships cannot jump *out* of a Citadel sector unless the Citadel is destroyed.
 - 💣 **Siege Scale:** Citadels have `200,000,000` base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms.
 - 💰 **Loot & Rewards:** Destroying a Citadel guarantees a drop of 1-3 **Legendary** subsystems, massive quantities of Avorion ore, and unique crafting materials for the Ascendancy Forge.
-- ⏳ **Suppression Field:** Destroying a Citadel dynamically halts all Eclipse invasions within a 15-sector radius. The suppression lasts for a base of 6 real-time hours, plus an additional 2 hours for every 10 sectors the Eclipse currently own.
+- ⏳ **Suppression Field:** Destroying a Citadel dynamically halts all Eclipse invasions galaxy-wide for a base of 6 real-time hours, plus an additional 2 hours for every 10 sectors the Eclipse currently own.
+- 🕊️ **Territorial Liberation:** It's not just a pause. The Citadel's own sector, plus any Eclipse-held territory within a 15-sector radius of it, is reclaimed outright, permanently rolling their frontier back.
 </details>
 
 ## 📈 Dynamic Faction Expansion
@@ -118,8 +123,19 @@ Vanilla Avorion features a static map. With Cosmic Ascendancy, **civilized AI fa
 
 If the Eclipse is allowed to conquer or annihilate 75 sectors unchecked, they will evolve into a **Fallen Empire**.
 - ⚔️ **Crusades:** They will cease random border skirmishes and instead systematically launch massive Crusades to hunt down and eradicate major AI Faction Capitals.
+- 🎯 **Player & Alliance Hunting:** A Fallen Empire will also occasionally target a player's or alliance's own sectors, as long as there's an actual station on it, on a much slower cooldown than their AI-faction Crusades so it can't camp the same target back to back. Even if you lose the targeted sector, your stations aren't deleted; worst case, it turns hostile (Dark Matter Fog plus an Eclipse garrison) until you clear it back out.
 - 🌫️ **Dark Matter Fog:** During an invasion, the Eclipse will blanket the sector in a suffocating Dark Matter Fog, physically cutting defender radar and jump capabilities in half.
 - ✨ **Technological Superiority:** Eclipse forces are completely immune to all natural Subspace Weather (Ion Storms, Solar Flares).
+</details>
+
+## 🧬 Remnant Escalation
+<details>
+<summary><b>Click to expand</b></summary>
+
+A galaxy that keeps clearing World-Eaters and Citadels doesn't stay at the same difficulty forever. Every confirmed kill builds toward a **Remnant Tier**, up to Tier 5 (a World-Eater kill counts for three times a Citadel kill).
+- 📈 **Escalating Threat:** Each tier adds a modest Shield, Hull, and Damage bump to every future World-Eater and Citadel.
+- ⏰ **Shorter Fuse:** Each tier also shrinks the World-Eater's 3-5 hour spawn window, by up to 75 minutes at the maximum tier.
+- 📰 **Galaxy-Wide Warning:** Escalating a tier is announced galaxy-wide and via the Galactic News Network. Check `/eclipsestatus` for your current tier and confirmed kill counts.
 </details>
 
 ## 🛠️ The Ascendancy Forge
@@ -191,6 +207,7 @@ Players can construct the ultimate megastructure to anchor their empire: the **A
 - 🌍 **Permanent Sector Simulation:** A sector containing an active Ascendancy Beacon is simulated 24/7, even if no players are online.
 - ✨ **Global Buffs:** The beacon applies a permanent, massive stat multiplier to all ships in the player's fleet across the entire galaxy.
 - 🔺 **Upgrades & Upkeep:** The beacon can be upgraded through 5 tiers, exponentially increasing the global stat buffs. However, higher tiers require massive, continuous upkeep costs of Credits, Avorion, and Ogonite.
+- 🛡️ **Sanctuary Field (Tier 3+):** Upgrade to Tier 3 or higher and your Beacon starts actively repelling Eclipse conquest and annihilation attempts within a radius of it: 5 sectors at Tier 3, up to 12 at Tier 5. It stays active for as long as the Beacon does, even while its sector is unloaded.
 - 💸 **Passive Real-Estate Income:** Beacons automatically tax all passing AI-controlled freighters. This passive income is dynamically scaled by the **War Heat** of the passing faction (factions actively at war will pay a `+50%` premium for safe passage through your heavily defended capital!).
 - 🏦 **Treasury Payouts:** To prevent endless notification spam, the Beacon safely stores all collected tolls in its internal treasury and pays out a single lump-sum to your faction every 45 minutes (synced with the Upkeep cycle).
 - 🏗️ **Construction:** Follows Avorion's standard station building mode. Players can select `Ascendancy Beacon` as an option if they have it unlocked and possess the required resources.
@@ -203,6 +220,7 @@ Players can construct the ultimate megastructure to anchor their empire: the **A
 When facing an Eclipse Dread-Lord, you must coordinate your firepower.
 - **Damage Gate:** Dread-Lords have an advanced Damage Gate that limits any single instance of damage to a maximum of **8%** of their total Hull or Shields, preventing them from being instantly one-shot by god-tier weapons.
 - **Adaptive Resistance:** Do not rely on a single weapon type! Dread-Lords engage "Nemesis Protocols," generating a flawless **90% elemental resistance shield** against specific damage types (Physical, Plasma, Antimatter, Electric). If an Eclipse Dread-Lord escapes, it will return highly resistant to whatever you just used against it!
+- **Hunt the Dread-Lord:** A retreating Nemesis isn't gone. It relocates to a nearby sector to recover, healed back to a meaningful fraction of its Hull, and materializes the moment any player enters that sector, ready for a rematch. Finish it off this time for a bounty. Check `/eclipsestatus` for its last known coordinates.
 
 ### Automating Defense
 Build Ascendant Gateways in your core sectors to automatically summon allied defense fleets when you are offline.
@@ -216,9 +234,13 @@ Build Ascendant Gateways in your core sectors to automatically summon allied def
 Cosmic Ascendancy provides global chat commands that **all players** (not just admins) can use to track the status of the Eclipse Crisis.
 
 ### `/eclipsestatus`
-Typing this into the chat window will query the server and privately output the remaining time on critical Eclipse cooldowns:
+Typing this into the chat window will query the server and privately output a full status report on the Eclipse Crisis:
 - **Citadel Suppression Field:** Shows how much time is left on the 6+ hour invasion suppression caused by destroying an Eclipse Citadel.
 - **World-Eater Grace Period:** Shows how much time remains on the 10-hour Doomsday pause after a World-Eater event.
+- **Eclipse Holdings & Expansion Threat:** Total sectors conquered or annihilated, and how close the Eclipse is (as a percentage) to their next expansion attempt.
+- **Fallen Empire Status:** Whether the Eclipse has become a Fallen Empire, and if so, the coordinates, target kind, and timing of their last Crusade.
+- **Nemesis Signature:** The last known coordinates of a currently-fleeing, wounded Eclipse Dread-Lord, if one exists.
+- **Remnant Escalation:** The current Remnant Tier and confirmed World-Eater/Citadel kill counts.
 
 </details>
 

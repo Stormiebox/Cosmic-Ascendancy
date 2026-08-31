@@ -43,6 +43,9 @@ function onEntityCreated(entityId)
                 -- Do NOT call createHyperspaceJumpAnimation here, as that forces an EXIT animation.
                 local boss = EclipseGenerator.createWorldEater(pos)
                 if boss then
+                    -- Scale for whoever is actually present to fight it, same as the natural
+                    -- Doomsday Event spawn (see EclipseGenerator.applyWorldEaterMultiplayerScaling).
+                    EclipseGenerator.applyWorldEaterMultiplayerScaling(boss)
                     sector:broadcastChatMessage(boss.title, 2, "WHO DARES DISTURB THE VOID.")
                 end
             end

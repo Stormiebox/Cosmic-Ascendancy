@@ -20,6 +20,23 @@ function CAAegisEnvoy.getDialog()
     return CAAegisEnvoy.makeDialog()
 end
 
+-- npcapi/singleinteraction's globalInteractionKey marks the player as "already interacted" the
+-- first time ANY dialog here auto-opens (see SingleInteraction.rememberSuccessfulInteractionWithPlayer),
+-- and that flag is permanent and keyed on the player, not on this specific ship. Since a fresh Aegis
+-- ship spawns for every debrief (story1 through story5), the auto-hail in SingleInteraction.updateClient
+-- would only ever fire once in total, for the very first intro conversation, then silently refuse to
+-- open the dialog on every later Aegis encounter for the rest of the campaign. Vanilla's own reference
+-- implementation of this same framework (entity/story/adventurer1.lua, cited above for the RPC-forwarding
+-- pattern) pairs it with a manual interaction option for exactly this reason. Mirrored here so the player
+-- always has a way to talk to Aegis, auto-hail or not.
+function CAAegisEnvoy.initUI()
+    ScriptUI():registerInteraction("Talk"%_t, "onGreet")
+end
+
+function CAAegisEnvoy.onGreet()
+    ScriptUI():showDialog(CAAegisEnvoy.makeDialog(), false)
+end
+
 function CAAegisEnvoy.makeDialog()
     local player = Player()
     
@@ -128,7 +145,7 @@ function CAAegisEnvoy.onAcceptStory1()
     -- Rewards (2.5M, 2 Turrets, 1 System)
     player:receive("Ascendant Support Funding", 2500000)
     local x, y = Sector():getCoordinates()
-    local generator = SectorTurretGenerator(Seed(x + y))
+    local generator = SectorTurretGenerator(Sector().seed)
     for i=1, 2 do
         local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Rare))
         player:getInventory():add(InventoryTurret(turret))
@@ -166,7 +183,7 @@ function CAAegisEnvoy.onAcceptStory2()
     -- Rewards (5M, 2 Turrets, 2 Systems)
     player:receive("Ascendant Support Funding", 5000000)
     local x, y = Sector():getCoordinates()
-    local generator = SectorTurretGenerator(Seed(x + y))
+    local generator = SectorTurretGenerator(Sector().seed)
     for i=1, 2 do
         local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exceptional))
         player:getInventory():add(InventoryTurret(turret))
@@ -204,7 +221,7 @@ function CAAegisEnvoy.onAcceptStory3()
     -- Rewards (7.5M, 2 Turrets, 1 System)
     player:receive("Ascendant Support Funding", 7500000)
     local x, y = Sector():getCoordinates()
-    local generator = SectorTurretGenerator(Seed(x + y))
+    local generator = SectorTurretGenerator(Sector().seed)
     for i=1, 2 do
         local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exotic))
         player:getInventory():add(InventoryTurret(turret))
@@ -242,7 +259,7 @@ function CAAegisEnvoy.onAcceptStory4()
     -- Rewards (10M, 3 Turrets, 2 Systems)
     player:receive("Ascendant Support Funding", 10000000)
     local x, y = Sector():getCoordinates()
-    local generator = SectorTurretGenerator(Seed(x + y))
+    local generator = SectorTurretGenerator(Sector().seed)
     for i=1, 3 do
         local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exotic))
         player:getInventory():add(InventoryTurret(turret))
@@ -278,7 +295,7 @@ function CAAegisEnvoy.onAcceptStory5()
     -- Rewards (25M, 5 Legendary Turrets, 3 Legendary Systems)
     player:receive("Ascendant Heritage", 25000000)
     local x, y = Sector():getCoordinates()
-    local generator = SectorTurretGenerator(Seed(x + y))
+    local generator = SectorTurretGenerator(Sector().seed)
     for i=1, 5 do
         local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Legendary))
         player:getInventory():add(InventoryTurret(turret))

@@ -18,6 +18,29 @@ local function listHasCoord(list, entry)
     return string.find("," .. list, "," .. entry, 1, true) ~= nil
 end
 
+-- Sanctuary Field: a Tier 3+ Ascendancy Beacon (see ascendancybeacon.lua's updateSanctuaryRegistry)
+-- actively repels Eclipse conquest attempts within its radius. The registry lives on Server()
+-- rather than the beacon entity itself, since the beacon's own sector may not be loaded when the
+-- Eclipse tries to expand nearby.
+local function isInsideSanctuaryField(tx, ty)
+    local registry = Server():getValue("ascendancy_beacon_sanctuary_registry") or {}
+    for _, field in pairs(registry) do
+        local dx, dy = tx - field.x, ty - field.y
+        if math.sqrt(dx * dx + dy * dy) <= field.radius then
+            return true
+        end
+    end
+    return false
+end
+
+-- Recorded so /eclipsestatus (eclipsestatus.lua) can show the Eclipse's last known Crusade target.
+-- This is a Fallen Empire-only event (a single-shot pick-and-act, not an ongoing pursuit with its
+-- own persistent state), so this simply timestamps the most recent one rather than tracking a
+-- currently-in-progress target.
+local function recordCrusadeTarget(tx, ty, targetKind)
+    Server():setValue("eclipse_last_crusade_target", {x = tx, y = ty, kind = targetKind, time = Server().unpausedRuntime})
+end
+
 function EclipseConquestManager.getUpdateInterval()
     return 60.0
 end
@@ -115,6 +138,56 @@ function EclipseConquestManager.expandEmpire()
     local crusadeTargetFound = false
 
     if isFallenEmpire then
+        -- Crusade Logic (Players/Alliances): a Fallen Empire also actively hunts player-controlled
+        -- sectors that have stations on them, not just AI faction homeworlds, but on its own
+        -- cooldown separate from the AI-faction crusade cadence below. Threat re-accumulates fast at
+        -- a high conquered-sector count (every ~5-6 minutes once well past 75), so without a
+        -- dedicated cooldown here a Fallen Empire could crusade the same online player over and over
+        -- and become an unfair, nonstop grind. Also excludes whoever was targeted last time so
+        -- consecutive crusades don't repeatedly single out the same player or alliance.
+        local PLAYER_CRUSADE_COOLDOWN = 2400 -- 40 minutes between player-targeted crusades
+        local lastPlayerCrusadeTime = Server():getValue("eclipse_last_player_crusade_time") or -PLAYER_CRUSADE_COOLDOWN
+        if Server().unpausedRuntime - lastPlayerCrusadeTime >= PLAYER_CRUSADE_COOLDOWN then
+            local lastTargetIndex = Server():getValue("eclipse_last_player_crusade_target")
+            local candidateFactions = {}
+            local seenFactionIndex = {}
+            for _, p in pairs({Server():getOnlinePlayers()}) do
+                local pf = p.craftFaction or p
+                if pf and pf.index ~= lastTargetIndex and not seenFactionIndex[pf.index] then
+                    seenFactionIndex[pf.index] = true
+                    table.insert(candidateFactions, pf)
+                end
+            end
+
+            if #candidateFactions > 0 then
+                local targetFaction = candidateFactions[random():getInt(1, #candidateFactions)]
+
+                -- Find one of that faction's own sectors that actually has a station, sourced from
+                -- any online player's known-sector list (works whether the target is a solo player
+                -- or an alliance, since a member's known sectors include alliance-owned territory).
+                local stationSectors = {}
+                for _, p in pairs({Server():getOnlinePlayers()}) do
+                    for _, view in pairs({p:getKnownSectors()}) do
+                        if view and view.factionIndex == targetFaction.index and (view.numStations or 0) > 0 then
+                            table.insert(stationSectors, view)
+                        end
+                    end
+                end
+
+                if #stationSectors > 0 then
+                    local view = stationSectors[random():getInt(1, #stationSectors)]
+                    tx, ty = view:getCoordinates()
+                    Server():setValue("eclipse_last_player_crusade_time", Server().unpausedRuntime)
+                    Server():setValue("eclipse_last_player_crusade_target", targetFaction.index)
+                    recordCrusadeTarget(tx, ty, "player")
+                    Server():broadcastChatMessage("The Eclipse", 2, "Crusade designated. Coordinates (" .. tx .. ":" .. ty .. ") flagged for priority assimilation.")
+                    crusadeTargetFound = true
+                end
+            end
+        end
+    end
+
+    if isFallenEmpire and not crusadeTargetFound then
         -- Crusade Logic: Seek out an AI Faction Capital
         -- We randomly sample coordinates to find an active, non-eradicated AI faction
         local targets = {}
@@ -149,6 +222,7 @@ function EclipseConquestManager.expandEmpire()
         if #targets > 0 then
             local target = targets[random():getInt(1, #targets)]
             tx, ty = target.x, target.y
+            recordCrusadeTarget(tx, ty, "ai_faction")
             Server():broadcastChatMessage("The Eclipse", 2, "Crusade designated. Sector (" .. tx .. ":" .. ty .. ") has been marked for priority assimilation.")
             crusadeTargetFound = true
         end
@@ -161,16 +235,41 @@ function EclipseConquestManager.expandEmpire()
         for match in string.gmatch(territoryString, "(%-?%d+_%-?%d+),") do
             table.insert(coords, match)
         end
-        
-        if #coords > 0 then
+
+        if #coords == 0 then
+            -- First-ever foothold. The lore (WIKI: "The Eclipse immediately begins surging outward
+            -- from the galactic core") has them emerging at the core, so their opening conquest
+            -- should originate there too, not wherever a random online player happens to have
+            -- explored. isInsideBarrier=true keeps the search inside the core ring itself.
+            local MissionUT = include("missionutility")
+            local coreX, coreY = MissionUT.getEmptySector(0, 0, 10, 40, true)
+            if coreX and coreY then
+                tx, ty = coreX, coreY
+            end
+        elseif #coords > 0 then
             local maxAttempts = 10
             for attempt = 1, maxAttempts do
                 local target = coords[random():getInt(1, #coords)]
                 local ox, oy = string.match(target, "(%-?%d+)_(%-?%d+)")
                 ox, oy = tonumber(ox), tonumber(oy)
-                tx = ox + random():getInt(-3, 3)
-                ty = oy + random():getInt(-3, 3)
-                
+
+                -- Bias the spread outward from the core (same lore premise) most of the time: step
+                -- away from (0,0) relative to this held sector, with perpendicular jitter so the
+                -- frontier isn't a perfect ring, and occasionally fall back to a fully random offset
+                -- so some infill still happens behind the advancing edge.
+                local distFromCore = math.sqrt(ox * ox + oy * oy)
+                if distFromCore > 0.5 and random():getFloat() < 0.7 then
+                    local dirX, dirY = ox / distFromCore, oy / distFromCore
+                    local perpX, perpY = -dirY, dirX
+                    local outward = random():getInt(1, 3)
+                    local lateral = random():getInt(-2, 2)
+                    tx = ox + math.floor(dirX * outward + perpX * lateral + 0.5)
+                    ty = oy + math.floor(dirY * outward + perpY * lateral + 0.5)
+                else
+                    tx = ox + random():getInt(-3, 3)
+                    ty = oy + random():getInt(-3, 3)
+                end
+
                 local checkString = tx .. "_" .. ty .. ","
                 if not listHasCoord(territoryString, checkString) then
                     break -- Valid target
@@ -178,7 +277,8 @@ function EclipseConquestManager.expandEmpire()
             end
         end
 
-        -- Fallback: Random player known sector if no territory is held or random selection failed
+        -- Fallback: Random player known sector if no territory is held yet and no core sector could
+        -- be found, or if every geographic-spread attempt above collided with existing territory.
         if not tx or not ty then
             local players = {Server():getOnlinePlayers()}
             if #players == 0 then return end
@@ -188,6 +288,13 @@ function EclipseConquestManager.expandEmpire()
             local targetSector = knownSectors[random():getInt(1, #knownSectors)]
             tx, ty = targetSector:getCoordinates()
         end
+    end
+
+    -- Covers all three selection paths above (crusade target, geographic spread, known-sector
+    -- fallback) with one check, rather than filtering the candidate pool for each individually.
+    if isInsideSanctuaryField(tx, ty) then
+        Server():broadcastChatMessage("The Eclipse", 2, "Assimilation of coordinates (" .. tx .. ":" .. ty .. ") repelled by an Ascendant Sanctuary Field.")
+        return
     end
 
     -- 40% chance to Conquest (Boarding/Siege via Cosmic War)

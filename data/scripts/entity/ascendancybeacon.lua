@@ -20,6 +20,29 @@ local UPKEEP_INTERVAL = 45 * 60 -- 45 minutes
 local lastSiegeTime = 0
 local nextSiegeInterval = 0
 
+-- Sanctuary Field: a Tier 3+ Beacon reward. Registered here so eclipse_conquest_manager.lua can
+-- check it without needing a live reference to this specific entity (the beacon may be in an
+-- unloaded sector when the Eclipse tries to expand). Keyed by this beacon's own entity id so
+-- activate/upgrade/deactivate can each update their own entry without touching anyone else's.
+-- Radius scales with tier; below Tier 3 there is no field at all, matching this being a reward for
+-- a meaningful investment, not a baseline beacon perk.
+local SANCTUARY_RADIUS_BY_TIER = {[3] = 5, [4] = 8, [5] = 12}
+
+local function updateSanctuaryRegistry()
+    local registry = Server():getValue("ascendancy_beacon_sanctuary_registry") or {}
+    local key = Entity().id.string
+    local radius = SANCTUARY_RADIUS_BY_TIER[currentTier]
+
+    if active and radius then
+        local x, y = Sector():getCoordinates()
+        registry[key] = {x = x, y = y, radius = radius}
+    else
+        registry[key] = nil
+    end
+
+    Server():setValue("ascendancy_beacon_sanctuary_registry", registry)
+end
+
 function AscendancyBeacon.initialize()
     if onServer() then
         -- Register destruction callback to unregister the beacon safely
@@ -228,6 +251,9 @@ function AscendancyBeacon.toggleBeacon()
         Entity():addScriptOnce("data/scripts/entity/ascendancyforge.lua")
 
         owner:sendChatMessage("Beacon"%_t, 0, "Beacon Activated. Sector is now permanently simulated."%_t)
+        -- deactivate() (called above when toggling off) already updates the registry itself, so
+        -- only the activate path needs it here.
+        updateSanctuaryRegistry()
     end
 
     AscendancyBeacon.sync()
@@ -250,6 +276,8 @@ function AscendancyBeacon.deactivate()
             cv_buffs.setGlobalTier(owner.index, 0) -- For now, we just reset it to 0. A full check of other beacons could be added.
         end
     end
+
+    updateSanctuaryRegistry()
 
     local x, y = Sector():getCoordinates()
     Galaxy():sendCallback("onAscendancyBeaconDeactivated", x, y)
@@ -289,6 +317,10 @@ function AscendancyBeacon.upgradeTier()
 
     owner:sendChatMessage("Beacon"%_t, 0, "Ascendancy Beacon upgraded to Tier %1%!"%_t, currentTier)
 
+    if currentTier == 3 then
+        owner:sendChatMessage("Beacon"%_t, 0, "Sanctuary Field online! Nearby Eclipse conquest attempts will now be actively repelled."%_t)
+    end
+
     if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "Empire Ascends to Tier " .. currentTier,
@@ -297,6 +329,7 @@ function AscendancyBeacon.upgradeTier()
         })
     end
 
+    updateSanctuaryRegistry()
     AscendancyBeacon.sync()
 end
 callable(AscendancyBeacon, "upgradeTier")
@@ -439,5 +472,11 @@ function AscendancyBeacon.restore(data)
     lastSiegeTime = data.lastSiegeTime or Server().unpausedRuntime
     nextSiegeInterval = data.nextSiegeInterval or random():getInt(3, 6) * 3600
     AscendancyBeacon.treasury = data.treasury or 0
+
+    -- Re-assert this beacon's Sanctuary Field entry on load, in case the registry (a separate
+    -- Server() value, not part of this script's own save data) ever drifts out of sync.
+    if onServer() then
+        updateSanctuaryRegistry()
+    end
 end
 

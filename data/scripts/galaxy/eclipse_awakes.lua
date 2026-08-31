@@ -113,7 +113,12 @@ function EclipseAwakes.updateServer(timeStep)
             EclipseGenerator.getFaction()
 
             server:broadcastChatMessage("The Eclipse", 2, "Your ignorance has doomed this galaxy. We are The Eclipse. You will be erased."%_T)
-            Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_roaming_boss.lua")
+            -- eclipse_roaming_boss.lua (a leftover early-development "World Eater" spawner with its
+            -- own 5-minute-then-35-45-minute timer, flat dev-test stat bumps, and a 5-billion-credit
+            -- bounty) used to be registered here too. It ran fully in parallel with the real Doomsday
+            -- Event system below (ca_world_eater_manager.lua), spawning a second, much weaker,
+            -- mechanics-free "World Eater" that fought for the same chat/news spotlight and could
+            -- appear within minutes of the Eclipse awakening. Removed; see Changelog.md.
             Galaxy():addScriptOnce("data/scripts/galaxy/eclipse_conquest_manager.lua")
             Galaxy():addScriptOnce("data/scripts/galaxy/ca_world_eater_manager.lua")
         end

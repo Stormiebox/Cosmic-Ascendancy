@@ -56,7 +56,7 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
 
     -- Spawn a generic wreckage (Corrupted Databank / Lost Ship)
     local faction = Galaxy():getNearestFaction(x, y)
-    local wreck = generator:createWreckage(faction, nil, 10, pos)
+    generator:createWreckage(faction, nil, 10, pos)
 
     -- Spawn a stash container with loot scaled by distance to core
     local stashPos = pos.pos + vec3(random():getFloat(50, 100), random():getFloat(50, 100), random():getFloat(50, 100))
@@ -90,7 +90,7 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
 
     -- Synergy: Report Lore Anomaly to Cosmic Vault News
     local cvn = include("cosmicvaultnews")
-    if cvn then
+    if cvn and cvn.publishArticle then
         local article = {
             title = "Deep Space Discovery",
             category = "Lore Anomaly",

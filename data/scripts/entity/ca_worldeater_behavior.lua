@@ -462,6 +462,17 @@ function CAWorldEater.checkPhases()
 
         -- Enrage: boost fire rate (key discarded intentionally - buff is permanent until boss death)
         boss:addMultiplyableBias(StatsBonuses.FireRate, 0.5)
+
+        -- Switch every defender currently in the fight from the phase-1 to the enraged boss track
+        -- (data/music/world_eater_enraged.ogg). Nothing previously called triggerBossMusic(2) anywhere,
+        -- so the enrage transition was mechanically real but silent. Also flag the sector so a player
+        -- who jumps in after this point (ca_world_eater_event.lua's onPlayerEntered) starts on the
+        -- correct track instead of always defaulting to phase 1.
+        sector:setValue("ca_worldeater_enraged", true)
+        for _, player in pairs({sector:getPlayers()}) do
+            player:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+            player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerBossMusic", 2)
+        end
     end
 
     if hpPct <= 0.25 and not data.phasesTriggered.tethers25 then
@@ -523,6 +534,11 @@ function CAWorldEater.onDestroyed()
     end
 
     sector:broadcastChatMessage("System", 0, "The World Eater has been completely eradicated. The Void is calm once more.")
+
+    -- Lore Easter Egg (carried over from the retired eclipse_roaming_boss.lua prototype boss)
+    for _, player in pairs({sector:getPlayers()}) do
+        player:sendChatMessage("Recovered Datapad", 0, "'The World Eater operates at peak efficiency. The galaxy will be purged, just as the architect intended. Project Stormbox is a complete success.'")
+    end
 end
 
 function CAWorldEater.onDamaged(objectIndex, amount, inflictor, damageSource, damageType)

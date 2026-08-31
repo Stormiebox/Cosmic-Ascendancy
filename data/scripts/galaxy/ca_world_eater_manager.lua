@@ -57,7 +57,16 @@ function WorldEaterManager.updateServer(timeStep)
     else
         local graceEnd = Server():getValue("eclipse_world_eater_grace_end") or 0
         if Server().unpausedRuntime > graceEnd then
-            WorldEaterManager.threshold = WorldEaterManager.threshold or random():getInt(10800, 18000)
+            if not WorldEaterManager.threshold then
+                -- Eclipse Remnant Escalation: shrink the 3-5hr window by up to 15 minutes per
+                -- Remnant Tier (up to 75 minutes at max tier), floored so it never drops below a
+                -- 1.5-2.5hr range even at max escalation.
+                local EclipseGenerator = include("eclipsegenerator")
+                local reduction = EclipseGenerator.getRemnantTier() * 900
+                local minSeconds = math.max(5400, 10800 - reduction)
+                local maxSeconds = math.max(9000, 18000 - reduction)
+                WorldEaterManager.threshold = random():getInt(minSeconds, maxSeconds)
+            end
             WorldEaterManager.timer = WorldEaterManager.timer + timeStep
             if WorldEaterManager.timer > WorldEaterManager.threshold then
                 WorldEaterManager.timer = 0
@@ -167,6 +176,12 @@ function WorldEaterManager.cancelEvent()
     WorldEaterManager.activeEvent = nil
     Server():setValue("eclipse_world_eater_grace_end", Server().unpausedRuntime + 36000)
     Server():broadcastChatMessage("Galactic News", 0, "The World-Eater has been destroyed! The galaxy enters a 10-hour Grace Period.")
+
+    -- Eclipse Remnant Escalation: cancelEvent() only ever fires from WorldEaterEvent.onWorldEaterDestroyed
+    -- (confirmed the only caller), so this is a genuine kill, not an admin/debug cancel.
+    Server():setValue("eclipse_world_eaters_killed", (Server():getValue("eclipse_world_eaters_killed") or 0) + 1)
+    local EclipseGenerator = include("eclipsegenerator")
+    EclipseGenerator.checkRemnantEscalation()
 
     if cv_news.publishArticle then
         cv_news.publishArticle({

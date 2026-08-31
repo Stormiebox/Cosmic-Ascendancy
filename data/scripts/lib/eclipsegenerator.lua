@@ -19,6 +19,54 @@ function EclipseGenerator.applyDamageMultiplier(entity, factor)
     entity:addMultiplyableBias(StatsBonuses.FireRate, factor - 1.0)
 end
 
+-- Eclipse Remnant Escalation: a long-running save that keeps defeating World-Eaters and Citadels
+-- would otherwise plateau at the same difficulty forever. Each confirmed kill (tracked in
+-- ca_world_eater_manager.lua's cancelEvent and ca_citadel_loot.lua's onDestroyed) adds to a score,
+-- and every 10 points raises the Remnant Tier by one, capped at 5. World-Eater kills count for more
+-- since they're the rarer, harder milestone.
+local REMNANT_SCORE_PER_TIER = 10
+local REMNANT_MAX_TIER = 5
+
+function EclipseGenerator.getRemnantTier()
+    local worldEatersKilled = Server():getValue("eclipse_world_eaters_killed") or 0
+    local citadelsKilled = Server():getValue("eclipse_citadels_killed") or 0
+    local score = worldEatersKilled * 3 + citadelsKilled
+    return math.min(REMNANT_MAX_TIER, math.floor(score / REMNANT_SCORE_PER_TIER))
+end
+
+-- Called after eclipse_world_eaters_killed/eclipse_citadels_killed is incremented, to broadcast a
+-- one-time announcement whenever the tier actually goes up (not on every kill).
+function EclipseGenerator.checkRemnantEscalation()
+    local tier = EclipseGenerator.getRemnantTier()
+    local announcedTier = Server():getValue("eclipse_remnant_tier_announced") or 0
+    if tier <= announcedTier then return end
+
+    Server():setValue("eclipse_remnant_tier_announced", tier)
+    Server():broadcastChatMessage("The Eclipse", 2, "Remnant Escalation Protocol Tier " .. tier .. " engaged. Surviving forces have adapted.")
+
+    local cv_news = include("cosmicvaultnews")
+    if cv_news.publishArticle then
+        cv_news.publishArticle({
+            title = "GALACTIC THREAT: Eclipse Remnants Adapt",
+            content = "Every World-Eater and Citadel destroyed has forced the Eclipse's surviving remnants to compensate. Surviving Eclipse superweapons are now measurably stronger and more frequent than before (Remnant Tier " .. tier .. ").",
+            category = "Galactic Dread"
+        })
+    end
+end
+
+-- Applied on top of an entity's existing multipliers (World-Eaters, Citadels), a modest additional
+-- layer per Remnant Tier so a mature save's superweapons keep pace with how many the players have
+-- already cleared, without dwarfing the base tuning the way a multiplicative re-scale would.
+function EclipseGenerator.applyRemnantScaling(entity)
+    local tier = EclipseGenerator.getRemnantTier()
+    if tier <= 0 then return end
+
+    entity:addMultiplyableBias(StatsBonuses.ShieldDurability, tier * 0.15) -- +15% shields per tier
+    local hullDurability = Durability(entity.id)
+    hullDurability.maxDurabilityFactor = hullDurability.maxDurabilityFactor + (tier * 0.10) -- +10% hull per tier
+    EclipseGenerator.applyDamageMultiplier(entity, 1.0 + tier * 0.10) -- +10% damage per tier
+end
+
 function EclipseGenerator.getFaction()
     local name = "The Eclipse"%_T
 
@@ -83,10 +131,18 @@ function EclipseGenerator.addTurrets(ship, numTurrets)
     -- Always pass the current sector coordinates so turrets scale to the correct material tier.
     local cx, cy = 0, 0
     local sector = Sector()
+    -- SectorTurretGenerator's constructor only takes a single seed argument (see
+    -- data/scripts/lib/sectorturretgenerator.lua's `local function new(seed)`), so passing (cx, cy)
+    -- silently drops cy and seeds purely off cx, so every sector sharing that X coordinate would
+    -- roll identical turrets. Use the sector's own unique seed instead, matching the correct pattern
+    -- already used everywhere else this generator is constructed in this mod (ca_worldeater_behavior.lua,
+    -- ca_citadel_loot.lua, ascendancysiege.lua). cx/cy are still needed separately below, for
+    -- generateArmed()'s own distance-from-center weapon-tier calculation.
+    local seed = sector and sector.seed or nil
     if sector then
         cx, cy = sector:getCoordinates()
     end
-    local generator = SectorTurretGenerator(cx, cy)
+    local generator = SectorTurretGenerator(seed)
     generator.coaxialAllowed = false
 
     -- Try to use Starfall if available (soft dependency — no crash if not installed)
@@ -199,10 +255,38 @@ function EclipseGenerator.createWorldEater(position)
     -- -90% Speed as per design
     ship:addMultiplyableBias(StatsBonuses.Velocity, -0.9)
 
+    -- Eclipse Remnant Escalation: a modest extra layer per Remnant Tier, on top of the base
+    -- multipliers above and the separate per-fight multiplayer scaling applied later by
+    -- EclipseGenerator.applyWorldEaterMultiplayerScaling.
+    EclipseGenerator.applyRemnantScaling(ship)
+
     -- Add the boss behavior script which handles Tethers, EMPs, and Gravity Anomalies
     ship:addScriptOnce("data/scripts/entity/ca_worldeater_behavior.lua")
 
     return ship
+end
+
+-- Multiplayer/Alliance Scaling: the World-Eater's base stats above are tuned around a single
+-- defender. A whole alliance converging on the same fight brings far more simultaneous DPS, so
+-- without this the boss would fold in seconds against a large group while still being an
+-- appropriate multi-minute fight solo. Called separately from every spawn path (the natural
+-- Doomsday Event, the player-summoned Raid Boss) right after createWorldEater(), rather than
+-- folded into createWorldEater() itself, since it needs to read the sector's current player
+-- count at the moment of the actual fight, not at plan-generation time.
+function EclipseGenerator.applyWorldEaterMultiplayerScaling(ship)
+    local defenders = {Sector():getPlayers()}
+    local extraDefenders = math.max(0, #defenders - 1)
+    if extraDefenders > 0 then
+        -- Shields scale via the StatsBonuses system (same mechanism as every other Eclipse buff).
+        ship:addMultiplyableBias(StatsBonuses.ShieldDurability, extraDefenders * 1.5) -- +150% shields per extra defender
+        -- There is no StatsBonuses.HullDurability entry (the enum only goes up to FireRate=40). Hull HP
+        -- is instead scaled through the Durability component's maxDurabilityFactor, additive on top of
+        -- whatever the hull's base volume/material already grants (confirmed against vanilla usage in
+        -- data/scripts/lib/spawnutility.lua: "durability.maxDurabilityFactor = durability.maxDurabilityFactor + hpFactor").
+        local hullDurability = Durability(ship.id)
+        hullDurability.maxDurabilityFactor = hullDurability.maxDurabilityFactor + (extraDefenders * 0.75) -- +75% hull per extra defender
+        EclipseGenerator.applyDamageMultiplier(ship, 1.0 + extraDefenders * 0.3) -- +30% damage per extra defender
+    end
 end
 
 function EclipseGenerator.createCarrier(position)
@@ -325,6 +409,8 @@ function EclipseGenerator.createStation(position)
 
     station:addMultiplyableBias(StatsBonuses.ShieldDurability, 50.0)
     EclipseGenerator.applyDamageMultiplier(station, 5.0)
+    -- Eclipse Remnant Escalation: see EclipseGenerator.applyRemnantScaling.
+    EclipseGenerator.applyRemnantScaling(station)
     station:addScriptOnce("entity/eclipse_boss_scaling.lua")
     station:addScriptOnce("data/scripts/entity/ca_citadel_loot.lua")
 

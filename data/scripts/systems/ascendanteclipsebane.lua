@@ -3,10 +3,15 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("basesystem")
 
 
+-- NOTE: There is no StatsBonuses.HullDurability entry. The enum (Avorion Stubs/Globals.lua) only
+-- covers RadarReach through FireRate=40, with no hull-HP member, and vanilla subsystems never grant a
+-- hull bonus through addMultiplyableBias/addAbsoluteBias for the same reason. A previous version of
+-- this item listed {stat = StatsBonuses.HullDurability, amount = 0.50}, which resolved to `nil` and
+-- would have thrown a bad-argument error from the engine every time a player installed it. Compensated
+-- with a larger Shield Durability bonus instead, since subsystems have no safe way to grant raw hull HP.
 function getFixedStats()
     return {
-        {stat = StatsBonuses.ShieldDurability, amount = 0.50},
-        {stat = StatsBonuses.HullDurability, amount = 0.50},
+        {stat = StatsBonuses.ShieldDurability, amount = 0.75},
         {stat = StatsBonuses.ArbitraryTurrets, amount = 5},
         {stat = StatsBonuses.HyperspaceReach, amount = 5},
         {stat = StatsBonuses.FireRate, amount = 0.25}
@@ -41,8 +46,7 @@ end
 function getTooltipLines(seed, rarity, permanent)
     local texts = {}
     table.insert(texts, {ltext = "Forged from the remnants of the Vanguard. Tuned to destroy The Eclipse.", lcolor = ColorRGB(1, 0.5, 0)})
-    table.insert(texts, {ltext = "Shield Durability", rtext = "+50%", icon = "data/textures/icons/shield.png"})
-    table.insert(texts, {ltext = "Hull Durability", rtext = "+50%", icon = "data/textures/icons/health-normal.png"})
+    table.insert(texts, {ltext = "Shield Durability", rtext = "+75%", icon = "data/textures/icons/shield.png"})
     table.insert(texts, {ltext = "Arbitrary Turret Slots", rtext = "+5", icon = "data/textures/icons/turret.png"})
     table.insert(texts, {ltext = "Jump Range", rtext = "+5", icon = "data/textures/icons/jump-range.png"})
     table.insert(texts, {ltext = "All Damage (Anti-Eclipse)", rtext = "+25%", icon = "data/textures/icons/explosion.png"})
