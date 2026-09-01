@@ -1,17 +1,22 @@
 # 🚀 Cosmic Ascendancy: A Player's Guide to the Eclipse Crisis
 
-Welcome to the **Cosmic Ascendancy** official player guide! This document breaks down the major endgame features introduced in this expansion, including the Eclipse Crisis, the Ascendancy Forge, and the mighty Ascendancy Beacon megastructure.
+Welcome to the **Cosmic Ascendancy** player guide. This document walks through the major endgame features in this expansion: the Eclipse Crisis, the Ascendancy Forge, and the Ascendancy Beacon megastructure.
 
 ---
 
 ## 📑 Table of Contents
+- [📖 The Ascendant Campaign](#-the-ascendant-campaign)
 - [🌑 The Eclipse Crisis](#-the-eclipse-crisis)
 - [🏰 Eclipse Citadels](#-eclipse-citadels)
-- [📖 The Ascendant Campaign](#-the-ascendant-campaign)
 - [📈 Dynamic Faction Expansion](#-dynamic-faction-expansion)
 - [👑 The Fallen Empire Awakening](#-the-fallen-empire-awakening)
-- [🛠️ The Ascendancy Forge](#️-the-ascendancy-forge)
-- [🗼 The Ascendancy Beacon](#️-the-ascendancy-beacon)
+- [🧬 Remnant Escalation](#-remnant-escalation)
+- [🛠️ The Ascendancy Forge](#-the-ascendancy-forge)
+- [🌌 The Dark Sector](#-the-dark-sector)
+- [🗼 The Ascendancy Beacon](#-the-ascendancy-beacon)
+- [⚔️ Defeating Nemeses](#-defeating-nemeses)
+- [🛡️ Automating Defense](#-automating-defense)
+- [💻 Player Commands](#-player-commands)
 - [🤝 Synergies & Integrations](#-synergies--integrations)
 
 ---
@@ -20,13 +25,13 @@ Welcome to the **Cosmic Ascendancy** official player guide! This document breaks
 <details>
 <summary><b>Click to expand</b></summary>
 
-Upon defeating the Wormhole Guardian and unleashing The Eclipse, you will not be left to fight alone. You will be physically intercepted by **Aegis, The Ascendant Envoy**—an ancient AI construct designed by the creators of the dimensional prison.
+Defeating the Wormhole Guardian and unleashing The Eclipse doesn't leave you to fight alone. You're intercepted by **Aegis, The Ascendant Envoy**, an ancient AI construct built by the creators of the dimensional prison.
 
-- **Priority Mail Dispatch:** Instead of receiving basic radio messages, Aegis will send a Priority Mail directly to your ship's inbox containing secure rendezvous coordinates.
-- **Safe Rendezvous Sectors:** You must physically fly to these sectors to meet her projection. To ensure your safety, Aegis and all major story Bosses will always spawn in isolated, "empty" sectors (5 to 30 jumps away) rather than contested faction territory.
-- **6-Part Storyline:** She will guide you through a fully-scripted 5-mission campaign detailing the origins of The Eclipse, the location of the Ascendancy Forge, the Citadel threat, and the incoming World-Eater.
-- **Massive Rewards:** Every time you complete a major campaign objective and return to Aegis for your debrief, she will inject massive credit payouts (scaling up to 25 Million!) and high-tier subsystem/turret drops (up to Legendary rarity) directly into your cargo hold.
-- **Multiplayer Support:** If you are playing with an alliance, Aegis will patiently remain stationed at the rendezvous point until *all* players in the sector have had a chance to speak with her and claim their own personal rewards!
+- **Priority Mail Dispatch:** Instead of a radio message, Aegis sends a Priority Mail straight to your inbox with secure rendezvous coordinates.
+- **Safe Rendezvous Sectors:** You fly to these sectors to meet her projection. Aegis and every major story boss always spawn in isolated, "empty" sectors, 5 to 30 jumps away, rather than contested faction territory.
+- **A 5-Mission Campaign, Plus an Intro:** After an initial contact stage, Aegis guides you through a fully-scripted 5-mission campaign covering the origins of The Eclipse, the location of the Ascendancy Forge, the Citadel threat, and the incoming World-Eater.
+- **Serious Rewards:** Every completed campaign objective, debriefed back with Aegis, pays out credits (scaling up to 25 million) and high-tier subsystem or turret drops (up to Legendary rarity) straight into your cargo hold.
+- **Multiplayer Support:** Playing with an alliance? Aegis stays at the rendezvous point until every player in the sector has had a chance to speak with her and claim their own personal reward.
 </details>
 
 ---
@@ -35,98 +40,105 @@ Upon defeating the Wormhole Guardian and unleashing The Eclipse, you will not be
 <details>
 <summary><b>Click to expand</b></summary>
 
-The **Eclipse** is a hyper-advanced, hostile faction that dynamically targets sectors containing high player or AI faction value. Their ships are jet-black monolithic structures accented by crimson energy fields.
+The **Eclipse** is a hyper-advanced, hostile faction that dynamically targets sectors with high player or AI faction value. Their ships are jet-black monolithic structures accented by crimson energy fields.
 
 ### ⚔️ Combat Mechanics
-- **Void Shields:** Incoming physical damage (Cannons, Bolters, Chainguns) is mitigated by 80%. You **must** use high-tier Energy, Antimatter, or Plasma weapons to strip their shields.
-- **Armor Plating:** Their base Hull HP is multiplied by 2.5x relative to vanilla ships of the same volume.
-- **Weaponry:** The Eclipse exclusively utilizes massive EMP lasers and high-velocity Plasma Artillery, making them incredibly lethal against your shields.
+- **Void Shields:** Incoming physical damage (Cannons, Bolters, Chainguns) is reduced by 80%. High-tier Energy, Antimatter, or Plasma weapons are your reliable way through.
+- **Armor Plating:** Base Hull HP runs 2.5x a vanilla ship of the same volume.
+- **Weaponry:** The Eclipse fields massive EMP lasers and high-velocity Plasma Artillery, both brutal against your shields.
 
 ### 🌌 Ancient Eclipse Abilities
-To make the faction feel uniquely terrifying, the Eclipse possess **5 devastating ancient mechanics** distributed across their classes:
-- **Dark Matter Blink (All Ships):** Upon taking 15% burst damage within 1 second, the ship will violently blink 5-10km away to escape, leaving behind a Void Rift (cooldown: 45s).
-- **Ethereal Phase-Shift (Interceptors & Phantoms):** Slippery vanguards will instantly phase out of reality for 4 seconds upon shield break, becoming an invincible void-shadow to reposition.
-- **Adaptive Resistance (Defilers & Artillery):** These heavy combatants analyze incoming fire; taking 5% Hull damage from a specific element (e.g., Plasma) triggers a 15-second resistance to that element where they heal back 50% of the incoming damage!
-- **Void Siphon Aura (Carriers, Cruisers, Dreadnoughts, Juggernauts):** Massive command ships constantly project a 10km devouring aura, rapidly draining 2% of the shield capacity of all nearby player ships per second to heal themselves for 25% of the drained amount.
-- **Singularity Implosion (All Large Capital Ships):** Upon death, these gargantuan reactors collapse. After a 3-second warning, they violently detonate, stripping 15% of max hull as true-damage to everything within 15km!
+Five class-specific mechanics make the Eclipse feel like more than a reskinned AI faction:
+- **Dark Matter Blink (All Ships):** After taking 15% burst damage within one second, the ship blinks 5-10km away to escape, leaving a Void Rift behind (45-second cooldown).
+- **Ethereal Phase-Shift (Interceptors & Phantoms):** Upon shield break, these vanguards phase out of reality for 4 seconds, becoming an invincible void-shadow while they reposition and regenerate 25% of their max shields.
+- **Adaptive Resistance (Defilers & Artillery):** These heavy combatants track incoming fire. Taking 5% Hull damage from one element (say, Plasma) triggers 15 seconds of resistance to it, healing back 50% of what they take.
+- **Void Siphon Aura (Carriers, Cruisers, Dreadnoughts, Juggernauts, Harbingers, and the World-Eater):** These command-class ships project a 10km draining field, pulling shields (then hull, once shields are down) from every nearby player ship to heal themselves.
+- **Singularity Implosion (the same command-class ships above):** On death, their reactor collapses. After a 3-second warning, it detonates for 15% of max hull as true damage to everything within 15km.
 
 ### 🚨 The World-Eater Doomsday Event
-Every 3 to 5 hours of active playtime, the Eclipse will launch a **World-Eater** (a massively scaled Juggernaut) at a populated player sector. The global timer for this event **automatically pauses** if no players are online, protecting dedicated servers.
-- ⏰ A **20-minute countdown** will broadcast across the Galactic News Network.
-- 🤝 **Scales With Your Group:** The World-Eater's shields, hull, and damage scale up for every extra defender present when it spawns, whether it's this natural event or one you summon yourself below. Fighting it solo is exactly as tuned; bringing an alliance means facing a genuinely tougher boss instead of trivializing the fight.
-- 🛡️ **Royal Escort Fleet:** The World-Eater does not travel alone. It arrives with a massive Royal Escort Fleet composed of Carriers, Artillery, Defilers, and Interceptors.
-- 💪 **Apocalyptic Durability:** The World-Eater's physical volume is dynamically scaled up by a factor of 5.0, resulting in a **125x increase** to its native Hull HP!
-- 🔥 **The Boss Encounter:** Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal 5.9 kilometer Hull and dynamic mechanics:
-  - **⛓️ Anchor Pylon Tethers:** Upon spawning, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss remains **100% invincible**, visually tethered to them by massive purple lasers.
-  - **Nemesis Protocol:** You cannot instantly burst down the World-Eater. If it takes massive burst damage, the Nemesis Protocol engages, reducing all incoming damage by 90% dynamically.
-  - **World-Breaker Laser:** The boss is armed with a colossal coaxial laser capable of obliterating anything caught in its 15km path, dealing 100% max shields and 50% max hull damage.
-  - **⚡ Quantum EMP:** Periodically targets a random player with a massive cyan glow. After 3 seconds, an EMP erupts, instantly stripping 100% of their shields and inflicting 25% max hull damage.
-  - **⚫ Gravity Anomaly:** Periodically spawns a dark purple Black Hole at a player's location. This anomaly actively pulls all player ships towards the center, draining 5% of max hull per second and trapping you in the blast zone!
-  - **💥 The 6-Phase Gauntlet:** As its massive hull is chipped away, it triggers global desperation mechanics:
+Every 3 to 5 hours of active playtime, the Eclipse launches a **World-Eater** (a massively scaled Juggernaut) at a populated player sector. The global timer automatically pauses if no players are online, protecting dedicated servers.
+- 🤝 **Scales With Your Group:** A solo fight stays exactly as tuned. For every extra defender present when it spawns, natural or summoned, the boss gains +150% Shield Durability, +75% Hull Durability, and +30% damage, so an alliance faces a harder fight instead of trivializing it.
+- 🛡️ **Royal Escort Fleet:** The World-Eater doesn't travel alone. It arrives with Carriers, Artillery, Defilers, and Interceptors.
+- 💪 **Apocalyptic Durability:** Its physical volume is scaled up 5x, which works out to roughly 125x native Hull HP.
+- 🔥 **The Boss Encounter:** Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal 5.9-kilometer hull and its mechanics:
+  - **⛓️ Anchor Pylon Tethers:** On spawn, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss is **100% invincible**, tethered to them by purple lasers. It regains that same invincibility twice more during the fight: 2 fresh Anchor Pylons spawn at 50% Hull and again at 25% Hull, and each time the boss stays invincible until those new tethers are also down.
+  - **Nemesis Protocol:** You can't burst it down. Overwhelming burst damage engages the Nemesis Protocol, cutting incoming damage by 90%.
+  - **World-Breaker Laser:** A colossal coaxial laser that obliterates anything in its 15km path, dealing 100% max shields and 50% max hull damage.
+  - **⚡ Quantum EMP:** Periodically targets a random player with a cyan glow. After 3 seconds, it erupts, stripping 100% of their shields and 25% max hull.
+  - **⚫ Gravity Anomaly:** Periodically spawns a dark purple black hole at a player's location, pulling ships toward the center and draining 5% max hull per second while you're caught in it.
+  - **💥 The 6-Phase Gauntlet:** As its hull drops, it triggers escalating desperation mechanics:
     - **80% HP:** Spawns 5 Defiler Escorts.
-    - **70% HP:** Emits a Dark Matter EMP, instantly stripping 50% of the shield capacity from all players in the sector.
+    - **70% HP:** A Dark Matter EMP strips 50% of shield capacity from everyone in the sector.
     - **60% HP:** Deploys 4 Eclipse Assassin Hunter-Killers.
-    - **50% HP:** Blinks randomly to a distant location and initiates emergency repairs, healing up to 5% of its Max Hull.
-    - **35% HP:** Blinks again, unleashes a second global EMP, and enters an **Enraged state** (+50% Fire Rate, +50% Global Damage) and projects a 15km sector-wide Dark Matter Aura that continuously drains Hull integrity from all hostile ships caught within it.
-- ☠️ If the World-Eater is not destroyed in 20 minutes, the entire sector is atomically wiped. All non-player entities are deleted, players are reduced to 1 HP, and the sector falls permanently to Eclipse control.
-- **🕊️ The Grace Period:** Following the conclusion of a World-Eater event (whether the boss is destroyed or the sector is annihilated), the entire galaxy is granted a **10 real-time hour Grace Period**. During this time, the Doomsday clock is completely paused, allowing players to rebuild without fear of another immediate strike.
+    - **50% HP:** Blinks away, heals up to 5% of its max hull, and spawns 2 fresh Anchor Pylons (invincible again until they're down).
+    - **35% HP:** Blinks again, fires a second global EMP, and enters an **Enraged state** (+50% Fire Rate, +50% global damage), projecting a 15km sector-wide Dark Matter Aura that drains hull from every hostile ship inside it.
+    - **25% HP:** Spawns 2 more Anchor Pylons, invincible one last time.
+- ☠️ If the World-Eater isn't destroyed within 20 minutes, the sector is wiped: every non-player entity is deleted, players are reduced to 1 HP, and the sector falls to Eclipse control.
+- **🕊️ The Grace Period:** After a World-Eater event, win or lose, the whole galaxy gets a **10 real-time hour Grace Period**. The Doomsday clock pauses completely, so you can rebuild without fear of an immediate second strike.
 
 ### 📡 The Summoning Beacon
-If you are prepared to face the ultimate threat on your own terms, you can forcefully summon the World-Eater!
-- **Raid Summoning:** Jettisoning an **Eclipse Datacore** from your cargo hold into space acts as a quantum beacon. If there are no other Eclipse ships currently in the sector, the datacore will violently collapse, tearing open a hyperspace rift and instantly summoning the **Eclipse World-Eater**!
+If you'd rather face the ultimate threat on your own terms, you can summon it directly.
+- **Raid Summoning:** Jettisoning an **Eclipse Datacore** from your cargo hold into space acts as a quantum beacon. If no other Eclipse ships are in the sector, the datacore collapses, tearing open a hyperspace rift and summoning the **Eclipse World-Eater** on the spot.
 
 ### 🚨 Invasion Escalation
-- **Personal Ambushes:** The Eclipse actively hunts players. Every 25-45 minutes, there is a 40% chance that an elite Eclipse strike team will personally ambush the player's current sector.
-1.  **Scouting Phase:** Small, fast-moving Eclipse Interceptors arrive in a sector. If they are not destroyed within 5 minutes, they broadcast a beacon.
-2.  **Assault Phase:** Once the beacon is active, a massive invasion fleet warps in (typically 1 Dreadnought, 3 Cruisters, and 5-8 Corvettes).
-3.  **Eradication:** Eclipse fleets prioritize destroying Stations. Destroyed AI stations permanently drop local economic output, and destroyed Player stations are permanently lost!
+- **Personal Ambushes:** Every 25-45 minutes, there's a 40% chance an elite Eclipse strike team ambushes your current sector.
+1.  **Scouting Phase:** Small, fast Eclipse Interceptors arrive first. Left alive for 5 minutes, they broadcast a beacon.
+2.  **Assault Phase:** Once the beacon is active, a full invasion fleet warps in, typically 1 Dreadnought, 3 Cruisers, and 5-8 Corvettes.
+3.  **Eradication:** Eclipse fleets prioritize destroying stations. Destroyed AI stations permanently reduce local economic output; destroyed player stations are gone for good.
 
 ### 🌌 Territorial Conquest
-The Eclipse's first foothold always appears near the galactic core, where their rupture first tore open, and their territory spreads outward toward the rim from there over time rather than growing in a random direction. Each conquered sector is either a **Conquest** (a contested siege, if Cosmic War is installed) or an outright **Annihilation** (a total wipe).
+The Eclipse's first foothold always appears near the galactic core, where their rupture first tore open. From there, territory spreads outward toward the rim rather than in a random direction. Each conquered sector is either a **Conquest** (a contested siege, if Cosmic War is installed) or an outright **Annihilation** (a total wipe).
 </details>
+
+---
 
 ## 🏰 Eclipse Citadels
 <details>
 <summary><b>Click to expand</b></summary>
 
-When an Eclipse invasion is overwhelmingly successful, they will permanently occupy the sector and construct a massive Citadel.
-
+When an Eclipse invasion overwhelmingly succeeds, the faction permanently occupies the sector and constructs a Citadel. Its garrison and orbital escorts carry the same combat classes described above, so these are the same abilities, not separate mechanics.
 
 ### ⚔️ Eclipse Combat Classes & Abilities
-- **Void Siphons:** Emitters projecting a massive **10km** radius field. If your shields drop to 0 within this field, the Siphon will aggressively drain your Hull (0.5% max hull per tick) to repair itself.
-- **Singularity Collapse (Dreadnoughts/Carriers):** When their core detonates upon death, it triggers a massive **3km** implosion stripping 15% of your max hull as true damage. During its 3-second windup, the core creates a **Gravity Well** that physically sucks all nearby ships toward the epicenter.
-- **Ethereal Phase Shifts (Phantoms/Interceptors):** Upon losing shields, they enter a 4-second invincible Phase Shift and actively **regenerate 25% of their Max Shields** while phased.
-- **Adaptive Memory (Defilers):** Their adaptive armor grants compounding resistance to elemental damage types, but the memory **safely decays** if they aren't hit by that element for 3 seconds.
+- **Void Siphons:** A 10km draining field. Ships caught inside have their shields drained first, then hull once shields are down, healing the Siphon for a share of what it drains.
+- **Singularity Collapse (Dreadnoughts/Carriers):** Their core detonates on death, stripping 15% of your max hull as true damage within 15km. During the 3-second windup, the core acts as a Gravity Well, pulling nearby ships toward the epicenter.
+- **Ethereal Phase Shifts (Phantoms/Interceptors):** Upon losing shields, they enter a 4-second invincible Phase Shift and regenerate 25% of their max shields while phased.
+- **Adaptive Memory (Defilers):** Their adaptive armor grants compounding resistance to elemental damage types, decaying if they aren't hit by that element for 3 seconds.
 
 ### ⚙️ Mechanics
-- 🚫 **The Lockdown Matrix:** Citadels generate a sector-wide interdiction field. Ships cannot jump *out* of a Citadel sector unless the Citadel is destroyed.
+- 🚫 **The Lockdown Matrix:** Citadels generate a sector-wide interdiction field. Ships can't jump out of a Citadel sector until the Citadel is destroyed.
 - 💣 **Siege Scale:** Citadels have `200,000,000` base HP (scaling with difficulty) and are surrounded by 4 orbital defense platforms.
-- 💰 **Loot & Rewards:** Destroying a Citadel guarantees a drop of 1-3 **Legendary** subsystems, massive quantities of Avorion ore, and unique crafting materials for the Ascendancy Forge.
-- ⏳ **Suppression Field:** Destroying a Citadel dynamically halts all Eclipse invasions galaxy-wide for a base of 6 real-time hours, plus an additional 2 hours for every 10 sectors the Eclipse currently own.
-- 🕊️ **Territorial Liberation:** It's not just a pause. The Citadel's own sector, plus any Eclipse-held territory within a 15-sector radius of it, is reclaimed outright, permanently rolling their frontier back.
+- 💰 **Loot & Rewards:** Destroying a Citadel guarantees 1-3 Legendary subsystems, large quantities of Avorion ore, and unique Forge crafting materials.
+- ⏳ **Suppression Field:** Destroying a Citadel halts all Eclipse invasions galaxy-wide for a base of 6 real-time hours, plus 2 more hours for every 10 sectors the Eclipse currently holds.
+- 🕊️ **Territorial Liberation:** It's not just a pause. The Citadel's own sector, plus any Eclipse-held territory within a 15-sector radius of it, is reclaimed outright, rolling their frontier back for good.
 </details>
+
+---
 
 ## 📈 Dynamic Faction Expansion
 <details>
 <summary><b>Click to expand</b></summary>
 
-Vanilla Avorion features a static map. With Cosmic Ascendancy, **civilized AI factions** and **Pirates** will slowly and naturally expand their borders over time.
-- 🗺️ **Organic Growth:** Civilized factions will trace outward from their home sectors to claim contiguous empty sectors, spawning new space stations and officially annexing the territory.
-- 🏴‍☠️ **Pirate Bases:** Deep space is no longer permanently safe. Pirates will occasionally establish Smuggler's Hideouts and Pirate Shipyards in completely uncharted systems.
-- 📰 **News Alerts:** All major territorial expansions are broadcast live via the Cosmic Chronicles News Network.
-- ⚡ **Zero-Stutter Performance:** Built on the V4 Progressive Materialization architecture, all territory expansion and station generation is queued natively in the background and materialized instantly upon a player jumping into the sector. This completely eliminates the massive server lag spikes caused by traditional "background sector loading."
+Vanilla Avorion features a static map. With Cosmic Ascendancy, **civilized AI factions** and **Pirates** slowly and naturally expand their borders over time.
+- 🗺️ **Organic Growth:** Civilized factions trace outward from their home sectors to claim contiguous empty sectors, spawning stations and annexing the territory.
+- 🏴‍☠️ **Pirate Bases:** Deep space is no longer permanently safe. Pirates occasionally establish Smuggler's Hideouts and Pirate Shipyards in uncharted systems.
+- 📰 **News Alerts:** Major territorial expansions broadcast live via the Cosmic Chronicles News Network.
+- ⚡ **Zero-Stutter Performance:** Expansion and station generation are queued in the background and materialize the instant a player jumps into the sector, avoiding the lag spikes that traditional background loading causes.
 </details>
+
+---
 
 ## 👑 The Fallen Empire Awakening
 <details>
 <summary><b>Click to expand</b></summary>
 
-If the Eclipse is allowed to conquer or annihilate 75 sectors unchecked, they will evolve into a **Fallen Empire**.
-- ⚔️ **Crusades:** They will cease random border skirmishes and instead systematically launch massive Crusades to hunt down and eradicate major AI Faction Capitals.
-- 🎯 **Player & Alliance Hunting:** A Fallen Empire will also occasionally target a player's or alliance's own sectors, as long as there's an actual station on it, on a much slower cooldown than their AI-faction Crusades so it can't camp the same target back to back. Even if you lose the targeted sector, your stations aren't deleted; worst case, it turns hostile (Dark Matter Fog plus an Eclipse garrison) until you clear it back out.
-- 🌫️ **Dark Matter Fog:** During an invasion, the Eclipse will blanket the sector in a suffocating Dark Matter Fog, physically cutting defender radar and jump capabilities in half.
-- ✨ **Technological Superiority:** Eclipse forces are completely immune to all natural Subspace Weather (Ion Storms, Solar Flares).
+Left unchecked, the Eclipse conquers or annihilates 75 sectors and evolves into a **Fallen Empire**.
+- ⚔️ **Crusades:** Random border skirmishes stop. In their place, the Eclipse launches massive Crusades to hunt down and eradicate major AI faction capitals.
+- 🎯 **Player & Alliance Hunting:** A Fallen Empire also occasionally targets a player's or alliance's own sectors, as long as there's an actual station on it, on a much slower cooldown than its AI-faction Crusades so it can't camp the same target back to back. Losing the targeted sector never deletes your stations outright; worst case, it turns hostile (Dark Matter Fog plus an Eclipse garrison) until you clear it back out.
+- 🌫️ **Dark Matter Fog:** During an invasion, the Eclipse blankets the sector in Dark Matter Fog, cutting defender radar and jump range in half.
+- ✨ **Technological Superiority:** Eclipse forces are immune to natural Subspace Weather (Ion Storms, Solar Flares).
 </details>
+
+---
 
 ## 🧬 Remnant Escalation
 <details>
@@ -138,64 +150,60 @@ A galaxy that keeps clearing World-Eaters and Citadels doesn't stay at the same 
 - 📰 **Galaxy-Wide Warning:** Escalating a tier is announced galaxy-wide and via the Galactic News Network. Check `/eclipsestatus` for your current tier and confirmed kill counts.
 </details>
 
+---
+
 ## 🛠️ The Ascendancy Forge
 <details>
 <summary><b>Click to expand</b></summary>
 
-The **Ascendancy Forge** is a massive endgame progression system built into the Beacon. Once operational, the Forge allows you to spend massive amounts of raw resources (Avorion, Ogonite, Credits) and Eclipse Datacores to synthesize legendary **Ascendant** tier items.
+The **Ascendancy Forge** is a massive endgame progression system, discovered at the climax of the main storyline. Once operational, it lets you spend raw resources (Avorion, Ogonite, Credits) and Eclipse Datacores to synthesize legendary Ascendant-tier gear.
 
-- **Titan Coaxial Superweapons:** Players can now forge the **Ascendant World-Breaker**, a massively devastating coaxial laser superweapon capable of 250,000 continuous damage.
-- **Ascendant Neural Implants:** You can now craft and equip the legendary Ascendant Neural Implant subsystem, which transforms your ship into a biomechanical dreadnought (scaling massive stats like jump reach, fighters, and turrets while injecting extreme velocity).
+- **Unlocking the Forge:** Decrypt your first Eclipse Datacore there. The same action that raises your Global Ascendancy Tier also permanently unlocks Forge access for your account.
+- **Titan Coaxial Superweapons:** Forge the **Ascendant World-Breaker**, a devastating coaxial laser capable of 250,000 continuous damage.
+- **Ascendant Neural Implants:** Craft and equip the legendary Neural Implant subsystem, wiring your captain into the ship's core to scale jump reach, fighters, and turrets while injecting extreme velocity.
 
 ### 🛠️ Crafting Recipes
 
-- **Ascendant Slipstream Drive:** Grants +35 Jump Range and massively reduces hyperspace cooldowns.
-- **Ascendant Aegis Reactor:** Unlocks the Ethereal Phase-Shift ability for your own ship, rendering you invincible for 3 seconds upon shield break.
-- **Ascendant Omni-Sensor:** Reveals the entire galaxy map and permanently disables all hostile radar jamming inside your sector.
+- **Ascendant Slipstream Drive:** Grants +35 Jump Range and cuts hyperspace cooldowns significantly.
+- **Ascendant Aegis Reactor:** Unlocks the Ethereal Phase-Shift ability for your own ship, granting invincibility for 3 seconds upon shield break.
+- **Ascendant Omni-Sensor:** Reveals the surrounding galaxy map and disables hostile radar jamming inside your sector.
 - **Ascendant World-Breaker (Coaxial Laser):** 250,000 continuous damage. Locks your ship's rotation while firing.
-- **Ascendant Neural Implant (Subsystem):** +3 Fighter Squadrons, +15 Jump Reach, +30% Velocity, +10 Armed/Unarmed Turrets.
+- **Ascendant Neural Implant (Subsystem):** +3 fighter squadrons, +15 jump reach, +30% velocity, +10 armed/unarmed turrets.
 
-*Warning: Crafting at the Forge emits a massive subspace energy signature. The Eclipse will detect this and dispatch immediate invasion fleets to destroy the Beacon. You must defend the Forge while it synthesizes your items!*
-
-To combat the Eclipse, you must locate and utilize the Ascendancy Forge to craft gear that pushes past Avorion's native limits.
+*Warning: crafting at the Forge emits a massive subspace signature. The Eclipse detects it and dispatches invasion fleets to destroy the Beacon. You'll need to defend the Forge while it works.*
 
 ### ⚙️ Mechanics
-- **Unlock Requirements:** The Forge is discovered at the climax of the main storyline.
-- 💰 **Base Crafting Cost:** Scales up to `300,000,000` Credits, `3,000,000` Avorion, and 25-50 **Ascendant Matter**.
-- 📈 **Global Ascendancy Matrix:** You can submit **Eclipse Datacores** (dropped by Eclipse Juggernauts) to the Forge. Decrypting a datacore permanently raises your Global Ascendancy Tier, granting a stacking `+15%` Shields, `+20%` Shield Recharge, and `+10%` Hyperspace Cooldown to all ships in your fleet!
-- 🙏 **The Sacrifice System:** When initiating a craft, you must sacrifice existing **Legendary** or **Exotic** subsystems as Catalysts.
+- 💰 **Base Crafting Cost:** Scales up to `300,000,000` Credits, `3,000,000` Avorion, and 25-50 Ascendant Matter.
+- ⏱️ **Crafting Time:** 24 real-time hours per item, running asynchronously so it continues while you're offline.
+- 📈 **Global Ascendancy Matrix:** Submit **Eclipse Datacores** (dropped by Eclipse Juggernauts) to the Forge. Each decrypted datacore permanently raises your Global Ascendancy Tier, stacking `+15%` Shields, `+20%` Shield Recharge, and `+10%` Hyperspace Cooldown fleet-wide.
+- 🙏 **The Sacrifice System:** Initiating a craft means sacrificing existing Legendary or Exotic subsystems as catalysts.
   - `1x Legendary` = **20%** success rate.
   - `1x Exotic` = **10%** success rate.
-  - **Ascendant Scrap:** If you cannot reach 100% success rate, the Forge will automatically consume Ascendant Scrap from your ship's cargo hold to bridge the gap. Each Ascendant Scrap adds **+2%** to the success rate.
-- 💔 **Failure:** If the craft fails, the sacrificed subsystems and raw materials are destroyed, but you receive **"Ascendant Scrap"** which is highly sought after and can be used to fuel future Forge attempts!
-- 💥 **War Heat Bonuses:** If *Cosmic War* is installed, your faction's War Heat is added as a massive multiplier to the weapon's damage (up to a **10.0x cap**) upon claiming it!
-- 🛠️ **New Subsystems:** The Forge can synthesize the **Ascendant Swarm Nexus** (massively boosts Production Capacity and Fighter Squadrons) and the **Ascendant Void-Drill** (boosts Transporter Range, Loot Range, and Generator Energy)! The Void Drill generates immense power, and equipping it will cause your ship to passively vent massive harmless plasma VFX discharges every 60-120 seconds to represent its unstable overclocking!
+  - **Ascendant Scrap:** Short of 100% success rate, the Forge automatically consumes Ascendant Scrap from your cargo hold. Each unit adds **+2%**.
+- 💔 **Failure:** A failed craft destroys the sacrificed subsystems and materials, but yields **Ascendant Scrap**, which you can feed into a future attempt.
+- 💥 **War Heat Bonuses:** If *Cosmic War* is installed, your faction's War Heat multiplies the weapon's damage on claiming it, capped at **10.0x**.
+- 🛠️ **New Subsystems:** The Forge can also synthesize the **Ascendant Swarm Nexus** (Production Capacity and fighter squadrons) and the **Ascendant Void-Drill** (Transporter Range, Loot Range, Generator Energy). The Void-Drill's power draw vents harmless plasma bursts every 60-120 seconds as VFX.
 
 ### 🏭 Resource Procurement & Factory Overdrive
-To fuel the Ascendancy Forge, you will need massive quantities of **Ascendant Matter**.
-- **Loot Source:** Ascendant Matter is a highly condensed energy resource found only within the dark reactors of Eclipse vessels. Destroying normal Eclipse ships has a chance to drop small quantities, while obliterating the World-Eater guarantees massive yields.
-- **Factory Overdrive:** As a late-game economic sink, players can approach any factory they own and interact with it to feed it **50 Ascendant Matter**. This activates "Ascendant Overdrive", **tripling (3.0x)** the station's production capacity for 1 real-time hour!
+The Forge runs on **Ascendant Matter**, found only in the dark reactors of Eclipse vessels. Normal Eclipse ships have a chance to drop small quantities; the World-Eater guarantees a large yield.
+- **Factory Overdrive:** Feed any factory you own 50 Ascendant Matter to activate "Ascendant Overdrive": a `3.0x` production capacity multiplier for 1 real-time hour.
 </details>
+
+---
 
 ## 🌌 The Dark Sector
-
-<details>
-<summary><b>Click to expand</b></summary>
-Once the Eclipse awakens, uncharted regular sectors across the entire galaxy have a chance to instantly spawn as horrifying, Dark Matter Fog-choked "Dark Sectors" when first discovered. The probability scales with your proximity to the core: 5-15% in the outer galaxy, 25% inside the Barrier (distance <= 150), and a massive 50% in the deep inner-core (distance <= 75). These sectors are permanently suffocated in an atmospheric hazard and heavily guarded by Eclipse Citadels surrounded by massive Dreadnought fleets. Dive in if you dare!
-
-## The World Eater (Endgame Raid Boss)
 <details>
 <summary><b>Click to expand</b></summary>
 
-At the absolute climax of the Eclipse threat, you will face the **World Eater**—a colossal, 6-kilometer long Pyramid dreadnought built entirely of Avorion.
+Once the Eclipse awakens, discovering an un-generated sector inside the Galactic Core has a chance to instantly spawn it as a horrifying, Dark Matter Fog-choked "Dark Sector." The chance scales with your proximity to the core:
+- **5-15%** in the outer galaxy
+- **25%** inside the mid-core (distance to center ≤ 150)
+- **50%** in the deep inner-core (distance to center ≤ 75)
 
-### Mechanics
-- **Invulnerability Tethers:** Upon reaching **50%** and **25%** Hull, the World Eater becomes completely invulnerable and spawns heavily shielded Tethers in orbit. These Tethers rapidly regenerate the boss's shields. You must destroy all Tethers to drop the invulnerability phase.
-- **Nemesis Protocol:** The World Eater dynamically analyzes incoming damage. Whichever damage type (Physical, Plasma, Antimatter, Electric) you rely on the most will trigger the Nemesis Protocol, granting the boss **90% absolute immunity** to that specific element. You must diversify your fleet's weaponry.
-- **World-Breaker Laser:** The boss is equipped with a devastating axial laser specifically designed to siege. It deals astronomical damage and will instantly vaporize any space station it targets.
-- **Dark Matter Aura (Enrage):** Upon dropping to **35% Hull**, the World Eater enters its Enrage phase, projecting a 15km sector-wide Dark Matter Aura that continuously drains Hull integrity from all hostile ships caught within it.
+These sectors are permanently suffocated in Dark Matter Fog and heavily guarded, with up to 3 Eclipse Citadels surrounded by Dreadnought fleets. Proceed only with a fleet ready for a real fight.
 </details>
 
+---
 
 ## 🗼 The Ascendancy Beacon
 <details>
@@ -204,26 +212,35 @@ At the absolute climax of the Eclipse threat, you will face the **World Eater**�
 Players can construct the ultimate megastructure to anchor their empire: the **Ascendancy Beacon**.
 
 ### ⚙️ Mechanics
-- 🌍 **Permanent Sector Simulation:** A sector containing an active Ascendancy Beacon is simulated 24/7, even if no players are online.
-- ✨ **Global Buffs:** The beacon applies a permanent, massive stat multiplier to all ships in the player's fleet across the entire galaxy.
-- 🔺 **Upgrades & Upkeep:** The beacon can be upgraded through 5 tiers, exponentially increasing the global stat buffs. However, higher tiers require massive, continuous upkeep costs of Credits, Avorion, and Ogonite.
-- 🛡️ **Sanctuary Field (Tier 3+):** Upgrade to Tier 3 or higher and your Beacon starts actively repelling Eclipse conquest and annihilation attempts within a radius of it: 5 sectors at Tier 3, up to 12 at Tier 5. It stays active for as long as the Beacon does, even while its sector is unloaded.
-- 💸 **Passive Real-Estate Income:** Beacons automatically tax all passing AI-controlled freighters. This passive income is dynamically scaled by the **War Heat** of the passing faction (factions actively at war will pay a `+50%` premium for safe passage through your heavily defended capital!).
-- 🏦 **Treasury Payouts:** To prevent endless notification spam, the Beacon safely stores all collected tolls in its internal treasury and pays out a single lump-sum to your faction every 45 minutes (synced with the Upkeep cycle).
-- 🏗️ **Construction:** Follows Avorion's standard station building mode. Players can select `Ascendancy Beacon` as an option if they have it unlocked and possess the required resources.
-
+- 🌍 **Permanent Sector Simulation:** A sector containing an active Ascendancy Beacon is simulated 24/7, even with no players online.
+- ✨ **Global Buffs:** The Beacon applies a permanent stat multiplier to every ship in your fleet, galaxy-wide.
+- 🔺 **Upgrades & Upkeep:** The Beacon upgrades through 5 tiers, each raising the global buffs, but higher tiers demand continuous upkeep in Credits, Avorion, and Ogonite.
+- 🛡️ **Sanctuary Field (Tier 3+):** Upgrade to Tier 3 or higher and your Beacon starts actively repelling Eclipse conquest and annihilation attempts within a radius of it: 5 sectors at Tier 3, 8 at Tier 4, up to 12 at Tier 5. It stays active for as long as the Beacon does, even while its sector is unloaded.
+- 💸 **Passive Real-Estate Income:** Beacons automatically tax passing AI-controlled freighters. The toll scales with the passing faction's War Heat; factions actively at war pay a `+50%` premium for safe passage through your capital.
+- 🏦 **Treasury Payouts:** To avoid notification spam, the Beacon stores all collected tolls internally and pays out a single lump sum to your faction every 45 minutes, synced with the upkeep cycle.
+- 🏗️ **Construction:** Follows Avorion's standard station-building mode. Select `Ascendancy Beacon` if you have it unlocked and the required resources.
 </details>
 
 ---
 
-### Defeating Nemeses
-When facing an Eclipse Dread-Lord, you must coordinate your firepower.
-- **Damage Gate:** Dread-Lords have an advanced Damage Gate that limits any single instance of damage to a maximum of **8%** of their total Hull or Shields, preventing them from being instantly one-shot by god-tier weapons.
-- **Adaptive Resistance:** Do not rely on a single weapon type! Dread-Lords engage "Nemesis Protocols," generating a flawless **90% elemental resistance shield** against specific damage types (Physical, Plasma, Antimatter, Electric). If an Eclipse Dread-Lord escapes, it will return highly resistant to whatever you just used against it!
-- **Hunt the Dread-Lord:** A retreating Nemesis isn't gone. It relocates to a nearby sector to recover, healed back to a meaningful fraction of its Hull, and materializes the moment any player enters that sector, ready for a rematch. Finish it off this time for a bounty. Check `/eclipsestatus` for its last known coordinates.
+## ⚔️ Defeating Nemeses
+<details>
+<summary><b>Click to expand</b></summary>
 
-### Automating Defense
-Build Ascendant Gateways in your core sectors to automatically summon allied defense fleets when you are offline.
+Facing an Eclipse Dread-Lord takes coordinated firepower, not brute force.
+- **Damage Gate:** Dread-Lords cap any single hit at **8%** of their total Hull or Shields, so they can't be one-shot by god-tier weapons.
+- **Adaptive Resistance:** Don't lean on one weapon type. Dread-Lords engage a Nemesis Protocol, building a 90% resistance to whichever damage type hurts them most. An escaped Dread-Lord comes back highly resistant to exactly what you hit it with.
+- **Hunt the Dread-Lord:** A retreating Nemesis isn't gone. It relocates to a nearby sector to recover, healed back to a meaningful fraction of its hull, and materializes the moment any player enters that sector for a rematch. Finish it off this time for a bounty. Check `/eclipsestatus` for its last known coordinates.
+</details>
+
+---
+
+## 🛡️ Automating Defense
+<details>
+<summary><b>Click to expand</b></summary>
+
+Build an **Ascendant Gateway** in your core sectors to automate their defense while you're away. Every 5 seconds, the Gateway scans the sector for hostile ships. When it finds one and its 2-hour cooldown has elapsed, it summons 3 "Ascendant Guardian" defenders, each carrying +200% Fire Rate and +300% Shield Durability, to hold the line until you get back.
+</details>
 
 ---
 
@@ -231,17 +248,16 @@ Build Ascendant Gateways in your core sectors to automatically summon allied def
 <details>
 <summary><b>Click to expand</b></summary>
 
-Cosmic Ascendancy provides global chat commands that **all players** (not just admins) can use to track the status of the Eclipse Crisis.
+Cosmic Ascendancy adds global chat commands that any player, not just admins, can use to track the Eclipse Crisis.
 
 ### `/eclipsestatus`
-Typing this into the chat window will query the server and privately output a full status report on the Eclipse Crisis:
-- **Citadel Suppression Field:** Shows how much time is left on the 6+ hour invasion suppression caused by destroying an Eclipse Citadel.
-- **World-Eater Grace Period:** Shows how much time remains on the 10-hour Doomsday pause after a World-Eater event.
-- **Eclipse Holdings & Expansion Threat:** Total sectors conquered or annihilated, and how close the Eclipse is (as a percentage) to their next expansion attempt.
-- **Fallen Empire Status:** Whether the Eclipse has become a Fallen Empire, and if so, the coordinates, target kind, and timing of their last Crusade.
+Typing this into chat queries the server and privately prints a full Eclipse Threat Dashboard:
+- **Eclipse Holdings & Expansion Threat:** Total sectors conquered or annihilated, and how close the Eclipse is (as a percentage) to its next expansion attempt.
+- **Fallen Empire Status:** Whether the Eclipse has become a Fallen Empire, and if so, the coordinates, target kind, and timing of its last Crusade.
 - **Nemesis Signature:** The last known coordinates of a currently-fleeing, wounded Eclipse Dread-Lord, if one exists.
 - **Remnant Escalation:** The current Remnant Tier and confirmed World-Eater/Citadel kill counts.
-
+- **Citadel Suppression Field:** Remaining time on the invasion suppression caused by destroying an Eclipse Citadel.
+- **World-Eater Grace Period:** Remaining time on the Doomsday pause after a World-Eater event.
 </details>
 
 ---
@@ -250,24 +266,16 @@ Typing this into the chat window will query the server and privately output a fu
 <details>
 <summary><b>Click to expand</b></summary>
 
+Cosmic Ascendancy needs only **Cosmic Vault** to run, but it recognizes the other Cosmic mods when they're installed and deepens the experience with them present.
+
 ### Cosmic Series Integration
-- 📦 **Eclipse Contraband (Overhaul):** Eclipse Tech is highly valued by smugglers, offering a **3x payout** at Smuggler's Markets.
-- 💀 **Corrupted Nodes (Chronicles):** Eclipse territories corrupt data caches, doubling their loot but spawning terrifying ambushes.
-- ⚔️ **Relentless Expansion (War):** Eclipse AI is now inherently Imperialist and Vengeful. They will expand rapidly and refuse all ceasefires.
+- 📦 **Eclipse Contraband (Overhaul):** Eclipse Tech pays out **3x** at Smuggler's Markets.
+- 💀 **Corrupted Nodes (Chronicles):** Eclipse territories corrupt data caches, doubling their loot but spawning ambushes.
+- ⚔️ **Relentless Expansion (War):** Eclipse AI is inherently Imperialist and Vengeful, expanding rapidly and refusing all ceasefires.
 - 🌪️ **Hazard Immunity (Vault):** Eclipse Dreadnoughts are immune to Cosmic Vault weather hazards like Solar Flares and Ion Storms.
-- 🗺️ **Dead Empire Filter (Vault):** The Eclipse Conquest Engine strictly filters out destroyed empires, preventing crusades from glitching.
-- ✨ **Post-Boss Anomalies (Vault):** Upon destroying the Eclipse World-Eater, the game natively spawns a massive, persistent **Precursor Wreck** anomaly for exploration and salvaging.
+- 🗺️ **Dead Empire Filter (Vault):** The Eclipse Conquest Engine filters out destroyed empires, preventing Crusades from targeting factions that no longer exist.
+- ✨ **Post-Boss Anomalies (Vault):** Destroying the Eclipse World-Eater spawns a persistent Precursor Wreck anomaly for exploration and salvaging.
 
 ### Rift DLC Interoperability
-- **Rift Spillage:** Eclipse Invasions now have a **10% chance** to destabilize local space, tearing a massive subspace rift that drains sector shields. You must destroy the **Eclipse Rift Stabilizer** to close the tear and end the hazard.
+- **Rift Spillage:** Eclipse Invasions have a 10% chance to destabilize local space, tearing a subspace rift that drains sector shields. Destroy the **Eclipse Rift Stabilizer** to close the tear and end the hazard.
 </details>
-
-
-### Ascendant Superweapons & Cybernetics
-The Ascendancy Forge allows you to craft absurdly powerful technologies at great cost.
-* **Ascendant World-Breaker:** A Titan-Class Coaxial weapon dealing 250,000 DPS. This requires a dedicated dreadnought frame due to locking the ship's rotation.
-* **Ascendant Neural Implant:** A ship subsystem that wires the captain directly into the vessel's core processors. It provides massive scaling buffs to jump reach, velocity, turrets, and fighter squadrons.
-
-### The Dark Sector
-* **Danger:** When discovering un-generated regular sectors, they may instantly corrupt into **Dark Sectors**. The spawn chance is 5-15% in the outer galaxy, 25% inside the Barrier, and 50% in the deep inner-core.
-* **Details:** These are extreme threat zones bathed in thick Dark Matter Fog, containing Eclipse Citadels and massive Juggernaut fleets. Proceed with extreme caution and only with a heavily armed fleet.
