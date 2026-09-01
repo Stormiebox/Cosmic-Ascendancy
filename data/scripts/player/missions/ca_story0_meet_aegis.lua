@@ -92,17 +92,28 @@ mission.phases[1].onSectorEntered = function(x, y)
                 ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
                 ship:addScriptOnce("entity/ca_envoy_despawn.lua")
                 ship:addScriptOnce("entity/story/ca_ascendant_envoy.lua")
+                aegisExists = true -- mark success so the debrief flag below reflects reality
             end
         end
-        
+
         player:sendChatMessage("Aegis, The Ascendant Envoy"%_T, 0, "Commander. Approach my projection and initiate contact."%_T)
-        
+
         -- Play OST just for this player
         player:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
         player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerGuardianFellMusic")
-        
-        player:setValue("ca_ready_for_debrief_intro", true)
-        
+
+        -- Only mark the player "ready for debrief" once an Aegis ship is actually confirmed to exist
+        -- in the sector (either it was already there, or we just created one) -- otherwise, if
+        -- createShip() ever returned nil (e.g. Galaxy():getNearestFaction(0, 0) returning nil, per its
+        -- own doc comment, for a hypothetical unclaimed core sector), the player would be told to
+        -- approach a projection that doesn't exist with no way to recover. Leaving the flag unset
+        -- means the next onSectorEntered (re-entering this sector) retries the spawn, since
+        -- aegisExists correctly still reads false.
+        if aegisExists then
+            player:setValue("ca_ready_for_debrief_intro", true)
+            mission.data.custom.debriefReady = true
+        end
+
         mission.data.description = "You have found Aegis. Approach the Ascendant AI Construct and initiate contact."
     end
 end
@@ -113,7 +124,11 @@ mission.phases[1].updateServer = function()
         local x, y = player:getSectorCoordinates()
         if x == mission.data.custom.targetX and y == mission.data.custom.targetY then
             -- If Aegis removed the flag, it means the player talked to her and got mission 1.
-            if player:getValue("ca_ready_for_debrief_intro") == nil then
+            -- Gated on debriefReady (only set once Aegis was actually confirmed present) so a
+            -- pending/failed spawn retry -- where the flag is nil because it was never set, not
+            -- because the player talked to her -- doesn't get misread as a completed debrief and
+            -- silently finish() the mission before the player ever got to interact with Aegis.
+            if mission.data.custom.debriefReady and player:getValue("ca_ready_for_debrief_intro") == nil then
                 finish()
             end
         end

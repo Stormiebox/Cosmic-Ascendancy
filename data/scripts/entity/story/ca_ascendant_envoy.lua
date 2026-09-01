@@ -16,6 +16,22 @@ data.hail = false
 data.closeableDialog = false
 data.globalInteractionKey = "ca_aegis_envoy"
 
+-- addScriptOnce swallows a failure inside the target script's own initialize() -- the engine logs
+-- "Error while adding file X: <error>" and moves on rather than propagating the error back into
+-- the caller (confirmed against a real crash log elsewhere in this project). Without verifying the
+-- next mission actually attached, every onAcceptX handler below would clear its debrief flag (and,
+-- for the story handlers, grant rewards) even if the mission grant silently failed, leaving the
+-- player stuck on the generic fallback dialog forever with no mission and no way to recover. See
+-- the Modding Codex's "🔄 Self-Healing Systems" section for the general pattern.
+local function missionScriptAttached(player, scriptName)
+    for _, path in pairs({player:getScripts()}) do
+        if type(path) == "string" and string.find(path, scriptName, 1, true) then
+            return true
+        end
+    end
+    return false
+end
+
 function CAAegisEnvoy.getDialog()
     return CAAegisEnvoy.makeDialog()
 end
@@ -110,8 +126,14 @@ function CAAegisEnvoy.onAcceptIntro()
     data.given["intro" .. callingPlayer] = true
 
     local player = Player(callingPlayer)
-    player:setValue("ca_ready_for_debrief_intro", nil)
     player:addScriptOnce("data/scripts/player/missions/ca_story1_awakening.lua")
+
+    if not missionScriptAttached(player, "ca_story1_awakening.lua") then
+        data.given["intro" .. callingPlayer] = nil -- allow retry via the manual "Talk" option
+        return
+    end
+
+    player:setValue("ca_ready_for_debrief_intro", nil)
     -- Removed warpAway() to allow other players in the sector to interact.
 end
 
@@ -138,9 +160,14 @@ function CAAegisEnvoy.onAcceptStory1()
     data.given["story1" .. callingPlayer] = true
 
     local player = Player(callingPlayer)
-    player:setValue("ca_ready_for_debrief_1", nil)
-
     player:addScriptOnce("data/scripts/player/missions/ca_story2_forge.lua")
+
+    if not missionScriptAttached(player, "ca_story2_forge.lua") then
+        data.given["story1" .. callingPlayer] = nil
+        return
+    end
+
+    player:setValue("ca_ready_for_debrief_1", nil)
 
     -- Rewards (2.5M, 2 Turrets, 1 System)
     player:receive("Ascendant Support Funding", 2500000)
@@ -176,9 +203,14 @@ function CAAegisEnvoy.onAcceptStory2()
     data.given["story2" .. callingPlayer] = true
 
     local player = Player(callingPlayer)
-    player:setValue("ca_ready_for_debrief_2", nil)
-
     player:addScriptOnce("data/scripts/player/missions/ca_story3_vanguard.lua")
+
+    if not missionScriptAttached(player, "ca_story3_vanguard.lua") then
+        data.given["story2" .. callingPlayer] = nil
+        return
+    end
+
+    player:setValue("ca_ready_for_debrief_2", nil)
 
     -- Rewards (5M, 2 Turrets, 2 Systems)
     player:receive("Ascendant Support Funding", 5000000)
@@ -214,9 +246,14 @@ function CAAegisEnvoy.onAcceptStory3()
     data.given["story3" .. callingPlayer] = true
 
     local player = Player(callingPlayer)
-    player:setValue("ca_ready_for_debrief_3", nil)
-
     player:addScriptOnce("data/scripts/player/missions/ca_story4_citadel.lua")
+
+    if not missionScriptAttached(player, "ca_story4_citadel.lua") then
+        data.given["story3" .. callingPlayer] = nil
+        return
+    end
+
+    player:setValue("ca_ready_for_debrief_3", nil)
 
     -- Rewards (7.5M, 2 Turrets, 1 System)
     player:receive("Ascendant Support Funding", 7500000)
@@ -252,9 +289,14 @@ function CAAegisEnvoy.onAcceptStory4()
     data.given["story4" .. callingPlayer] = true
 
     local player = Player(callingPlayer)
-    player:setValue("ca_ready_for_debrief_4", nil)
-
     player:addScriptOnce("data/scripts/player/missions/ca_story5_worldeater.lua")
+
+    if not missionScriptAttached(player, "ca_story5_worldeater.lua") then
+        data.given["story4" .. callingPlayer] = nil
+        return
+    end
+
+    player:setValue("ca_ready_for_debrief_4", nil)
 
     -- Rewards (10M, 3 Turrets, 2 Systems)
     player:receive("Ascendant Support Funding", 10000000)

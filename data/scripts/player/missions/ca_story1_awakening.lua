@@ -81,9 +81,7 @@ mission.phases[3] = {}
 mission.phases[3].onBeginServer = function()
     mission.data.description = "An Eclipse Vanguard ambush! Survive the attack."
     -- Spawn Eclipse enemies
-    local generator = include("shipgenerator")
     local EclipseGenerator = include("eclipsegenerator")
-    local faction = EclipseGenerator.getFaction()
 
     local existing = {Sector():getEntitiesByScriptValue("ca_eclipse_ambush")}
     if #existing == 0 then
@@ -146,11 +144,18 @@ mission.phases[4].onSectorEntered = function(x, y)
                 ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
                 ship:addScriptOnce("entity/ca_envoy_despawn.lua")
                 ship:addScriptOnce("entity/story/ca_ascendant_envoy.lua")
-                
+
                 Player():sendChatMessage(ship.name, 0, "Commander. Approach my projection and initiate contact."%_T)
+                aegisExists = true -- mark success so the debrief flag below reflects reality
             end
         end
-        Player():setValue("ca_ready_for_debrief_1", true)
+        -- Only mark the player "ready for debrief" once Aegis is actually confirmed present (see
+        -- ca_story0_meet_aegis.lua for the full rationale) -- otherwise a failed createShip() would
+        -- tell the player to approach a ship that doesn't exist, with no way to recover.
+        if aegisExists then
+            Player():setValue("ca_ready_for_debrief_1", true)
+            mission.data.custom.debriefReady = true
+        end
     end
 end
 
@@ -159,7 +164,9 @@ mission.phases[4].updateServer = function()
     if mission.data.custom.aegisX and mission.data.custom.aegisY then
         local x, y = player:getSectorCoordinates()
         if x == mission.data.custom.aegisX and y == mission.data.custom.aegisY then
-            if player:getValue("ca_ready_for_debrief_1") == nil then
+            -- Gated on debriefReady (only set once Aegis was actually confirmed present) so a
+            -- pending/failed spawn retry doesn't get misread as a completed debrief.
+            if mission.data.custom.debriefReady and player:getValue("ca_ready_for_debrief_1") == nil then
                 finish()
             end
         end

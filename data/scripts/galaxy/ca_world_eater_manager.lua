@@ -1,5 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include("stringutility")
+include("callable")
 local cv_news = include("cosmicvaultnews")
 
 -- namespace WorldEaterManager
