@@ -3,6 +3,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 include("utility")
 include("stringutility")
 include("faction")
+include("goods")
 local PlanGenerator = include("plangenerator")
 local ShipGenerator = include("shipgenerator")
 local TurretGenerator = include("turretgenerator")
@@ -330,10 +331,10 @@ function AscendancyForge.startForging(itemIndices)
 
     -- Consume Costs
     owner:pay(creditCost, ores[1], ores[2], ores[3], ores[4], ores[5], ores[6], ores[7])
-    craft:removeCargo(Good(matName), matCost)
+    craft:removeCargo(goods[matName], matCost)
 
     if scrapToConsume > 0 then
-        craft:removeCargo(Good("Ascendant Scrap"), scrapToConsume)
+        craft:removeCargo(goods["Ascendant Scrap"], scrapToConsume)
     end
 
     if itemIndices then
@@ -356,7 +357,7 @@ function AscendancyForge.startForging(itemIndices)
         owner:sendChatMessage("Stellar Forge"%_t, 1, "The Forge failed to stabilize the Ascendant Matter! Your materials were consumed."%_t)
         -- Give Ascendant Scrap
         if cv_goods.registerGood then
-            craft:addCargo(Good("Ascendant Scrap"), random():getInt(10, 50))
+            craft:addCargo(goods["Ascendant Scrap"], random():getInt(10, 50))
             owner:sendChatMessage("Stellar Forge"%_t, 2, "You salvaged some Ascendant Scrap from the failure.")
         end
     end
@@ -504,7 +505,7 @@ function AscendancyForge.decryptDatacore()
         return
     end
 
-    craft:removeCargo(Good("Eclipse Datacore"), 1)
+    craft:removeCargo(goods["Eclipse Datacore"], 1)
 
     if cv_buffs.setGlobalTier then
         local currentTier = cv_buffs.getGlobalTier(owner.index)

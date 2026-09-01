@@ -56,7 +56,13 @@ function EclipseAwakes.updateServer(timeStep)
     for _, player in pairs({server:getOnlinePlayers()}) do
         if (player:getValue("wormhole_guardian_destroyed") or guardianConfirmedDead) and not player:getValue("ca_envoy_spawned") then
             player:setValue("ca_envoy_spawned", true)
-            
+
+            -- Early narrative beat: ca_spawn_envoy.lua's own 10-second timer is what actually
+            -- delivers Aegis's mail (see that file's `if timer >= 10 then`), so this is deliberately
+            -- worded as an imminent signal rather than a multi-minute wait -- keep this in sync if
+            -- that timer value ever changes.
+            player:sendChatMessage("Ship Sensors"%_T, 3, "Unusual subspace activity detected... something is trying to reach us. Standby, contact in roughly 10 seconds. Did we just wake something we shouldn't have?"%_T)
+
             -- Add the player script that will wait 10 seconds and spawn Aegis
             player:addScriptOnce("data/scripts/player/ca_spawn_envoy.lua")
 

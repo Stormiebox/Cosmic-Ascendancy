@@ -1,6 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local cv_news = include("cosmicvaultnews")
+include("goods")
 
 function initialize()
     if onServer() then
@@ -61,12 +62,12 @@ function onDestroyed()
 
     -- Ascendant Matter massive drop
     local matterAmount = random():getInt(100, 250)
-    sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, matterAmount)
+    sector:dropCargo(pos, nil, nil, goods["Ascendant Matter"], 0, matterAmount)
     
     -- Eclipse Datacore drop
     local coreAmount = random():getInt(3, 5)
     for i = 1, coreAmount do
-        sector:dropCargo(pos, nil, nil, Good("Eclipse Datacore"), 0, 1)
+        sector:dropCargo(pos, nil, nil, goods["Eclipse Datacore"], 0, 1)
     end
     
     -- Legendary Weapons and Upgrades

@@ -1,5 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
+include("goods")
+
 function initialize()
     Entity():registerCallback("onDestroyed", "onDestroyed")
 end
@@ -13,5 +15,5 @@ function onDestroyed()
     if entity:getValue("is_worldeater_tether") then return end
     
     -- Juggernauts always drop 1 Datacore
-    sector:dropCargo(entity.translationf, nil, nil, Good("Eclipse Datacore"), 0, 1)
+    sector:dropCargo(entity.translationf, nil, nil, goods["Eclipse Datacore"], 0, 1)
 end

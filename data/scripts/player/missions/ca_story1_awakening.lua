@@ -70,7 +70,9 @@ mission.phases[2].updateServer = function(timeStep)
 
     if distance(craft.translationf, wreck.translationf) < 500 then
         Player():sendChatMessage("Aegis", 0, "The anomaly is a subspace beacon. It's activating... Commander, prepare yourself. A Vanguard fleet has locked onto your position.")
-        wreck:addScriptOnce("entity/delete.lua") -- Delete the wreck
+        -- "entity/delete.lua" does not exist anywhere in vanilla; deletejumped.lua is vanilla's real
+        -- entity-removal script (see delayeddelete.lua's own Entity():addScript("deletejumped.lua", ...)).
+        wreck:addScriptOnce("data/scripts/entity/deletejumped.lua") -- Delete the wreck
         nextPhase()
     end
 end
@@ -136,7 +138,7 @@ mission.phases[4].onSectorEntered = function(x, y)
             if ship then
                 ship.name = "Aegis, The Ascendant Envoy"%_T
                 ship.title = "Ascendant AI Construct"%_T
-                ship:setInvincible(true)
+                ship.invincible = true
                 ship.dockable = false
                 ship.crew = ship.minCrew
                 

@@ -161,8 +161,20 @@ function EclipseGenerator.addTurrets(ship, numTurrets)
             turret = generator:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))
         end
 
-        -- Force maximum stats on top of generation: Eclipse weapons are elite
-        turret.tech = 52
+        -- Force maximum stats on top of generation: Eclipse weapons are elite.
+        -- NOTE: TurretTemplate has no writable "tech" property (see Avorion Stubs/TurretTemplate.lua --
+        -- only the read-only averageTech/maxTech exist). Tech level is baked in at generation time by
+        -- generateArmed()'s (cx, cy) distance-from-center argument above, not settable after the fact.
+        -- The line that used to sit here ("turret.tech = 52") crashed addTurrets() on every single call.
+        -- Because Lua errors propagate up through the whole call chain, this didn't just skip the rest
+        -- of createShip() -- it aborted whatever called createShip()/createInterceptor() too. In
+        -- ca_story1_awakening.lua's Phase 3 (the ambush), that call sits inside a `for i = 1, 3 do`
+        -- loop in onBeginServer(), before the line that sets mission.data.custom.bossSpawned = true;
+        -- the crash meant that flag was never set, and Phase 3's updateServer() bails out immediately
+        -- whenever it's unset -- so the mission got permanently stuck with no ambush ships and no way
+        -- to progress. Removed; the elite feel is still delivered by the Legendary rarity roll and the
+        -- flat weapon-stat bonuses below.
+        -- Stormbox: This comment will retain here for future reference.
         turret.turningSpeed = math.max(turret.turningSpeed, 3.0)
 
         local weapons = {turret:getWeapons()}

@@ -1,6 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 include ("utility")
+include("goods")
 
 -- namespace StationOverdrive
 StationOverdrive = {}
@@ -62,7 +63,7 @@ function StationOverdrive.activateOverdrive()
     end
 
     -- Consume Matter
-    craft:removeCargo(Good("Ascendant Matter"), matterCost)
+    craft:removeCargo(goods["Ascendant Matter"], matterCost)
 
     -- Activate Overdrive
     isOverdriven = true

@@ -84,7 +84,7 @@ mission.phases[1].onSectorEntered = function(x, y)
             if ship then
                 ship.name = "Aegis, The Ascendant Envoy"%_T
                 ship.title = "Ascendant AI Construct"%_T
-                ship:setInvincible(true)
+                ship.invincible = true
                 ship.dockable = false
                 ship.crew = ship.minCrew
                 

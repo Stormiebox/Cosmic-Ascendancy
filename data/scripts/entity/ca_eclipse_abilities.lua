@@ -1,5 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
+include("goods")
+
 -- namespace EclipseAbilities
 EclipseAbilities = {}
 
@@ -270,10 +272,8 @@ function EclipseAbilities.triggerBlink()
     if now - EclipseAbilities.lastBlink < 45.0 then return end
     EclipseAbilities.lastBlink = now
 
-    local sector = Sector()
-
     -- Void Rift VFX
-    sector:createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
+    broadcastInvokeClientFunction("playVoidRiftVFX", entity, 0.5, 0.0, 1.0, 0.5)
 
     local random = random()
     local dir = normalize(vec3(random:getFloat() - 0.5, random:getFloat() - 0.5, random:getFloat() - 0.5))
@@ -282,8 +282,19 @@ function EclipseAbilities.triggerBlink()
     entity.position = MatrixLookUpPosition(entity.look, entity.up, entity.translationf + dir * dist)
 
     -- Reappear VFX
-    sector:createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
+    broadcastInvokeClientFunction("playVoidRiftVFX", entity, 0.5, 0.0, 1.0, 0.5)
 end
+
+-- Sector:createHyperspaceJumpAnimation is a CLIENT-ONLY function (see Sector [Client].html in the
+-- API docs -- it is absent from the server-side Sector object despite appearing in the merged
+-- Avorion Stubs/Sector.lua). onShieldDamaged/triggerBlink/triggerPhaseShift all run on the server,
+-- so the VFX call must be relayed to clients via RPC instead of called directly.
+function EclipseAbilities.playVoidRiftVFX(entity, r, g, b, intensity)
+    if onClient() then
+        Sector():createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(r, g, b), intensity)
+    end
+end
+callable(EclipseAbilities, "playVoidRiftVFX")
 
 function EclipseAbilities.triggerPhaseShift()
     local entity = Entity()
@@ -296,7 +307,7 @@ function EclipseAbilities.triggerPhaseShift()
     EclipseAbilities.phaseEndTime = now + 4.0
 
     entity.invincible = true
-    Sector():createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.1, 0.1, 0.1), 1.0)
+    broadcastInvokeClientFunction("playVoidRiftVFX", entity, 0.1, 0.1, 0.1, 1.0)
     
     -- Regenerate 25% of max shields when phasing
     local maxShield = entity.shieldMaxDurability or 0
@@ -319,7 +330,7 @@ function EclipseAbilities.onDestroyed()
     -- 25% chance to drop 1-3 Ascendant Matter on death
     -- Use sector:dropLoot with a CargoLoot wrapper object instead.
     if random():getFloat() < 0.25 then
-        sector:dropCargo(pos, nil, nil, Good("Ascendant Matter"), 0, random():getInt(1, 3))
+        sector:dropCargo(pos, nil, nil, goods["Ascendant Matter"], 0, random():getInt(1, 3))
     end
 
     -- Singularity ships trigger a 3-second delayed explosion on death
