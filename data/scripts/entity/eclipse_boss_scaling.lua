@@ -18,7 +18,15 @@ function initialize()
             local isWorldEater = string.match(Entity().translatedTitle or Entity().title or "", "World%-Eater")
             
             if not isWorldEater then
-                CosmicVaultBuffs.applyPermanentFactor(Entity().id, StatsBonuses.ShieldDurability, shieldFactor)
+                -- applyPermanentFactor wraps entity:addMultiplyableBias, which the engine
+                -- documents as a FLAT bias added before multipliers ("Adds a bias... added to
+                -- stat before multipliers are considered") -- not a percentage. Passing 25.0+
+                -- there added a negligible +25 raw shield HP instead of the intended ~26x-42x
+                -- scaling. addPermanentBaseMultiplier wraps entity:addBaseMultiplier instead,
+                -- whose engine semantics are "a factor of 0.3 becomes 1.3" -- a real percentage
+                -- multiplier, matching Cosmic War's own boss-shield-scaling precedent
+                -- (addBaseMultiplier(ShieldDurability, 9.0) for a Refugee Convoy's 10x shields).
+                CosmicVaultBuffs.addPermanentBaseMultiplier(Entity().id, StatsBonuses.ShieldDurability, shieldFactor)
             end
         end
         

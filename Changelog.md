@@ -7,6 +7,14 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.7.1] - Emergency Hotfix
+
+### 🪲 Bug Fixes
+- [Bugfix] **Eclipse Endgame Bosses' Shield Scaling Landed as a Flat +25 HP Instead of ~26x-42x (eclipse_boss_scaling.lua):** The boss shield multiplier went through `CosmicVaultBuffs.applyPermanentFactor`, which wraps `entity:addMultiplyableBias` — a flat bias added *before* multipliers are considered, not a percentage (confirmed against the engine's own `Avorion Stubs/Entity.lua` doc comment, and against this workspace's `Avorion_Modding_Codex.md`, which is corrected in the same pass — see below). Passing `shieldFactor` (25.0 or higher) there added a negligible flat shield HP bonus instead of the intended massive multiplier, leaving Eclipse bosses far squishier than the mod's own stated design ("strictly stronger than War Dreadnoughts which get 10x shields"). Switched to `CosmicVaultBuffs.addPermanentBaseMultiplier`, which wraps the correct `entity:addBaseMultiplier`, matching Cosmic War's own established boss-shield-scaling precedent.
+
+### 📖 Codex
+- [Correction] **`Avorion_Modding_Codex.md` Recommended the Wrong Primitive for a Percentage Buff, in Three Places:** The Codex's "Shields: never touch `shieldMaxDurability` directly" entry, its `entity.damageMultiplier` entry's code example, and its Quick-Reference table all recommended `entity:addMultiplyableBias` for what they explicitly labeled a percentage buff or DPS lever — directly contradicting the Codex's own correct "Common trap" callout a few lines above the first of these. This is very likely why the bug above existed in the first place. All three corrected, and a new entry added on `entity:removeScriptBonuses()`'s actual (non-self-scoped) behavior, confirmed independently across three live bugs fixed in this same patch (see Cosmic Vault and Cosmic Starfall's changelogs).
+
 ## [v1.7.0]
 
 The Eclipse: Crisis Horror Expansion. This release combines a full, file-by-file audit and
