@@ -12,6 +12,17 @@ function updateServer(timeStep)
     applyDynamicBuffs()
 end
 
+-- Keys returned by addMultiplyableBias/addBaseMultiplier below, so removeDynamicBuffs() can strip
+-- exactly these two bonuses via removeBonus(key) instead of entity:removeScriptBonuses(), which
+-- clears EVERY script-added bonus on the entity -- including unrelated ones another Cosmic mod may
+-- have applied to the same ship (e.g. Cosmic Overhaul's captainelitetraits.lua "CommodoreShield"/
+-- "CommodoreFireRate" buffs, or Cosmic Starfall's bastionSystem.lua buffs), which the previous
+-- blanket call would silently wipe every 15s while this system is installed. Not persisted via
+-- secure()/restore() -- these locals start nil on every fresh script load, which is exactly what a
+-- volatile bonus key needs (see Avorion_Modding_Codex.md's warning on persisting bonus keys).
+local shieldBiasKey = nil
+local rechargeBiasKey = nil
+
 function applyDynamicBuffs()
     removeDynamicBuffs()
 
@@ -23,14 +34,22 @@ function applyDynamicBuffs()
         finalMultiplier = cv_buffs.getDynamicRelicMultiplier(entity.id)
     end
 
-    entity:addMultiplyableBias(StatsBonuses.ShieldDurability, 5.0 * finalMultiplier)
-    entity:addBaseMultiplier(StatsBonuses.ShieldRecharge, 3.0 * finalMultiplier)
+    -- Both are genuine percentage bonuses (+500%/+300%) -- addBaseMultiplier is the correct
+    -- primitive for both (see eclipsegenerator.lua's applyDamageMultiplier for the full writeup of
+    -- why addMultiplyableBias is the wrong one here, and Changelog.md's "DPS Scaling Desync"
+    -- entries for this exact bug pattern already fixed elsewhere in the mod). This function had the
+    -- same bug on its ShieldDurability call while its own ShieldRecharge call right below it was
+    -- already correct -- an inconsistency within the same function that's a strong tell this was a
+    -- copy-paste-before-the-fix-was-known artifact rather than an intentional difference.
+    shieldBiasKey = entity:addBaseMultiplier(StatsBonuses.ShieldDurability, 5.0 * finalMultiplier)
+    rechargeBiasKey = entity:addBaseMultiplier(StatsBonuses.ShieldRecharge, 3.0 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
-    entity:removeScriptBonuses()
+    if shieldBiasKey then entity:removeBonus(shieldBiasKey); shieldBiasKey = nil end
+    if rechargeBiasKey then entity:removeBonus(rechargeBiasKey); rechargeBiasKey = nil end
 end
 
 function onInstalled(seed, rarity, permanent)

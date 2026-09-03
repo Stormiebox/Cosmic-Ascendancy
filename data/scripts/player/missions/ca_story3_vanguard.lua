@@ -34,17 +34,25 @@ mission.phases[1].onBeginServer = function()
         local dir = normalize(vec3(random():getFloat(-1, 1), random():getFloat(-1, 1), random():getFloat(-1, 1)))
         local pos = dir * 1500
         local boss = EclipseGenerator.createJuggernaut(MatrixLookUpPosition(-dir, vec3(0,1,0), pos))
-        
-        boss:setValue("ca_eclipse_boss", true)
-        
+
+        -- Sector():createShip() (which EclipseGenerator.createJuggernaut/createInterceptor wrap) can
+        -- return nil; indexing it unguarded would throw here and skip the mission.data.custom.bossSpawned
+        -- = true line below, permanently soft-locking this phase's updateServer guard. Mirrors the
+        -- existing if-ship-then pattern already used for the Aegis rendezvous spawn later in this file.
+        if boss then
+            boss:setValue("ca_eclipse_boss", true)
+        end
+
         -- Add 4 Interceptors as escorts
         for i = 1, 4 do
             local escortPos = MatrixLookUpPosition(-dir, vec3(0,1,0), pos + vec3(random():getFloat(-200, 200), random():getFloat(-200, 200), random():getFloat(-200, 200)))
             local escort = EclipseGenerator.createInterceptor(escortPos)
-            escort:setValue("ca_eclipse_ambush", true)
+            if escort then
+                escort:setValue("ca_eclipse_ambush", true)
+            end
         end
-        
-        Player():sendChatMessage("The Eclipse", 2, "Your primitive, chaotic constructs are an insult to absolute order. The Ascendants' Forge belongs to us. Relinquish it, and your sanitation will be swift.")
+
+        Player():sendChatMessage("The Eclipse"%_T, 2, "Your primitive, chaotic constructs are an insult to absolute order. The Ascendants' Forge belongs to us. Relinquish it, and your sanitation will be swift."%_T)
     end
     mission.data.custom.bossSpawned = true
 end
@@ -56,17 +64,17 @@ mission.phases[1].updateServer = function()
     
     local boss = {Sector():getEntitiesByScriptValue("ca_eclipse_boss")}
     if #boss == 0 then
-        Player():sendChatMessage("Ship Computer", 0, "The Juggernaut is destroyed! Its core is destabilizing... wait, it's beaming a data packet to the rest of their fleet!")
-        Player():sendChatMessage("The Eclipse", 2, "Vanguard lost. Biological chaotic resistance exceeds parameters... Threat level updated. Full galactic sanitation authorized.")
+        Player():sendChatMessage("Ship Computer"%_T, 0, "The Juggernaut is destroyed! Its core is destabilizing... wait, it's beaming a data packet to the rest of their fleet!"%_T)
+        Player():sendChatMessage("The Eclipse"%_T, 2, "Vanguard lost. Biological chaotic resistance exceeds parameters... Threat level updated. Full galactic sanitation authorized."%_T)
         
         Player():setValue("ca_campaign_completed", nil) -- We no longer end the campaign here
         
         -- Give Reward
         local system = SystemUpgradeTemplate("data/scripts/systems/ascendanteclipsebane.lua", Rarity(5), Seed(123))
         Player():getInventory():add(system)
-        Player():sendChatMessage("Reward", 2, "Recovered 'The Eclipse Bane' artifact from the wreckage!")
-        
-        Player():sendChatMessage("Aegis", 0, "The Vanguard is destroyed, but their transmission went through. We must prepare for what comes next. Meet me at these coordinates.")
+        Player():sendChatMessage("Reward"%_T, 2, "Recovered 'The Eclipse Bane' artifact from the wreckage!"%_T)
+
+        Player():sendChatMessage("Aegis"%_T, 0, "The Vanguard is destroyed, but their transmission went through. We must prepare for what comes next. Meet me at these coordinates."%_T)
         
         local rx, ry = getTargetSector(x, y)
         mission.data.custom.aegisX = rx
@@ -91,7 +99,8 @@ mission.phases[2].onSectorEntered = function(x, y)
         if not aegisExists then
             local faction = Galaxy():getNearestFaction(0, 0)
             local plan = LoadPlanFromFile("data/plans/ascendant/ca_aegis.xml")
-            if not plan then
+            -- valid(), not a plain nil check -- see eclipsegenerator.lua's createShip for the writeup.
+            if not valid(plan) then
                 plan = BlockPlan()
                 plan:addBlock(vec3(0,0,0), vec3(2,2,2), BlockDefaults.GetHullBlockIndex(), -1, ColorRGB(1,1,1), Material(0), Matrix(), BlockType.Hull)
             end
@@ -106,8 +115,8 @@ mission.phases[2].onSectorEntered = function(x, y)
                 
                 local ShipUtility = include("shiputility")
                 ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
-                ship:addScriptOnce("entity/ca_envoy_despawn.lua")
-                ship:addScriptOnce("entity/story/ca_ascendant_envoy.lua")
+                ship:addScriptOnce("data/scripts/entity/ca_envoy_despawn.lua")
+                ship:addScriptOnce("data/scripts/entity/story/ca_ascendant_envoy.lua")
 
                 Player():sendChatMessage(ship.name, 0, "Commander. Approach my projection and initiate contact."%_T)
                 aegisExists = true -- mark success so the debrief flag below reflects reality
@@ -141,11 +150,23 @@ function getTargetSector(x, y)
     local MissionUT = include("missionutility")
     local insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
     local targetX, targetY = MissionUT.getEmptySector(x, y, 5, 30, insideBarrier)
-    
-    if not targetX or not targetY then 
+
+    if not targetX or not targetY then
         local random = Random()
-        return x + random:getInt(-30, 30), y + random:getInt(-30, 30)
+        -- Guarantee a genuine sector change: a (0,0) offset would return the player's CURRENT
+        -- sector as the "target". structuredmission's onSectorEntered only fires on an actual
+        -- sector-crossing event (Mission_onSectorEntered, registered against the player's
+        -- onSectorEntered engine callback) -- it is never invoked just because a phase begins
+        -- while the player already happens to be standing in the target sector. Without this,
+        -- a same-sector roll would permanently soft-lock this phase: the player can never
+        -- "arrive" at a sector they never left.
+        local offsetX, offsetY
+        repeat
+            offsetX = random:getInt(-30, 30)
+            offsetY = random:getInt(-30, 30)
+        until offsetX ~= 0 or offsetY ~= 0
+        return x + offsetX, y + offsetY
     end
-    
+
     return targetX, targetY
 end

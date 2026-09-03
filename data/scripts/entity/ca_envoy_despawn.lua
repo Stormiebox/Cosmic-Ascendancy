@@ -19,7 +19,7 @@ function checkDespawn()
         -- No players left in the sector. Clean up Aegis to prevent clutter.
         local entity = Entity()
         if entity then
-            entity:addScriptOnce("entity/utility/delayeddelete.lua", 1.0)
+            entity:addScriptOnce("data/scripts/entity/utility/delayeddelete.lua", 1.0)
         end
     end
 end

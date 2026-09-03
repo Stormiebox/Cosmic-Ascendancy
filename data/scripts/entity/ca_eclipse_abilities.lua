@@ -77,6 +77,21 @@ function EclipseAbilities.updateServer(timeStep)
 
         local function siphonTarget(target)
             if target and target.factionIndex ~= entity.factionIndex then
+                -- Ascendant Ward: a directly player-owned ship (target.factionIndex is that
+                -- player's own index) whose owner currently has an active Ward is skipped
+                -- entirely. Alliance-owned craft aren't covered -- there's no single owning
+                -- player to check a personal Ward against, and the item is framed as a personal
+                -- tool, not a fleet-wide one.
+                if target.playerOwned then
+                    local owner = Player(target.factionIndex)
+                    if owner then
+                        local wardUntil = owner:getValue("eclipse_ward_until")
+                        if wardUntil and Server().unpausedRuntime < wardUntil then
+                            return
+                        end
+                    end
+                end
+
                 local dist = distance(entity.translationf, target.translationf)
                 if dist <= 1000.0 then -- 10km aura radius
                     local pShieldMax = target.shieldMaxDurability or 0
@@ -322,10 +337,54 @@ function EclipseAbilities.triggerPhaseShift()
     end
 end
 
+-- hasPhased is a genuine once-per-ship-lifetime flag (see triggerPhaseShift) -- without persisting
+-- it, an Ethereal (Phantom/Interceptor) ship that survives a sector unload/reload mid-fight would
+-- forget it already used its one Phase Shift and could trigger it again. The other tracked fields
+-- (lastBlink, isPhasing, burstDamageTracker, elementalTracker, etc.) are all short combat-window
+-- timers measured in seconds -- safe to reset to their fresh-start defaults on reload, matching how
+-- this codebase treats other purely transient per-tick trackers.
+function EclipseAbilities.secure()
+    return {
+        hasPhased = EclipseAbilities.hasPhased
+    }
+end
+
+function EclipseAbilities.restore(data)
+    if data then
+        EclipseAbilities.hasPhased = data.hasPhased or false
+    end
+
+    -- Ethereal Phase Shift (triggerPhaseShift, only ever set true for isEthereal ships) is a
+    -- 4-second combat window that can never legitimately still be active by the time a sector
+    -- reloads. isPhasing/phaseEndTime are intentionally NOT persisted above (always safe to reset),
+    -- but entity.invincible IS a real, DB-persisted entity property -- if the sector happened to
+    -- unload during that exact 4-second window, the entity would reload with invincible still true
+    -- and no script-side isPhasing flag left to ever clear it again, leaving the ship permanently
+    -- unkillable. Only touches Ethereal ships -- other classes (e.g. the World-Eater in
+    -- ca_worldeater_behavior.lua) manage their own entity.invincible independently and must not be
+    -- overridden here. initialize() always runs before restore(), so isEthereal is already set.
+    if EclipseAbilities.isEthereal then
+        local entity = Entity()
+        if entity then entity.invincible = false end
+    end
+end
+
 function EclipseAbilities.onDestroyed()
     local entity = Entity()
     local sector = Sector()
     local pos = entity.translationf
+
+    -- Eclipse Remembers: credit every player physically present in the sector at the moment of
+    -- death, mirroring the same "who's here right now" attribution ca_world_eater_manager.lua's
+    -- cancelEvent() already uses for reward payouts -- avoids needing precise per-shot damage
+    -- attribution just to answer "did this player help kill an Eclipse ship." Weighted by class:
+    -- Siphon/Singularity-tier ships (Carriers, Juggernauts, Harbingers, World-Eaters -- the mod's
+    -- own "bigger" designation, see initialize()'s isSiphon/isSingularity classification) are
+    -- worth more toward a player's score than a rank-and-file hull.
+    local scoreValue = (EclipseAbilities.isSiphon or EclipseAbilities.isSingularity) and 3 or 1
+    for _, player in pairs({sector:getPlayers()}) do
+        player:setValue("eclipse_kill_score", (player:getValue("eclipse_kill_score") or 0) + scoreValue)
+    end
 
     -- 25% chance to drop 1-3 Ascendant Matter on death
     -- Use sector:dropLoot with a CargoLoot wrapper object instead.

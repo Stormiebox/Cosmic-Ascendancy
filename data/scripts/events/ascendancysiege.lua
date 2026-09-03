@@ -72,6 +72,13 @@ function AscendancySiege.spawnFleet()
         faction = Faction(attackerFaction)
     end
 
+    -- Collect the ship objects actually spawned this call, so resolveIntersections() below only
+    -- untangles overlap among THIS fleet -- calling it with no argument at all (as this file
+    -- previously did) makes it default to every BoundingSphere entity in the sector, which is both
+    -- a needless sector-wide TPS hit and can shove around unrelated entities (the player's own
+    -- ship, the Beacon capital itself) that happen to be near the fleet's spawn point.
+    local spawnedShips = {}
+
     -- Spawn Bosses (Battleships/Dreadnoughts) — tier 3+ only
     for i = 1, numBosses do
         local shipPos = MatrixLookUpPosition(-dir, up, pos + right * getFloat(-500, 500) + up * getFloat(-500, 500))
@@ -89,6 +96,7 @@ function AscendancySiege.spawnFleet()
             ship:addScriptOnce("ai/patrol.lua")
             ship:setValue("is_ascendancy_siege", true)
             table.insert(attackers, ship.id.string)
+            table.insert(spawnedShips, ship)
             if cv_fleet.orderAttackEnemies then
                 cv_fleet.orderAttackEnemies(ship.index, true)
             end
@@ -111,13 +119,14 @@ function AscendancySiege.spawnFleet()
             ship:addScriptOnce("ai/patrol.lua")
             ship:setValue("is_ascendancy_siege", true)
             table.insert(attackers, ship.id.string)
+            table.insert(spawnedShips, ship)
             if cv_fleet.orderAttackEnemies then
                 cv_fleet.orderAttackEnemies(ship.index, true)
             end
         end
     end
 
-    Placer.resolveIntersections()
+    Placer.resolveIntersections(spawnedShips)
 end
 
 function AscendancySiege.broadcastWarning()

@@ -1,7 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
-local ShipGenerator = include("shipgenerator")
 local PlanGenerator = include("plangenerator")
 
 function getUpdateInterval() return 5.0 end
@@ -44,7 +43,12 @@ function updateServer(timeStep)
             
             -- Summon allied fleet
             for i = 1, 3 do
-                local plan = PlanGenerator.makeShipPlan(playerFaction, Balancing_GetSectorShipVolume(x, y) * 2, Material(MaterialType.Ogonite))
+                -- makeShipPlan(faction, volume, styleName, material) -- styleName (3rd) must be a
+                -- string/nil, material (4th) is the Material object; passing the Material into the
+                -- styleName slot fed a userdata into Seed()/getPlanStyle() and silently dropped the
+                -- intended Ogonite material (makeAsyncShipPlan falls back to selectMaterial() when
+                -- material is nil).
+                local plan = PlanGenerator.makeShipPlan(playerFaction, Balancing_GetSectorShipVolume(x, y) * 2, nil, Material(MaterialType.Ogonite))
                 local m = Matrix()
                 local angle = (math.pi * 2 / 3) * i
                 m.translation = gatewayPos + vec3(math.cos(angle), 0, math.sin(angle)) * 800

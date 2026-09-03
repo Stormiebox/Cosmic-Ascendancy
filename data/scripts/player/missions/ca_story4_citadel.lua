@@ -30,7 +30,7 @@ end
 
 mission.phases[1].onSectorEntered = function(x, y)
     if x == mission.data.custom.targetX and y == mission.data.custom.targetY then
-        Player():sendChatMessage("Aegis", 0, "The Citadel is here. Target its structural nodes. Do not let it complete its dimensional lock!")
+        Player():sendChatMessage("Aegis"%_T, 0, "The Citadel is here. Target its structural nodes. Do not let it complete its dimensional lock!"%_T)
         nextPhase()
     end
 end
@@ -48,18 +48,27 @@ mission.phases[2].onBeginServer = function()
         local pos = dir * 2000
         -- Spawn Citadel Boss using the proper station generator and xml plan
         local boss = EclipseGenerator.createStation(MatrixLookUpPosition(-dir, vec3(0,1,0), pos))
-        
-        boss.title = "Eclipse Citadel Prototype"
-        boss:setValue("ca_eclipse_citadel", true)
-        
+
+        -- Sector():createStation()/createShip() (which EclipseGenerator.createStation/createInterceptor
+        -- wrap) can return nil; indexing it unguarded would throw here and skip the
+        -- mission.data.custom.bossSpawned = true line below, permanently soft-locking this phase's
+        -- updateServer guard. Mirrors the existing if-ship-then pattern already used for the Aegis
+        -- rendezvous spawn later in this file.
+        if boss then
+            boss.title = "Eclipse Citadel Prototype"
+            boss:setValue("ca_eclipse_citadel", true)
+        end
+
         -- Add Interceptors as escorts
         for i = 1, 6 do
             local escortPos = MatrixLookUpPosition(-dir, vec3(0,1,0), pos + vec3(random():getFloat(-400, 400), random():getFloat(-400, 400), random():getFloat(-400, 400)))
             local escort = EclipseGenerator.createInterceptor(escortPos)
-            escort:setValue("ca_eclipse_ambush", true)
+            if escort then
+                escort:setValue("ca_eclipse_ambush", true)
+            end
         end
-        
-        Player():sendChatMessage("The Eclipse", 2, "Sanitation node establishing. Resistance is a chaotic anomaly that will be rectified.")
+
+        Player():sendChatMessage("The Eclipse"%_T, 2, "Sanitation node establishing. Resistance is a chaotic anomaly that will be rectified."%_T)
     end
     mission.data.custom.bossSpawned = true
 end
@@ -71,7 +80,7 @@ mission.phases[2].updateServer = function()
     
     local boss = {Sector():getEntitiesByScriptValue("ca_eclipse_citadel")}
     if #boss == 0 then
-        Player():sendChatMessage("Aegis", 0, "The Citadel has collapsed! Incredible work, Commander. But the dimensional shockwave... oh no. Something much larger is riding the wake. We must meet at these coordinates immediately.")
+        Player():sendChatMessage("Aegis"%_T, 0, "The Citadel has collapsed! Incredible work, Commander. But the dimensional shockwave... oh no. Something much larger is riding the wake. We must meet at these coordinates immediately."%_T)
         
         local rx, ry = getTargetSector(x, y)
         mission.data.custom.aegisX = rx
@@ -96,7 +105,8 @@ mission.phases[3].onSectorEntered = function(x, y)
         if not aegisExists then
             local faction = Galaxy():getNearestFaction(0, 0)
             local plan = LoadPlanFromFile("data/plans/ascendant/ca_aegis.xml")
-            if not plan then
+            -- valid(), not a plain nil check -- see eclipsegenerator.lua's createShip for the writeup.
+            if not valid(plan) then
                 plan = BlockPlan()
                 plan:addBlock(vec3(0,0,0), vec3(2,2,2), BlockDefaults.GetHullBlockIndex(), -1, ColorRGB(1,1,1), Material(0), Matrix(), BlockType.Hull)
             end
@@ -111,8 +121,8 @@ mission.phases[3].onSectorEntered = function(x, y)
                 
                 local ShipUtility = include("shiputility")
                 ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
-                ship:addScriptOnce("entity/ca_envoy_despawn.lua")
-                ship:addScriptOnce("entity/story/ca_ascendant_envoy.lua")
+                ship:addScriptOnce("data/scripts/entity/ca_envoy_despawn.lua")
+                ship:addScriptOnce("data/scripts/entity/story/ca_ascendant_envoy.lua")
 
                 Player():sendChatMessage(ship.name, 0, "Commander. Approach my projection and initiate contact."%_T)
                 aegisExists = true -- mark success so the debrief flag below reflects reality
@@ -146,11 +156,23 @@ function getTargetSector(x, y)
     local MissionUT = include("missionutility")
     local insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
     local targetX, targetY = MissionUT.getEmptySector(x, y, 5, 30, insideBarrier)
-    
-    if not targetX or not targetY then 
+
+    if not targetX or not targetY then
         local random = Random()
-        return x + random:getInt(-30, 30), y + random:getInt(-30, 30)
+        -- Guarantee a genuine sector change: a (0,0) offset would return the player's CURRENT
+        -- sector as the "target". structuredmission's onSectorEntered only fires on an actual
+        -- sector-crossing event (Mission_onSectorEntered, registered against the player's
+        -- onSectorEntered engine callback) -- it is never invoked just because a phase begins
+        -- while the player already happens to be standing in the target sector. Without this,
+        -- a same-sector roll would permanently soft-lock this phase: the player can never
+        -- "arrive" at a sector they never left.
+        local offsetX, offsetY
+        repeat
+            offsetX = random:getInt(-30, 30)
+            offsetY = random:getInt(-30, 30)
+        until offsetX ~= 0 or offsetY ~= 0
+        return x + offsetX, y + offsetY
     end
-    
+
     return targetX, targetY
 end

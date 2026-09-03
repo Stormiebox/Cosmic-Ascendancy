@@ -21,38 +21,55 @@ function WorldEaterManager.updateServer(timeStep)
     if #players == 0 then return end
 
     if WorldEaterManager.activeEvent then
-        WorldEaterManager.activeEvent.timeLeft = WorldEaterManager.activeEvent.timeLeft - timeStep
+        -- Once a player has actually reached the target sector and the fight is confirmed
+        -- injected, the 20-minute countdown has done its job (the deadline was to REACH the
+        -- World-Eater in time, not to kill it in time) -- so it must stop being able to fire
+        -- executeDoomsday() out from under an in-progress fight. Without this, a fight that runs
+        -- longer than whatever time happened to be left on the clock got its sector silently
+        -- annihilated mid-battle, ending the encounter by deleting it instead of by winning or
+        -- losing it -- unlike every other World-Eater encounter in the mod (the story boss, the
+        -- player-summoned Raid Boss), neither of which carries any wipe timer once the fight
+        -- has actually begun.
+        if not WorldEaterManager.activeEvent.engaged then
+            WorldEaterManager.activeEvent.timeLeft = WorldEaterManager.activeEvent.timeLeft - timeStep
 
-        if WorldEaterManager.activeEvent.timeLeft <= 0 then
-            WorldEaterManager.executeDoomsday()
-        else
-            -- the update interval is 30s, meaning the check can overshoot the boundary window
-            -- silently and never broadcast. Instead, track the last interval we broadcast at.
-            -- We broadcast once per 5-minute (300s) interval by comparing the current interval
-            -- index to the last one we announced.
-            local tx = WorldEaterManager.activeEvent.x
-            local ty = WorldEaterManager.activeEvent.y
-            local timeLeft = WorldEaterManager.activeEvent.timeLeft
-            local currentInterval = math.floor(timeLeft / 300) -- Which 5-min block are we in?
-            local lastInterval = WorldEaterManager.activeEvent.lastWarningInterval or -1
+            if WorldEaterManager.activeEvent.timeLeft <= 0 then
+                WorldEaterManager.executeDoomsday()
+            else
+                -- the update interval is 30s, meaning the check can overshoot the boundary window
+                -- silently and never broadcast. Instead, track the last interval we broadcast at.
+                -- We broadcast once per 5-minute (300s) interval by comparing the current interval
+                -- index to the last one we announced.
+                local tx = WorldEaterManager.activeEvent.x
+                local ty = WorldEaterManager.activeEvent.y
+                local timeLeft = WorldEaterManager.activeEvent.timeLeft
+                local currentInterval = math.floor(timeLeft / 300) -- Which 5-min block are we in?
+                local lastInterval = WorldEaterManager.activeEvent.lastWarningInterval or -1
 
-            -- Fire exactly once when we enter each new 5-minute interval
-            if currentInterval ~= lastInterval then
-                WorldEaterManager.activeEvent.lastWarningInterval = currentInterval
-                local minsLeft = math.ceil(timeLeft / 60)
-                Server():broadcastChatMessage("The Eclipse", 2, "WARNING: Doomsday weapon firing at [" .. tx .. ":" .. ty .. "] in " .. minsLeft .. " minute(s).")
-                for _, p in pairs({Server():getOnlinePlayers()}) do
-                    p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
-                    p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "DOOMSDAY EVENT - " .. minsLeft .. " MINS", "data/sounds/siren.ogg")
+                -- Fire exactly once when we enter each new 5-minute interval
+                if currentInterval ~= lastInterval then
+                    WorldEaterManager.activeEvent.lastWarningInterval = currentInterval
+                    local minsLeft = math.ceil(timeLeft / 60)
+                    Server():broadcastChatMessage("The Eclipse"%_T, 2, "WARNING: Doomsday weapon firing at [" .. tx .. ":" .. ty .. "] in " .. minsLeft .. " minute(s).")
+                    for _, p in pairs({Server():getOnlinePlayers()}) do
+                        p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+                        p:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerCinematicBanner", "DOOMSDAY EVENT - " .. minsLeft .. " MINS", "data/sounds/siren.ogg")
+                    end
                 end
             end
         end
 
-        -- Check if any player is in the targeted sector to inject the actual boss ship
-        for _, player in pairs({Server():getOnlinePlayers()}) do
-            local px, py = player:getSectorCoordinates()
-            if px == WorldEaterManager.activeEvent.x and py == WorldEaterManager.activeEvent.y then
-                WorldEaterManager.injectSectorScript(px, py)
+        -- Check if any player is in the targeted sector to inject the actual boss ship. Once this
+        -- fires successfully, the encounter is "engaged" and the countdown above stops for good --
+        -- cancelEvent() (called from ca_world_eater_event.lua's onWorldEaterDestroyed) is the only
+        -- way this activeEvent ever clears from this point on.
+        if WorldEaterManager.activeEvent then
+            for _, player in pairs({Server():getOnlinePlayers()}) do
+                local px, py = player:getSectorCoordinates()
+                if px == WorldEaterManager.activeEvent.x and py == WorldEaterManager.activeEvent.y then
+                    WorldEaterManager.activeEvent.engaged = true
+                    WorldEaterManager.injectSectorScript(px, py)
+                end
             end
         end
     else
@@ -104,7 +121,7 @@ function WorldEaterManager.triggerEvent()
 
     WorldEaterManager.activeEvent = {x = tx, y = ty, timeLeft = 1200}
 
-    Server():broadcastChatMessage("Galactic News", 0, "CRITICAL ALERT: An Eclipse World-Eater has warped to coordinates [" .. tx .. ":" .. ty .. "]! 20 minutes to total annihilation!")
+    Server():broadcastChatMessage("Galactic News"%_T, 0, "CRITICAL ALERT: An Eclipse World-Eater has warped to coordinates [" .. tx .. ":" .. ty .. "]! 20 minutes to total annihilation!")
     if cv_news.publishArticle then
         cv_news.publishArticle({
             title = "CRITICAL: World-Eater Detected!",
@@ -140,7 +157,7 @@ function WorldEaterManager.executeDoomsday()
     local EclipseGenerator = include("eclipsegenerator")
     local eclipseFaction = EclipseGenerator.getFaction()
 
-    Server():broadcastChatMessage("The Eclipse", 2, "Doomsday Sequence Complete. Sector [" .. tx .. ":" .. ty .. "] has been purged.")
+    Server():broadcastChatMessage("The Eclipse"%_T, 2, "Doomsday Sequence Complete. Sector [" .. tx .. ":" .. ty .. "] has been purged.")
 
     if cv_news.publishArticle then
         cv_news.publishArticle({
@@ -176,7 +193,7 @@ function WorldEaterManager.cancelEvent()
     local tx, ty = WorldEaterManager.activeEvent.x, WorldEaterManager.activeEvent.y
     WorldEaterManager.activeEvent = nil
     Server():setValue("eclipse_world_eater_grace_end", Server().unpausedRuntime + 36000)
-    Server():broadcastChatMessage("Galactic News", 0, "The World-Eater has been destroyed! The galaxy enters a 10-hour Grace Period.")
+    Server():broadcastChatMessage("Galactic News"%_T, 0, "The World-Eater has been destroyed! The galaxy enters a 10-hour Grace Period."%_T)
 
     -- Eclipse Remnant Escalation: cancelEvent() only ever fires from WorldEaterEvent.onWorldEaterDestroyed
     -- (confirmed the only caller), so this is a genuine kill, not an admin/debug cancel.

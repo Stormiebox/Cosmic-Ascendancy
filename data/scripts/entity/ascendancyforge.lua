@@ -4,8 +4,6 @@ include("utility")
 include("stringutility")
 include("faction")
 include("goods")
-local PlanGenerator = include("plangenerator")
-local ShipGenerator = include("shipgenerator")
 local TurretGenerator = include("turretgenerator")
 -- Removed hard dependency on cosmicwar_bridge
 local cv_news = include("cosmicvaultnews")
@@ -57,7 +55,10 @@ end
 
 function AscendancyForge.initUI()
     local res = getResolution()
-    local size = vec2(850, 650)
+    -- +70px over the original 650 height, reserved entirely for the Ascendant Ward row below --
+    -- added space rather than fitting into the already-dense existing 650px layout, since there's
+    -- no way to visually verify a tighter fit without a running game to check against.
+    local size = vec2(850, 720)
     local menu = ScriptUI()
     local window = menu:createWindow(Rect(res * 0.5 - size * 0.5, res * 0.5 + size * 0.5))
     window.caption = "The Stellar Forge"%_t
@@ -100,6 +101,13 @@ function AscendancyForge.initUI()
 
     AscendancyForge.tierLabel = window:createLabel(Rect(topSplit.left.lower.x, topSplit.left.lower.y + 230, topSplit.left.upper.x, topSplit.left.lower.y + 250), "Global Ascendancy Tier: 0", 14)
     AscendancyForge.decryptBtn = window:createButton(Rect(topSplit.left.lower.x, topSplit.left.lower.y + 255, topSplit.left.upper.x, topSplit.left.lower.y + 285), "Decrypt Eclipse Datacore"%_t, "onDecryptPressed")
+
+    -- Ascendant Ward: instant craft, deliberately separate from the 24-hour weapon-forging queue
+    -- above (that queue's claimWeapon() dispatch has no output path for a consumable item, and
+    -- a Ward taking 24 hours to produce wouldn't fit its purpose as a quick tactical tool anyway).
+    window:createFrame(Rect(10, 655, 840, 657))
+    AscendancyForge.wardLabel = window:createLabel(vec2(10, 665), "Ascendant Ward: 10 Ascendant Matter + 20 Ascendant Scrap -- suppresses The Eclipse's own hunting behavior against you for 30 minutes."%_t, 13)
+    AscendancyForge.wardBtn = window:createButton(Rect(660, 660, 840, 692), "Craft Ward"%_t, "onCraftWardPressed")
 
     AscendancyForge.sync()
 end
@@ -522,6 +530,36 @@ function AscendancyForge.decryptDatacore()
     end
     AscendancyForge.sync()
 end
+
+function AscendancyForge.onCraftWardPressed()
+    if onClient() then invokeServerFunction("craftWard"); return end
+end
+
+function AscendancyForge.craftWard()
+    if not onServer() then return end
+    local owner, craft, player = getInteractingFaction(callingPlayer, AlliancePrivilege.ManageStations, AlliancePrivilege.SpendResources)
+    if not owner then return end
+    if not craft then
+        local p = Player(callingPlayer)
+        if p then p:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to craft a Ward."%_t) end
+        return
+    end
+
+    local matAmount = craft:getCargoAmount("Ascendant Matter") or 0
+    local scrapAmount = craft:getCargoAmount("Ascendant Scrap") or 0
+    if matAmount < 10 or scrapAmount < 20 then
+        player:sendChatMessage("Stellar Forge"%_t, 1, "Requires 10 Ascendant Matter and 20 Ascendant Scrap in your ship's cargo hold."%_t)
+        return
+    end
+
+    craft:removeCargo(goods["Ascendant Matter"], 10)
+    craft:removeCargo(goods["Ascendant Scrap"], 20)
+
+    owner:getInventory():add(UsableInventoryItem("ca_eclipse_ward.lua", Rarity(RarityType.Rare)))
+    player:sendChatMessage("Stellar Forge"%_t, 0, "Crafted an Ascendant Ward."%_t)
+end
+
+callable(AscendancyForge, "craftWard")
 
 function AscendancyForge.sync(data)
     if onServer() then

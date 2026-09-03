@@ -2,6 +2,13 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 
 include ("utility")
 include("goods")
+-- checkEntityInteractionPermissions (used by interactionPossible below) lives in faction.lua.
+-- This script gets addScriptOnce'd onto every player/alliance-owned station on sector entry
+-- (see ascendancyplayer.lua's applyToEntity) -- including a fresh vanilla station that has never
+-- had any other Cosmic Ascendancy script attach "faction" for it first -- so without this include
+-- the very first interaction check crashes. Same fix already applied in ascendancybeacon.lua for
+-- the identical reason.
+include ("faction")
 
 -- namespace StationOverdrive
 StationOverdrive = {}
@@ -154,7 +161,7 @@ function StationOverdrive.restore(data)
 
     if isOverdriven and onServer() then
         -- In case the server restarted while overdriven, re-apply the multiplier.
-        -- addMultiplyableBias is volatile and does not persist across restarts unless re-added.
+        -- addBaseMultiplier is volatile and does not persist across restarts unless re-added.
         -- We must first strip the saved bias from the database before re-adding.
         local entity = Entity()
         entity:removeScriptBonuses()

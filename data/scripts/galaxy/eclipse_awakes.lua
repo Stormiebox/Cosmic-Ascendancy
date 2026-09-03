@@ -27,10 +27,14 @@ function EclipseAwakes.initialize()
         cv_dialogue.registerLine({
             category = "rumor",
             text = "Keep your voice down. The Eclipse has eyes everywhere, and they don't leave survivors.",
-            conditions = { } 
+            conditions = { }
         })
     end
 end
+
+-- The Choir: escalating ambient dread (see ca_eclipse_choir.lua for why this must be a real
+-- game-state-gated registration rather than a cosmicvaultdialogue `conditions` entry).
+local EclipseChoir = include("ca_eclipse_choir")
 
 
 
@@ -88,15 +92,22 @@ function EclipseAwakes.updateServer(timeStep)
     -- looser Sector():getEntitiesByScript() poll) without ever receiving that flag, silently
     -- softlocking the entire Eclipse/Envoy/Aegis chain for them.
     -- guardian_respawn_time is set unconditionally and galaxy-wide the moment the Guardian
-    -- dies (wormholeguardian.lua:79) and only clears ~2 hours later on respawn, well after
-    -- the 10-minute awakening window below always latches "the_eclipse_unleashed" — so it's
-    -- a safe, reliable fallback signal that the kill happened even when presence wasn't caught.
+    -- dies (wormholeguardian.lua:79) and only clears ~2 hours later on respawn -- reliable, but
+    -- ONLY for a player who is online at some point during that 2-hour window. A player who is
+    -- offline for the entire window and logs in for the first time afterward falls through both
+    -- this and their own wormhole_guardian_destroyed flag, even though the_eclipse_unleashed
+    -- (below) is already permanently true for the galaxy -- that flag never expires and is the
+    -- correct permanent fallback, so it's included directly in the per-player check as well, not
+    -- just used to gate the one-time galaxy-wide broadcast further down.
     local guardianConfirmedDead = server:getValue("guardian_respawn_time") ~= nil
 
     -- Check all online players to spawn the Envoy for them individually if they killed the Guardian
     for _, player in pairs({server:getOnlinePlayers()}) do
-        if (player:getValue("wormhole_guardian_destroyed") or guardianConfirmedDead) and not playerHasAegisProgress(player) then
-            player:setValue("ca_envoy_spawned", true)
+        if (player:getValue("wormhole_guardian_destroyed") or guardianConfirmedDead or unleashed) and not playerHasAegisProgress(player) then
+            -- ca_envoy_spawned used to be the one-shot latch this whole check was self-healed away
+            -- from (see playerHasAegisProgress above and the Modding Codex case study) -- it is no
+            -- longer read anywhere in the mod. Not setting it anymore; keeping a write-only value
+            -- around is just a trap for a future change that might trust it again.
 
             -- Early narrative beat: ca_spawn_envoy.lua's own 10-second timer is what actually
             -- delivers Aegis's mail (see that file's `if timer >= 10 then`), so this is deliberately
@@ -112,6 +123,7 @@ function EclipseAwakes.updateServer(timeStep)
                 server:setValue("the_eclipse_unleashed", true)
                 unleashed = true
                 EclipseAwakes.awakenTimer = 0
+                EclipseChoir.registerChoirLines("unleashed")
                 server:broadcastChatMessage("Server", 2, "An ominous shudder ripples through the fabric of subspace... The Guardian's death has broken an ancient seal."%_T)
                 for _, p in pairs({server:getOnlinePlayers()}) do
                     p:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
@@ -154,6 +166,7 @@ function EclipseAwakes.updateServer(timeStep)
             return
         else
             server:setValue("eclipse_fully_awake", true)
+            EclipseChoir.registerChoirLines("fully_awake")
             server:broadcastChatMessage("The Eclipse", 2, "Your ignorance has doomed this galaxy. We are The Eclipse. You will be erased."%_T)
             -- eclipse_roaming_boss.lua (a leftover early-development "World Eater" spawner with its
             -- own 5-minute-then-35-45-minute timer, flat dev-test stat bumps, and a 5-billion-credit

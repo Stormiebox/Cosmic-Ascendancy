@@ -3,6 +3,10 @@ package.path = package.path .. ";data/scripts/?.lua"
 
 include ("utility")
 include ("stringutility")
+-- checkEntityInteractionPermissions (used by interactionPossible below) lives in faction.lua.
+-- ascendancyforge.lua only gets attached to this entity later, inside toggleBeacon() -- a fresh,
+-- never-activated Beacon would crash the very first interaction check without this include.
+include ("faction")
 
 -- Cosmic Integrations
 local cv_news = include("cosmicvaultnews")

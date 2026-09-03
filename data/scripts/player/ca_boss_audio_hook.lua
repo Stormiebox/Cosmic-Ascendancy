@@ -9,15 +9,42 @@ function CaBossAudioHook.initialize()
     if onServer() then return end
 end
 
-
--- Invoked by the server to show the Cinematic UI Banner for Doomsday
-function CaBossAudioHook.showCinematicBanner(text, soundPath)
-    if onServer() then return end
+-- CosmicVaultUI.ShowCinematicBanner(player, ...) is itself a SERVER-side entry point (its own
+-- first line is `if not onServer() then return false end`) that does its own complete
+-- server->client relay internally (player:invokeFunction into the player's own
+-- cosmicvaultcinematic.lua instance, which then invokeClientFunction's the actual client-side
+-- renderer). The previous version of this file called it from the CLIENT side, after already
+-- relaying there itself via triggerCinematicBanner's invokeClientFunction -- a double-relay that
+-- meant ShowCinematicBanner's own onServer() guard always failed and the banner never rendered
+-- for ANY of this file's callers ("THE ECLIPSE AWAKENS", "MASSIVE HYPERSPACE ANOMALY", "BLACK
+-- AVORION SIGNATURES DETECTED", "DOOMSDAY EVENT - N MINS", every use across eclipse_awakes.lua
+-- and ca_world_eater_manager.lua). Fixed by calling ShowCinematicBanner directly from the
+-- server-side trigger function below -- no client-side banner wrapper needed at all, since
+-- ShowCinematicBanner already gets it there on its own.
+function CaBossAudioHook.triggerCinematicBanner(text, soundPath)
+    if onClient() then return end
     local CosmicVaultUI = include("cosmicvaultui")
     if CosmicVaultUI and CosmicVaultUI.ShowCinematicBanner then
         CosmicVaultUI.ShowCinematicBanner(Player(), text, ColorRGB(1, 0, 0), soundPath or "data/sounds/siren.ogg", 5)
     end
 end
+callable(CaBossAudioHook, "triggerCinematicBanner")
+
+-- The Choir's proximity stinger: a lightweight, quiet-dread cue for crossing
+-- into Eclipse-held territory -- deliberately not using the default siren.ogg, since that sound
+-- is already the mod's "loud alarm" cue (Doomsday warnings, awakening alerts) and reusing it here
+-- would undercut the "something noticed you, quietly" tone this is going for. No dedicated
+-- stinger sound asset exists in data/sounds -- rather than invent a file path that doesn't exist
+-- (which would silently fail to play, or worse), this is text-only. Same direct-from-server call
+-- as triggerCinematicBanner above, for the same reason.
+function CaBossAudioHook.triggerAmbientStinger(text)
+    if onClient() then return end
+    local CosmicVaultUI = include("cosmicvaultui")
+    if CosmicVaultUI and CosmicVaultUI.ShowCinematicBanner then
+        CosmicVaultUI.ShowCinematicBanner(Player(), text, ColorRGB(0.5, 0.05, 0.6), nil, 4)
+    end
+end
+callable(CaBossAudioHook, "triggerAmbientStinger")
 
 -- Invoked when entering the sector or when phase changes
 function CaBossAudioHook.playBossMusic(phase)
@@ -62,11 +89,6 @@ function CaBossAudioHook.triggerGuardianFellMusic()
     invokeClientFunction(Player(), "playGuardianFellMusic")
 end
 
-function CaBossAudioHook.triggerCinematicBanner(text, soundPath)
-    if onClient() then return end
-    invokeClientFunction(Player(), "showCinematicBanner", text, soundPath)
-end
-
 function CaBossAudioHook.triggerBossMusic(phase)
     if onClient() then return end
     invokeClientFunction(Player(), "playBossMusic", phase)
@@ -76,13 +98,10 @@ function CaBossAudioHook.triggerStopBossMusic()
     if onClient() then return end
     invokeClientFunction(Player(), "stopBossMusic")
 end
-callable(CaBossAudioHook, "showCinematicBanner")
 callable(CaBossAudioHook, "playBossMusic")
 callable(CaBossAudioHook, "stopBossMusic")
 callable(CaBossAudioHook, "playGuardianFellMusic")
 
 callable(CaBossAudioHook, "triggerGuardianFellMusic")
-callable(CaBossAudioHook, "triggerCinematicBanner")
 callable(CaBossAudioHook, "triggerBossMusic")
 callable(CaBossAudioHook, "triggerStopBossMusic")
-

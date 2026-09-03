@@ -144,8 +144,8 @@ function CAAegisEnvoy.makeDialogStory1()
     local d0_Hail = {}
     d0_Hail.text = "You survived the Vanguard ambush. Exceptional combat performance, Commander. The anomaly you investigated was merely a scouting beacon, but it proves The Eclipse are massing forces."%_t
     d0_Hail.answers = {{answer = "What's our next move?"%_t, followUp = {
-        text = "Conventional weapons are inefficient against their dimensional plating. I am uploading the coordinates to the dormant Ascendancy Forge. You must secure it. I have transferred emergency supplies to aid your journey.",
-        answers = {{answer = "I'm on my way.", onEnd = "onAcceptStory1"}}
+        text = "Conventional weapons are inefficient against their dimensional plating. I am uploading the coordinates to the dormant Ascendancy Forge. You must secure it. I have transferred emergency supplies to aid your journey."%_t,
+        answers = {{answer = "I'm on my way."%_t, onEnd = "onAcceptStory1"}}
     }}}
     return d0_Hail
 end
@@ -187,8 +187,8 @@ function CAAegisEnvoy.makeDialogStory2()
     local d0_Hail = {}
     d0_Hail.text = "The Ascendancy Forge is fully operational! We now possess the means to retaliate. However... I detect a massive energy spike warping directly to our location!"%_t
     d0_Hail.answers = {{answer = "What is it?"%_t, followUp = {
-        text = "An Eclipse Vanguard Juggernaut. It must have tracked the Forge's energy signature! Defend this sector at all costs. I am transferring emergency combat supplies to your hold.",
-        answers = {{answer = "We will hold them off!", onEnd = "onAcceptStory2"}}
+        text = "An Eclipse Vanguard Juggernaut. It must have tracked the Forge's energy signature! Defend this sector at all costs. I am transferring emergency combat supplies to your hold."%_t,
+        answers = {{answer = "We will hold them off!"%_t, onEnd = "onAcceptStory2"}}
     }}}
     return d0_Hail
 end
@@ -230,8 +230,8 @@ function CAAegisEnvoy.makeDialogStory3()
     local d0_Hail = {}
     d0_Hail.text = "The Vanguard assault is repelled. Exceptional work. However... I have intercepted a terrifying transmission. An Eclipse Citadel is attempting to anchor itself into our dimension."%_t
     d0_Hail.answers = {{answer = "A Citadel?"%_t, followUp = {
-        text = "A massive mobile fortress capable of suppressing all hyperspace activity in the region. If it fully anchors, we will lose this sector entirely. You must destroy it. Take these supplies.",
-        answers = {{answer = "It won't survive.", onEnd = "onAcceptStory3"}}
+        text = "A massive mobile fortress capable of suppressing all hyperspace activity in the region. If it fully anchors, we will lose this sector entirely. You must destroy it. Take these supplies."%_t,
+        answers = {{answer = "It won't survive."%_t, onEnd = "onAcceptStory3"}}
     }}}
     return d0_Hail
 end
@@ -273,8 +273,8 @@ function CAAegisEnvoy.makeDialogStory4()
     local d0_Hail = {}
     d0_Hail.text = "The Citadel has fallen! A monumental victory! But do not celebrate yet... The destruction of the Citadel has triggered a Level Omega incursion alert. A World-Eater has entered the galaxy."%_t
     d0_Hail.answers = {{answer = "A World-Eater? Explain."%_t, followUp = {
-        text = "An apocalyptic dreadnought. It consumes entire star systems to fuel its dimensional engines. If it is not stopped, there will be no galaxy left to save. This is the final stand, Commander. Everything rests on you.",
-        answers = {{answer = "I will finish this.", onEnd = "onAcceptStory4"}}
+        text = "An apocalyptic dreadnought. It consumes entire star systems to fuel its dimensional engines. If it is not stopped, there will be no galaxy left to save. This is the final stand, Commander. Everything rests on you."%_t,
+        answers = {{answer = "I will finish this."%_t, onEnd = "onAcceptStory4"}}
     }}}
     return d0_Hail
 end
@@ -316,8 +316,8 @@ function CAAegisEnvoy.makeDialogStory5()
     local d0_Hail = {}
     d0_Hail.text = "The World-Eater is destroyed... The dimensional rifts are sealing. You have done the impossible, Commander. You have stopped the sanitation protocol and saved the galaxy."%_t
     d0_Hail.answers = {{answer = "Is it over?"%_t, followUp = {
-        text = "The Eclipse is broken, scattered. Their remnants will linger, but the immediate threat of annihilation has passed. My creators would be proud. As a token of the Ascendants' gratitude, accept this ultimate cache.",
-        answers = {{answer = "Thank you, Aegis.", onEnd = "onAcceptStory5"}}
+        text = "The Eclipse is broken, scattered. Their remnants will linger, but the immediate threat of annihilation has passed. My creators would be proud. As a token of the Ascendants' gratitude, accept this ultimate cache."%_t,
+        answers = {{answer = "Thank you, Aegis."%_t, onEnd = "onAcceptStory5"}}
     }}}
     return d0_Hail
 end

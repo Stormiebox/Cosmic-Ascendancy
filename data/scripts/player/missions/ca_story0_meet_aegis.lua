@@ -74,7 +74,12 @@ mission.phases[1].onSectorEntered = function(x, y)
             -- Spawn Aegis
             local faction = Galaxy():getNearestFaction(0, 0)
             local plan = LoadPlanFromFile("data/plans/ascendant/ca_aegis.xml")
-            if not plan then
+            -- valid(), not a plain nil check: vanilla's own factionpacks.lua checks
+            -- LoadPlanFromFile's result via `if not valid(plan) then`, evidence a failed load may
+            -- return a non-nil-but-invalid object (see eclipsegenerator.lua's createShip for the
+            -- full writeup). Dormant today since ca_aegis.xml exists on disk, but a plain nil check
+            -- would silently skip this fallback if that ever changes.
+            if not valid(plan) then
                 plan = BlockPlan()
                 plan:addBlock(vec3(0,0,0), vec3(2,2,2), BlockDefaults.GetHullBlockIndex(), -1, ColorRGB(1,1,1), Material(0), Matrix(), BlockType.Hull)
             end

@@ -30,7 +30,7 @@ end
 
 mission.phases[1].onSectorEntered = function(x, y)
     if x == mission.data.custom.targetX and y == mission.data.custom.targetY then
-        Player():sendChatMessage("Ship Sensors", 3, "WARNING: Massive subspace rupture detected. Energy signatures match nothing in our database. It's... purely dark energy.")
+        Player():sendChatMessage("Ship Sensors"%_T, 3, "WARNING: Massive subspace rupture detected. Energy signatures match nothing in our database. It's... purely dark energy."%_T)
         nextPhase()
     end
 end
@@ -45,7 +45,8 @@ mission.phases[2].onBeginServer = function()
     local pos = generator:getPositionInSector(5000)
 
     local plan = LoadPlanFromFile("data/plans/ascendant/ascendancy_anomaly.xml")
-    if not plan then
+    -- valid(), not a plain nil check -- see eclipsegenerator.lua's createShip for the writeup.
+    if not valid(plan) then
         plan = generator:getBasicWreckagePlan()
     end
 
@@ -69,7 +70,7 @@ mission.phases[2].updateServer = function(timeStep)
     end
 
     if distance(craft.translationf, wreck.translationf) < 500 then
-        Player():sendChatMessage("Aegis", 0, "The anomaly is a subspace beacon. It's activating... Commander, prepare yourself. A Vanguard fleet has locked onto your position.")
+        Player():sendChatMessage("Aegis"%_T, 0, "The anomaly is a subspace beacon. It's activating... Commander, prepare yourself. A Vanguard fleet has locked onto your position."%_T)
         -- "entity/delete.lua" does not exist anywhere in vanilla; deletejumped.lua is vanilla's real
         -- entity-removal script (see delayeddelete.lua's own Entity():addScript("deletejumped.lua", ...)).
         wreck:addScriptOnce("data/scripts/entity/deletejumped.lua") -- Delete the wreck
@@ -85,12 +86,18 @@ mission.phases[3].onBeginServer = function()
 
     local existing = {Sector():getEntitiesByScriptValue("ca_eclipse_ambush")}
     if #existing == 0 then
-        Player():sendChatMessage("Unknown Transmission", 2, "Chaotic biological variables detected. Sanitation protocol initiated. We are The Eclipse.")
+        Player():sendChatMessage("Unknown Transmission"%_T, 2, "Chaotic biological variables detected. Sanitation protocol initiated. We are The Eclipse."%_T)
 
         for i = 1, 3 do
             local ship = EclipseGenerator.createInterceptor(Matrix())
-            ship.title = "Eclipse Vanguard Scout"
-            ship:setValue("ca_eclipse_ambush", true)
+            -- Sector():createShip() (which EclipseGenerator.createInterceptor wraps) can return nil;
+            -- indexing it unguarded would throw mid-loop and skip the mission.data.custom.bossSpawned =
+            -- true line below, permanently soft-locking this phase's updateServer guard. Mirrors the
+            -- existing if-ship-then pattern already used for the wreck/Aegis spawns elsewhere in this file.
+            if ship then
+                ship.title = "Eclipse Vanguard Scout"
+                ship:setValue("ca_eclipse_ambush", true)
+            end
         end
     end
     mission.data.custom.bossSpawned = true
@@ -103,7 +110,7 @@ mission.phases[3].updateServer = function(timeStep)
 
     local enemies = {Sector():getEntitiesByScriptValue("ca_eclipse_ambush")}
     if #enemies == 0 then
-        Player():sendChatMessage("Aegis", 0, "Hostiles eliminated. More will come. We must meet. I am transmitting secure rendezvous coordinates.")
+        Player():sendChatMessage("Aegis"%_T, 0, "Hostiles eliminated. More will come. We must meet. I am transmitting secure rendezvous coordinates."%_T)
         local rx, ry = getTargetSector(x, y)
         mission.data.custom.aegisX = rx
         mission.data.custom.aegisY = ry
@@ -127,7 +134,8 @@ mission.phases[4].onSectorEntered = function(x, y)
         if not aegisExists then
             local faction = Galaxy():getNearestFaction(0, 0)
             local plan = LoadPlanFromFile("data/plans/ascendant/ca_aegis.xml")
-            if not plan then
+            -- valid(), not a plain nil check -- see eclipsegenerator.lua's createShip for the writeup.
+            if not valid(plan) then
                 plan = BlockPlan()
                 plan:addBlock(vec3(0,0,0), vec3(2,2,2), BlockDefaults.GetHullBlockIndex(), -1, ColorRGB(1,1,1), Material(0), Matrix(), BlockType.Hull)
             end
@@ -142,8 +150,8 @@ mission.phases[4].onSectorEntered = function(x, y)
                 
                 local ShipUtility = include("shiputility")
                 ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
-                ship:addScriptOnce("entity/ca_envoy_despawn.lua")
-                ship:addScriptOnce("entity/story/ca_ascendant_envoy.lua")
+                ship:addScriptOnce("data/scripts/entity/ca_envoy_despawn.lua")
+                ship:addScriptOnce("data/scripts/entity/story/ca_ascendant_envoy.lua")
 
                 Player():sendChatMessage(ship.name, 0, "Commander. Approach my projection and initiate contact."%_T)
                 aegisExists = true -- mark success so the debrief flag below reflects reality
@@ -177,11 +185,23 @@ function getTargetSector(x, y)
     local MissionUT = include("missionutility")
     local insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
     local targetX, targetY = MissionUT.getEmptySector(x, y, 5, 30, insideBarrier)
-    
-    if not targetX or not targetY then 
+
+    if not targetX or not targetY then
         local random = Random()
-        return x + random:getInt(-30, 30), y + random:getInt(-30, 30)
+        -- Guarantee a genuine sector change: a (0,0) offset would return the player's CURRENT
+        -- sector as the "target". structuredmission's onSectorEntered only fires on an actual
+        -- sector-crossing event (Mission_onSectorEntered, registered against the player's
+        -- onSectorEntered engine callback) -- it is never invoked just because a phase begins
+        -- while the player already happens to be standing in the target sector. Without this,
+        -- a same-sector roll would permanently soft-lock this phase: the player can never
+        -- "arrive" at a sector they never left.
+        local offsetX, offsetY
+        repeat
+            offsetX = random:getInt(-30, 30)
+            offsetY = random:getInt(-30, 30)
+        until offsetX ~= 0 or offsetY ~= 0
+        return x + offsetX, y + offsetY
     end
-    
+
     return targetX, targetY
 end

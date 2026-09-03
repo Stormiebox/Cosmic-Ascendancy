@@ -22,6 +22,10 @@ function CosmicAscendancyServer.initialize()
             Galaxy():addScriptOnce("data/scripts/galaxy/ca_expansion_manager.lua")
         end
 
+        -- Start The Silent Choir Tracker
+        if not Galaxy():hasScript("data/scripts/galaxy/ca_silent_choir_manager.lua") then
+            Galaxy():addScriptOnce("data/scripts/galaxy/ca_silent_choir_manager.lua")
+        end
 
     end
 end

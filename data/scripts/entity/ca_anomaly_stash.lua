@@ -68,7 +68,11 @@ function CaAnomalyStash.onOpenPressed()
     local tGen = SectorTurretGenerator()
     
     for i = 1, numUpgrades do
-        local rarityType = random():getInt(1, 3) -- Uncommon to Exceptional
+        -- RarityType: Petty=0, Common=1, Uncommon=2, Rare=3, Exceptional=4, Exotic=5, Legendary=6.
+        -- getInt(1, 3) was actually rolling Common-Rare; shifted to 2-4 to match the comment's
+        -- stated Uncommon-Exceptional band and the loot's "Exceptional" valuable_object rarity set
+        -- in initialize() below.
+        local rarityType = random():getInt(2, 4) -- Uncommon to Exceptional
         
         -- 50% chance for Turret, 50% chance for Upgrade
         if random():getFloat() < 0.5 then

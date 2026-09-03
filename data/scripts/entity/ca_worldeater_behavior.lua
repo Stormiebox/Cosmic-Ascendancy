@@ -114,7 +114,7 @@ function CAWorldEater.updateServer(timeStep)
     else
         if boss.invincible then
             boss.invincible = false
-            sector:broadcastChatMessage(boss.title, 0, "ANCHOR PYLONS DESTROYED. VOID SHIELD DEACTIVATED.")
+            sector:broadcastChatMessage(boss.title, 0, "ANCHOR PYLONS DESTROYED. VOID SHIELD DEACTIVATED."%_T)
         end
     end
 
@@ -151,7 +151,7 @@ function CAWorldEater.updateServer(timeStep)
         data.nemesisCooldown = data.nemesisCooldown - timeStep
         if data.nemesisCooldown <= 0 then
             data.nemesisActive = false
-            sector:broadcastChatMessage(boss.title, 0, "ADAPTIVE RESISTANCE PROTOCOL TERMINATED.")
+            sector:broadcastChatMessage(boss.title, 0, "ADAPTIVE RESISTANCE PROTOCOL TERMINATED."%_T)
         end
     else
         -- Decay damage history over time
@@ -178,7 +178,7 @@ function CAWorldEater.castRandomAbility()
 
     if choice == 1 then
         -- Telegraphed EMP
-        sector:broadcastChatMessage(boss.title, 2, "INITIATING QUANTUM EMP.")
+        sector:broadcastChatMessage(boss.title, 2, "INITIATING QUANTUM EMP."%_T)
 
         -- Store the hazard
         table.insert(data.activeGlows, {
@@ -191,7 +191,7 @@ function CAWorldEater.castRandomAbility()
         broadcastInvokeClientFunction("createEmpGlow", targetShip.translationf, 3000)
     elseif choice == 2 then
         -- Gravity Anomaly
-        sector:broadcastChatMessage(boss.title, 2, "DEPLOYING GRAVITY ANOMALY.")
+        sector:broadcastChatMessage(boss.title, 2, "DEPLOYING GRAVITY ANOMALY."%_T)
 
         -- Spawn the anomaly at their current position
         table.insert(data.activeAnomalies, {
@@ -204,7 +204,7 @@ function CAWorldEater.castRandomAbility()
         broadcastInvokeClientFunction("createAnomalyGlow", targetShip.translationf, 4000)
     else
         -- World-Breaker Laser
-        sector:broadcastChatMessage(boss.title, 2, "CHARGING WORLD-BREAKER LASER.")
+        sector:broadcastChatMessage(boss.title, 2, "CHARGING WORLD-BREAKER LASER."%_T)
         table.insert(data.laserTargets, {
             playerShipId = targetShip.id.string,
             timer = 5.0
@@ -382,7 +382,7 @@ function CAWorldEater.checkPhases()
 
     if hpPct <= 0.8 and not data.phasesTriggered.p80 then
         data.phasesTriggered.p80 = true
-        sector:broadcastChatMessage(boss.title, 2, "DEFENSIVE PROTOCOLS ACTIVE. DEPLOYING ESCORTS.")
+        sector:broadcastChatMessage(boss.title, 2, "DEFENSIVE PROTOCOLS ACTIVE. DEPLOYING ESCORTS."%_T)
         -- Spawn 5 Defilers
         for i = 1, 5 do
             local dir = vec3(random():getFloat(-1, 1), random():getFloat(-1, 1), random():getFloat(-1, 1))
@@ -397,7 +397,7 @@ function CAWorldEater.checkPhases()
 
     if hpPct <= 0.7 and not data.phasesTriggered.p70 then
         data.phasesTriggered.p70 = true
-        sector:broadcastChatMessage(boss.title, 2, "GLOBAL SHIELD ANNIHILATION PULSE CHARGED.")
+        sector:broadcastChatMessage(boss.title, 2, "GLOBAL SHIELD ANNIHILATION PULSE CHARGED."%_T)
         local allShips = {sector:getEntitiesByType(EntityType.Ship)}
         local allStations = {sector:getEntitiesByType(EntityType.Station)}
         for _, ship in pairs(allShips) do
@@ -415,7 +415,7 @@ function CAWorldEater.checkPhases()
 
     if hpPct <= 0.6 and not data.phasesTriggered.p60 then
         data.phasesTriggered.p60 = true
-        sector:broadcastChatMessage(boss.title, 2, "DEPLOYING HUNTER KILLER SQUADRON.")
+        sector:broadcastChatMessage(boss.title, 2, "DEPLOYING HUNTER KILLER SQUADRON."%_T)
         -- Spawn 4 Destroyers (Assassins)
         for i = 1, 4 do
             local dir = vec3(random():getFloat(-1, 1), random():getFloat(-1, 1), random():getFloat(-1, 1))
@@ -430,20 +430,20 @@ function CAWorldEater.checkPhases()
 
     if hpPct <= 0.5 and not data.phasesTriggered.p50 then
         data.phasesTriggered.p50 = true
-        sector:broadcastChatMessage(boss.title, 2, "EMERGENCY REPAIRS INITIATED.")
+        sector:broadcastChatMessage(boss.title, 2, "EMERGENCY REPAIRS INITIATED."%_T)
         CAWorldEater.triggerBlink()
         boss.durability = math.min(boss.maxDurability, boss.durability + (boss.maxDurability * 0.05))
     end
 
     if hpPct <= 0.5 and not data.phasesTriggered.tethers50 then
         data.phasesTriggered.tethers50 = true
-        sector:broadcastChatMessage(boss.title, 2, "SPAWNING AUXILIARY ANCHOR PYLONS.")
+        sector:broadcastChatMessage(boss.title, 2, "SPAWNING AUXILIARY ANCHOR PYLONS."%_T)
         CAWorldEater.spawnTethers(2) -- Spawn 2
     end
 
     if hpPct <= 0.35 and not data.phasesTriggered.p35 then
         data.phasesTriggered.p35 = true
-        sector:broadcastChatMessage(boss.title, 2, "CRITICAL DAMAGE DETECTED. ENRAGE PROTOCOL ENGAGED.")
+        sector:broadcastChatMessage(boss.title, 2, "CRITICAL DAMAGE DETECTED. ENRAGE PROTOCOL ENGAGED."%_T)
         CAWorldEater.triggerBlink()
 
         -- Second EMP
@@ -461,8 +461,11 @@ function CAWorldEater.checkPhases()
         end
         broadcastInvokeClientFunction("createGlobalEmpGlow", boss.translationf)
 
-        -- Enrage: boost fire rate (key discarded intentionally - buff is permanent until boss death)
-        boss:addMultiplyableBias(StatsBonuses.FireRate, 0.5)
+        -- Enrage: boost fire rate by +50% (key discarded intentionally - buff is permanent until
+        -- boss death). addBaseMultiplier is the correct primitive for a percentage bonus like this
+        -- one -- see eclipsegenerator.lua's applyDamageMultiplier for the full writeup of this bug
+        -- pattern, already fixed elsewhere in the mod per Changelog.md's "DPS Scaling Desync" entries.
+        boss:addBaseMultiplier(StatsBonuses.FireRate, 0.5)
 
         -- Switch every defender currently in the fight from the phase-1 to the enraged boss track
         -- (data/music/world_eater_enraged.ogg). Nothing previously called triggerBossMusic(2) anywhere,
@@ -478,7 +481,7 @@ function CAWorldEater.checkPhases()
 
     if hpPct <= 0.25 and not data.phasesTriggered.tethers25 then
         data.phasesTriggered.tethers25 = true
-        sector:broadcastChatMessage(boss.title, 2, "SPAWNING FINAL ANCHOR PYLONS.")
+        sector:broadcastChatMessage(boss.title, 2, "SPAWNING FINAL ANCHOR PYLONS."%_T)
         CAWorldEater.spawnTethers(2) -- Spawn 2
     end
 end
@@ -534,11 +537,11 @@ function CAWorldEater.onDestroyed()
         end
     end
 
-    sector:broadcastChatMessage("System", 0, "The World Eater has been completely eradicated. The Void is calm once more.")
+    sector:broadcastChatMessage("System"%_T, 0, "The World Eater has been completely eradicated. The Void is calm once more."%_T)
 
     -- Lore Easter Egg (carried over from the retired eclipse_roaming_boss.lua prototype boss)
     for _, player in pairs({sector:getPlayers()}) do
-        player:sendChatMessage("Recovered Datapad", 0, "'The World Eater operates at peak efficiency. The galaxy will be purged, just as the architect intended. Project Stormbox is a complete success.'")
+        player:sendChatMessage("Recovered Datapad"%_T, 0, "'The World Eater operates at peak efficiency. The galaxy will be purged, just as the architect intended. Project Stormbox is a complete success.'"%_T)
     end
 end
 

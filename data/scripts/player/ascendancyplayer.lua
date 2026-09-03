@@ -1,5 +1,10 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
+-- Required before any %_T/%_t usage below (see the proximity stinger in onSectorEntered) --
+-- stringutility.lua's top level installs the __mod metamethod that routes "..."%_t through
+-- translation at all; nothing else this file includes reaches it before that point is used.
+include("stringutility")
+
 local cv_buffs = include("cosmicvaultbuffs")
 include("cosmicascendancyconfig")
 -- namespace AscendancyPlayer
@@ -54,11 +59,30 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
         applyToEntity(entity.id, playerIndex)
     end
 
-    -- Spawn Eclipse Strongholds safely. 
+    -- Spawn Eclipse Strongholds safely.
     -- We dynamically roll the Stronghold flag on first player entry to bypass impossible Server() generation hooks
     if onServer() then
         local sector = Sector()
-        
+
+        -- The Choir's proximity stinger: fires once, the first time this player's own script
+        -- instance sees them cross into Eclipse-held territory. Deliberately NOT persisted via
+        -- secure()/restore() (this file has neither) -- the absence of persistence is what makes
+        -- this naturally "once per session" with no extra flag plumbing needed: a relog or server
+        -- restart re-creates a fresh script instance with AscendancyPlayer.dreadStingerShown back
+        -- at its default, same as intended.
+        if not AscendancyPlayer.dreadStingerShown then
+            local held = Server():getValue("eclipse_held_territory") or ""
+            local escapedCoordStr = string.gsub(x .. "_" .. y .. ",", "%-", "%%-")
+            if string.find("," .. held, "," .. escapedCoordStr) then
+                AscendancyPlayer.dreadStingerShown = true
+                local player = Player(playerIndex)
+                if player then
+                    player:addScriptOnce("data/scripts/player/ca_boss_audio_hook.lua")
+                    player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerAmbientStinger", "...something is already here."%_t)
+                end
+            end
+        end
+
         -- PROGRESSIVE MATERIALIZATION INTERCEPT (Lag Fix)
         local pendingAnnihilations = Server():getValue("eclipse_pending_annihilations") or ""
         local pendingSieges = Server():getValue("eclipse_pending_sieges") or ""

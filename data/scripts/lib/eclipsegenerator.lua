@@ -8,15 +8,70 @@ include ("defaultscripts")
 local SectorTurretGenerator = include ("sectorturretgenerator")
 local ShipUtility = include ("shiputility")
 local PlanGenerator = include ("plangenerator")
+local cv_goods = include ("cosmicvaultgoods")
 
 local EclipseGenerator = {}
 
--- All writes to it are silently discarded by the C++ engine with no error.
--- CORRECT approach: addMultiplyableBias on StatsBonuses.FireRate acts as a DPS scalar. However further research on this must be done.
--- The (factor - 1.0) converts a multiplier (e.g. 2.0x) to a bias delta (e.g. +1.0).
+-- ASCENDANT GOODS REGISTRATION (early, not just in eclipse_conquest_manager.lua):
+-- eclipse_conquest_manager.lua only ever attaches 10 minutes after the Guardian dies (it's
+-- addScriptOnce'd behind Server():getValue("eclipse_fully_awake") in eclipse_awakes.lua), and its
+-- own initialize() is the only other place these three goods get registered. But this module
+-- (eclipsegenerator.lua) loads the instant the very first Eclipse ship is spawned -- e.g.
+-- ca_story1_awakening.lua's Phase 3 ambush, seconds/minutes after the Guardian kill -- and every
+-- Eclipse ship carries ca_eclipse_abilities.lua (see EclipseGenerator.createShip below), whose
+-- onDestroyed handler drops goods["Ascendant Matter"]. Without registering it here too, an early
+-- ambush kill looks up a good that was never created and drops nothing (or worse, hands
+-- Sector:dropCargo a nil good). CosmicVaultGoods.registerGood() checks goodsArray for an existing
+-- entry by name and no-ops if found, so this and eclipse_conquest_manager.lua's later call are
+-- both safe to run.
+if cv_goods and cv_goods.registerGood then
+    cv_goods.registerGood({
+        name = "Ascendant Matter",
+        description = "A hyper-dense dark energy composite synthesized by Eclipse Harvesters.",
+        price = 250000,
+        size = 2.5,
+        icon = "data/textures/icons/AscendantMatter.png",
+        illegal = true,
+        dangerous = true,
+        tags = {ascendant = true}
+    })
+    cv_goods.registerGood({
+        name = "Eclipse Datacore",
+        description = "An encrypted quantum datacore extracted from a high-ranking Eclipse vessel.",
+        price = 1000000,
+        size = 5.0,
+        icon = "data/textures/icons/EclipseDatacore.png",
+        illegal = true,
+        tags = {ascendant = true}
+    })
+    cv_goods.registerGood({
+        name = "Ascendant Scrap",
+        description = "Failed remnants of an Ascendant forging process. Highly sought after by underground tech brokers.",
+        price = 100000,
+        size = 1.0,
+        icon = "data/textures/icons/AscendantScrap.png",
+        illegal = true,
+        tags = {ascendant = true}
+    })
+end
+
+-- Writing directly to entity.damageMultiplier is silently discarded by the C++ engine with no
+-- error (see the Modding Codex's entity.damageMultiplier correction). The actual fix is scaling
+-- FireRate as a DPS proxy -- but this used addMultiplyableBias, not addBaseMultiplier, which this
+-- same bug pattern has already been found and fixed for elsewhere in this exact mod (see
+-- Changelog.md's "World-Eater DPS Scaling Desync", "Ascendant Gateway DPS Scaling Desync", and
+-- "Ascendant Relic Math & API Desync" entries): addMultiplyableBias is confirmed (vanilla
+-- behemothcarriersystem.lua: addMultiplyableBias for a flat +N count vs addBaseMultiplier for a
+-- genuine percentage bonus) to be the ADDITIVE-bias primitive, not the multiplicative one --
+-- exactly the "flat addition instead of a real percentage boost, resulting in negligible scaling"
+-- shape those three entries describe. This function (the single shared damage-scaling path for
+-- every Eclipse ship in the mod) had the identical bug and was missed by all three prior fixes.
+-- The (factor - 1.0) converts a multiplier (e.g. 2.0x) to a bias delta (e.g. +1.0), which is the
+-- correct convention for addBaseMultiplier too (0.3 -> 1.3x, confirmed against ca_station_overdrive.lua's
+-- restore() and vanilla batterybooster.lua's percentage-bonus usage).
 -- Keys are intentionally not stored since these buffs are permanent until the ship is destroyed.
 function EclipseGenerator.applyDamageMultiplier(entity, factor)
-    entity:addMultiplyableBias(StatsBonuses.FireRate, factor - 1.0)
+    entity:addBaseMultiplier(StatsBonuses.FireRate, factor - 1.0)
 end
 
 -- Eclipse Remnant Escalation: a long-running save that keeps defeating World-Eaters and Citadels
@@ -61,7 +116,7 @@ function EclipseGenerator.applyRemnantScaling(entity)
     local tier = EclipseGenerator.getRemnantTier()
     if tier <= 0 then return end
 
-    entity:addMultiplyableBias(StatsBonuses.ShieldDurability, tier * 0.15) -- +15% shields per tier
+    entity:addBaseMultiplier(StatsBonuses.ShieldDurability, tier * 0.15) -- +15% shields per tier
     local hullDurability = Durability(entity.id)
     hullDurability.maxDurabilityFactor = hullDurability.maxDurabilityFactor + (tier * 0.10) -- +10% hull per tier
     EclipseGenerator.applyDamageMultiplier(entity, 1.0 + tier * 0.10) -- +10% damage per tier
@@ -93,6 +148,16 @@ function EclipseGenerator.getFaction()
     faction.initialRelationsToPlayer = -100000
     faction.staticRelationsToPlayers = true
     faction.homeSectorUnknown = true
+
+    -- Several other Cosmic mods (Cosmic Overhaul's tradecommand.lua, Cosmic Vault's
+    -- cv_weather_controller.lua/cv_weather_debuff.lua, Cosmic War's cosmicwartraits.lua and
+    -- siegeevent.lua) all identify the Eclipse via "faction.name == 'The Eclipse' or
+    -- faction:getValue('is_eclipse')" - a translated-name-safe fallback. Nothing in the codebase
+    -- ever actually set this value, so the fallback was permanently dead: if this mod ever ships a
+    -- translation entry for "The Eclipse" (making %_T above return a localized name), every one of
+    -- those name-equality checks would silently stop matching the real Eclipse faction. Setting it
+    -- here, on every call, closes that gap for free since it's purely additive and idempotent.
+    faction:setValue("is_eclipse", true)
 
     return faction
 end
@@ -197,7 +262,15 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
 
     local planPath = "data/plans/eclipse/" .. (planType or "ca_obliterator") .. ".xml"
     local plan = LoadPlanFromFile(planPath)
-    if not plan then
+    -- LoadPlanFromFile's actual failure return is not documented (no description on either the
+    -- stub or the raw HTML docs), and vanilla's own factionpacks.lua -- the only vanilla script
+    -- that checks this call's result at all -- uses `if not valid(plan) then`, not `if not plan
+    -- then`, which is evidence the failure case may hand back a non-nil-but-invalid object rather
+    -- than a real nil. Currently dormant here since every data/plans/eclipse/*.xml this mod ships
+    -- exists on disk, but a plain `not plan` check would silently miss the fallback entirely if a
+    -- plan file is ever renamed or deleted, passing an invalid plan straight into createShip/
+    -- createStation. valid() is safe to call on nil too, so this is a strict correctness upgrade.
+    if not valid(plan) then
         -- Fallback if not found
         local x, y = 0, 0
         local sector = Sector()
@@ -236,9 +309,9 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
 
     -- If it's a Harbinger, inject Ascendant Multipliers
     if planType == "ca_harbinger" then
-        ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 10.0) -- +1000% Shields (Nerfed to preserve World-Eater supremacy)
+        ship:addBaseMultiplier(StatsBonuses.ShieldDurability, 10.0) -- +1000% Shields (Nerfed to preserve World-Eater supremacy)
         EclipseGenerator.applyDamageMultiplier(ship, 10.0) -- +1000% Damage (compensated for lost turrets)
-        ship:addMultiplyableBias(StatsBonuses.FireRate, 1.0) -- +100% Fire Rate
+        ship:addBaseMultiplier(StatsBonuses.FireRate, 1.0) -- +100% Fire Rate
         ship:addScriptOnce("entity/eclipse_boss_scaling.lua")
 
         -- NEMESIS SYSTEM
@@ -262,10 +335,10 @@ function EclipseGenerator.createWorldEater(position)
 
     -- The World Eater gets an extra multiplier
     EclipseGenerator.applyDamageMultiplier(ship, 3.0)
-    ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 15.0) -- Massive shields for the raid boss
+    ship:addBaseMultiplier(StatsBonuses.ShieldDurability, 15.0) -- Massive shields for the raid boss
 
     -- -90% Speed as per design
-    ship:addMultiplyableBias(StatsBonuses.Velocity, -0.9)
+    ship:addBaseMultiplier(StatsBonuses.Velocity, -0.9)
 
     -- Eclipse Remnant Escalation: a modest extra layer per Remnant Tier, on top of the base
     -- multipliers above and the separate per-fight multiplayer scaling applied later by
@@ -290,7 +363,7 @@ function EclipseGenerator.applyWorldEaterMultiplayerScaling(ship)
     local extraDefenders = math.max(0, #defenders - 1)
     if extraDefenders > 0 then
         -- Shields scale via the StatsBonuses system (same mechanism as every other Eclipse buff).
-        ship:addMultiplyableBias(StatsBonuses.ShieldDurability, extraDefenders * 1.5) -- +150% shields per extra defender
+        ship:addBaseMultiplier(StatsBonuses.ShieldDurability, extraDefenders * 1.5) -- +150% shields per extra defender
         -- There is no StatsBonuses.HullDurability entry (the enum only goes up to FireRate=40). Hull HP
         -- is instead scaled through the Durability component's maxDurabilityFactor, additive on top of
         -- whatever the hull's base volume/material already grants (confirmed against vanilla usage in
@@ -318,7 +391,7 @@ function EclipseGenerator.createAssassin(position)
     ship:setTitle("Eclipse Phantom"%_T, {})
 
     EclipseGenerator.applyDamageMultiplier(ship, 3.0) -- +300% burst damage
-    ship:addMultiplyableBias(StatsBonuses.Velocity, 3.0) -- Fast turning/moving
+    ship:addBaseMultiplier(StatsBonuses.Velocity, 3.0) -- Fast turning/moving
 
     return ship
 end
@@ -327,7 +400,7 @@ function EclipseGenerator.createArtillery(position)
     local ship = EclipseGenerator.createShip(position, "ca_singularity")
     ship:setTitle("Eclipse Singularity"%_T, {})
 
-    ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 0.5) -- 50% weaker shields
+    ship:addBaseMultiplier(StatsBonuses.ShieldDurability, 0.5) -- 50% weaker shields
 
     -- Multiply reach of generated weapons
     for _, turret in pairs({ship:getTurrets()}) do
@@ -349,8 +422,8 @@ function EclipseGenerator.createJuggernaut(position)
     local ship = EclipseGenerator.createShip(position, "ca_juggernaut")
     ship:setTitle("Eclipse Juggernaut"%_T, {})
 
-    ship:addMultiplyableBias(StatsBonuses.ShieldDurability, 2.0) -- +200% Shields
-    ship:addMultiplyableBias(StatsBonuses.Velocity, -0.5) -- -50% Speed
+    ship:addBaseMultiplier(StatsBonuses.ShieldDurability, 2.0) -- +200% Shields
+    ship:addBaseMultiplier(StatsBonuses.Velocity, -0.5) -- -50% Speed
     -- Add loot script for Eclipse Datacore
     ship:addScriptOnce("data/scripts/entity/ca_juggernaut_loot.lua")
 
@@ -361,7 +434,7 @@ function EclipseGenerator.createInterceptor(position)
     local ship = EclipseGenerator.createShip(position, "ca_interceptor")
     ship:setTitle("Eclipse Interceptor"%_T, {})
 
-    ship:addMultiplyableBias(StatsBonuses.Velocity, 1.5) -- +150% Speed
+    ship:addBaseMultiplier(StatsBonuses.Velocity, 1.5) -- +150% Speed
     EclipseGenerator.applyDamageMultiplier(ship, -0.2) -- -20% Damage
 
     return ship
@@ -371,7 +444,13 @@ function EclipseGenerator.createHarvester(position)
     local ship = EclipseGenerator.createShip(position, "ca_harvester")
     ship:setTitle("Eclipse Harvester"%_T, {})
 
-    ship:addMultiplyableBias(StatsBonuses.CargoHold, 5.0) -- +500% Cargo
+    ship:addBaseMultiplier(StatsBonuses.CargoHold, 5.0) -- +500% Cargo
+    -- Changelog.md advertises "Ascendant Matter (dropped by Harvesters)" as a headline feature of
+    -- the Ascendant Matter arms race, but this attach line was missing -- ca_harvester_loot.lua
+    -- existed in the mod with no addScriptOnce call anywhere referencing it, so Harvesters were
+    -- never actually dropping anything. Juggernauts get the equivalent wire-up two functions below
+    -- (ca_juggernaut_loot.lua); this brings Harvester in line with that sibling pattern.
+    ship:addScriptOnce("data/scripts/entity/ca_harvester_loot.lua")
 
     return ship
 end
@@ -391,7 +470,9 @@ function EclipseGenerator.createStation(position)
 
     local planPath = "data/plans/eclipse/ca_citadel.xml"
     local plan = LoadPlanFromFile(planPath)
-    if not plan then
+    -- See EclipseGenerator.createShip's identical check above for why this is valid(plan), not a
+    -- plain nil check.
+    if not valid(plan) then
         local x, y = 0, 0
         local sector = Sector()
         if sector then x, y = sector:getCoordinates() end
@@ -419,7 +500,7 @@ function EclipseGenerator.createStation(position)
     AddDefaultStationScripts(station)
     station:addScriptOnce("utility/aiundockable.lua")
 
-    station:addMultiplyableBias(StatsBonuses.ShieldDurability, 50.0)
+    station:addBaseMultiplier(StatsBonuses.ShieldDurability, 50.0)
     EclipseGenerator.applyDamageMultiplier(station, 5.0)
     -- Eclipse Remnant Escalation: see EclipseGenerator.applyRemnantScaling.
     EclipseGenerator.applyRemnantScaling(station)

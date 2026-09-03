@@ -30,7 +30,7 @@ end
 
 mission.phases[1].onSectorEntered = function(x, y)
     if x == mission.data.custom.targetX and y == mission.data.custom.targetY then
-        Player():sendChatMessage("Ship Sensors", 3, "Scans indicate massive subterranean ruins on the largest asteroid in this sector. Sending surface rovers to investigate...")
+        Player():sendChatMessage("Ship Sensors"%_T, 3, "Scans indicate massive subterranean ruins on the largest asteroid in this sector. Sending surface rovers to investigate..."%_T)
         nextPhase()
     end
 end
@@ -41,13 +41,13 @@ mission.phases[2].onBeginServer = function()
     mission.data.description = "Rovers are exploring the subterranean ruins. Protect the sector and wait for their report."
     mission.data.custom.waitTime = Server().unpausedRuntime + 30 -- Wait 30 seconds
     
-    Player():sendChatMessage("Rover Alpha", 0, "Commander, we're inside the ruins. It's an ancient manufacturing facility. The databanks are mostly corrupted, but we're attempting a direct download of the main schematics now.")
+    Player():sendChatMessage("Rover Alpha"%_T, 0, "Commander, we're inside the ruins. It's an ancient manufacturing facility. The databanks are mostly corrupted, but we're attempting a direct download of the main schematics now."%_T)
 end
 
 mission.phases[2].updateServer = function()
     if Server().unpausedRuntime >= mission.data.custom.waitTime then
-        Player():sendChatMessage("Rover Alpha", 0, "Download complete! It's blueprints for an 'Ascendancy Forge'. We're returning to the ship.")
-        Player():sendChatMessage("Aegis", 0, "Commander, the blueprints are secured. However, to power the primary reactor and begin forging weapons capable of piercing Eclipse armor, the facility requires a massive influx of raw Avorion as a catalyst.")
+        Player():sendChatMessage("Rover Alpha"%_T, 0, "Download complete! It's blueprints for an 'Ascendancy Forge'. We're returning to the ship."%_T)
+        Player():sendChatMessage("Aegis"%_T, 0, "Commander, the blueprints are secured. However, to power the primary reactor and begin forging weapons capable of piercing Eclipse armor, the facility requires a massive influx of raw Avorion as a catalyst."%_T)
         nextPhase()
     end
 end
@@ -62,7 +62,7 @@ mission.phases[3].updateServer = function()
     local iron, tit, nao, tri, xan, ogo, avo = player:getResources()
     if avo >= 50000 then
         player:pay(0, 0, 0, 0, 0, 0, 0, 50000)
-        Player():sendChatMessage("Aegis", 0, "Catalyst accepted. The Ascendancy Forge blueprints are fully unlocked. Commander, a new threat has emerged while you were gathering materials. Meet me at these coordinates immediately.")
+        Player():sendChatMessage("Aegis"%_T, 0, "Catalyst accepted. The Ascendancy Forge blueprints are fully unlocked. Commander, a new threat has emerged while you were gathering materials. Meet me at these coordinates immediately."%_T)
         Player():setValue("ca_forge_unlocked", true)
         
         local x, y = Sector():getCoordinates()
@@ -89,7 +89,8 @@ mission.phases[4].onSectorEntered = function(x, y)
         if not aegisExists then
             local faction = Galaxy():getNearestFaction(0, 0)
             local plan = LoadPlanFromFile("data/plans/ascendant/ca_aegis.xml")
-            if not plan then
+            -- valid(), not a plain nil check -- see eclipsegenerator.lua's createShip for the writeup.
+            if not valid(plan) then
                 plan = BlockPlan()
                 plan:addBlock(vec3(0,0,0), vec3(2,2,2), BlockDefaults.GetHullBlockIndex(), -1, ColorRGB(1,1,1), Material(0), Matrix(), BlockType.Hull)
             end
@@ -104,8 +105,8 @@ mission.phases[4].onSectorEntered = function(x, y)
                 
                 local ShipUtility = include("shiputility")
                 ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
-                ship:addScriptOnce("entity/ca_envoy_despawn.lua")
-                ship:addScriptOnce("entity/story/ca_ascendant_envoy.lua")
+                ship:addScriptOnce("data/scripts/entity/ca_envoy_despawn.lua")
+                ship:addScriptOnce("data/scripts/entity/story/ca_ascendant_envoy.lua")
 
                 Player():sendChatMessage(ship.name, 0, "Commander. Approach my projection and initiate contact."%_T)
                 aegisExists = true -- mark success so the debrief flag below reflects reality
@@ -139,11 +140,23 @@ function getTargetSector(x, y)
     local MissionUT = include("missionutility")
     local insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
     local targetX, targetY = MissionUT.getEmptySector(x, y, 5, 30, insideBarrier)
-    
-    if not targetX or not targetY then 
+
+    if not targetX or not targetY then
         local random = Random()
-        return x + random:getInt(-30, 30), y + random:getInt(-30, 30)
+        -- Guarantee a genuine sector change: a (0,0) offset would return the player's CURRENT
+        -- sector as the "target". structuredmission's onSectorEntered only fires on an actual
+        -- sector-crossing event (Mission_onSectorEntered, registered against the player's
+        -- onSectorEntered engine callback) -- it is never invoked just because a phase begins
+        -- while the player already happens to be standing in the target sector. Without this,
+        -- a same-sector roll would permanently soft-lock this phase: the player can never
+        -- "arrive" at a sector they never left.
+        local offsetX, offsetY
+        repeat
+            offsetX = random:getInt(-30, 30)
+            offsetY = random:getInt(-30, 30)
+        until offsetX ~= 0 or offsetY ~= 0
+        return x + offsetX, y + offsetY
     end
-    
+
     return targetX, targetY
 end

@@ -30,7 +30,7 @@ end
 
 mission.phases[1].onSectorEntered = function(x, y)
     if x == mission.data.custom.targetX and y == mission.data.custom.targetY then
-        Player():sendChatMessage("Aegis", 0, "It is here. The scale is... unprecedented. Focus all Ascendancy weapons on its core!")
+        Player():sendChatMessage("Aegis"%_T, 0, "It is here. The scale is... unprecedented. Focus all Ascendancy weapons on its core!"%_T)
         nextPhase()
     end
 end
@@ -53,23 +53,37 @@ mission.phases[2].onBeginServer = function()
             -- EclipseGenerator.applyWorldEaterMultiplayerScaling's own comment requires this be called
             -- from every createWorldEater() spawn path (ca_world_eater_event.lua and ca_raid_summoner.lua
             -- both do) -- without it, this fight stays tuned for a single defender regardless of how many
-            -- players/alliance members show up for the campaign's final boss.
-            EclipseGenerator.applyWorldEaterMultiplayerScaling(boss)
+            -- players/alliance members show up for the campaign's final boss. Guarded on boss being
+            -- non-nil: Sector():createShip() (which createWorldEater wraps) can return nil, and
+            -- applyWorldEaterMultiplayerScaling indexes the ship unconditionally, so calling it with a
+            -- failed spawn would throw here -- before the phase even reaches its own nil-guard below.
+            if boss then
+                EclipseGenerator.applyWorldEaterMultiplayerScaling(boss)
+            end
         else
             boss = EclipseGenerator.createJuggernaut(MatrixLookUpPosition(-dir, vec3(0,1,0), pos))
         end
 
-        boss.title = "Eclipse World-Eater"
-        boss:setValue("ca_eclipse_worldeater", true)
-        
+        -- Sector():createShip() (which EclipseGenerator.createWorldEater/createJuggernaut/
+        -- createInterceptor wrap) can return nil; indexing it unguarded would throw here and skip
+        -- the mission.data.custom.bossSpawned = true line below, permanently soft-locking this
+        -- phase's updateServer guard. Mirrors the existing if-ship-then pattern already used for
+        -- the Aegis rendezvous spawn later in this file.
+        if boss then
+            boss.title = "Eclipse World-Eater"
+            boss:setValue("ca_eclipse_worldeater", true)
+        end
+
         -- Add heavy escorts
         for i = 1, 8 do
             local escortPos = MatrixLookUpPosition(-dir, vec3(0,1,0), pos + vec3(random():getFloat(-600, 600), random():getFloat(-600, 600), random():getFloat(-600, 600)))
             local escort = EclipseGenerator.createInterceptor(escortPos)
-            escort:setValue("ca_eclipse_ambush", true)
+            if escort then
+                escort:setValue("ca_eclipse_ambush", true)
+            end
         end
-        
-        Player():sendChatMessage("The Eclipse", 2, "Absolute zero. Absolute silence. Absolute order.")
+
+        Player():sendChatMessage("The Eclipse"%_T, 2, "Absolute zero. Absolute silence. Absolute order."%_T)
     end
     mission.data.custom.bossSpawned = true
 end
@@ -81,7 +95,7 @@ mission.phases[2].updateServer = function()
     
     local boss = {Sector():getEntitiesByScriptValue("ca_eclipse_worldeater")}
     if #boss == 0 then
-        Player():sendChatMessage("Aegis", 0, "The World-Eater is destroyed! Commander, you have proven yourself worthy. We must meet one final time.")
+        Player():sendChatMessage("Aegis"%_T, 0, "The World-Eater is destroyed! Commander, you have proven yourself worthy. We must meet one final time."%_T)
         Player():setValue("ca_campaign_completed", true)
         
         local rx, ry = getTargetSector(x, y)
@@ -107,7 +121,8 @@ mission.phases[3].onSectorEntered = function(x, y)
         if not aegisExists then
             local faction = Galaxy():getNearestFaction(0, 0)
             local plan = LoadPlanFromFile("data/plans/ascendant/ca_aegis.xml")
-            if not plan then
+            -- valid(), not a plain nil check -- see eclipsegenerator.lua's createShip for the writeup.
+            if not valid(plan) then
                 plan = BlockPlan()
                 plan:addBlock(vec3(0,0,0), vec3(2,2,2), BlockDefaults.GetHullBlockIndex(), -1, ColorRGB(1,1,1), Material(0), Matrix(), BlockType.Hull)
             end
@@ -122,8 +137,8 @@ mission.phases[3].onSectorEntered = function(x, y)
                 
                 local ShipUtility = include("shiputility")
                 ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
-                ship:addScriptOnce("entity/ca_envoy_despawn.lua")
-                ship:addScriptOnce("entity/story/ca_ascendant_envoy.lua")
+                ship:addScriptOnce("data/scripts/entity/ca_envoy_despawn.lua")
+                ship:addScriptOnce("data/scripts/entity/story/ca_ascendant_envoy.lua")
 
                 Player():sendChatMessage(ship.name, 0, "Commander. Approach my projection and initiate contact."%_T)
                 aegisExists = true -- mark success so the debrief flag below reflects reality
@@ -157,11 +172,23 @@ function getTargetSector(x, y)
     local MissionUT = include("missionutility")
     local insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
     local targetX, targetY = MissionUT.getEmptySector(x, y, 5, 30, insideBarrier)
-    
-    if not targetX or not targetY then 
+
+    if not targetX or not targetY then
         local random = Random()
-        return x + random:getInt(-30, 30), y + random:getInt(-30, 30)
+        -- Guarantee a genuine sector change: a (0,0) offset would return the player's CURRENT
+        -- sector as the "target". structuredmission's onSectorEntered only fires on an actual
+        -- sector-crossing event (Mission_onSectorEntered, registered against the player's
+        -- onSectorEntered engine callback) -- it is never invoked just because a phase begins
+        -- while the player already happens to be standing in the target sector. Without this,
+        -- a same-sector roll would permanently soft-lock this phase: the player can never
+        -- "arrive" at a sector they never left.
+        local offsetX, offsetY
+        repeat
+            offsetX = random:getInt(-30, 30)
+            offsetY = random:getInt(-30, 30)
+        until offsetX ~= 0 or offsetY ~= 0
+        return x + offsetX, y + offsetY
     end
-    
+
     return targetX, targetY
 end

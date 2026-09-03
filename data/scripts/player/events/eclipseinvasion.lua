@@ -10,10 +10,16 @@ local Placer = include ("placer")
 local cv_fleet = include("cosmicvaultfleet")
 
 local minute = 0
+-- Eclipse Remembers: how many extra heavy-class ships this specific ambush gets, driven by the
+-- targeted player's own eclipse_kill_score (see EclipseConquestManager.expandEmpire()'s Personal
+-- Ambush Logic, the only caller that ever passes this). Defaults to 0 (the original fixed
+-- composition) for any other caller/legacy save that attaches this without an argument.
+local extraHeavies = 0
 
 if onServer() then
 
-function initialize()
+function initialize(extraHeaviesArg)
+    extraHeavies = extraHeaviesArg or 0
     deferredCallback(1.0, "update", 1.0)
 end
 
@@ -52,9 +58,11 @@ function createEnemies()
     table.insert(spawned, harbinger)
     pos = pos + right * 200
 
-    -- Spawn 3 randomized heavy/specialized ships
+    -- Spawn 3 randomized heavy/specialized ships, plus extraHeavies more if Eclipse Remembers
+    -- this player specifically (capped so a maxed-out kill score can't spawn an unbounded fleet).
     local heavyTypes = {"ca_voidweaver", "ca_singularity", "ca_juggernaut", "ca_defiler"}
-    for i = 1, 3 do
+    local heavyCount = 3 + math.min(extraHeavies, 4)
+    for i = 1, heavyCount do
         local hType = heavyTypes[random():getInt(1, #heavyTypes)]
         local heavy
         if hType == "ca_voidweaver" then heavy = EclipseGenerator.createCarrier(MatrixLookUpPosition(-dir, up, pos))

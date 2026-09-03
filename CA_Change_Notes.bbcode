@@ -1,3 +1,45 @@
+[i]Version 1.7.0[/i]
+[hr][/hr]
+[h1]v1.7.0 ✨THE ECLIPSE: CRISIS HORROR EXPANSION✨[/h1]
+[hr][/hr]
+[b]🛠️ FEATURE UPDATE[/b]
+[i]This patch is aimed squarely at the reports of the endgame (Aegis's mail, The Eclipse's awakening) sometimes never triggering after killing the Wormhole Guardian — plus real new content built on top once the underlying issues were found and fixed: The Eclipse now remembers who's been hunting it, whispers grow louder the deeper the crisis goes, a named horror stalks the brave (or unlucky), and a full command interface lets you check exactly where things stand at a glance. No action needed — existing saves pick up everything automatically.[/i]
+
+[b]✨NEW FEATURES✨[/b]
+[list]
+[*]✨ [b]Eclipse Remembers:[/b] The more Eclipse ships you personally destroy, the more The Eclipse notices you specifically — expect more frequent, heavier personal ambushes the deeper your kill count climbs.
+[*]✨ [b]The Choir:[/b] Rumors about The Eclipse grow darker and more specific as the crisis escalates — from the moment it first wakes, through full awakening, to becoming a Fallen Empire. Fly into Eclipse-held territory for the first time in a session and you'll feel it.
+[*]✨ [b]The Silent Choir:[/b] A new, rare, named horror occasionally stalks a single player across the galaxy — appearing at the edge of your sensors, whispering, and vanishing before you can react. It won't do that forever.
+[*]✨ [b]Ascendant Ward:[/b] A new craftable item at the Stellar Forge lets you temporarily evade The Eclipse's own hunting behavior — personal ambushes, the Silent Choir, and its shield-draining aura — for 30 minutes. Doesn't make you invisible to everyone, just to The Eclipse's own attention.
+[*]✨ [b]Distress Beacon:[/b] When The Eclipse designates a Crusade against your territory, every online member of your faction or alliance now gets an alert with the target coordinates — rally your friends before it lands.
+[*]✨ [b]Eclipse Wastes:[/b] Sectors The Eclipse has annihilated are no longer just foggy and guarded — they now actively drain your shields the longer you linger.
+[*]✨ [b]Reclaimed Vessels:[/b] Eclipse-annihilated sectors have a small chance to spawn an Eclipse ship built from the wreckage of whoever used to hold that territory.
+[*]✨ [b]The Eclipse: Command Interface:[/b] A brand-new UI window, opened by interacting with your own ship, showing everything about The Eclipse's current status at a glance — awakening progress, territory held, active threats, and your own personal standing with it — across four organized tabs.
+[/list]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🐛 [b]Fixed the Campaign Sometimes Getting Stuck With No Warning:[/b] A random-chance bug in every story mission could occasionally send you to "rendezvous coordinates" that were actually your own current sector — which meant the mission could never register you arriving, silently stalling the entire campaign with no error or message. This is fixed for good.
+[*]🐛 [b]Fixed a Rare Ambush/Boss Spawn Failure That Could Silently Stall a Mission:[/b] Under specific conditions, spawning an ambush fleet or a story boss could fail partway through without any warning, leaving that mission stage permanently stuck. Spawning is now verified every step of the way.
+[*]🐛 [b]Fixed Ascendant Matter Sometimes Not Dropping Early in the Campaign:[/b] Killing Eclipse ships in the first few minutes after the Guardian's death could fail to drop Ascendant Matter, even though later kills worked fine. This resource now works correctly from the very first Eclipse ship you destroy.
+[*]🐛 [b]Fixed Eclipse Harvesters Not Dropping Loot:[/b] Eclipse Harvester ships were never dropping their intended loot. Fixed.
+[*]🐛 [b]Fixed a Crash Risk on Ascendancy Beacons and Overdrive Stations:[/b] A newly-built Ascendancy Beacon or a station with the Ascendant Overdrive system could crash on your very first interaction with it. Fixed.
+[*]🐛 [b]Fixed the Ascendant Gateway Sometimes Using the Wrong Material for Defenders:[/b] The Gateway's summoned defense fleet wasn't always using the intended premium hull material. Fixed.
+[*]🐛 [b]Fixed the Ascendant Aegis Reactor Erasing Other Buffs:[/b] The Aegis Reactor's Phase-Shift ability was periodically wiping out *other* temporary combat buffs on your ship instead of just managing its own. If you run other Cosmic mods, your buffs will now coexist correctly.
+[*]🐛 [b]Fixed a Minor Performance Hit When Ascendancy Sieges Spawn:[/b] Triggering an Ascendancy Siege event was doing more collision-avoidance work than necessary, and could very rarely nudge nearby ships that had nothing to do with the siege. Fixed.
+[*]🐛 [b]Fixed a Corrupted Databank Rarity Roll:[/b] The reward rarity for Corrupted Databank stashes was rolling one tier lower than intended. Fixed.
+[*]🐛 [b]Fixed the World-Eater's Doomsday Clock Sometimes Ending a Fight Early:[/b] If a fight against the World-Eater ran long, the sector could be wiped out from under you mid-battle by its own countdown, even while you were actively fighting it. The clock now stops the moment the fight actually begins — from then on, it's a fight to the finish, just like every other way you can encounter the World-Eater.
+[*]🐛 [b]Fixed a Rare Case of an Unkillable Eclipse Ship:[/b] Under very specific timing, an Eclipse Phantom or Interceptor's teleport-escape ability could leave it permanently invincible after a server restart or sector reload. Fixed.
+[*]🐛 [b]Fixed The Eclipse Doing Nothing Visible for Hours on a Fresh Galaxy:[/b] A bug meant The Eclipse's territorial expansion (invasions, sector conquests, Crusades) could stay completely dormant for the first several hours of any new galaxy, even after the Guardian was killed and the Eclipse "awakened." This is now fixed — expansion starts on schedule.
+[*]🐛 [b]Fixed The Eclipse Occasionally "Re-Conquering" Its Own Territory:[/b] A rare bug could let the Eclipse's expansion counter tick up without any new ground actually changing hands, throwing off its reported progress toward becoming a Fallen Empire. Fixed.
+[*]🐛 [b]Fixed Some Returning Players Never Being Contacted by Aegis:[/b] Players who were away when the Guardian died, and stayed away for a while afterward, could log back in and simply never receive Aegis's contact — permanently. This is now fixed; any returning player will be caught the moment they log in.
+[*]🐛 [b]Fixed Major Story/Threat Banners Never Actually Appearing:[/b] "THE ECLIPSE AWAKENS," Doomsday warnings, and every other dramatic on-screen banner in the mod had a bug preventing them from ever actually displaying, even though the underlying events were firing correctly. They now show up as intended.
+[*]⚖️ [b]Eclipse Ship Damage/Stat Scaling Corrected:[/b] A calculation bug meant most of The Eclipse's stated percentage bonuses (fire rate, shields, speed, cargo — the ones described as "+X%" throughout their ships and abilities) were landing far weaker than intended across nearly the entire faction. This has been corrected mod-wide, so Eclipse ships now hit as hard and tank as much as their stats claim. Expect a noticeably tougher fight against Eclipse ships and bosses going forward.
+[*]📖 [b]Corrected the Ascendant Gateway's Codex Description:[/b] Its in-game description didn't quite match how it actually works. Updated to be accurate.
+[*]📖 [b]Translation Coverage Improved:[/b] A number of story and Eclipse-related messages that were previously always shown in English regardless of your language setting are now properly localized.
+[*]📖 [b]/eclipsestatus Now Actually Tells You What's Going On:[/b] If the Eclipse hasn't fully awoken yet, the command used to say the exact same thing whether nothing had happened at all or the 10-minute awakening countdown was already ticking. It now tells you which one it actually is.
+[/list]
+
 [i]Version 1.6.2[/i]
 [hr][/hr]
 [h1]v1.6.2 🐛BUGFIX UPDATE!🐛[/h1]

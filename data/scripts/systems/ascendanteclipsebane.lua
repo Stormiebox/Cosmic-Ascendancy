@@ -23,7 +23,11 @@ function onInstalled(seed, rarity, permanent)
         if bonus.stat == StatsBonuses.ArbitraryTurrets or bonus.stat == StatsBonuses.HyperspaceReach then
             addAbsoluteBias(bonus.stat, bonus.amount)
         else
-            addMultiplyableBias(bonus.stat, bonus.amount)
+            -- ShieldDurability (+75%) and FireRate (+25%) are genuine percentage bonuses --
+            -- addBaseMultiplier is the correct primitive (see eclipsegenerator.lua's
+            -- applyDamageMultiplier for the full writeup of this bug pattern, already fixed
+            -- elsewhere in the mod per Changelog.md's "DPS Scaling Desync" entries).
+            addBaseMultiplier(bonus.stat, bonus.amount)
         end
     end
 end
