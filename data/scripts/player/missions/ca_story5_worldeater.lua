@@ -13,6 +13,7 @@ mission._Name = "The World-Eater"
 abandon = nil -- this mission is not abandonable
 mission.data.brief = mission._Name
 mission.data.icon = "data/textures/icons/story-mission.png"
+mission.data.autoTrackMission = true
 mission._Debug = 0
 
 mission.data.description = "The destruction of the Citadel has triggered a massive response. An Eclipse World-Eater—a ship designed to consume entire stars—has breached our dimension."

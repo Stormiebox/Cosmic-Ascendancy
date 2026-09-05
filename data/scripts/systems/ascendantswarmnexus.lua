@@ -4,6 +4,10 @@ include ("basesystem")
 include ("utility")
 local cv_buffs = include("cosmicvaultbuffs")
 
+-- Matches the vanilla convention (shieldbooster.lua, hyperspacebooster.lua, etc.): getEnergy()
+-- returns a constant here, so this tells the engine it never needs to re-read it every frame.
+FixedEnergyRequirement = true
+
 function getUpdateInterval()
     return 15
 end
@@ -11,6 +15,12 @@ end
 function updateServer(timeStep)
     applyDynamicBuffs()
 end
+
+-- See ascendantomnisensor.lua's identical comment for why these keys are tracked and not persisted.
+local squadsKey = nil
+local pilotsKey = nil
+local cargoPickupKey = nil
+local productionKey = nil
 
 function applyDynamicBuffs()
     removeDynamicBuffs()
@@ -25,18 +35,21 @@ function applyDynamicBuffs()
 
     -- In Avorion, fighter damage cannot be modified via StatsBonuses.
     -- Instead, this subsystem maxes out Carrier capabilities and production.
-    entity:addAbsoluteBias(StatsBonuses.FighterSquads, 10)
-    entity:addAbsoluteBias(StatsBonuses.Pilots, 120)
-    entity:addAbsoluteBias(StatsBonuses.FighterCargoPickup, 1)
+    squadsKey = entity:addAbsoluteBias(StatsBonuses.FighterSquads, 10)
+    pilotsKey = entity:addAbsoluteBias(StatsBonuses.Pilots, 120)
+    cargoPickupKey = entity:addAbsoluteBias(StatsBonuses.FighterCargoPickup, 1)
 
     -- Base capacity of 50,000 multiplied dynamically
-    entity:addAbsoluteBias(StatsBonuses.ProductionCapacity, 50000 * finalMultiplier)
+    productionKey = entity:addAbsoluteBias(StatsBonuses.ProductionCapacity, 50000 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
-    entity:removeScriptBonuses()
+    if squadsKey then entity:removeBonus(squadsKey); squadsKey = nil end
+    if pilotsKey then entity:removeBonus(pilotsKey); pilotsKey = nil end
+    if cargoPickupKey then entity:removeBonus(cargoPickupKey); cargoPickupKey = nil end
+    if productionKey then entity:removeBonus(productionKey); productionKey = nil end
 end
 
 function onInstalled(seed, rarity, permanent)

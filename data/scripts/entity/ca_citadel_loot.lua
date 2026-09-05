@@ -74,19 +74,18 @@ function onDestroyed()
     local SectorTurretGenerator = include("sectorturretgenerator")
     local UpgradeGenerator = include("upgradegenerator")
     local ugen = UpgradeGenerator()
-    local cx, cy = citadelX, citadelY
     local tgen = SectorTurretGenerator(sector.seed)
 
     for i = 1, random():getInt(8, 12) do
-        local turret = tgen:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))
+        local turret = tgen:generateArmed(citadelX, citadelY, 0, Rarity(RarityType.Legendary))
         if turret then
-            -- tech level scales natively with cx, cy
+            -- tech level scales natively with citadelX, citadelY
             sector:dropTurret(pos, nil, nil, turret)
         end
     end
-    
+
     for i = 1, random():getInt(8, 12) do
-        local upgrade = ugen:generateSectorSystem(cx, cy, Rarity(RarityType.Legendary))
+        local upgrade = ugen:generateSectorSystem(citadelX, citadelY, Rarity(RarityType.Legendary))
         if upgrade then
             sector:dropUpgrade(pos, nil, nil, upgrade)
         end

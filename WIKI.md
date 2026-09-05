@@ -1,6 +1,6 @@
 # 🚀 Cosmic Ascendancy - The Official Wiki & Deep Dive
 
-*Current Version: v1.6.0*
+*Current Version: v1.8.0*
 
 Welcome to the **Cosmic Ascendancy** official wiki. This document is the full, exhaustive breakdown of the mod's mechanics: hard statistics, generation rules, and crafting math.
 
@@ -11,6 +11,7 @@ Welcome to the **Cosmic Ascendancy** official wiki. This document is the full, e
 - [🧬 Mod Identity & Narrative Concept](#-mod-identity--narrative-concept)
 - [📖 The Ascendant Campaign](#-the-ascendant-campaign)
 - [🌑 The Eclipse Crisis (Deep Dive)](#-the-eclipse-crisis-deep-dive)
+- [🎵 The Choir & Endgame Additions](#-the-choir--endgame-additions)
 - [🚨 The World-Eater Doomsday Event](#-the-world-eater-doomsday-event)
 - [🏰 Eclipse Citadels](#-eclipse-citadels)
 - [🗼 The Ascendancy Beacon](#-the-ascendancy-beacon)
@@ -103,6 +104,57 @@ A galaxy that keeps clearing World-Eaters and Citadels doesn't stay at the same 
 
 ---
 
+## 🎵 The Choir & Endgame Additions
+<details>
+<summary><b>Click to expand</b></summary>
+
+Six mechanics layered on top of the systems above, all reachable through the Eclipse's existing
+awakening chain -- no new setup required on an existing save.
+
+### 🗡️ Eclipse Remembers
+Every Eclipse ship you personally destroy raises your own kill score. The higher it climbs, the
+more the Eclipse targets you specifically: Personal Ambush chance rises from a 40% base up to 85%,
+and the escort fleet gains up to 4 additional heavy-class ships. This is what's actually behind
+the "Every 25-45 minutes, 40% chance" framing elsewhere in this document -- that's the floor, not
+the whole picture.
+
+### 🎼 The Choir
+Ambient rumors about the Eclipse escalate as the crisis does -- new dialogue lines register the
+moment the Eclipse first wakes, fully awakens, and becomes a Fallen Empire, rather than all being
+available from the start. A one-shot audio stinger also plays the first time you personally cross
+into Eclipse-held territory in a session.
+
+### 🥷 The Silent Choir
+A rare, named horror -- a lone Phantom-class hunter -- occasionally stalks a single online player
+across the galaxy: sighted at the edge of sensors, a whisper, then gone. After the third sighting,
+it stops vanishing and commits to a real fight. Its last known coordinates are always visible via
+`/eclipsestatus`.
+
+### 🛡️ The Ascendant Ward
+A craftable item at the Ascendancy Forge (10 Ascendant Matter + 20 Ascendant Scrap, instant craft)
+that suppresses the Eclipse's own hunting behavior against you specifically for 30 minutes: Personal
+Ambush rolls, Silent Choir targeting, and the Void Siphon aura's targeting of your ships. It does
+not grant blanket invisibility -- vanilla AI faction hostility is untouched.
+
+### 📡 Distress Beacon
+When a Fallen Empire Crusade targets a player's or alliance's own sector, every online member of
+that faction receives a Priority Mail with the target coordinates -- a real chance to converge and
+defend before the consequence lands.
+
+### 🖥️ The Eclipse: Command Interface
+A standalone UI window, opened by interacting with your own ship, showing everything
+`/eclipsestatus` reports plus your personal kill score, Ward status, and Silent Choir sighting
+info -- across four tabs (Overview / Territory / Threats / Personal), refreshed live while open.
+
+### 🏰 Capital Sieges
+Once you've built an Ascendancy Beacon, it draws attention: every 3 to 6 hours, a siege fleet
+(Pirates, Xsotan, or a hostile War Faction if Cosmic War is installed) invades your capital sector
+to destroy it. Defend it and you're paid out in loot and credits; lose it and your Beacon's global
+buffs collapse along with the structure itself.
+</details>
+
+---
+
 ## 🚨 The World-Eater Doomsday Event
 <details>
 <summary><b>Click to expand</b></summary>
@@ -110,7 +162,7 @@ A galaxy that keeps clearing World-Eaters and Citadels doesn't stay at the same 
 A global crisis managed by the galaxy engine.
 
 - **The Trigger:** Every 3-5 hours of active playtime, a random populated player sector is targeted. The timer automatically pauses if no players are online, protecting 24/7 dedicated servers from being wiped while the server sits empty.
-- **Multiplayer/Alliance Scaling:** A solo fight is tuned exactly as designed. For every additional defender present in the sector at spawn, the boss gains +150% Shield Durability, +75% Hull Durability, and +30% damage, on top of its existing base multipliers and its separate Ascendancy-Tier-based Adaptive Scaling. This runs on both the natural Doomsday Event and the player-summoned Raid (below), so a group faces a harder boss either way it's encountered. The scripted campaign encounter in story mission 5 deliberately does not scale, since it's a one-time narrative beat rather than a repeatable group target.
+- **Multiplayer/Alliance Scaling:** A solo fight is tuned exactly as designed. Every additional defender present in the sector at spawn raises Shield Durability, Hull Durability, and damage on a diminishing-returns curve, on top of its existing base multipliers and its separate Ascendancy-Tier-based Adaptive Scaling -- a duo fight scales almost exactly like before, an 8-player raid faces a real but no-longer-runaway increase, and even a huge dedicated-server raid keeps facing growing difficulty rather than hitting a wall. This runs identically across all three ways to encounter the boss: the natural Doomsday Event, the player-summoned Raid (below), and the scripted campaign encounter in story mission 5 -- a full alliance playing the campaign together faces a boss tuned for their numbers too, not one sized for a single defender.
 - **The Threat:** A World-Eater Juggernaut (5.9 kilometers long, `125x` Hull Mass, `-90%` Speed) spawns 15,000 km away. Unlike lesser Eclipse ships, it relies purely on its colossal Hull and dynamic mechanics.
   - **⛓️ Anchor Pylon Tethers:** On spawn, the World-Eater summons 4 Eclipse Juggernauts. Until all 4 are destroyed, the boss is **100% invincible**, visually tethered to them by purple lasers. It regains the same invincibility twice more during the fight: 2 additional Anchor Pylons spawn at 50% Hull and again at 25% Hull, and the boss stays invincible each time until those fresh tethers are also destroyed.
   - **Nemesis Protocol:** The boss scans incoming DPS. Overwhelming burst damage engages the Nemesis Protocol, cutting all incoming damage by 90% to prevent an instant kill.

@@ -3,6 +3,10 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("basesystem")
 include ("utility")
 
+-- Matches the vanilla convention (shieldbooster.lua, hyperspacebooster.lua, etc.): getEnergy()
+-- returns a constant here, so this tells the engine it never needs to re-read it every frame.
+FixedEnergyRequirement = true
+
 -- Ascendant Neural Implant
 -- An equippable subsystem that massive augments the ship's captain,
 -- providing massive bonuses to fleet control, turrets, and engine output.

@@ -61,29 +61,31 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
     -- Spawn a stash container with loot scaled by distance to core
     local stashPos = pos.pos + vec3(random():getFloat(50, 100), random():getFloat(50, 100), random():getFloat(50, 100))
     local stash = generator:createContainer(nil, MatrixLookUpPosition(vec3(0,1,0), vec3(1,0,0), stashPos), 0)
-    stash.title = "Corrupted Databank Stash"%_t
+    if stash then
+        stash.title = "Corrupted Databank Stash"%_t
 
-    local dist = math.sqrt(x*x + y*y)
+        local dist = math.sqrt(x*x + y*y)
 
-    -- Scale loot material by distance
-    local distMat = 1 -- Iron
-    if dist < 150 then distMat = 6 -- Avorion
-    elseif dist < 200 then distMat = 5 -- Ogonite
-    elseif dist < 250 then distMat = 4 -- Xanion
-    elseif dist < 300 then distMat = 3 -- Trinium
-    elseif dist < 400 then distMat = 2 -- Naonite
+        -- Scale loot material by distance
+        local distMat = 1 -- Iron
+        if dist < 150 then distMat = 6 -- Avorion
+        elseif dist < 200 then distMat = 5 -- Ogonite
+        elseif dist < 250 then distMat = 4 -- Xanion
+        elseif dist < 300 then distMat = 3 -- Trinium
+        elseif dist < 400 then distMat = 2 -- Naonite
+        end
+
+        -- Pass scaling values to the new dedicated stash script
+        local amount = random():getInt(10000, 50000)
+        local numUpgrades = random():getInt(1, 3)
+
+        stash:setValue("ca_anomaly_mat", distMat)
+        stash:setValue("ca_anomaly_amt", amount)
+        stash:setValue("ca_anomaly_upgrades", numUpgrades)
+
+        -- Attach the custom interaction script to make the container openable
+        stash:addScriptOnce("data/scripts/entity/ca_anomaly_stash.lua")
     end
-
-    -- Pass scaling values to the new dedicated stash script
-    local amount = random():getInt(10000, 50000)
-    local numUpgrades = random():getInt(1, 3)
-
-    stash:setValue("ca_anomaly_mat", distMat)
-    stash:setValue("ca_anomaly_amt", amount)
-    stash:setValue("ca_anomaly_upgrades", numUpgrades)
-
-    -- Attach the custom interaction script to make the container openable
-    stash:addScriptOnce("data/scripts/entity/ca_anomaly_stash.lua")
 
     -- Send the lore directly to the player's chat
     Player(playerIndex):sendChatMessage("Ship Sensors", 3, loreText)

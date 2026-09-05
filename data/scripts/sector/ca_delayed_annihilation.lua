@@ -65,9 +65,16 @@ function initialize()
             end
         end
 
-        local ship = EclipseGenerator.createShip(Matrix(), "ca_obliterator")
-        ship:setTitle("Eclipse Obliterator", {})
-        ship:addScriptOnce("data/scripts/entity/ca_heroic_defense.lua")
+        -- A player is guaranteed to be physically present here (this script only runs "when a
+        -- player finally visits this sector", per the header comment above), so spawn the guardian
+        -- with a small offset rather than at literal sector origin -- matches the spread already
+        -- used for the Eclipse Stronghold defenders in ascendancyplayer.lua.
+        local guardianPos = MatrixLookUpPosition(vec3(0, 0, 1), vec3(0, 1, 0), vec3(random():getFloat(-500, 500), random():getFloat(-500, 500), random():getFloat(-500, 500)))
+        local ship = EclipseGenerator.createShip(guardianPos, "ca_obliterator")
+        if ship then
+            ship:setTitle("Eclipse Obliterator", {})
+            ship:addScriptOnce("data/scripts/entity/ca_heroic_defense.lua")
+        end
 
         terminate()
     end

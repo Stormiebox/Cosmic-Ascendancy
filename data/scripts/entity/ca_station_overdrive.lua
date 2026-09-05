@@ -15,6 +15,13 @@ StationOverdrive = {}
 local isOverdriven = false
 local overdriveEndTime = 0
 local OVERDRIVE_DURATION = 3600 -- 1 Hour
+-- Key returned by addBaseMultiplier below, so the multiplier can be removed via the scoped
+-- entity:removeBonus(key) instead of entity:removeScriptBonuses(), which clears EVERY script-added
+-- bonus on the entity -- including any other mod's own stat bonus on the same station (see
+-- ascendantaegis.lua for the full writeup of this bug, already fixed there). Not persisted via
+-- secure()/restore() -- a volatile bonus key must not survive a reload; restore() below re-applies
+-- the multiplier from scratch when needed and captures a fresh key at that point.
+local productionKey = nil
 
 function StationOverdrive.initialize()
     if onClient() then
@@ -78,7 +85,7 @@ function StationOverdrive.activateOverdrive()
     overdriveEndTime = Server().unpausedRuntime + OVERDRIVE_DURATION
 
     -- The correct method is addBaseMultiplier, which multiplies the base capacity.
-    entity:addBaseMultiplier(StatsBonuses.ProductionCapacity, 2.0)
+    productionKey = entity:addBaseMultiplier(StatsBonuses.ProductionCapacity, 2.0)
 
     owner:sendChatMessage("Overdrive"%_t, 0, "Ascendant Overdrive engaged! Production speed tripled for 1 hour."%_t)
     
@@ -88,7 +95,13 @@ end
 callable(StationOverdrive, "activateOverdrive")
 
 function StationOverdrive.getUpdateInterval()
-    return 10
+    -- Matches Factory's own natural ~1s update cadence (vanilla factory.lua) rather than the
+    -- original lumpy 10-second interval. The two manual updateParallelSelf() calls below still add
+    -- 2x on top of the 1x vanilla's own engine-driven tick already delivers, for the advertised 3x
+    -- total -- but each manual call now only ever represents about 1 second of production instead
+    -- of 10, so a fast-cycling recipe (whose timeToProduce is under 10s) can no longer have several
+    -- real completions collapse into a single lumpy jump the way it could before.
+    return 1
 end
 
 function StationOverdrive.updateServer(timeStep)
@@ -97,10 +110,10 @@ function StationOverdrive.updateServer(timeStep)
         if pt >= overdriveEndTime then
             isOverdriven = false
             local entity = Entity()
-            
+
             -- Remove the multiplier
-            entity:removeScriptBonuses()
-            
+            if productionKey then entity:removeBonus(productionKey); productionKey = nil end
+
             local owner = Faction(entity.factionIndex)
             if owner then
                 owner:sendChatMessage("Overdrive"%_t, 2, "Ascendant Overdrive has worn off on your factory."%_t)
@@ -116,10 +129,6 @@ function StationOverdrive.updateServer(timeStep)
             if entity:hasScript("factory.lua") then
                 entity:invokeFunction("factory", "updateParallelSelf", timeStep)
                 entity:invokeFunction("factory", "updateParallelSelf", timeStep)
-            elseif entity:hasScript("mine.lua") then
-                -- mine.lua does not exist in the vanilla copy; this branch is unreachable but harmless
-                entity:invokeFunction("mine", "updateParallelSelf", timeStep)
-                entity:invokeFunction("mine", "updateParallelSelf", timeStep)
             end
         end
     end
@@ -161,11 +170,12 @@ function StationOverdrive.restore(data)
 
     if isOverdriven and onServer() then
         -- In case the server restarted while overdriven, re-apply the multiplier.
-        -- addBaseMultiplier is volatile and does not persist across restarts unless re-added.
-        -- We must first strip the saved bias from the database before re-adding.
+        -- addBaseMultiplier is volatile and does not persist across restarts unless re-added, so
+        -- there's nothing stale left on the entity to strip first -- and stripping via the old
+        -- entity:removeScriptBonuses() call would have wiped every OTHER script's bonuses on this
+        -- station too. productionKey is freshly nil on this script load either way.
         local entity = Entity()
-        entity:removeScriptBonuses()
-        entity:addBaseMultiplier(StatsBonuses.ProductionCapacity, 2.0)
+        productionKey = entity:addBaseMultiplier(StatsBonuses.ProductionCapacity, 2.0)
     end
 end
 

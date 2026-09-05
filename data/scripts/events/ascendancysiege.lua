@@ -22,6 +22,12 @@ local active = false
 
 function AscendancySiege.initialize(t, ownerIndex)
     if not onServer() then return end
+    -- Defensive-in-depth: addScriptOnce is idempotent while the sector stays loaded and this
+    -- script's own secure()/restore() correctly re-applies state on a reload, so this shouldn't be
+    -- reachable in practice -- but nothing else in this call chain guards against a second
+    -- initialize() firing while a siege is still active, unlike updateServer() right below, which
+    -- already defends itself with "if not active then return end".
+    if active then return end
     tier = t or 1
     targetFactionIndex = ownerIndex or 0
     active = true

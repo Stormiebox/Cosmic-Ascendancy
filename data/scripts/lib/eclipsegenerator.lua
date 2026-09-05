@@ -256,6 +256,27 @@ function EclipseGenerator.addTurrets(ship, numTurrets)
     end
 end
 
+-- Which of the four class-specific abilities (ca_eclipse_abilities.lua) each hull type gets,
+-- keyed by the real planType instead of a post-hoc title-string match. Previously
+-- EclipseAbilities.initialize() derived this by pattern-matching entity.title/translatedTitle at
+-- attach time -- but createShip() below attaches ca_eclipse_abilities.lua BEFORE any caller except
+-- the Harbinger/Obliterator branch sets the ship's real title, so every other class read the
+-- placeholder "Eclipse Nullifier" title, which matched none of the four patterns, and silently got
+-- no special ability for its entire lifetime. Keying on planType removes the timing dependency
+-- entirely instead of just reordering two lines. Matches the keyword lists ca_eclipse_abilities.lua
+-- used to match against exactly (its "cruiser"/"dreadnought" keywords are dropped here since no
+-- ship in this table was ever titled either word -- dead patterns, not a real class).
+local ABILITY_CLASS = {
+    ca_voidweaver  = {siphon = true, singularity = true},
+    ca_juggernaut  = {siphon = true, singularity = true},
+    ca_harbinger   = {siphon = true, singularity = true},
+    ca_worldeater  = {siphon = true, singularity = true},
+    ca_phantom     = {ethereal = true},
+    ca_interceptor = {ethereal = true},
+    ca_defiler     = {adaptive = true},
+    ca_singularity = {adaptive = true},
+}
+
 function EclipseGenerator.createShip(position, planType, volumeScale, turretCount)
     position = position or Matrix()
     local faction = EclipseGenerator.getFaction()
@@ -289,6 +310,13 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
     end
 
     local ship = Sector():createShip(faction, "", plan, position, EntityArrivalType.Jump)
+    -- Sector:createShip()'s failure return isn't documented as impossible (see the identical
+    -- valid(plan) writeup above), and every caller of this shared factory indexes the result
+    -- unconditionally -- including the mission files' own "if boss then bossSpawned = true end"
+    -- guards, which never get a chance to run because a nil here throws one call frame earlier,
+    -- inside addTurrets() below. Fail fast and return nil so every caller's own nil-check (already
+    -- present) actually has something to guard against.
+    if not ship then return nil end
 
     EclipseGenerator.addTurrets(ship, turretCount or 15)
 
@@ -310,9 +338,8 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
     -- If it's a Harbinger, inject Ascendant Multipliers
     if planType == "ca_harbinger" then
         ship:addBaseMultiplier(StatsBonuses.ShieldDurability, 10.0) -- +1000% Shields (Nerfed to preserve World-Eater supremacy)
-        EclipseGenerator.applyDamageMultiplier(ship, 10.0) -- +1000% Damage (compensated for lost turrets)
+        EclipseGenerator.applyDamageMultiplier(ship, 10.0) -- 10x/+900% Damage (compensated for lost turrets)
         ship:addBaseMultiplier(StatsBonuses.FireRate, 1.0) -- +100% Fire Rate
-        ship:addScriptOnce("entity/eclipse_boss_scaling.lua")
 
         -- NEMESIS SYSTEM
         local nemesisResist = Server():getValue("eclipse_nemesis_resist")
@@ -323,7 +350,11 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
     end
 
     Boarding(ship).boardable = false
-    ship:addScriptOnce("data/scripts/entity/ca_eclipse_abilities.lua")
+    local abilities = ABILITY_CLASS[planType] or {}
+    -- Multiple extra args after the path ARE forwarded to initialize() -- confirmed live in this
+    -- same codebase (ascendancysiege.lua's own AscendancySiege.initialize(t, ownerIndex) receives
+    -- two from Sector():addScriptOnce("events/ascendancysiege.lua", currentTier, owner.index)).
+    ship:addScriptOnce("data/scripts/entity/ca_eclipse_abilities.lua", abilities.siphon or false, abilities.ethereal or false, abilities.adaptive or false, abilities.singularity or false)
 
     return ship
 end
@@ -331,11 +362,22 @@ end
 function EclipseGenerator.createWorldEater(position)
     -- The World-Eater is a massive Pyramid
     local ship = EclipseGenerator.createShip(position, "ca_worldeater", 150.0, 150)
-    ship:setTitle("Eclipse World Eater"%_T, {})
+    -- Hyphenated to match ca_eclipse_abilities.lua's "world%-eater" classification pattern (a
+    -- literal hyphen in a Lua pattern) and the WIKI's own hyphenated "World-Eater" spelling used
+    -- everywhere else. Before this fix the un-hyphenated title meant the pattern could never match,
+    -- so the raid final boss never got Void Siphon Aura or Singularity Implosion.
+    ship:setTitle("Eclipse World-Eater"%_T, {})
 
     -- The World Eater gets an extra multiplier
-    EclipseGenerator.applyDamageMultiplier(ship, 3.0)
-    ship:addBaseMultiplier(StatsBonuses.ShieldDurability, 15.0) -- Massive shields for the raid boss
+    -- Raised from 3.0/15.0 (4x/16x) to 4.0/18.0 (4x/19x) as part of re-establishing the World-Eater
+    -- as strictly the strongest single thing in the mod: removing eclipse_boss_scaling.lua's
+    -- double-stack from Harbinger/Citadel (see createShip/createStation above) fixed the stacking
+    -- bug, but the World-Eater's own baseline still needed a modest bump to clear both of their own
+    -- standalone numbers (Harbinger 11x/11x, Citadel's retuned 17x/5x). Its volume scale (150.0, vs.
+    -- Citadel's 8.0 and Harbinger's 1.0) already gives it an order-of-magnitude bigger raw hull pool
+    -- on top of this.
+    EclipseGenerator.applyDamageMultiplier(ship, 4.0)
+    ship:addBaseMultiplier(StatsBonuses.ShieldDurability, 18.0) -- Massive shields for the raid boss
 
     -- -90% Speed as per design
     ship:addBaseMultiplier(StatsBonuses.Velocity, -0.9)
@@ -360,17 +402,25 @@ end
 -- count at the moment of the actual fight, not at plan-generation time.
 function EclipseGenerator.applyWorldEaterMultiplayerScaling(ship)
     local defenders = {Sector():getPlayers()}
-    local extraDefenders = math.max(0, #defenders - 1)
-    if extraDefenders > 0 then
+    local n = math.max(1, #defenders)
+    -- Diminishing returns instead of a flat per-extra-defender rate: the original linear formula
+    -- (+150%/+75%/+30% per extra defender) grew unboundedly, reaching +1050%/+525%/+210% at 8
+    -- simultaneous defenders and getting worse without limit on a busy dedicated server -- steep
+    -- enough to approach "unkillable," not just "harder." 2*(sqrt(n)-1) tracks the old linear rate
+    -- closely for the first couple of extra defenders (a duo fight barely changes) and tapers hard
+    -- after that (8 players: +549%/+274%/+110%; 20 players: +1041%/+520%/+208% and still slowly
+    -- climbing), so a large raid still faces real, growing difficulty without a hard wall.
+    local scale = 2.0 * (math.sqrt(n) - 1.0)
+    if scale > 0 then
         -- Shields scale via the StatsBonuses system (same mechanism as every other Eclipse buff).
-        ship:addBaseMultiplier(StatsBonuses.ShieldDurability, extraDefenders * 1.5) -- +150% shields per extra defender
+        ship:addBaseMultiplier(StatsBonuses.ShieldDurability, scale * 1.5)
         -- There is no StatsBonuses.HullDurability entry (the enum only goes up to FireRate=40). Hull HP
         -- is instead scaled through the Durability component's maxDurabilityFactor, additive on top of
         -- whatever the hull's base volume/material already grants (confirmed against vanilla usage in
         -- data/scripts/lib/spawnutility.lua: "durability.maxDurabilityFactor = durability.maxDurabilityFactor + hpFactor").
         local hullDurability = Durability(ship.id)
-        hullDurability.maxDurabilityFactor = hullDurability.maxDurabilityFactor + (extraDefenders * 0.75) -- +75% hull per extra defender
-        EclipseGenerator.applyDamageMultiplier(ship, 1.0 + extraDefenders * 0.3) -- +30% damage per extra defender
+        hullDurability.maxDurabilityFactor = hullDurability.maxDurabilityFactor + (scale * 0.75)
+        EclipseGenerator.applyDamageMultiplier(ship, 1.0 + scale * 0.3)
     end
 end
 
@@ -390,7 +440,7 @@ function EclipseGenerator.createAssassin(position)
     local ship = EclipseGenerator.createShip(position, "ca_phantom")
     ship:setTitle("Eclipse Phantom"%_T, {})
 
-    EclipseGenerator.applyDamageMultiplier(ship, 3.0) -- +300% burst damage
+    EclipseGenerator.applyDamageMultiplier(ship, 3.0) -- 3x/+200% burst damage
     ship:addBaseMultiplier(StatsBonuses.Velocity, 3.0) -- Fast turning/moving
 
     return ship
@@ -435,7 +485,11 @@ function EclipseGenerator.createInterceptor(position)
     ship:setTitle("Eclipse Interceptor"%_T, {})
 
     ship:addBaseMultiplier(StatsBonuses.Velocity, 1.5) -- +150% Speed
-    EclipseGenerator.applyDamageMultiplier(ship, -0.2) -- -20% Damage
+    -- applyDamageMultiplier(entity, factor) takes a TOTAL multiplier (e.g. 0.8 = 80% = -20%), not
+    -- the delta itself -- it internally computes factor - 1.0. Passing -0.2 directly drove the
+    -- final FireRate multiplier to 1 + (-0.2 - 1.0) = -0.2, a negative multiplier, instead of the
+    -- intended 0.8 (1 + (0.8 - 1.0) = 0.8). Interceptors were dealing near-zero/negative damage.
+    EclipseGenerator.applyDamageMultiplier(ship, 0.8) -- -20% Damage
 
     return ship
 end
@@ -459,7 +513,7 @@ function EclipseGenerator.createDefiler(position)
     local ship = EclipseGenerator.createShip(position, "ca_defiler")
     ship:setTitle("Eclipse Defiler"%_T, {})
 
-    EclipseGenerator.applyDamageMultiplier(ship, 1.5) -- +150% Damage
+    EclipseGenerator.applyDamageMultiplier(ship, 1.5) -- 1.5x/+50% Damage
 
     return ship
 end
@@ -490,6 +544,8 @@ function EclipseGenerator.createStation(position)
     end
 
     local station = Sector():createStation(faction, plan, position)
+    -- See the identical guard in createShip() above for why this can't be skipped.
+    if not station then return nil end
 
     EclipseGenerator.addTurrets(station, 40)
     station:setTitle("Eclipse Citadel"%_T, {})
@@ -500,15 +556,19 @@ function EclipseGenerator.createStation(position)
     AddDefaultStationScripts(station)
     station:addScriptOnce("utility/aiundockable.lua")
 
-    station:addBaseMultiplier(StatsBonuses.ShieldDurability, 50.0)
+    -- Retuned from 50.0 (51x -- exceeded even the World-Eater's own baseline on its own, before
+    -- eclipse_boss_scaling.lua's now-removed double-stack made it worse) down to 16.0 (17x), just
+    -- below the World-Eater's redesigned 19x floor. The Citadel is still an appropriately massive
+    -- siege objective (8x volume, 4 orbital platforms, the Lockdown Matrix trapping attackers in
+    -- the sector) -- it just no longer outguns the raid boss it's supposed to answer to.
+    station:addBaseMultiplier(StatsBonuses.ShieldDurability, 16.0)
     EclipseGenerator.applyDamageMultiplier(station, 5.0)
     -- Eclipse Remnant Escalation: see EclipseGenerator.applyRemnantScaling.
     EclipseGenerator.applyRemnantScaling(station)
-    station:addScriptOnce("entity/eclipse_boss_scaling.lua")
     station:addScriptOnce("data/scripts/entity/ca_citadel_loot.lua")
 
     -- The Lockdown Matrix: Prevents players from jumping out while the Citadel is alive (Paced)
-    station:addScriptOnce("entity/ca_citadel_blocker.lua")
+    station:addScriptOnce("data/scripts/entity/ca_citadel_blocker.lua")
 
     Boarding(station).boardable = false
 

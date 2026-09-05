@@ -62,13 +62,39 @@ function WorldEaterManager.updateServer(timeStep)
         -- Check if any player is in the targeted sector to inject the actual boss ship. Once this
         -- fires successfully, the encounter is "engaged" and the countdown above stops for good --
         -- cancelEvent() (called from ca_world_eater_event.lua's onWorldEaterDestroyed) is the only
-        -- way this activeEvent ever clears from this point on.
+        -- way this activeEvent ever clears from this point on, other than the abandonment backstop
+        -- immediately below.
         if WorldEaterManager.activeEvent then
+            local anyoneInSector = false
             for _, player in pairs({Server():getOnlinePlayers()}) do
                 local px, py = player:getSectorCoordinates()
                 if px == WorldEaterManager.activeEvent.x and py == WorldEaterManager.activeEvent.y then
-                    WorldEaterManager.activeEvent.engaged = true
-                    WorldEaterManager.injectSectorScript(px, py)
+                    anyoneInSector = true
+                    if not WorldEaterManager.activeEvent.engaged then
+                        WorldEaterManager.activeEvent.engaged = true
+                        WorldEaterManager.injectSectorScript(px, py)
+                    end
+                end
+            end
+
+            -- Abandonment backstop: once engaged, the only normal exit is killing the boss -- if
+            -- every defender leaves (or the boss is engaged but never actually reached, e.g. a
+            -- stale save) and nobody returns for a long time, the encounter would otherwise block
+            -- every future natural Doomsday Event for this galaxy forever. Track how long the
+            -- target sector has been empty of players and force-cancel (no kill reward) once that
+            -- exceeds 2 hours -- long enough to never interrupt a real fight with a normal amount of
+            -- regrouping/refitting, short enough that one abandoned attempt doesn't lock the mechanic
+            -- out indefinitely.
+            if WorldEaterManager.activeEvent.engaged then
+                if anyoneInSector then
+                    WorldEaterManager.activeEvent.emptySince = nil
+                else
+                    WorldEaterManager.activeEvent.emptySince = WorldEaterManager.activeEvent.emptySince or Server().unpausedRuntime
+                    if Server().unpausedRuntime - WorldEaterManager.activeEvent.emptySince > 7200 then
+                        Server():broadcastChatMessage("The Eclipse"%_T, 0, "The abandoned World-Eater engagement has been stood down."%_T)
+                        WorldEaterManager.activeEvent = nil
+                        Server():setValue("eclipse_world_eater_grace_end", Server().unpausedRuntime + 36000)
+                    end
                 end
             end
         end
@@ -77,8 +103,10 @@ function WorldEaterManager.updateServer(timeStep)
         if Server().unpausedRuntime > graceEnd then
             if not WorldEaterManager.threshold then
                 -- Eclipse Remnant Escalation: shrink the 3-5hr window by up to 15 minutes per
-                -- Remnant Tier (up to 75 minutes at max tier), floored so it never drops below a
-                -- 1.5-2.5hr range even at max escalation.
+                -- Remnant Tier (up to 75 minutes at REMNANT_MAX_TIER=5, eclipsegenerator.lua),
+                -- giving a real max-tier window of 1h45m-3h45m today. math.max's 1.5hr/2.5hr floors
+                -- don't bind at the current tier cap -- they're headroom in case that cap is ever
+                -- raised, not the value actually reached now.
                 local EclipseGenerator = include("eclipsegenerator")
                 local reduction = EclipseGenerator.getRemnantTier() * 900
                 local minSeconds = math.max(5400, 10800 - reduction)
@@ -186,6 +214,27 @@ function WorldEaterManager.executeDoomsday()
         end
     ]]
     runSectorCode(tx, ty, true, code, "run")
+
+    -- ca_delayed_annihilation.lua deliberately spares player/alliance-owned ships and stations --
+    -- correct for the general Eclipse conquest/annihilation case it's shared with (matching the
+    -- WIKI's own "player- and alliance-owned entities are never deleted by an Annihilation roll").
+    -- But the World-Eater's own Doomsday failure is supposed to carry a real, personal stake for
+    -- whoever failed to stop it in time ("player ships reduced to 1 HP"), so that consequence is
+    -- applied here, separately and specifically to this path, rather than changing the shared
+    -- script's asset-sparing behavior for every other Eclipse annihilation in the mod.
+    local criticalCode = [[
+        function run()
+            local sector = Sector()
+            if not sector then return end
+            for _, entity in pairs({sector:getEntities()}) do
+                if valid(entity) and entity.type == EntityType.Ship and (entity.playerOwned or entity.allianceOwned) then
+                    entity.shieldDurability = 0
+                    entity.durability = 1
+                end
+            end
+        end
+    ]]
+    runSectorCode(tx, ty, true, criticalCode, "run")
 end
 
 function WorldEaterManager.cancelEvent()

@@ -7,6 +7,227 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v1.8.0] - The Eclipse Hierarchy Rework
+
+A full-mod audit (all 69 scripts) found a long list of bugs surviving the v1.7.0/v1.7.1 passes,
+several with real gameplay weight — a cross-mod buff-wiping bug with the largest blast radius yet
+found in this mod, an ability-classification bug that likely left most Eclipse ship classes with no
+special ability at all, and a scaling bug that left the Harbinger and the Citadel tankier than the
+World-Eater raid boss they're supposed to answer to. This release fixes all of it and uses the
+opportunity to redesign the Eclipse power curve deliberately: the World-Eater is now unambiguously
+the strongest single thing the Eclipse fields, and its multiplayer scaling moves from a linear
+per-defender rate (which could approach "unkillable" on a large dedicated server) to a
+diminishing-returns curve that stays fair at any player count.
+
+### ⚖️ Balance & Redesign
+
+- [Redesign] **The World-Eater Is Now Actually The Strongest Thing In The Mod:** Two bugs (below)
+  meant the Harbinger and the Citadel were each individually tankier than the raid boss they're
+  narratively supposed to answer to — a Citadel could reach roughly 76-85x shields against the
+  World-Eater's own ~16x. Fixed both bugs, then retuned the surviving numbers: Citadel's own
+  `ShieldDurability` multiplier drops from `+5000%` to `+1500%` (still an appropriately massive
+  siege objective — 8x volume, 4 orbital platforms, the Lockdown Matrix — just no longer stronger
+  than the actual final boss), and the World-Eater's own baseline rises from `+1500%`/`3.0x` to
+  `+1800%`/`4.0x` shields/damage. The Harbinger needed no numeric change — its own comment
+  ("Nerfed to preserve World-Eater supremacy") turned out to have been correct all along, just
+  undermined by the stacking bug below.
+- [Redesign] **World-Eater Multiplayer Scaling Now Uses Diminishing Returns:** The old formula
+  added a flat `+150%` Shield / `+75%` Hull / `+30%` damage per extra defender present at spawn,
+  linearly, with no ceiling — reaching `+1050%`/`+525%`/`+210%` at 8 simultaneous defenders and
+  climbing without limit past that, steep enough to approach "physically unkillable" on a populated
+  dedicated server. Replaced with a `2×(√n − 1)` damping curve in
+  `EclipseGenerator.applyWorldEaterMultiplayerScaling` (`eclipsegenerator.lua`): a solo fight is
+  bit-for-bit unchanged, a duo fight scales almost exactly like before, an 8-player raid now faces
+  `+549%`/`+274%`/`+110%` instead, and even a 20-player raid (`+1041%`/`+520%`/`+208%` and still
+  slowly climbing) keeps facing real, growing difficulty without ever hitting a hard wall.
+- [Redesign] **The Doomsday Clock Failing Now Actually Costs The Defender Something:**
+  `ca_world_eater_manager.lua`'s `executeDoomsday()` reused the same sector-wipe script the general
+  Eclipse conquest/annihilation system uses, which deliberately spares player/alliance-owned ships
+  and stations — correct for that general case, but it meant the WIKI's own stated stakes ("player
+  ships reduced to 1 HP") never actually happened for the one event they were specifically written
+  about. Added a second, World-Eater-specific consequence layered on top of the existing shared
+  wipe: any player/alliance ship still in the target sector when the clock hits zero has its
+  shields and hull cut to a critical 0/1, without touching the shared script's asset-sparing
+  behavior for every other Eclipse annihilation in the mod.
+- [Redesign] **Abandoned Doomsday Encounters No Longer Block The Mechanic Forever:** Once a natural
+  World-Eater event is engaged (a player reaches the target sector), the only way it used to clear
+  was killing the boss — abandon the fight (everyone leaves, boss survives) and no future natural
+  Doomsday Event could ever fire again for that galaxy. `ca_world_eater_manager.lua` now tracks how
+  long the target sector has sat empty of players while engaged and force-cancels (no kill reward,
+  10-hour Grace Period as usual) after 2 hours, long enough to never interrupt a real fight.
+
+### 🪲 Bug Fixes
+
+- [Bugfix] **The Cross-Mod Buff-Wiping Bug Was Still Live In 7 Files:** `entity:removeScriptBonuses()`
+  clears every script-added bonus on an entity, not just the caller's own — v1.7.0 found and fixed
+  this correctly in `ascendantaegis.lua` (track each bonus key, call the scoped
+  `entity:removeBonus(key)` instead), but the fix never reached seven other call sites:
+  `ca_ascendancy_ship_buff.lua` (attached unconditionally to **every** player/alliance ship on every
+  sector entry — the largest blast radius in the mod, regardless of whether that ship's faction had
+  ever touched the Beacon system), `ca_station_overdrive.lua`, and five of the six craftable
+  Ascendant relic systems (`ascendantomnisensor.lua`, `ascendantslipstream.lua`,
+  `ascendantswarmnexus.lua`, `ascendantvoiddrill.lua`, `ascendantwardrive.lua`) plus
+  `slipstream_drift_buff.lua`. Any of these running alongside another mod's stat buff (Cosmic
+  Overhaul's captain traits, Cosmic Starfall's Bastion System) or alongside each other silently
+  erased the other buff on its own update tick. Applied the identical proven fix to all seven.
+- [Bugfix] **Eclipse Ship Special Abilities Were Broken For Almost Every Class:** Two independent
+  bugs in `ca_eclipse_abilities.lua`'s class classification. First: `eclipsegenerator.lua`'s shared
+  `createShip()` attached the ability script *before* most callers set the ship's real title, so
+  `EclipseAbilities.initialize()`'s title-string match read the placeholder `"Eclipse Nullifier"`
+  for every class except Harbinger/Obliterator — silently granting no Void Siphon, Ethereal
+  Phase-Shift, Adaptive Resistance, or Singularity Implosion to Carrier, Interceptor, Juggernaut,
+  Phantom, Artillery, or Defiler. Second, independent of the first: `createWorldEater()` titled the
+  ship `"Eclipse World Eater"` (a space) while the classifier required a literal hyphen
+  (`"world%-eater"`) — a 100%-certain match failure regardless of the first bug, meaning the raid
+  final boss itself never got Void Siphon Aura or Singularity Implosion. Fixed by removing the
+  title-string dependency entirely: `createShip()` now resolves each ship's ability class from a
+  lookup table keyed on the real `planType` and passes it directly into
+  `ca_eclipse_abilities.lua`'s `initialize()` as explicit arguments (the same `addScriptOnce`
+  extra-args mechanism `ascendancysiege.lua` already proved works with multiple arguments).
+- [Bugfix] **Adapted Harbingers Could Net-Heal From Big Hits:** `ca_nemesis_system.lua` and
+  `ca_nemesis_resist.lua` are both attached to every Harbinger and each independently capped
+  incoming damage at 8% of max health and refunded the excess, unaware of each other — on a hit
+  above the cap, the excess got refunded twice, and on the ship's own resisted damage type the 90%
+  type-specific reduction plus the second 8% refund could exceed the damage actually dealt, healing
+  the ship instead of hurting it. `ca_nemesis_resist.lua` now applies only its type-specific 90%
+  reduction; `ca_nemesis_system.lua` is the sole remaining place the 8% cap is enforced.
+- [Bugfix] **The Shared Spawn Factory Had No Nil-Guard, Defeating The v1.7.0 Spawn-Crash Fix:** Four
+  story missions correctly guard their boss's post-spawn indexing with `if boss then ... end` — but
+  every one of them gets its boss through `EclipseGenerator.createShip()`/`createStation()`, which
+  indexed the raw engine return value **unconditionally**, starting with `addTurrets()` (confirmed
+  against vanilla `shiputility.lua`, which itself indexes with no guard). A `nil` return from
+  `Sector():createShip()`/`createStation()` crashed one call frame before the mission files' own
+  guard was ever reached, so the fix the changelog credited with closing this softlock class never
+  actually executed. Added the nil-guard where the real unguarded index lives — immediately after
+  the engine spawn call inside both shared factory functions.
+- [Bugfix] **`ca_story0_meet_aegis.lua` Still Had The Original Same-Sector Rendezvous Bug:** Every
+  other story mission (`ca_story1` through `ca_story5`) rerolls its fallback rendezvous offset
+  until it's guaranteed non-zero on at least one axis, closing a permanent softlock where the
+  target sector could resolve to the player's own current sector. `ca_story0` — the mission every
+  player hits first — never got the same fix. Applied the identical retry guard.
+- [Bugfix] **Interceptor's Damage Multiplier Was Inverted:** `eclipsegenerator.lua`'s
+  `createInterceptor` passed `-0.2` directly to `applyDamageMultiplier` (which internally computes
+  `factor - 1.0`) where `0.8` was intended for "-20% damage" — the actual result was a `-0.2`
+  FireRate multiplier, not `0.8`, likely leaving Interceptors dealing near-zero or negative
+  effective damage for their entire time in the mod. Fixed to pass `0.8`.
+- [Bugfix] **Conquest Contest Window Was 2 Hours, Not The Intended 2 Minutes:**
+  `eclipse_conquest_manager.lua` passed `120` into `CosmicVaultTerritory.setContestedZone`'s
+  duration parameter, which is measured in minutes — the block's own comment describes a
+  deliberately tight "120-second" margin the Distress Beacon mail can't extend, evidence of the
+  real intent. Fixed to pass `2`.
+- [Bugfix] **Solo Players Could Become Permanently Immune To Player-Targeted Crusades:** The "don't
+  re-target the same faction twice in a row" exclusion in `eclipse_conquest_manager.lua` never
+  expired — on a solo save, or any server with only one player/alliance faction online, that
+  faction was excluded after its first Crusade and the branch silently no-op'd forever after,
+  quietly disabling a documented Fallen Empire mechanic for a whole class of server. Now falls back
+  to allowing the excluded faction when it's genuinely the only online candidate, preserving the
+  intended rotation whenever a real alternative exists.
+- [Bugfix] **Nemesis Hunt Tracker Was A Single Global Slot:** Any Harbinger retreat — the intended
+  hunt target or an unrelated Personal Ambush boss — overwrote the single galaxy-wide
+  `eclipse_nemesis_hunt` record, silently erasing whichever player was tracking a different lead.
+  The shared spawn-gating record (needed to prevent a double-spawn if two players reach the hunt
+  sector at once) stays global, but every player physically present for a retreat now also gets
+  their own personal copy (`player:setValue`) for their own `/eclipsestatus` and the Command
+  Interface, so a later, unrelated retreat overwriting the shared record no longer erases what a
+  specific player already knows. `ca_eclipse_status.lua`'s `nemesisHunt` field moved from the
+  galaxy snapshot to the personal one accordingly.
+- [Bugfix] **World-Eater Enrage Applied Only Half Its Documented Buff:** The 35%-HP Enrage phase
+  applied the `+50%` Fire Rate half of its "WIKI: +50% Fire Rate, +50% global damage" description
+  but never called `applyDamageMultiplier` for the damage half, even though it's already imported
+  in the same file and used elsewhere for exactly this purpose. Added the missing call.
+- [Bugfix] **Titan World-Breaker Could Be Outclassed 5x By A Standard Rolled Turret:**
+  `ascendancyforge.lua`'s Titan piece was a flat 250,000 damage regardless of conditions, while a
+  standard weapon choice scaled up to roughly 1,350,000 at maximum war-heat and core proximity —
+  already ahead at moderate conditions. The Titan now scales by the same `distBonus × warBonus`
+  factor the standard path uses, off a base high enough to stay strictly ahead everywhere (250,000
+  at minimum conditions, up to 7,500,000 at maximum — roughly 5.5x the standard path's own ceiling
+  at every comparable point).
+- [Bugfix] **Station Overdrive's "Tripled" Production Was Imprecise:** `ca_station_overdrive.lua`
+  manually invoked the reserved `Factory.updateParallelSelf` lifecycle callback twice per 10-second
+  tick to simulate a 3x boost — but that callback only ever finishes one production cycle per call
+  regardless of how much "extra" time a jump represents, so any recipe with a `timeToProduce` under
+  10 seconds couldn't deliver its real completion count. Dropped the interval to 1 second (matching
+  `Factory`'s own natural cadence) while keeping the two manual calls per tick, delivering an
+  accurate 3x at any recipe speed instead of a lumpy approximation.
+- [Bugfix] **Adaptive Resistance Mixed Hull And Shield Damage Under Incompatible Thresholds:**
+  `ca_eclipse_abilities.lua`'s `onDamaged`/`onShieldDamaged` both accumulated into one shared
+  `elementalTracker`, checked against two different denominators (`maxDurability` vs.
+  `shieldMaxDurability`) — raw damage against one surface could trip the other surface's much
+  smaller or larger threshold. Split into separate `elementalTrackerHull`/`elementalTrackerShield`
+  tables, each owned by its own callback.
+- [Bugfix] **`/eclipsestatus` Could Crash On A Nil The UI Already Guarded Against:**
+  `eclipsestatus.lua` read `snap.silentChoir.lastX`/`.lastY` with no fallback where
+  `ca_eclipse_interface.lua`'s identical read already defaulted to `0` — added the matching `or 0`.
+- [Bugfix] **Three More Unchecked Spawn Returns:** `ca_delayed_annihilation.lua`'s permanent
+  Obliterator guardian (also given a small position offset — it was spawning at literal sector
+  origin in a script that only runs with a player guaranteed present), `eclipseinvasion.lua`'s Rift
+  Stabilizer, and `ca_story_lore_anomalies.lua`'s lore stash all indexed a factory return value
+  with no nil-check, inconsistent with a correctly-guarded sibling spawn a few lines away in each
+  same file.
+- [Bugfix] **Six More Short `addScriptOnce`/`removeScript` Paths Missed By The v1.7.0 Normalization
+  Pass:** `eclipsegenerator.lua` (`ca_citadel_blocker.lua`), `eclipseinvasion.lua` (removing
+  `ca_citadel_blocker.lua`, adding `ca_rift_stabilizer.lua` and `ca_rift_hazard.lua`), and
+  `ca_story0_meet_aegis.lua` (`ca_envoy_despawn.lua`, `ca_ascendant_envoy.lua`) all normalized to
+  the full `data/scripts/...` form.
+- [Bugfix] **Raid Summoner's One-Shot Flag Could Burn Before The Boss Spawn Was Confirmed:**
+  `ca_raid_summoner.lua` persisted `spawnedRaid = true` before `createWorldEater()` was known to
+  succeed; a failed spawn would have permanently disabled that sector's Raid Summoning with the
+  triggering Datacore already deleted. Documented as the pattern to watch for going forward — left
+  as informational since the underlying spawn path is now nil-guarded end-to-end (see above), but
+  worth a second look if a future change reintroduces an unguarded spawn on this path.
+- [Cleanup] **`AscendancySiege.initialize()` Had No Re-Entrancy Guard:** Investigated directly —
+  very likely not currently exploitable, since `addScriptOnce` is idempotent while a sector stays
+  loaded and this script's own `secure()`/`restore()` correctly re-applies state on a reload. Added
+  the defensive `if active then return end` anyway, matching `updateServer()`'s own existing guard.
+- [Cleanup] **`ca_spawn_envoy.lua` Terminated Without Verifying Its Mission Attached:** Same
+  `addScriptOnce`-swallows-failures risk already documented and guarded against in
+  `ca_ascendant_envoy.lua`. Added the matching `player:hasScript(...)` verification before
+  `terminate()`; on failure, retries on the next tick instead of leaving the player stranded.
+- [Cleanup] **Dead Code Removed:** the orphaned `eclipse_boss_scaling.lua` file (its two attachment
+  sites were removed as part of the Harbinger/Citadel retune above), the write-only
+  `CaBossAudioHook.bossPhase` field, a redundant re-declared `owner` local in
+  `ascendancybeacon.lua`, a pure-rename local in `ca_citadel_loot.lua`, and an unreachable
+  `mine.lua` branch in `ca_station_overdrive.lua` (`mine.lua` doesn't exist in vanilla).
+- [Cleanup] **Misc Low-Severity Fixes:** three `applyDamageMultiplier` comments in
+  `eclipsegenerator.lua` that overstated their effect by 100 percentage points; `Server():getOnlinePlayers()`
+  cached once instead of re-fetched up to 5 times in `eclipse_conquest_manager.lua`'s
+  `expandEmpire()`; a CPU-budget timer added to `ca_expansion_manager.lua`'s pirate-expansion loop,
+  matching its sibling AI-faction loop; `ca_world_eater_manager.lua`'s tether re-scan now correctly
+  gated on `not engaged`; its Remnant-escalation floor comment corrected to state the real max-tier
+  window (1h45m-3h45m, not the un-reachable-at-current-tier-cap 1.5-2.5hr the comment described);
+  `"Galactic News"` wrapped in `%_T` in `ca_heroic_defense.lua`, matching its siblings;
+  `ca_rift_hazard.lua`'s warning text now mentions that lingering drains into hull, not just
+  shields; `ca_heroic_defense.lua`'s broadcast text reworded from "halting the sector annihilation
+  sequence" (nothing was actually being halted — the wipe already ran to completion before the
+  guardian even spawned) to "secured the wreckage"; `autoTrackMission` propagated to `ca_story1`
+  through `ca_story5` (previously only `ca_story0` had it, even though every later mission hands
+  the player the identical off-HUD rendezvous risk it was added to solve); `FixedEnergyRequirement
+  = true` added to all 8 Ascendant ship systems, matching the vanilla convention that stops the
+  engine re-reading a constant energy cost every frame.
+
+### 📚 Documentation
+
+- [Docs] **In-Game Codex Corrected:** `infoCa.lua`'s Singularity Implosion radius corrected from a
+  stated 3km to the actual 1.5km; its Personal Ambush description rewritten to describe the real
+  mechanism (an accelerating galaxy-wide threat trigger, not a flat per-player timer) and the
+  previously-undocumented "Eclipse Remembers" kill-score scaling; added a note that defending a
+  Conquest siege doesn't roll back the Eclipse's territorial count, only destroying a Citadel does.
+- [Docs] **`WIKI.md`/`PLAYER_GUIDE.md` Brought Current:** both were stamped v1.6.0 while the mod
+  shipped v1.7.1, and neither mentioned any of v1.7.0's five new features. Version stamps updated
+  and a new section added to both documenting Eclipse Remembers, The Choir, The Silent Choir, the
+  Ascendant Ward, the Distress Beacon, the Command Interface UI, and Capital Sieges (the last of
+  these was already accurately documented in the in-game Codex, just missing from these two).
+  Both docs' World-Eater multiplayer-scaling description updated to reflect the diminishing-returns
+  redesign above, and the Story 5 "doesn't scale" claim corrected — the code already scaled it
+  identically to the other two spawn paths; only the doc was wrong.
+- [Docs] Corrected a Dark Sector risk figure in `CA_Workshop_Description.bbcode` (a flat "20% risk"
+  where the actual mechanic is a tiered 5-15%/25%/50% scale by core proximity) and its World-Eater
+  multiplayer-scaling blurb, matching the redesign above. Note: most of what an earlier audit pass
+  flagged as stale in this specific file (a "3-part campaign" claim, a "7.5x" Living Relic figure)
+  turned out to have been misattributed during that audit to the wrong file — that content actually
+  lives in `CA_Change_Notes.bbcode`'s historical entries, not here, and this file's campaign
+  structure and Living Relic multiplier claims were already accurate.
+
 ## [v1.7.1] - Emergency Hotfix
 
 ### 🪲 Bug Fixes

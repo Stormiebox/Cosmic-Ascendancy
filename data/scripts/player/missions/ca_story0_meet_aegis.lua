@@ -32,12 +32,21 @@ mission.phases[1].onBeginServer = function()
     end
     
     local targetX, targetY = MissionUT.getEmptySector(x, y, 5, 30, insideBarrier)
-    
+
     -- Fallback in case the search fails to find one
-    if not targetX or not targetY then 
+    if not targetX or not targetY then
         local random = Random()
-        targetX = x + random:getInt(-30, 30)
-        targetY = y + random:getInt(-30, 30)
+        -- Guarantee a genuine sector change: a (0,0) offset would return the player's CURRENT
+        -- sector as the "target", and onSectorEntered below only fires on an actual sector-crossing
+        -- event -- a same-sector roll would permanently soft-lock this, the player's very first
+        -- mission. Matches the retry guard every other story mission's getTargetSector() already uses.
+        local offsetX, offsetY
+        repeat
+            offsetX = random:getInt(-30, 30)
+            offsetY = random:getInt(-30, 30)
+        until offsetX ~= 0 or offsetY ~= 0
+        targetX = x + offsetX
+        targetY = y + offsetY
     end
     
     mission.data.custom.targetX = targetX
@@ -95,8 +104,8 @@ mission.phases[1].onSectorEntered = function(x, y)
                 
                 local ShipUtility = include("shiputility")
                 ShipUtility.addTurretsToCraft(ship, nil, 0, 0)
-                ship:addScriptOnce("entity/ca_envoy_despawn.lua")
-                ship:addScriptOnce("entity/story/ca_ascendant_envoy.lua")
+                ship:addScriptOnce("data/scripts/entity/ca_envoy_despawn.lua")
+                ship:addScriptOnce("data/scripts/entity/story/ca_ascendant_envoy.lua")
                 aegisExists = true -- mark success so the debrief flag below reflects reality
             end
         end

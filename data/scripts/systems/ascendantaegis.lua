@@ -4,6 +4,10 @@ include ("basesystem")
 include ("utility")
 local cv_buffs = include("cosmicvaultbuffs")
 
+-- Matches the vanilla convention (shieldbooster.lua, hyperspacebooster.lua, etc.): getEnergy()
+-- returns a constant here, so this tells the engine it never needs to re-read it every frame.
+FixedEnergyRequirement = true
+
 function getUpdateInterval()
     return 15
 end

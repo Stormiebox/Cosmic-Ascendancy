@@ -57,13 +57,24 @@ function trackAndCheckRetreat(entity, amount, damageType)
 
         -- Hunt the Dread-Lord: relocate it to a nearby sector instead of just vanishing, so players
         -- can track it down and finish the fight instead of the retreat being a dead end (see
-        -- ca_nemesis_hunt.lua, which materializes it there when a player arrives).
+        -- ca_nemesis_hunt.lua, which materializes it there when a player arrives). The
+        -- spawn-gating record stays a single shared Server() value -- there's only ever one
+        -- wounded Dread-Lord in flight at a time (the 2-hour cooldown above prevents a second
+        -- retreat from ever racing this one), and ca_nemesis_hunt.lua's spawned-once check needs
+        -- exactly one shared record to guard against a double-spawn if two players reach the hunt
+        -- sector in the same tick. What WAS broken is personal visibility: every player physically
+        -- present for this retreat also gets their own copy for their own /eclipsestatus and the
+        -- Command Interface, so a later, unrelated retreat overwriting the shared record doesn't
+        -- silently erase what THIS retreat's witnesses already know.
         local x, y = Sector():getCoordinates()
         local MissionUT = include("missionutility")
         local insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
         local hx, hy = MissionUT.getEmptySector(x, y, 5, 20, insideBarrier)
         if hx and hy then
             Server():setValue("eclipse_nemesis_hunt", {x = hx, y = hy, time = now, spawned = false})
+            for _, witness in pairs({Sector():getPlayers()}) do
+                witness:setValue("eclipse_nemesis_hunt", {x = hx, y = hy, time = now})
+            end
         end
 
         -- Broadcast dramatic retreat

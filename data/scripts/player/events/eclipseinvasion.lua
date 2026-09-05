@@ -96,7 +96,6 @@ function createEnemies()
     if random():test(0.1) then
         local stabilizerPos = MatrixLookUpPosition(-dir, up, pos + right * 300)
         local stabilizer = EclipseGenerator.createStation(stabilizerPos)
-        stabilizer.title = "Eclipse Rift Stabilizer"
         -- createStation() is the mod's only station factory, so it's also the only option here, but
         -- it unconditionally attaches the Lockdown Matrix (entity/ca_citadel_blocker.lua), which
         -- prevents jumping out of the sector until the structure is destroyed. That's the correct
@@ -106,12 +105,15 @@ function createEnemies()
         -- hazard, never being trapped in the sector by a full 200M-HP structure. Remove just the
         -- trapping behavior so the hazard matches what's actually documented. The rest of
         -- createStation()'s stats and loot are left as-is.
-        stabilizer:removeScript("entity/ca_citadel_blocker.lua")
-        stabilizer:addScriptOnce("entity/ca_rift_stabilizer.lua")
-        table.insert(spawned, stabilizer)
+        if stabilizer then
+            stabilizer.title = "Eclipse Rift Stabilizer"
+            stabilizer:removeScript("data/scripts/entity/ca_citadel_blocker.lua")
+            stabilizer:addScriptOnce("data/scripts/entity/ca_rift_stabilizer.lua")
+            table.insert(spawned, stabilizer)
+        end
 
         -- Start the environmental hazard
-        sector:addScriptOnce("sector/ca_rift_hazard.lua")
+        sector:addScriptOnce("data/scripts/sector/ca_rift_hazard.lua")
         sector:broadcastChatMessage("System", 3, "WARNING: The Eclipse have weaponized a subspace tear! Local shields are draining!"%_t)
     end
 

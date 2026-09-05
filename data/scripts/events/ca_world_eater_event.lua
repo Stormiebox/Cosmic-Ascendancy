@@ -4,7 +4,10 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 WorldEaterEvent = {}
 WorldEaterEvent.worldEaterId = nil
 
-function WorldEaterEvent.initialize(timeLeft)
+-- ca_world_eater_manager.lua's injectSectorScript still passes the remaining countdown as an
+-- extra addScriptOnce argument (for a possible future "time remaining" HUD display), but nothing
+-- here reads it -- the manager keeps its own separate authoritative timeLeft in activeEvent.
+function WorldEaterEvent.initialize()
     if not onServer() then return end
 
     local EclipseGenerator = include("eclipsegenerator")

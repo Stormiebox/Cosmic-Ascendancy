@@ -24,9 +24,19 @@ local damageTypes = {
     [DamageType.AntiMatter] = "AntiMatter",
     [DamageType.Fragments] = "Fragments"
 }
-EclipseAbilities.elementalTracker = {}
+-- Separate accumulators for hull vs. shield elemental damage: onDamaged/onShieldDamaged used to
+-- both accumulate into this one shared table but check it against two different denominators
+-- (maxDurability vs. shieldMaxDurability), so raw damage against one surface could trip the other
+-- surface's much smaller or larger threshold. Each callback now owns its own table.
+EclipseAbilities.elementalTrackerHull = {}
+EclipseAbilities.elementalTrackerShield = {}
 
-function EclipseAbilities.initialize()
+-- siphon/ethereal/adaptive/singularity are passed in directly by eclipsegenerator.lua's createShip
+-- (via addScriptOnce's extra-args forwarding) rather than derived by pattern-matching entity.title
+-- here -- createShip() attaches this script before most callers set the ship's real title, so a
+-- title-string match at this point would read the wrong, placeholder title for every class except
+-- Harbinger/Obliterator.
+function EclipseAbilities.initialize(siphon, ethereal, adaptive, singularity)
     if onServer() then
         local entity = Entity()
         if not entity then return end
@@ -35,15 +45,10 @@ function EclipseAbilities.initialize()
         entity:registerCallback("onShieldDamaged", "onShieldDamaged")
         entity:registerCallback("onDestroyed", "onDestroyed")
 
-        -- Identify class based on title
-        local title = entity.title or ""
-        local translatedTitle = entity.translatedTitle or ""
-        local name = string.lower(title .. " " .. translatedTitle)
-
-        EclipseAbilities.isSiphon = string.match(name, "void%-weaver") or string.match(name, "carrier") or string.match(name, "juggernaut") or string.match(name, "dreadnought") or string.match(name, "cruiser") or string.match(name, "harbinger") or string.match(name, "world%-eater")
-        EclipseAbilities.isEthereal = string.match(name, "phantom") or string.match(name, "interceptor")
-        EclipseAbilities.isAdaptive = string.match(name, "defiler") or string.match(name, "artillery") or string.match(name, "singularity")
-        EclipseAbilities.isSingularity = string.match(name, "carrier") or string.match(name, "juggernaut") or string.match(name, "dreadnought") or string.match(name, "cruiser") or string.match(name, "harbinger") or string.match(name, "world%-eater")
+        EclipseAbilities.isSiphon = siphon or false
+        EclipseAbilities.isEthereal = ethereal or false
+        EclipseAbilities.isAdaptive = adaptive or false
+        EclipseAbilities.isSingularity = singularity or false
 
         -- Initial aura loop if it has it
         if EclipseAbilities.isSiphon then
@@ -170,7 +175,7 @@ function EclipseAbilities.onDamaged(objectIndex, amount, inflictor, damageSource
     
     if now - EclipseAbilities.lastElementalTime[damageType] > 3.0 then
         -- Decay memory if not hit by this element in 3 seconds
-        EclipseAbilities.elementalTracker[damageType] = 0
+        EclipseAbilities.elementalTrackerHull[damageType] = 0
     end
     EclipseAbilities.lastElementalTime[damageType] = now
 
@@ -181,14 +186,14 @@ function EclipseAbilities.onDamaged(objectIndex, amount, inflictor, damageSource
         end
 
         if damageType and damageTypes[damageType] then
-            EclipseAbilities.elementalTracker[damageType] = (EclipseAbilities.elementalTracker[damageType] or 0) + amount
+            EclipseAbilities.elementalTrackerHull[damageType] = (EclipseAbilities.elementalTrackerHull[damageType] or 0) + amount
 
-            if EclipseAbilities.elementalTracker[damageType] > (entity.maxDurability * 0.05) then
+            if EclipseAbilities.elementalTrackerHull[damageType] > (entity.maxDurability * 0.05) then
                 if EclipseAbilities.activeResistance ~= damageType then
                     EclipseAbilities.activeResistance = damageType
                     EclipseAbilities.resistanceEndTime = now + 15.0
                     Sector():broadcastChatMessage(entity.title, 2, "ADAPTIVE ARMOR ENGAGED: RESISTING " .. string.upper(damageTypes[damageType]))
-                    EclipseAbilities.elementalTracker = {} -- Reset tracker after adapting
+                    EclipseAbilities.elementalTrackerHull = {} -- Reset tracker after adapting
                 end
             end
         end
@@ -243,7 +248,7 @@ function EclipseAbilities.onShieldDamaged(objectIndex, amount, damageType, infli
     
     if now - EclipseAbilities.lastElementalTime[damageType] > 3.0 then
         -- Decay memory if not hit by this element in 3 seconds
-        EclipseAbilities.elementalTracker[damageType] = 0
+        EclipseAbilities.elementalTrackerShield[damageType] = 0
     end
     EclipseAbilities.lastElementalTime[damageType] = now
 
@@ -254,14 +259,14 @@ function EclipseAbilities.onShieldDamaged(objectIndex, amount, damageType, infli
         end
 
         if damageType and damageTypes[damageType] then
-            EclipseAbilities.elementalTracker[damageType] = (EclipseAbilities.elementalTracker[damageType] or 0) + amount
+            EclipseAbilities.elementalTrackerShield[damageType] = (EclipseAbilities.elementalTrackerShield[damageType] or 0) + amount
             -- Trigger adaptation if a single element exceeds 5% of max shield total
-            if maxShield > 0 and EclipseAbilities.elementalTracker[damageType] > (maxShield * 0.05) then
+            if maxShield > 0 and EclipseAbilities.elementalTrackerShield[damageType] > (maxShield * 0.05) then
                 if EclipseAbilities.activeResistance ~= damageType then
                     EclipseAbilities.activeResistance = damageType
                     EclipseAbilities.resistanceEndTime = now + 15.0
                     Sector():broadcastChatMessage(entity.title, 2, "ADAPTIVE SHIELDS ENGAGED: RESISTING " .. string.upper(damageTypes[damageType]))
-                    EclipseAbilities.elementalTracker = {} -- Reset tracker after adapting
+                    EclipseAbilities.elementalTrackerShield = {} -- Reset tracker after adapting
                 end
             end
         end

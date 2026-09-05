@@ -29,44 +29,25 @@ function restore(data)
     end
 end
 
+-- The 8%-of-max-health damage gate lives solely in ca_nemesis_system.lua now, which is attached to
+-- every Harbinger alongside this script and receives the exact same onDamaged/onShieldDamaged
+-- callbacks independently. Both scripts used to apply their own separate 8% cap-and-refund pass on
+-- top of each other -- on a hit above the cap, the excess got refunded twice, and on the ship's own
+-- resisted damage type the 90% reduction below plus the second 8% refund could exceed the damage
+-- actually dealt, healing the ship instead of hurting it. This script's job is only the type-specific
+-- 90% reduction; ca_nemesis_system.lua enforces the shared cap on whatever damage remains.
 function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
+    if damageType ~= resistType then return end
     local entity = Entity()
-    local maxDurability = entity.maxDurability
-    local maxTotalHealth = maxDurability + (entity.shieldMaxDurability or 0)
-
-    local damageTaken = amount
-    if damageType == resistType then
-        local resisted = amount * 0.90
-        entity.durability = math.min(entity.durability + resisted, maxDurability)
-        damageTaken = amount - resisted
-    end
-
-    local maxAllowedDamage = maxTotalHealth * 0.08
-
-    if damageTaken > maxAllowedDamage then
-        local excessDamage = damageTaken - maxAllowedDamage
-        entity.durability = math.min(entity.durability + excessDamage, maxDurability)
-    end
+    local resisted = amount * 0.90
+    entity.durability = math.min(entity.durability + resisted, entity.maxDurability)
 end
 
 function onShieldDamaged(objectIndex, amount, damageType, inflictor)
+    if damageType ~= resistType then return end
     local entity = Entity()
     local maxShield = entity.shieldMaxDurability
     if not maxShield or maxShield <= 0 then return end
-    
-    local maxTotalHealth = entity.maxDurability + maxShield
-
-    local damageTaken = amount
-    if damageType == resistType then
-        local resisted = amount * 0.90
-        entity.shieldDurability = math.min(entity.shieldDurability + resisted, maxShield)
-        damageTaken = amount - resisted
-    end
-
-    local maxAllowedDamage = maxTotalHealth * 0.08
-
-    if damageTaken > maxAllowedDamage then
-        local excessDamage = damageTaken - maxAllowedDamage
-        entity.shieldDurability = math.min(entity.shieldDurability + excessDamage, maxShield)
-    end
+    local resisted = amount * 0.90
+    entity.shieldDurability = math.min(entity.shieldDurability + resisted, maxShield)
 end

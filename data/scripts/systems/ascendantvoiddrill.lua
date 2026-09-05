@@ -4,6 +4,10 @@ include ("basesystem")
 include ("utility")
 local cv_buffs = include("cosmicvaultbuffs")
 
+-- Matches the vanilla convention (shieldbooster.lua, hyperspacebooster.lua, etc.): getEnergy()
+-- returns a constant here, so this tells the engine it never needs to re-read it every frame.
+FixedEnergyRequirement = true
+
 function getUpdateInterval()
     return 15
 end
@@ -31,6 +35,12 @@ function updateClient(timeStep)
     end
 end
 
+-- See ascendantomnisensor.lua's identical comment for why these keys are tracked and not persisted.
+local turretsKey = nil
+local lootRangeKey = nil
+local transporterKey = nil
+local energyKey = nil
+
 function applyDynamicBuffs()
     removeDynamicBuffs()
 
@@ -42,18 +52,21 @@ function applyDynamicBuffs()
         finalMultiplier = cv_buffs.getDynamicRelicMultiplier(entity.id)
     end
 
-    entity:addAbsoluteBias(StatsBonuses.UnarmedTurrets, math.floor(15 * finalMultiplier))
+    turretsKey = entity:addAbsoluteBias(StatsBonuses.UnarmedTurrets, math.floor(15 * finalMultiplier))
 
     -- Dynamically scaled capabilities
-    entity:addAbsoluteBias(StatsBonuses.LootCollectionRange, 5000 * finalMultiplier)
-    entity:addAbsoluteBias(StatsBonuses.TransporterRange, 5000 * finalMultiplier)
-    entity:addBaseMultiplier(StatsBonuses.GeneratedEnergy, 5.0 * finalMultiplier)
+    lootRangeKey = entity:addAbsoluteBias(StatsBonuses.LootCollectionRange, 5000 * finalMultiplier)
+    transporterKey = entity:addAbsoluteBias(StatsBonuses.TransporterRange, 5000 * finalMultiplier)
+    energyKey = entity:addBaseMultiplier(StatsBonuses.GeneratedEnergy, 5.0 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
-    entity:removeScriptBonuses()
+    if turretsKey then entity:removeBonus(turretsKey); turretsKey = nil end
+    if lootRangeKey then entity:removeBonus(lootRangeKey); lootRangeKey = nil end
+    if transporterKey then entity:removeBonus(transporterKey); transporterKey = nil end
+    if energyKey then entity:removeBonus(energyKey); energyKey = nil end
 end
 
 function onInstalled(seed, rarity, permanent)

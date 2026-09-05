@@ -249,7 +249,7 @@ function CAWorldEater.processHazards(timeStep)
             if valid(ship) then
                 -- Check distance
                 local dist = distance(boss.translationf, ship.translationf)
-                if dist < 20000 then -- 20km range
+                if dist < 15000 then -- 15km range, matches the WIKI's stated reach
                     -- Detonate laser!
                     broadcastInvokeClientFunction("showExplosion", ship.translationf, 200, false)
                     -- Deal 100% Max Shields + 50% Max Hull damage
@@ -461,11 +461,13 @@ function CAWorldEater.checkPhases()
         end
         broadcastInvokeClientFunction("createGlobalEmpGlow", boss.translationf)
 
-        -- Enrage: boost fire rate by +50% (key discarded intentionally - buff is permanent until
-        -- boss death). addBaseMultiplier is the correct primitive for a percentage bonus like this
-        -- one -- see eclipsegenerator.lua's applyDamageMultiplier for the full writeup of this bug
-        -- pattern, already fixed elsewhere in the mod per Changelog.md's "DPS Scaling Desync" entries.
+        -- Enrage: +50% Fire Rate and +50% global damage (two genuinely separate, stacking FireRate
+        -- contributions -- StatsBonuses has no dedicated "damage" member, so applyDamageMultiplier
+        -- IS the damage lever elsewhere in this same file/mod). Only the Fire Rate half used to be
+        -- applied; the boss enraged to roughly half its documented DPS increase. Keys discarded
+        -- intentionally -- both buffs are permanent until boss death.
         boss:addBaseMultiplier(StatsBonuses.FireRate, 0.5)
+        EclipseGenerator.applyDamageMultiplier(boss, 1.5)
 
         -- Switch every defender currently in the fight from the phase-1 to the enraged boss track
         -- (data/music/world_eater_enraged.ogg). Nothing previously called triggerBossMusic(2) anywhere,

@@ -383,14 +383,47 @@ function AscendancyForge.claimWeapon()
     local owner, craft, player = getInteractingFaction(callingPlayer, AlliancePrivilege.ManageStations)
     if not owner then return end
 
+    -- Core-proximity / War Heat scaling, computed once and shared by both the Titan World-Breaker
+    -- and the standard weapon path below -- the Titan branch used to skip this entirely and always
+    -- hand out a flat 250,000 damage, which a standard roll could already exceed 5x over at high
+    -- war heat near the core, undercutting its framing as the Forge's top-tier reward.
+    local distBonus = 1.0
+    local warBonus = 1.0
+    do
+        local x, y = Sector():getCoordinates()
+        distBonus = 1.0 + (math.max(0, 500 - length(vec2(x, y))) / 250)
+        local server = Server()
+        if server then
+            local snapshotStr = server:getValue("cw_war_heat_snapshot")
+            if type(snapshotStr) == "string" and snapshotStr ~= "" then
+                for pair in string.gmatch(snapshotStr, "([^,]+)") do
+                    local idxStr, heatStr = string.match(pair, "(%d+):([%d%.]+)")
+                    if idxStr and tonumber(idxStr) == owner.index and heatStr then
+                        local heat = tonumber(heatStr) or 0
+                        if heat > 0 then warBonus = 1.0 + (heat * 1.5) end
+                        break
+                    end
+                end
+            end
+        end
+        -- Hard cap warBonus to prevent infinite integer scaling
+        warBonus = math.min(10.0, warBonus)
+    end
+
     if type(selectedType) == "string" then
         if selectedType == "titan_worldbreaker" then
             local CosmicVaultArsenal = include("cosmicvaultarsenal")
+            -- Scaled by the same distBonus*warBonus the standard path uses, off a base high enough
+            -- to stay strictly ahead of a standard roll's own ceiling at every comparable point
+            -- (standard: 15000 * 3.0 * distBonus * warBonus; Titan: 250000 * distBonus * warBonus --
+            -- roughly 5.5x the standard path's own maximum, everywhere, not just at the extremes),
+            -- while never dropping below the original flat 250,000 at minimum conditions.
+            local titanDamage = 250000 * math.max(1.0, distBonus * warBonus)
             local config = {
                 rarity = Rarity(RarityType.Legendary),
                 material = Material(MaterialType.Avorion),
                 weaponType = WeaponType.Laser,
-                damage = 250000,
+                damage = titanDamage,
                 fireRate = 1.0,
                 range = 15000,
                 accuracy = 1.0,
@@ -415,26 +448,6 @@ function AscendancyForge.claimWeapon()
         local material = Material(6)
         local dps = 15000
         local turret = TurretGenerator.generateSeeded(random():createSeed(), selectedType, dps, 52, rarity, material, true)
-
-        local x, y = Sector():getCoordinates()
-        local distBonus = 1.0 + (math.max(0, 500 - length(vec2(x, y))) / 250)
-        local warBonus = 1.0
-        local server = Server()
-        if server then
-            local snapshotStr = server:getValue("cw_war_heat_snapshot")
-            if type(snapshotStr) == "string" and snapshotStr ~= "" then
-                for pair in string.gmatch(snapshotStr, "([^,]+)") do
-                    local idxStr, heatStr = string.match(pair, "(%d+):([%d%.]+)")
-                    if idxStr and tonumber(idxStr) == owner.index and heatStr then
-                        local heat = tonumber(heatStr) or 0
-                        if heat > 0 then warBonus = 1.0 + (heat * 1.5) end
-                        break
-                    end
-                end
-            end
-        end
-        -- Hard cap warBonus to prevent infinite integer scaling
-        warBonus = math.min(10.0, warBonus)
 
         local finalMult = 3.0 * distBonus * warBonus
         local weapons = {turret:getWeapons()}

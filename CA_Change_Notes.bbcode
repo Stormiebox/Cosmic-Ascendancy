@@ -1,3 +1,41 @@
+[i]Version 1.8.0[/i]
+[hr][/hr]
+[h1]v1.8.0 ⚖️THE ECLIPSE HIERARCHY REWORK⚖️[/h1]
+[hr][/hr]
+[b]🛠️ GAMEPLAY PATCH[/b]
+[i]This patch addresses several balance and bugfix issues across the Eclipse hierarchy.[/i]
+
+[b]⚖️BALANCE[/b]
+[list]
+[*]👑 [b]The World-Eater Is Now Actually The Strongest Thing In The Mod:[/b] Two bugs meant the Harbinger and the Citadel could each end up tankier than the World-Eater itself. Both fixed, and the numbers retuned so the raid boss is unambiguously on top.
+[*]🤝 [b]World-Eater Group Scaling, Redone:[/b] The old formula could make a big raid's fight approach unkillable. It now tapers off the more defenders show up — solo and duo fights feel the same as before, and even a huge server raid stays a real, growing fight instead of a wall.
+[*]💀 [b]The Doomsday Clock Now Has Real Teeth:[/b] Letting the World-Eater's 20-minute timer run out used to cost you nothing directly. Ships caught in the blast now get knocked down to a critical 1 HP — a real, humiliating consequence, not a fleet wipe.
+[*]🔁 [b]Abandoned World-Eater Fights No Longer Break The Mechanic:[/b] Walking away from an engaged fight used to permanently block every future World-Eater spawn for that galaxy. It now stands down on its own after a couple of hours of nobody showing up.
+[/list]
+
+[b]📖DOCUMENTATION[/b]
+[list]
+[*]📘 Ascendancy's codex has been updated to include the new content from the Eclipse expansion.
+[/list]
+
+[b]🪲BUGFIXES[/b]
+[list]
+[*]🛡️ [b]A Buff-Wiping Bug Was Hitting Every Single Ship In The Galaxy:[/b] One system was silently erasing OTHER mods' (and its own sibling systems') stat bonuses off your ship every 30 seconds, whether you'd ever touched this mod's content or not. Six more places had the same bug at a smaller scale. All fixed.
+[*]✨ [b]Most Eclipse Ships Were Missing Their Signature Ability:[/b] A classification bug likely meant Carriers, Interceptors, Juggernauts, Phantoms, Artillery, and Defilers never actually got their Void Siphon, Ethereal Phase-Shift, Adaptive Resistance, or Singularity Implosion. The World-Eater itself had a separate, guaranteed version of this same bug. Both fixed.
+[*]💔 [b]Adapted Dread-Lords Could Heal From Big Hits Instead Of Taking Damage:[/b] Two systems were both discounting the same hit, which could add up to more healing than damage taken. Fixed.
+[*]🔒 [b]A Softlock Fix From Last Patch Didn't Actually Take:[/b] The nil-check added for World-Eater/Citadel/Vanguard spawn failures was one function call too shallow to catch the real crash site. Fixed properly this time.
+[*]🧭 [b]Your Very First Mission Could Softlock:[/b] `ca_story0` never got the same-sector rendezvous fix every later story mission received. Fixed.
+[*]🎯 [b]Interceptors Were Nearly Harmless:[/b] A flipped sign meant this entire ship class was dealing almost no damage. Fixed.
+[*]⏱️ [b]Distress Beacon Gave You 2 Hours, Not 2 Minutes:[/b] A units mixup (minutes vs. seconds) made the "urgent" Conquest warning mail nowhere near as urgent as intended. Fixed.
+[*]🚫 [b]Solo Players Could Get Permanently Skipped By Fallen Empire Crusades:[/b] A targeting-rotation rule had no expiry, so a solo save could end up excluded from ever being targeted again after the first Crusade. Fixed.
+[*]🗺️ [b]Nemesis Hunt Signature Could Get Overwritten By Someone Else's Fight:[/b] Your own wounded Dread-Lord's last-known coordinates could get silently replaced by an unrelated ambush elsewhere in the galaxy. `/eclipsestatus` now always shows your own lead.
+[*]😡 [b]World-Eater Enrage Was Only Half As Strong As Advertised:[/b] The Fire Rate half of the +50%/+50% Enrage buff was applying; the damage half wasn't. Fixed.
+[*]⚔️ [b]The Titan World-Breaker Could Lose To A Regular Weapon:[/b] A well-rolled standard turret could out-damage the "ultimate" Titan superweapon by 5x under the right conditions. The Titan now scales the same way, from a higher floor, so it stays on top.
+[*]🏭 [b]Station Overdrive's "Tripled" Production Wasn't Always Accurate:[/b] Fast-cycling factories could complete fewer production runs than the advertised 3x. Fixed by ticking the boost far more frequently.
+[*]🧬 [b]Adaptive Resistance Could Trigger Early Or Late:[/b] Hull and shield damage were sharing one tracker checked against two different thresholds. Split apart, now behaves correctly for both.
+[*]🪲 [b]Several Smaller Fixes:[/b] `/eclipsestatus` no longer risks crashing on a Silent Choir sighting with missing coordinates; a handful of loot/hazard spawns that could silently fail now fail safely instead; several Linux-unsafe short file paths normalized; the Raid Summoner, siege system, and a few background scripts got small robustness hardening; some dead code removed.
+[/list]
+
 [i]Version 1.7.1[/i]
 [hr][/hr]
 [h1]v1.7.1 🚨EMERGENCY HOTFIX🚨[/h1]

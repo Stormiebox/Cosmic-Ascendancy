@@ -38,6 +38,8 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
 
     if isPirateExpansion then
         -- Find a random empty sector for pirates
+        local cpuTimer = HighResolutionTimer()
+        cpuTimer:start()
         for tries = 1, 20 do
             local x = random():getInt(-450, 450)
             local y = random():getInt(-450, 450)
@@ -50,6 +52,9 @@ function CosmicAscendancyExpansionManager.attemptExpansion(config)
                 end
                 return
             end
+
+            -- CPU Tick Safety, matching the AI-faction expansion loop below
+            if cpuTimer.seconds > 0.05 then break end
         end
     else
         -- Standard AI Faction Expansion

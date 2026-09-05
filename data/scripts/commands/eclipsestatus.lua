@@ -90,7 +90,7 @@ function execute(sender, commandName, ...)
 
     if snap.silentChoir then
         msg = msg .. "[The Silent Choir]: SIGHTED\n"
-        msg = msg .. string.format("A presence was last sighted near sector (%d:%d) -- %d encounter(s) so far.\n\n", snap.silentChoir.lastX, snap.silentChoir.lastY, snap.silentChoir.encounters)
+        msg = msg .. string.format("A presence was last sighted near sector (%d:%d) -- %d encounter(s) so far.\n\n", snap.silentChoir.lastX or 0, snap.silentChoir.lastY or 0, snap.silentChoir.encounters or 0)
     else
         msg = msg .. "[The Silent Choir]: UNKNOWN\n"
         msg = msg .. "Nothing has been sighted. That is not the same as nothing being there.\n\n"

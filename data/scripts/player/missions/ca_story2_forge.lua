@@ -13,6 +13,7 @@ mission._Name = "Forging the Defense"
 abandon = nil -- this mission is not abandonable
 mission.data.brief = mission._Name
 mission.data.icon = "data/textures/icons/story-mission.png"
+mission.data.autoTrackMission = true
 mission._Debug = 0
 
 mission.data.description = "The Eclipse are real, and they possess shielding technology that adapts to our weapons. Aegis mentioned an ancient, planet-sized failsafe built by the Ascendants: the 'Ascendancy Forge'."

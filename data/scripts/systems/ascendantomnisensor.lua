@@ -4,6 +4,9 @@ include ("basesystem")
 include ("utility")
 local cv_buffs = include("cosmicvaultbuffs")
 
+-- Matches the vanilla convention (shieldbooster.lua, hyperspacebooster.lua, etc.): getEnergy()
+-- returns a constant here, so this tells the engine it never needs to re-read it every frame.
+FixedEnergyRequirement = true
 
 function getUpdateInterval()
     return 15
@@ -12,6 +15,17 @@ end
 function updateServer(timeStep)
     applyDynamicBuffs()
 end
+
+-- Keys returned by addAbsoluteBias/addBaseMultiplier below, so removeDynamicBuffs() can strip
+-- exactly these four bonuses via removeBonus(key) instead of entity:removeScriptBonuses(), which
+-- clears EVERY script-added bonus on the entity -- including other Ascendant relics on the same
+-- ship and other Cosmic mods' own buffs (see ascendantaegis.lua for the full writeup of this bug,
+-- already fixed there). Not persisted via secure()/restore() -- these locals start nil on every
+-- fresh script load, which is exactly what a volatile bonus key needs.
+local radarKey = nil
+local hiddenRadarKey = nil
+local cargoKey = nil
+local lootRangeKey = nil
 
 function applyDynamicBuffs()
     removeDynamicBuffs()
@@ -25,16 +39,19 @@ function applyDynamicBuffs()
     end
 
     -- Omni-Sensor gives Radar, Hidden Sector, Cargo, and Loot Range
-    entity:addAbsoluteBias(StatsBonuses.RadarReach, math.floor(20 * finalMultiplier))
-    entity:addAbsoluteBias(StatsBonuses.HiddenSectorRadarReach, math.floor(15 * finalMultiplier))
-    entity:addBaseMultiplier(StatsBonuses.CargoHold, 10.0 * finalMultiplier)
-    entity:addAbsoluteBias(StatsBonuses.LootCollectionRange, 2500 * finalMultiplier)
+    radarKey = entity:addAbsoluteBias(StatsBonuses.RadarReach, math.floor(20 * finalMultiplier))
+    hiddenRadarKey = entity:addAbsoluteBias(StatsBonuses.HiddenSectorRadarReach, math.floor(15 * finalMultiplier))
+    cargoKey = entity:addBaseMultiplier(StatsBonuses.CargoHold, 10.0 * finalMultiplier)
+    lootRangeKey = entity:addAbsoluteBias(StatsBonuses.LootCollectionRange, 2500 * finalMultiplier)
 end
 
 function removeDynamicBuffs()
     local entity = Entity()
     if not entity then return end
-    entity:removeScriptBonuses()
+    if radarKey then entity:removeBonus(radarKey); radarKey = nil end
+    if hiddenRadarKey then entity:removeBonus(hiddenRadarKey); hiddenRadarKey = nil end
+    if cargoKey then entity:removeBonus(cargoKey); cargoKey = nil end
+    if lootRangeKey then entity:removeBonus(lootRangeKey); lootRangeKey = nil end
 end
 
 function onInstalled(seed, rarity, permanent)

@@ -13,6 +13,7 @@ mission._Name = "The Eclipse Awakening"
 abandon = nil -- this mission is not abandonable
 mission.data.brief = mission._Name
 mission.data.icon = "data/textures/icons/story-mission.png"
+mission.data.autoTrackMission = true
 mission._Debug = 0
 
 mission.data.description = "Aegis, an Ascendant AI, revealed that the Wormhole Guardian was a keystone holding back the algorithmic plague known as The Eclipse. Now that the seal is broken, you must investigate the first detected subspace anomaly."

@@ -2,6 +2,9 @@ package.path = package.path .. ";data/scripts/systems/?.lua"
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include ("basesystem")
 
+-- Matches the vanilla convention (shieldbooster.lua, hyperspacebooster.lua, etc.): getEnergy()
+-- returns a constant here, so this tells the engine it never needs to re-read it every frame.
+FixedEnergyRequirement = true
 
 -- NOTE: There is no StatsBonuses.HullDurability entry. The enum (Avorion Stubs/Globals.lua) only
 -- covers RadarReach through FireRate=40, with no hull-HP member, and vanilla subsystems never grant a

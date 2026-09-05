@@ -60,12 +60,9 @@ function EclipseStatus.getGalaxySnapshot()
         snap.lastCrusade = nil
     end
 
-    local hunt = server:getValue("eclipse_nemesis_hunt")
-    if hunt then
-        snap.nemesisHunt = {x = hunt.x, y = hunt.y}
-    else
-        snap.nemesisHunt = nil
-    end
+    -- Nemesis Signature is a per-player lead, not galaxy-wide state -- see getPersonalSnapshot()
+    -- below. A single galaxy-wide record here would silently reassign to whichever Harbinger
+    -- retreated most recently, showing every player someone else's lead instead of their own.
 
     local EclipseGenerator = include("eclipsegenerator")
     snap.remnantTier = EclipseGenerator.getRemnantTier()
@@ -91,7 +88,7 @@ end
 -- Fields specific to one player (Eclipse Remembers kill score, active Ward). Pass the Player
 -- object; returns nil fields gracefully if player is nil so callers don't need to branch.
 function EclipseStatus.getPersonalSnapshot(player)
-    local snap = {killScore = 0, wardActive = false, wardRemaining = nil}
+    local snap = {killScore = 0, wardActive = false, wardRemaining = nil, nemesisHunt = nil}
     if not player then return snap end
 
     snap.killScore = player:getValue("eclipse_kill_score") or 0
@@ -100,6 +97,14 @@ function EclipseStatus.getPersonalSnapshot(player)
     if wardUntil and Server().unpausedRuntime < wardUntil then
         snap.wardActive = true
         snap.wardRemaining = wardUntil - Server().unpausedRuntime
+    end
+
+    -- Set for every player physically present when a Dread-Lord retreated (ca_nemesis_system.lua),
+    -- so a later, unrelated retreat overwriting the shared spawn-gating record doesn't erase what
+    -- this player specifically already knows.
+    local hunt = player:getValue("eclipse_nemesis_hunt")
+    if hunt then
+        snap.nemesisHunt = {x = hunt.x, y = hunt.y}
     end
 
     return snap

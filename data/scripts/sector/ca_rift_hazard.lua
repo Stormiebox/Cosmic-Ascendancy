@@ -19,7 +19,7 @@ function onPlayerEntered(playerIndex)
 
     -- Only warn if the player's craft is vulnerable to the anomaly
     if not craft or craft.factionIndex ~= eclipseIndex then
-        player:sendChatMessage("Rift Hazard", 2, "WARNING: Navigational hazard detected! Shields are actively draining.")
+        player:sendChatMessage("Rift Hazard", 2, "WARNING: Navigational hazard detected! Shields are actively draining -- lingering too long will start eating into hull.")
     end
 end
 

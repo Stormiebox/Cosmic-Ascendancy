@@ -7,6 +7,7 @@ Welcome to the **Cosmic Ascendancy** player guide. This document walks through t
 ## 📑 Table of Contents
 - [📖 The Ascendant Campaign](#-the-ascendant-campaign)
 - [🌑 The Eclipse Crisis](#-the-eclipse-crisis)
+- [🎵 The Choir & Endgame Additions](#-the-choir--endgame-additions)
 - [🏰 Eclipse Citadels](#-eclipse-citadels)
 - [📈 Dynamic Faction Expansion](#-dynamic-faction-expansion)
 - [👑 The Fallen Empire Awakening](#-the-fallen-empire-awakening)
@@ -57,7 +58,7 @@ Five class-specific mechanics make the Eclipse feel like more than a reskinned A
 
 ### 🚨 The World-Eater Doomsday Event
 Every 3 to 5 hours of active playtime, the Eclipse launches a **World-Eater** (a massively scaled Juggernaut) at a populated player sector. The global timer automatically pauses if no players are online, protecting dedicated servers.
-- 🤝 **Scales With Your Group:** A solo fight stays exactly as tuned. For every extra defender present when it spawns, natural or summoned, the boss gains +150% Shield Durability, +75% Hull Durability, and +30% damage, so an alliance faces a harder fight instead of trivializing it.
+- 🤝 **Scales With Your Group:** A solo fight stays exactly as tuned. Every extra defender present when it spawns raises Shield Durability, Hull Durability, and damage on a curve that tapers as your group grows, so a duo barely notices the difference, a full alliance faces a genuinely harder fight instead of trivializing it, and even a packed dedicated-server raid keeps climbing in difficulty instead of hitting a wall.
 - 🛡️ **Royal Escort Fleet:** The World-Eater doesn't travel alone. It arrives with Carriers, Artillery, Defilers, and Interceptors.
 - 💪 **Apocalyptic Durability:** Its physical volume is scaled up 5x, which works out to roughly 125x native Hull HP.
 - 🔥 **The Boss Encounter:** Unlike lesser Eclipse ships, the World-Eater relies purely on its colossal 5.9-kilometer hull and its mechanics:
@@ -88,6 +89,34 @@ If you'd rather face the ultimate threat on your own terms, you can summon it di
 
 ### 🌌 Territorial Conquest
 The Eclipse's first foothold always appears near the galactic core, where their rupture first tore open. From there, territory spreads outward toward the rim rather than in a random direction. Each conquered sector is either a **Conquest** (a contested siege, if Cosmic War is installed) or an outright **Annihilation** (a total wipe).
+</details>
+
+---
+
+## 🎵 The Choir & Endgame Additions
+<details>
+<summary><b>Click to expand</b></summary>
+
+A handful of things layered on top of everything above, once the Eclipse is awake -- nothing you
+need to set up, they're just part of how the crisis plays out.
+
+- 🗡️ **Eclipse Remembers:** Kill enough Eclipse ships yourself, and the Eclipse starts paying more
+  attention to you specifically -- Personal Ambushes get more frequent and bring bigger escorts.
+- 🎼 **The Choir:** Ambient rumors about the Eclipse get darker and more specific as the crisis
+  escalates, and you'll hear a one-time stinger the first time you fly into Eclipse territory.
+- 🥷 **The Silent Choir:** A rare, named horror occasionally stalks one player across the galaxy --
+  sighted at the edge of your sensors, then gone, three times, before it finally commits to a
+  fight. Check `/eclipsestatus` for its last known location.
+- 🛡️ **The Ascendant Ward:** A cheap, instant-craft item at the Forge that gets the Eclipse's own
+  hunting behavior off your back for 30 minutes -- Ambushes, the Silent Choir, and its draining
+  aura all leave you alone. Doesn't hide you from anyone else.
+- 📡 **Distress Beacon:** If a Fallen Empire Crusade comes for your territory, every online member
+  of your faction gets a mail with the coordinates so you can rally before it lands.
+- 🖥️ **The Eclipse: Command Interface:** Interact with your own ship for a full status window --
+  everything `/eclipsestatus` shows, plus your personal kill score, Ward timer, and Silent Choir
+  history, across four tabs.
+- 🏰 **Capital Sieges:** Once your Ascendancy Beacon is up, expect a siege fleet every 3 to 6 hours.
+  Defend it for loot and credits; lose it and your global buffs go down with it.
 </details>
 
 ---

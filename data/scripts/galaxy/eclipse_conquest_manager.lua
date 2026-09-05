@@ -133,6 +133,8 @@ function EclipseConquestManager.expandEmpire()
     -- onDestroyed) raises both how often they get personally targeted and how heavy the escort is,
     -- on top of the base 40% chance every player already had. Capped well short of guaranteed/absurd
     -- so this stays "the Eclipse is paying more attention to you," not an unwinnable spiral.
+    -- Fetched once and reused for the rest of this function -- expandEmpire() runs synchronously
+    -- with no yields, so the online-player list can't change mid-call.
     local players = {Server():getOnlinePlayers()}
     for _, player in pairs(players) do
         local wardUntil = player:getValue("eclipse_ward_until")
@@ -178,11 +180,28 @@ function EclipseConquestManager.expandEmpire()
             local lastTargetIndex = Server():getValue("eclipse_last_player_crusade_target")
             local candidateFactions = {}
             local seenFactionIndex = {}
-            for _, p in pairs({Server():getOnlinePlayers()}) do
+            for _, p in pairs(players) do
                 local pf = p.craftFaction or p
                 if pf and pf.index ~= lastTargetIndex and not seenFactionIndex[pf.index] then
                     seenFactionIndex[pf.index] = true
                     table.insert(candidateFactions, pf)
+                end
+            end
+
+            -- On a solo save, or any server with only one player/alliance faction online, the
+            -- exclusion above leaves candidateFactions permanently empty after the very first
+            -- player-Crusade ever lands -- there's no OTHER faction to fall back to, so this branch
+            -- would silently never fire again for the rest of that galaxy. Re-targeting the same
+            -- faction is strictly better than the mechanic quietly disappearing for a whole class of
+            -- server; only fall back to allowing lastTargetIndex when it's genuinely the only
+            -- online candidate, so a busier server keeps the intended rotation.
+            if #candidateFactions == 0 then
+                for _, p in pairs(players) do
+                    local pf = p.craftFaction or p
+                    if pf and not seenFactionIndex[pf.index] then
+                        seenFactionIndex[pf.index] = true
+                        table.insert(candidateFactions, pf)
+                    end
                 end
             end
 
@@ -193,7 +212,7 @@ function EclipseConquestManager.expandEmpire()
                 -- any online player's known-sector list (works whether the target is a solo player
                 -- or an alliance, since a member's known sectors include alliance-owned territory).
                 local stationSectors = {}
-                for _, p in pairs({Server():getOnlinePlayers()}) do
+                for _, p in pairs(players) do
                     for _, view in pairs({p:getKnownSectors()}) do
                         if view and view.factionIndex == targetFaction.index and (view.numStations or 0) > 0 then
                             table.insert(stationSectors, view)
@@ -219,8 +238,9 @@ function EclipseConquestManager.expandEmpire()
                     -- gets there first effectively delays it themselves; a Conquest roll starts
                     -- CosmicVaultTerritory's own 120-second contest window immediately, a much
                     -- tighter margin this mail can't extend (that timer belongs to Cosmic Vault,
-                    -- not this file).
-                    for _, p in pairs({Server():getOnlinePlayers()}) do
+                    -- not this file, and is genuinely 120 seconds -- see the setContestedZone call
+                    -- below, which passes minutes, not seconds).
+                    for _, p in pairs(players) do
                         local pf = p.craftFaction or p
                         if pf and pf.index == targetFaction.index then
                             local mail = Mail()
@@ -338,7 +358,6 @@ function EclipseConquestManager.expandEmpire()
         -- Fallback: Random player known sector if no territory is held yet and no core sector could
         -- be found, or if every geographic-spread attempt above collided with existing territory.
         if not tx or not ty then
-            local players = {Server():getOnlinePlayers()}
             if #players == 0 then return end
             local player = players[random():getInt(1, #players)]
             local knownSectors = {player:getKnownSectors()}
@@ -376,7 +395,10 @@ function EclipseConquestManager.expandEmpire()
         if CosmicVaultTerritory and CosmicVaultTerritory.setContestedZone then
             local defFactionObj = Galaxy():getControllingFaction(tx, ty)
             local defFactionIndex = defFactionObj and defFactionObj.index or 0
-            CosmicVaultTerritory.setContestedZone(tx, ty, eclipseFaction.index, defFactionIndex, 120)
+            -- setContestedZone's duration is in MINUTES (Cosmic Vault's cosmicvaultterritory.lua).
+            -- The 120-second contest window this file's own Distress Beacon text promises is 2
+            -- minutes, not 120 minutes -- passing the literal 120 here opened a 2-hour window instead.
+            CosmicVaultTerritory.setContestedZone(tx, ty, eclipseFaction.index, defFactionIndex, 2)
             Server():broadcastChatMessage("The Eclipse"%_T, 2, "Commencing assimilation of coordinates (" .. tx .. ":" .. ty .. "). Resistance is biologically inefficient.")
 
             -- PROGRESSIVE MATERIALIZATION (Lag Fix)

@@ -3,7 +3,6 @@ include("callable")
 
 -- namespace CaBossAudioHook
 CaBossAudioHook = {}
-CaBossAudioHook.bossPhase = 0
 
 function CaBossAudioHook.initialize()
     if onServer() then return end
@@ -49,7 +48,6 @@ callable(CaBossAudioHook, "triggerAmbientStinger")
 -- Invoked when entering the sector or when phase changes
 function CaBossAudioHook.playBossMusic(phase)
     if onServer() then return end
-    CaBossAudioHook.bossPhase = phase
 
     local musicPath = ""
     if phase == 1 then
@@ -67,7 +65,6 @@ end
 
 function CaBossAudioHook.stopBossMusic()
     if onServer() then return end
-    CaBossAudioHook.bossPhase = 0
     Music():fadeOut(3.0)
     print("Cosmic Ascendancy Hook: Stopping boss music.")
 end

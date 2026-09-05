@@ -360,7 +360,6 @@ function AscendancyBeacon.updateServer(timeStep)
     if now - lastUpkeepTime >= UPKEEP_INTERVAL then
         -- Time to pay!
         local creditCost, mat, matCost = AscendancyBeacon.getUpkeepCost()
-        local owner = Faction(Entity().factionIndex)
         local resources = owner and {owner:getResources()} or {}
 
         if owner and owner.money >= creditCost and (resources[mat.value + 1] or 0) >= matCost then
