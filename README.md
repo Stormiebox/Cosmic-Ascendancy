@@ -2,6 +2,15 @@
 
 *The endgame campaign and crisis simulation for the Cosmic Series.*
 
+![Version](https://img.shields.io/badge/version-1.8.0-6f42c1?style=flat-square)
+![Avorion](https://img.shields.io/badge/Avorion-2.5.13-2f81f7?style=flat-square)
+![License](https://img.shields.io/badge/license-GPLv3-informational?style=flat-square)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey?style=flat-square)
+![Requires](https://img.shields.io/badge/requires-Core%204-success?style=flat-square)
+
+> [!TIP]
+> New here? [`PLAYER_GUIDE.md`](PLAYER_GUIDE.md) is a friendly gameplay tour. [`WIKI.md`](WIKI.md) has the full technical reference, and [`Ascendancy_Lore.md`](Ascendancy_Lore.md) tells the story of The Eclipse.
+
 ## 📖 Overview
 Following the destruction of the Wormhole Guardian, a darker, ancient adversary awakens: The Eclipse. Cosmic Ascendancy adds an endgame narrative campaign where you track a mysterious distress signal, uncover the truth behind The Eclipse, and unlock the Ascendancy Forge to craft the weapons needed to survive.
 
@@ -25,8 +34,9 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 
 ## ⚙️ Requirements
 - Avorion 1.0+
-- **Hard dependency:** Cosmic Vault.
-- **Recommended:** Cosmic Overhaul, Cosmic War, and Cosmic Chronicles aren't required, but Cosmic Ascendancy recognizes them when installed and deepens accordingly (dynamic War Heat scaling, contraband markets, corrupted data nodes, and more). See `WIKI.md` for the full synergy list.
+- **Required:** `Cosmic Vault`, `Cosmic Overhaul`, `Cosmic War`, and `Cosmic Chronicles` — Cosmic Ascendancy is one of the Core 4, and the Core 4 require each other plus Vault.
+
+`modinfo.lua` itself only declares `Cosmic Vault` — Avorion throws a circular-dependency error if the Core 4 try to cross-declare each other there, so the real requirement is enforced through each mod's Steam Workshop "Require Items" listing instead. See `WIKI.md` for the full synergy list (dynamic War Heat scaling, contraband markets, corrupted data nodes, and more).
 
 ## 🚀 Installation
 1. Place the folder in:
@@ -36,4 +46,18 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 3. Restart Avorion when prompted.
 
 ## 📚 Documentation
-For detailed mechanics, guides, and lore, check the in-game **Cosmic Codex** or the included `WIKI.md` and `PLAYER_GUIDE.md` files. Covers the Nemesis System, the Eclipse Threat Dashboard (`/eclipsestatus`), and constructible Ascendant Gateways for automated empire defense.
+
+| Document | For | Covers |
+|---|---|---|
+| [`PLAYER_GUIDE.md`](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Player-Guide) | Players | A friendly walkthrough of the Eclipse crisis and its systems. |
+| [`WIKI.md`](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Features-and-Enhancements) | Anyone who wants the exact numbers | The Nemesis System, the Eclipse Threat Dashboard (`/eclipsestatus`), Ascendant Gateways, and full technical detail. |
+| [`Ascendancy_Lore.md`](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Cosmic-Ascendancy-Lorebook) | Players who want the story | The Eclipse's origin and narrative campaign lore. |
+| **Cosmic Codex** *(in-game)* | Players | All of the above, readable without leaving the game. |
+
+---
+
+<div align="center">
+
+**🌌 Cosmic Ascendancy** — part of the [Cosmic Series](https://github.com/Stormiebox) · built by **Stormbox**
+
+</div>

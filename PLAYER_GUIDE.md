@@ -1,6 +1,12 @@
 # 🚀 Cosmic Ascendancy: A Player's Guide to the Eclipse Crisis
 
+![Version](https://img.shields.io/badge/version-1.8.0-6f42c1?style=flat-square)
+![Avorion](https://img.shields.io/badge/Avorion-2.5.13-2f81f7?style=flat-square)
+
 Welcome to the **Cosmic Ascendancy** player guide. This document walks through the major endgame features in this expansion: the Eclipse Crisis, the Ascendancy Forge, and the Ascendancy Beacon megastructure.
+
+> [!TIP]
+> For exact numbers and mechanic-by-mechanic detail, see [`WIKI.md`](WIKI.md). For the story behind it all, see [`Ascendancy_Lore.md`](Ascendancy_Lore.md). See [`README.md`](README.md) for installation.
 
 ---
 
@@ -295,7 +301,7 @@ Typing this into chat queries the server and privately prints a full Eclipse Thr
 <details>
 <summary><b>Click to expand</b></summary>
 
-Cosmic Ascendancy needs only **Cosmic Vault** to run, but it recognizes the other Cosmic mods when they're installed and deepens the experience with them present.
+Cosmic Ascendancy is one of the Core 4, and requires **Cosmic Vault**, **Cosmic Overhaul**, **Cosmic War**, and **Cosmic Chronicles** (installing it from the Workshop pulls in the rest automatically). The experience deepens with all of them present:
 
 ### Cosmic Series Integration
 - 📦 **Eclipse Contraband (Overhaul):** Eclipse Tech pays out **3x** at Smuggler's Markets.
@@ -307,4 +313,13 @@ Cosmic Ascendancy needs only **Cosmic Vault** to run, but it recognizes the othe
 
 ### Rift DLC Interoperability
 - **Rift Spillage:** Eclipse Invasions have a 10% chance to destabilize local space, tearing a subspace rift that drains sector shields. Destroy the **Eclipse Rift Stabilizer** to close the tear and end the hazard.
+
 </details>
+
+---
+
+<div align="center">
+
+[⬆ Back to top](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Player-Guide) · [🌌 README](https://github.com/Stormiebox/Cosmic-Ascendancy) · [🚀 Wiki](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Features-and-Enhancements) · [📖 Lorebook](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Cosmic-Ascendancy-Lorebook)
+
+</div>

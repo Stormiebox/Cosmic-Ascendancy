@@ -2,6 +2,9 @@
 
 *Welcome, Commander. The information contained herein is classified, compiled from fragmented data-crystals, ancient distress signals, and the harrowing testimonies of survivors. It tells the story of our galaxy's greatest sacrifice, its darkest hour, and the dawn of a new, terrifying age.*
 
+> [!TIP]
+> Looking for gameplay mechanics instead of story? See [`PLAYER_GUIDE.md`](PLAYER_GUIDE.md) or [`WIKI.md`](WIKI.md).
+
 ---
 
 ## ✨ Prologue: The First Shadow
@@ -110,5 +113,13 @@ To construct and maintain a Beacon is to take up the mantle of the Ascendants th
 The Xsotan were a symptom. The pirates, a nuisance. The political squabbles of the factions, a distraction. You have now awakened a true existential threat, an enemy that does not seek to rule, but to erase.
 
 Your journey to the center of the galaxy is over. Your war for the soul of it has just begun.
+
+---
+
+<div align="center">
+
+[⬆ Back to top](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Cosmic-Ascendancy-Lorebook) · [🌌 README](https://github.com/Stormiebox/Cosmic-Ascendancy) · [🚀 Wiki](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Features-and-Enhancements) · [📘 Player Guide](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Player-Guide)
+
+</div>
 
 **Ascend, Commander. The fate of the galaxy depends on it.**

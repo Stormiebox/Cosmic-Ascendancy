@@ -1,8 +1,12 @@
 # 🚀 Cosmic Ascendancy - The Official Wiki & Deep Dive
 
-*Current Version: v1.8.0*
+![Version](https://img.shields.io/badge/version-1.8.0-6f42c1?style=flat-square)
+![Avorion](https://img.shields.io/badge/Avorion-2.5.13-2f81f7?style=flat-square)
 
 Welcome to the **Cosmic Ascendancy** official wiki. This document is the full, exhaustive breakdown of the mod's mechanics: hard statistics, generation rules, and crafting math.
+
+> [!TIP]
+> If you just want a friendly tour of what the mod does, read [`PLAYER_GUIDE.md`](PLAYER_GUIDE.md) instead, or [`Ascendancy_Lore.md`](Ascendancy_Lore.md) for the story. See [`README.md`](README.md) for installation.
 
 ---
 
@@ -334,4 +338,13 @@ Typing this into chat queries the server and privately prints a full Eclipse Thr
 - **Remnant Escalation:** The current Remnant Tier and confirmed World-Eater/Citadel kill counts.
 - **Citadel Suppression Field:** Remaining time on the invasion suppression caused by destroying an Eclipse Citadel.
 - **World-Eater Grace Period:** Remaining time on the Doomsday pause after a World-Eater event.
+
 </details>
+
+---
+
+<div align="center">
+
+[⬆ Back to top](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Features-and-Enhancements) · [🌌 README](https://github.com/Stormiebox/Cosmic-Ascendancy) · [📘 Player Guide](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Player-Guide) · [📖 Lorebook](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Cosmic-Ascendancy-Lorebook)
+
+</div>
