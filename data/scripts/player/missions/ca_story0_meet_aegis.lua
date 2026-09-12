@@ -3,6 +3,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 
 include("stringutility")
 include("structuredmission")
+local CampaignBridge = include("ca_campaign_bridge")
 
 mission._Debug = 0
 mission._Name = "A Mysterious Summons"
@@ -18,54 +19,19 @@ mission.data.description = "You have received an encrypted transmission from an 
 mission.phases[1] = {}
 mission.phases[1].showUpdateOnEnd = true
 mission.phases[1].onBeginServer = function()
-    local player = Player()
-    local x, y = player:getSectorCoordinates()
-    
-    -- Target a random nearby empty sector (5 to 30 jumps away)
-    local MissionUT = include("missionutility")
-    local insideBarrier = false
-    if x and y then
-        insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
-    else
-        x, y = 0, 0
-        insideBarrier = true
-    end
-    
-    local targetX, targetY = MissionUT.getEmptySector(x, y, 5, 30, insideBarrier)
-
-    -- Fallback in case the search fails to find one
-    if not targetX or not targetY then
-        local random = Random()
-        -- Guarantee a genuine sector change: a (0,0) offset would return the player's CURRENT
-        -- sector as the "target", and onSectorEntered below only fires on an actual sector-crossing
-        -- event -- a same-sector roll would permanently soft-lock this, the player's very first
-        -- mission. Matches the retry guard every other story mission's getTargetSector() already uses.
-        local offsetX, offsetY
-        repeat
-            offsetX = random:getInt(-30, 30)
-            offsetY = random:getInt(-30, 30)
-        until offsetX ~= 0 or offsetY ~= 0
-        targetX = x + offsetX
-        targetY = y + offsetY
-    end
-    
+    local targetX, targetY = CampaignBridge.GetTarget(0)
+    if not targetX or not targetY then return end
     mission.data.custom.targetX = targetX
     mission.data.custom.targetY = targetY
-    
     mission.data.description = "Rendezvous with the entity 'Aegis' at sector (" .. targetX .. ":" .. targetY .. ")."
-    
-    -- Send Mail
-    local mail = Mail()
-    mail.text = Format("Commander. Do not be alarmed by my intrusion into your systems. I am Aegis.\n\nBy destroying the Keystone, you have unraveled the dimensional knot. We must speak immediately. I have transmitted secure rendezvous coordinates to your ship's computer.\n\nDo not delay."%_T)
-    mail.header = Format("Secure Transmission"%_T)
-    mail.sender = Format("Aegis"%_T)
-    player:addMail(mail)
-    
-    player:sendChatMessage("Ship Computer"%_T, 3, "New rendezvous coordinates received: \\s(%1%:%2%)"%_T, tostring(targetX), tostring(targetY))
 end
 
 function getUpdateInterval()
     return 1.0
+end
+
+function getCampaignMigrationTarget()
+    return mission.data.custom.targetX, mission.data.custom.targetY
 end
 
 mission.phases[1].onSectorEntered = function(x, y)
@@ -124,8 +90,8 @@ mission.phases[1].onSectorEntered = function(x, y)
         -- means the next onSectorEntered (re-entering this sector) retries the spawn, since
         -- aegisExists correctly still reads false.
         if aegisExists then
-            player:setValue("ca_ready_for_debrief_intro", true)
-            mission.data.custom.debriefReady = true
+            local revision = CampaignBridge.RequestDebrief(0, x, y)
+            mission.data.custom.debriefReady = revision ~= nil
         end
 
         mission.data.description = "You have found Aegis. Approach the Ascendant AI Construct and initiate contact."
@@ -142,7 +108,7 @@ mission.phases[1].updateServer = function()
             -- pending/failed spawn retry -- where the flag is nil because it was never set, not
             -- because the player talked to her -- doesn't get misread as a completed debrief and
             -- silently finish() the mission before the player ever got to interact with Aegis.
-            if mission.data.custom.debriefReady and player:getValue("ca_ready_for_debrief_intro") == nil then
+            if mission.data.custom.debriefReady and CampaignBridge.IsDebriefComplete(0) then
                 finish()
             end
         end

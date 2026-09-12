@@ -5,7 +5,11 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 -- translation at all; nothing else this file includes reaches it before that point is used.
 include("stringutility")
 
-local cv_buffs = include("cosmicvaultbuffs")
+local CosmicVaultData = include("cosmicvaultdata")
+local CosmicVaultTerritory = include("cosmicvaultterritory")
+local COORDINATOR = "data/scripts/galaxy/ca_state_coordinator.lua"
+local OWNER = "data/scripts/player/ascendancyplayer.lua"
+local EncounterBridge = include("ca_encounter_bridge")
 include("cosmicascendancyconfig")
 -- namespace AscendancyPlayer
 AscendancyPlayer = {}
@@ -71,9 +75,9 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
         -- restart re-creates a fresh script instance with AscendancyPlayer.dreadStingerShown back
         -- at its default, same as intended.
         if not AscendancyPlayer.dreadStingerShown then
-            local held = Server():getValue("eclipse_held_territory") or ""
-            local escapedCoordStr = string.gsub(x .. "_" .. y .. ",", "%-", "%%-")
-            if string.find("," .. held, "," .. escapedCoordStr) then
+            local canonical = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2)
+            local held = canonical and canonical.territory and canonical.territory.held or {}
+            if held[tostring(x) .. ":" .. tostring(y)] then
                 AscendancyPlayer.dreadStingerShown = true
                 local player = Player(playerIndex)
                 if player then
@@ -84,77 +88,85 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
         end
 
         -- PROGRESSIVE MATERIALIZATION INTERCEPT (Lag Fix)
-        local pendingAnnihilations = Server():getValue("eclipse_pending_annihilations") or ""
-        local pendingSieges = Server():getValue("eclipse_pending_sieges") or ""
-        local coordStr = x .. "_" .. y .. ","
-        local escapedCoordStr = string.gsub(coordStr, "%-", "%%-")
-        -- These lists only delimit entries with a trailing comma (e.g. "25_10,5_10,"), so a bare
-        -- "5_10," pattern would false-match as a substring inside "25_10,". Anchor the leading
-        -- side too by searching/replacing against a "," + haystack, then restore the original
-        -- (no-leading-comma) convention with :sub(2) after any removal.
-        local anchoredPattern = "," .. escapedCoordStr
-
-        if string.find("," .. pendingAnnihilations, anchoredPattern) then
-            -- Remove from pending list
-            Server():setValue("eclipse_pending_annihilations", string.gsub("," .. pendingAnnihilations, anchoredPattern, ","):sub(2))
-            if not sector:hasScript("sector/ca_delayed_annihilation.lua") then
-                sector:addScriptOnce("data/scripts/sector/ca_delayed_annihilation.lua")
+        local claimant = "ascendancy-player:" .. tostring(playerIndex) .. ":" .. x .. ":" .. y
+        local annihilation = CosmicVaultTerritory.GetMaterialization("annihilation", x, y)
+        if annihilation and annihilation.state == "materializing"
+                and type(annihilation.claimUntil) == "number"
+                and annihilation.claimUntil <= Server().unpausedRuntime then
+            local expectedReceipt = annihilation.id .. ":" .. tostring(annihilation.createdAt or 0)
+            if sector:getValue("ca_annihilation_receipt") ~= expectedReceipt then
+                CosmicVaultTerritory.RequireMaterializationRepair(
+                    "annihilation", x, y, annihilation.claimOwner,
+                    "annihilation_side_effects_ambiguous_after_lease_expiry")
+                annihilation = nil
+            end
+        end
+        if annihilation and (annihilation.state == "pending" or annihilation.state == "retryable"
+                or annihilation.state == "materializing") then
+            local claimed = CosmicVaultTerritory.ClaimMaterialization(
+                "annihilation", x, y, claimant, 300)
+            if claimed then
+                sector:addScriptOnce("data/scripts/sector/ca_delayed_annihilation.lua",
+                    "annihilation", x, y, claimant, claimed.id,
+                    claimed.createdAt,
+                    claimed.payload and claimed.payload.encounterId,
+                    claimed.payload and claimed.payload.criticalPlayerShips == true)
+                if not sector:hasScript("sector/ca_delayed_annihilation.lua") then
+                    CosmicVaultTerritory.RetryMaterialization(
+                        "annihilation", x, y, claimant, "script_attachment_failed", 60)
+                end
             end
         end
 
-        if string.find("," .. pendingSieges, anchoredPattern) then
-            -- Remove from pending list
-            Server():setValue("eclipse_pending_sieges", string.gsub("," .. pendingSieges, anchoredPattern, ","):sub(2))
-            if not sector:hasScript("events/siegeevent.lua") then
+        local siege = CosmicVaultTerritory.GetMaterialization("siege", x, y)
+        if siege and (siege.state == "pending" or siege.state == "retryable"
+                or siege.state == "materializing") then
+            local claimed = CosmicVaultTerritory.ClaimMaterialization("siege", x, y, claimant, 300)
+            if claimed then
                 sector:addScriptOnce("data/scripts/events/siegeevent.lua")
-            end
-        end
-        
-        -- AI / Pirate Expansion Intercept (Cosmic Vault)
-        local pendingExpansions = Server():getValue("CosmicVault_PendingExpansions") or ""
-        local vaultPrefix = string.gsub(x .. "__" .. y .. "__", "%-", "%%-")
-        local vaultPattern = vaultPrefix .. "([%-%w]+)__([%w]+),"
-        local factionStr, pirateStr = string.match(pendingExpansions, vaultPattern)
-
-        if factionStr and pirateStr then
-            local isPirate = (pirateStr == "true")
-            local factionIndex = tonumber(factionStr)
-            
-            local entryToRemove = x .. "__" .. y .. "__" .. factionStr .. "__" .. pirateStr .. ","
-            local escapedEntry = string.gsub(entryToRemove, "%-", "%%-")
-            Server():setValue("CosmicVault_PendingExpansions", string.gsub(pendingExpansions, escapedEntry, ""))
-            
-            -- Generate the Outpost/Hideout natively!
-            if isPirate then
-                local PirateGenerator = include("pirategenerator")
-                local level = Balancing_GetPirateLevel(x, y)
-                local faction = Galaxy():getPirateFaction(level)
-                if faction then
-                    local SectorGenerator = include("SectorGenerator")
-                    local generator = SectorGenerator(x, y)
-                    if random():getFloat() < 0.5 then
-                        generator:createStation(faction, "data/scripts/entity/merchants/smugglersmarket.lua").title = "Smuggler's Hideout"
-                    else
-                        generator:createStation(faction, "data/scripts/entity/merchants/shipyard.lua").title = "Pirate Shipyard"
+                if sector:hasScript("events/siegeevent.lua") then
+                    local encounterId = claimed.payload and claimed.payload.encounterId
+                    if encounterId then
+                        EncounterBridge.Transition(OWNER, encounterId, "active", {
+                            x = x, y = y, engagedAt = Server().unpausedRuntime
+                        })
+                        EncounterBridge.Transition(OWNER, encounterId, "resolving", {
+                            resolution = {reason = "siege_script_verified"}
+                        })
+                        EncounterBridge.Transition(OWNER, encounterId, "succeeded", {
+                            resolution = {reason = "siege_script_verified"}
+                        })
                     end
-                end
-            else
-                local faction = Faction(factionIndex)
-                if faction then
-                    local SectorGenerator = include("SectorGenerator")
-                    local generator = SectorGenerator(x, y)
-                    local types = {
-                        "data/scripts/entity/merchants/militaryoutpost.lua",
-                        "data/scripts/entity/merchants/resourcedepot.lua",
-                        "data/scripts/entity/merchants/tradingpost.lua",
-                        "data/scripts/entity/merchants/researchstation.lua"
-                    }
-                    generator:createStation(faction, types[random():getInt(1, #types)])
+                    CosmicVaultTerritory.CompleteMaterialization("siege", x, y, claimant, {
+                        script = "data/scripts/events/siegeevent.lua", verified = true
+                    })
+                else
+                    CosmicVaultTerritory.RetryMaterialization(
+                        "siege", x, y, claimant, "script_attachment_failed", 60)
                 end
             end
         end
         
-        if Server():getValue("eclipse_fully_awake") and not sector:getValue("eclipse_stronghold_rolled") then
+        local state = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2)
+        local eclipseFaction = Galaxy():findFaction("The Eclipse")
+        local controlling = Galaxy():getControllingFaction(x, y)
+        local controllingIndex = type(controlling) == "number" and controlling
+            or (controlling and controlling.index)
+        local coordinateKey = tostring(x) .. ":" .. tostring(y)
+        if state and eclipseFaction and controllingIndex == eclipseFaction.index
+                and not state.territory.held[coordinateKey] then
+            Galaxy():invokeFunction(COORDINATOR, "requestTerritoryState", OWNER, state.revision,
+                "claim", {x = x, y = y, eclipseFactionIndex = eclipseFaction.index,
+                    source = "loaded_sector_reconciliation"})
+            state = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2) or state
+        elseif state and state.territory.held[coordinateKey]
+                and (not controllingIndex or not eclipseFaction
+                    or controllingIndex ~= eclipseFaction.index) then
+            Galaxy():invokeFunction(COORDINATOR, "requestTerritoryState", OWNER, state.revision,
+                "release", {x = x, y = y, source = "loaded_sector_reconciliation"})
+            state = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2) or state
+        end
+        if state and state.eclipse.state == "fully_awake" and not sector:getValue("eclipse_stronghold_rolled") then
             sector:setValue("eclipse_stronghold_rolled", true)
             
             local SectorSpecifics = include("sectorspecifics")
@@ -174,9 +186,36 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
         end
 
         if sector:getValue("is_eclipse_stronghold") and not sector:getValue("eclipse_stronghold_spawned") then
-            sector:setValue("eclipse_stronghold_spawned", true)
+            local encounterId = "stronghold:" .. tostring(x) .. ":" .. tostring(y)
+            local encounter = EncounterBridge.Get(encounterId)
+            if not encounter then
+                encounter = EncounterBridge.Create(OWNER, {
+                    encounterId = encounterId,
+                    kind = "stronghold",
+                    concurrencyKey = encounterId,
+                    scope = "sector",
+                    x = x, y = y, state = "prepared"
+                })
+            end
+            if not encounter or encounter.state == "repair_required" then return end
+            if encounter.state == "materializing" then
+                EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                    lastError = "restart_during_stronghold_materialization"
+                })
+                return
+            end
+            if encounter.state == "retryable" then
+                encounter = EncounterBridge.Transition(OWNER, encounterId, "prepared")
+            end
+            if not encounter or not EncounterBridge.Transition(
+                    OWNER, encounterId, "materializing") then return end
+
+            local attempts = (sector:getValue("eclipse_stronghold_attempts") or 0) + 1
+            sector:setValue("eclipse_stronghold_attempts", attempts)
             local EclipseGenerator = include("eclipsegenerator")
-            EclipseGenerator.createStation(Matrix())
+            local spawned = {}
+            local station = EclipseGenerator.createStation(Matrix())
+            if station then table.insert(spawned, station) end
                 
                 local defenderTypes = {"ca_obliterator", "ca_voidweaver", "ca_phantom", "ca_singularity", "ca_juggernaut", "ca_interceptor", "ca_harvester", "ca_defiler"}
                 for i = 1, 4 do
@@ -205,9 +244,46 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
                     
                     -- Ensure the generator successfully created a defender before assigning AI scripts
                     if defender then
-                        defender:addScriptOnce("ai/patrol.lua")
+                        defender:addScriptOnce("data/scripts/entity/ai/patrol.lua")
+                        table.insert(spawned, defender)
                     end
                 end
+            local spawnedIds = {}
+            local tagsVerified = true
+            for _, entity in ipairs(spawned) do
+                entity:setValue("ca_encounter_id", encounterId)
+                if entity:getValue("ca_encounter_id") ~= encounterId then tagsVerified = false end
+                table.insert(spawnedIds, entity.id.string)
+            end
+            if station and #spawned == 5 and tagsVerified then
+                local activated = EncounterBridge.Transition(
+                    OWNER, encounterId, "active", {entityId = station.id.string,
+                        entityIds = spawnedIds, attempts = attempts})
+                if activated then
+                    sector:setValue("eclipse_stronghold_spawned", true)
+                else
+                    EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                        entityIds = spawnedIds, attempts = attempts,
+                        lastError = "stronghold_activation_persistence_failed"
+                    })
+                end
+            elseif #spawned > 0 then
+                EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                    entityIds = spawnedIds, attempts = attempts,
+                    lastError = tagsVerified and "stronghold_partial_materialization"
+                        or "stronghold_tag_verification_failed"
+                })
+            elseif attempts >= 5 then
+                EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                    attempts = attempts,
+                    lastError = "stronghold_materialization_failed_after_five_attempts"
+                })
+            else
+                EncounterBridge.Transition(OWNER, encounterId, "retryable", {
+                    attempts = attempts,
+                    lastError = "stronghold_materialization_failed"
+                })
+            end
             end
         
 

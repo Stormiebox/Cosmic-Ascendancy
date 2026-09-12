@@ -1,6 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include("utility")
 local SectorGenerator = include("SectorGenerator")
+local CosmicVaultData = include("cosmicvaultdata")
 
 -- Dark Sector Generator
 -- This script runs in the background for players. 
@@ -25,7 +26,8 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     -- sector a player passed through pre-awakening would be permanently marked "checked" without
     -- ever actually rolling for Dark Sector eligibility, so once the Eclipse did awaken almost no
     -- core sectors would still be eligible to become one.
-    if not Server():getValue("the_eclipse_unleashed") then return end
+    local state = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2)
+    if not state or state.eclipse.state == "dormant" then return end
 
     -- Ensure this check only happens once per sector
     if sector:getValue("ca_darksector_checked") then return end
@@ -100,4 +102,3 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     
     Player(playerIndex):sendChatMessage("WARNING", 1, "WARNING! You have entered an Eclipse Dark Sector. Extreme Dark Matter Fog detected."%_t)
 end
-

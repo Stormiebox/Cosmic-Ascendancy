@@ -1,3 +1,32 @@
+[i]Version 2.0.0[/i]
+[hr][/hr]
+[h1]v2.0.0 🌌STRUCTURAL OVERHAUL🌌[/h1]
+[hr][/hr]
+[b]🛠️ RELIABILITY UPDATE[/b]
+[i]Cosmic Ascendancy now keeps one clear, save-safe record of its campaign, encounters, territory work, Forge orders, and Beacons. The content is the same; interrupted scripts, sector unloads, reconnects, and restarts are far less likely to skip, repeat, or falsely finish it.[/i]
+
+[b]🌌 PROGRESSION & ENCOUNTERS[/b]
+[list]
+[*]📖 [b]Campaign progress is now tracked per player from the Wormhole Guardian through full Eclipse activation.[/b] Alliance members can fight together without one player's mission or reward overwriting another's.
+[*]🎯 Every major encounter now carries its own identity. A failed spawn or an unloaded sector no longer counts as a win, and an old boss cannot finish a newer encounter by mistake.
+[*]💰 Mission and encounter rewards now use saved receipts, so repeated callbacks and reconnects cannot pay the same reward twice.
+[*]🔁 Deferred spawns, sieges, and annihilations remain queued until the game can confirm what happened. Unclear cases stop for repair instead of being guessed forward.
+[/list]
+
+[b]⚒️ FORGE & BEACONS[/b]
+[list]
+[*]⚒️ Forge orders now save their full recipe, costs, roll, owner, and output. The Forge checks the interacting faction and its funds before charging, and an interrupted charge or claim is never repeated blindly.
+[*]🔫 The Titan Worldbreaker is now guaranteed to use the intended laser weapon type.
+[*]🛰️ Beacons now rebuild their registry safely after a restart, keep separate upkeep accounts, enforce the three-active-Beacon limit, and use renewable sector leases instead of permanent loads. Overlapping sanctuary fields still do not stack.
+[/list]
+
+[b]🧰 SAVE MIGRATION & REPAIR[/b]
+[list]
+[*]💾 Existing saves migrate from confirmed evidence without moving progress backward. If the old save cannot prove whether a reward, charge, or spawn happened, the mod records the problem instead of risking a duplicate.
+[*]🔧 Server administrators can inspect and resolve those rare cases with [b]/ascendancyrepair[/b]. Scans do not change the save, and every applied repair is logged.
+[*]🔍 [b]/eclipsestatus[/b] now reads the same saved state used by the progression systems, so it no longer has to reconstruct the answer from scattered flags.
+[/list]
+
 [i]Version 1.8.0[/i]
 [hr][/hr]
 [h1]v1.8.0 ⚖️THE ECLIPSE HIERARCHY REWORK⚖️[/h1]

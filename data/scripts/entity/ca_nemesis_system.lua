@@ -2,6 +2,8 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 local damageTracker = {}
+local EncounterBridge = include("ca_encounter_bridge")
+local OWNER = "data/scripts/entity/ca_nemesis_system.lua"
 
 function initialize()
     if onServer() then
@@ -33,7 +35,11 @@ function trackAndCheckRetreat(entity, amount, damageType)
     -- Check if HP is below 5%
     if entity.durability / entity.maxDurability <= 0.05 then
         local now = Server().unpausedRuntime
-        local lastRetreat = Server():getValue("eclipse_nemesis_last_retreat") or 0
+        local hunts = EncounterBridge.List("nemesis") or {}
+        local lastRetreat = 0
+        for _, hunt in ipairs(hunts) do
+            lastRetreat = math.max(lastRetreat, hunt.createdAt or hunt.engagedAt or 0)
+        end
         
         -- 2-Hour Global Cooldown (7200 seconds)
         if now - lastRetreat < 7200 then
@@ -51,10 +57,6 @@ function trackAndCheckRetreat(entity, amount, damageType)
             end
         end
         
-        -- Save the nemesis resist to server globally
-        Server():setValue("eclipse_nemesis_resist", highestType)
-        Server():setValue("eclipse_nemesis_last_retreat", now)
-
         -- Hunt the Dread-Lord: relocate it to a nearby sector instead of just vanishing, so players
         -- can track it down and finish the fight instead of the retreat being a dead end (see
         -- ca_nemesis_hunt.lua, which materializes it there when a player arrives). The
@@ -71,10 +73,24 @@ function trackAndCheckRetreat(entity, amount, damageType)
         local insideBarrier = MissionUT.checkSectorInsideBarrier(x, y)
         local hx, hy = MissionUT.getEmptySector(x, y, 5, 20, insideBarrier)
         if hx and hy then
-            Server():setValue("eclipse_nemesis_hunt", {x = hx, y = hy, time = now, spawned = false})
-            for _, witness in pairs({Sector():getPlayers()}) do
-                witness:setValue("eclipse_nemesis_hunt", {x = hx, y = hy, time = now})
-            end
+            local encounterId = EncounterBridge.MakeId("nemesis", "galaxy", hx, hy, math.floor(now))
+            local participants = {}
+            for _, witness in pairs({Sector():getPlayers()}) do table.insert(participants, witness.index) end
+            table.sort(participants)
+            local prepared = EncounterBridge.Create(OWNER, {
+                encounterId = encounterId,
+                kind = "nemesis",
+                concurrencyKey = "nemesis:galaxy",
+                scope = "galaxy",
+                x = hx, y = hy,
+                resistanceType = highestType,
+                participants = participants,
+                createdAt = now,
+                state = "prepared"
+            })
+            if not prepared then return end
+        else
+            return
         end
 
         -- Broadcast dramatic retreat
@@ -91,15 +107,56 @@ function onDestroyed()
     local entity = Entity()
     if not entity or not entity:getValue("ca_nemesis_hunted") then return end
 
-    local hunt = Server():getValue("eclipse_nemesis_hunt")
-    if not hunt then return end -- already cleared, or this wasn't actually the tracked one
-
-    Server():setValue("eclipse_nemesis_hunt", nil)
+    local encounterId = entity:getValue("ca_encounter_id")
+    local hunt = encounterId and EncounterBridge.Get(encounterId)
+    if not hunt or hunt.kind ~= "nemesis" or hunt.entityId ~= entity.id.string
+            or hunt.state ~= "active" then return end
 
     local sector = Sector()
+    local participants = {}
+    for _, player in pairs({sector:getPlayers()}) do table.insert(participants, player.index) end
+    table.sort(participants)
+    local resolving = EncounterBridge.Transition(OWNER, encounterId, "resolving", {
+        participants = participants, resolution = {reason = "verified_destroyed", entityId = entity.id.string}
+    })
+    if not resolving then return end
+
     sector:broadcastChatMessage("System"%_T, 0, "The hunted Dread-Lord has finally been destroyed!"%_T)
-    for _, player in pairs({sector:getPlayers()}) do
+    for _, playerIndex in ipairs(participants) do
+        local player = Player(playerIndex)
+        local operationId = encounterId .. ":player:" .. playerIndex .. ":reward"
+        local receipt = EncounterBridge.PrepareReceipt(OWNER, {
+            operationId = operationId, kind = "nemesis_reward",
+            encounterId = encounterId, recipient = {playerIndex = playerIndex},
+            reissue = {mode = "coordinator_credit", credits = 10000000,
+                reason = "Nemesis Bounty"}
+        })
+        if not receipt then
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "reward_receipt_prepare_failed:" .. operationId})
+            return
+        end
+        local before = player.money or 0
         player:receive("Nemesis Bounty"%_T, 10000000)
+        if (player.money or 0) < before + 10000000 then
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "reward_delivery_unverified:" .. operationId})
+            return
+        end
+        if not EncounterBridge.CompleteReceipt(OWNER, operationId, {
+                credits = 10000000, before = before, after = player.money}) then
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "reward_receipt_completion_ambiguous:" .. operationId})
+            return
+        end
+    end
+    local succeeded = EncounterBridge.Transition(OWNER, encounterId, "succeeded", {
+        participants = participants, resolution = {reason = "verified_destroyed", entityId = entity.id.string}
+    })
+    if not succeeded then
+        EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            lastError = "nemesis_terminal_transition_failed"
+        })
     end
 end
 

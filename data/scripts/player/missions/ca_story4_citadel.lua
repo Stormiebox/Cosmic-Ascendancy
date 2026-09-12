@@ -2,9 +2,20 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 include("structuredmission")
+local CampaignBridge = include("ca_campaign_bridge")
+local MissionEncounter = include("ca_mission_encounter")
+local EncounterBridge = include("ca_encounter_bridge")
+local OWNER = "data/scripts/player/missions/ca_story4_citadel.lua"
 
 function getUpdateInterval()
     return 1.0
+end
+
+function getCampaignMigrationTarget()
+    if mission.data.custom.debriefReady then
+        return mission.data.custom.aegisX, mission.data.custom.aegisY
+    end
+    return mission.data.custom.targetX, mission.data.custom.targetY
 end
 
 
@@ -22,8 +33,8 @@ mission.data.title = "The Citadel Threat"
 mission.phases[1] = {}
 mission.phases[1].showUpdateOnEnd = true
 mission.phases[1].onBeginServer = function()
-    local x, y = Sector():getCoordinates()
-    local targetX, targetY = getTargetSector(x, y)
+    local targetX, targetY = CampaignBridge.GetTarget(4)
+    if not targetX or not targetY then return end
     mission.data.custom.targetX = targetX
     mission.data.custom.targetY = targetY
     mission.data.description = "Jump to (" .. targetX .. ":" .. targetY .. ") and destroy the Eclipse Citadel before it can fully anchor itself to this dimension."
@@ -39,11 +50,29 @@ end
 mission.phases[2] = {}
 mission.phases[2].onBeginServer = function()
     mission.data.description = "Destroy the Eclipse Citadel!"
+    local prepared = MissionEncounter.Prepare(OWNER, 4, "campaign_citadel",
+        mission.data.custom.targetX, mission.data.custom.targetY)
+    if not prepared then return end
+    mission.data.custom.encounterId = prepared.encounterId
+    if prepared.state == "succeeded" then
+        mission.data.custom.bossDestroyedVerified = true
+        mission.data.custom.bossSpawned = true
+        return
+    elseif prepared.state == "active" then
+        mission.data.custom.bossId = prepared.entityId
+        local boss = prepared.entityId and Entity(Uuid(prepared.entityId))
+        if valid(boss) and boss:getValue("ca_encounter_id") == prepared.encounterId then
+            boss:registerCallback("onDestroyed", "onCampaignCitadelDestroyed")
+        end
+        mission.data.custom.bossSpawned = true
+        return
+    end
     
     local EclipseGenerator = include("eclipsegenerator")
 
-    local existingBoss = {Sector():getEntitiesByScriptValue("ca_eclipse_citadel")}
+    local existingBoss = MissionEncounter.FindTagged("ca_eclipse_citadel", prepared.encounterId)
     if #existingBoss == 0 then
+        if not MissionEncounter.BeginMaterialization(OWNER, prepared.encounterId) then return end
         -- Spawn Citadel Boss
         local dir = normalize(vec3(random():getFloat(-1, 1), random():getFloat(-1, 1), random():getFloat(-1, 1)))
         local pos = dir * 2000
@@ -55,10 +84,18 @@ mission.phases[2].onBeginServer = function()
         -- mission.data.custom.bossSpawned = true line below, permanently soft-locking this phase's
         -- updateServer guard. Mirrors the existing if-ship-then pattern already used for the Aegis
         -- rendezvous spawn later in this file.
-        if boss then
-            boss.title = "Eclipse Citadel Prototype"
-            boss:setValue("ca_eclipse_citadel", true)
+        if not boss then
+            MissionEncounter.RecordMaterializationFailure(
+                OWNER, prepared.encounterId, "campaign_citadel_spawn_failed")
+            return
         end
+        boss.title = "Eclipse Citadel Prototype"
+        boss:setValue("ca_eclipse_citadel", true)
+        boss:setValue("ca_encounter_id", prepared.encounterId)
+        boss:registerCallback("onDestroyed", "onCampaignCitadelDestroyed")
+        local activated = MissionEncounter.Activate(OWNER, prepared.encounterId, {boss})
+        if not activated then return end
+        mission.data.custom.bossId = boss.id.string
 
         -- Add Interceptors as escorts
         for i = 1, 6 do
@@ -66,27 +103,54 @@ mission.phases[2].onBeginServer = function()
             local escort = EclipseGenerator.createInterceptor(escortPos)
             if escort then
                 escort:setValue("ca_eclipse_ambush", true)
+                escort:setValue("ca_encounter_id", prepared.encounterId)
             end
         end
 
         Player():sendChatMessage("The Eclipse"%_T, 2, "Sanitation node establishing. Resistance is a chaotic anomaly that will be rectified."%_T)
+    elseif #existingBoss == 1 then
+        local boss = existingBoss[1]
+        boss:registerCallback("onDestroyed", "onCampaignCitadelDestroyed")
+        local activated = MissionEncounter.Activate(OWNER, prepared.encounterId, {boss})
+        if activated then mission.data.custom.bossId = boss.id.string end
+    else
+        EncounterBridge.Transition(OWNER, prepared.encounterId, "repair_required", {
+            lastError = "multiple_campaign_citadels_for_encounter"
+        })
+        return
     end
-    mission.data.custom.bossSpawned = true
+    mission.data.custom.bossSpawned = mission.data.custom.bossId ~= nil
+end
+
+function onCampaignCitadelDestroyed()
+    local resolved = MissionEncounter.Resolve(OWNER, mission.data.custom.encounterId,
+        mission.data.custom.bossId)
+    if resolved then mission.data.custom.bossDestroyedVerified = true end
 end
 
 mission.phases[2].updateServer = function()
     local x, y = Sector():getCoordinates()
     if x ~= mission.data.custom.targetX or y ~= mission.data.custom.targetY then return end
-    if not mission.data.custom.bossSpawned then return end
-    
-    local boss = {Sector():getEntitiesByScriptValue("ca_eclipse_citadel")}
-    if #boss == 0 then
+    if not mission.data.custom.bossSpawned then
+        mission.phases[2].onBeginServer()
+        return
+    end
+    local boss = Entity(Uuid(mission.data.custom.bossId))
+    local encounter = EncounterBridge.Get(mission.data.custom.encounterId)
+    if encounter and encounter.state == "succeeded" then
+        mission.data.custom.bossDestroyedVerified = true
+    end
+    if mission.data.custom.bossDestroyedVerified then
         Player():sendChatMessage("Aegis"%_T, 0, "The Citadel has collapsed! Incredible work, Commander. But the dimensional shockwave... oh no. Something much larger is riding the wake. We must meet at these coordinates immediately."%_T)
         
         local rx, ry = getTargetSector(x, y)
         mission.data.custom.aegisX = rx
         mission.data.custom.aegisY = ry
         nextPhase()
+    elseif not valid(boss) and not mission.data.custom.missingReported then
+        mission.data.custom.missingReported = true
+        MissionEncounter.MarkMissing(OWNER, mission.data.custom.encounterId,
+            "campaign_citadel_missing_without_destroy_callback")
     end
 end
 
@@ -133,8 +197,8 @@ mission.phases[3].onSectorEntered = function(x, y)
         -- ca_story0_meet_aegis.lua for the full rationale) -- otherwise a failed createShip() would
         -- tell the player to approach a ship that doesn't exist, with no way to recover.
         if aegisExists then
-            Player():setValue("ca_ready_for_debrief_4", true)
-            mission.data.custom.debriefReady = true
+            local revision = CampaignBridge.RequestDebrief(4, mission.data.custom.aegisX, mission.data.custom.aegisY)
+            mission.data.custom.debriefReady = revision ~= nil
         end
     end
 end
@@ -146,7 +210,7 @@ mission.phases[3].updateServer = function()
         if x == mission.data.custom.aegisX and y == mission.data.custom.aegisY then
             -- Gated on debriefReady (only set once Aegis was actually confirmed present) so a
             -- pending/failed spawn retry doesn't get misread as a completed debrief.
-            if mission.data.custom.debriefReady and player:getValue("ca_ready_for_debrief_4") == nil then
+            if mission.data.custom.debriefReady and CampaignBridge.IsDebriefComplete(4) then
                 finish()
             end
         end

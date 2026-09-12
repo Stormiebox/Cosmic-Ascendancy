@@ -2,6 +2,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 local SectorGenerator = include ("SectorGenerator")
+local CosmicVaultData = include("cosmicvaultdata")
 
 local LoreAnomalies = {}
 
@@ -13,7 +14,8 @@ function LoreAnomalies.onSectorEntered(playerIndex, x, y, sectorChangeType)
     if not player then return end
 
     -- Only spawn anomalies if the Eclipse hasn't fully awakened yet
-    if Server():getValue("eclipse_fully_awake") then return end
+    local state = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2)
+    if state and state.eclipse.state == "fully_awake" then return end
 
     local dist = math.sqrt(x*x + y*y)
 

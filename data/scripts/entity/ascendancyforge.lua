@@ -4,36 +4,41 @@ include("utility")
 include("stringutility")
 include("faction")
 include("goods")
+include("weapontypeutility")
 local TurretGenerator = include("turretgenerator")
 -- Removed hard dependency on cosmicwar_bridge
-local cv_news = include("cosmicvaultnews")
 local cv_buffs = include("cosmicvaultbuffs")
 local cv_goods = include("cosmicvaultgoods")
+local CosmicVaultData = include("cosmicvaultdata")
+local CosmicVaultEconomy = include("cosmicvaulteconomy")
+local CAState = include("ca_state")
 
-local isForging = false
-local forgeFinishTime = 0
-local hasCompletedItem = false
-local willSucceed = false
-local selectedType = 1
+local ORDER_KEY = "ca_forge_v1"
+local order
+local selectedRecipeId = 1
+local clientIsForging = false
+local clientHasCompletedItem = false
 
 local FORGE_TIME = 24 * 3600
+local COORDINATOR = "data/scripts/galaxy/ca_state_coordinator.lua"
+local OWNER = "data/scripts/entity/ascendancyforge.lua"
 
 -- namespace AscendancyForge
 AscendancyForge = {}
 
 local weaponChoices = {
-    {name = "Ascendant Chaingun", value = 1},
-    {name = "Ascendant Point Defense", value = 2},
-    {name = "Ascendant Anti-Fighter", value = 12},
-    {name = "Ascendant Bolter", value = 13},
-    {name = "Ascendant Laser", value = 3},
-    {name = "Ascendant Plasma", value = 8},
-    {name = "Ascendant Rocket", value = 9},
-    {name = "Ascendant Cannon", value = 10},
-    {name = "Ascendant Railgun", value = 11},
-    {name = "Ascendant Tesla", value = 15},
-    {name = "Ascendant Lightning", value = 14},
-    {name = "Ascendant Pulse Cannon", value = 17},
+    {name = "Ascendant Chaingun", value = WeaponType.ChainGun},
+    {name = "Ascendant Point Defense", value = WeaponType.PointDefenseChainGun},
+    {name = "Ascendant Anti-Fighter", value = WeaponType.AntiFighter},
+    {name = "Ascendant Bolter", value = WeaponType.Bolter},
+    {name = "Ascendant Laser", value = WeaponType.Laser},
+    {name = "Ascendant Plasma", value = WeaponType.PlasmaGun},
+    {name = "Ascendant Rocket", value = WeaponType.RocketLauncher},
+    {name = "Ascendant Cannon", value = WeaponType.Cannon},
+    {name = "Ascendant Railgun", value = WeaponType.RailGun},
+    {name = "Ascendant Tesla", value = WeaponType.TeslaGun},
+    {name = "Ascendant Lightning", value = WeaponType.LightningGun},
+    {name = "Ascendant Pulse Cannon", value = WeaponType.PulseCannon},
     {name = "Ascendant War-Drive", value = "data/scripts/systems/ascendantwardrive.lua"},
     {name = "Ascendant Aegis Matrix", value = "data/scripts/systems/ascendantaegis.lua"},
     {name = "Ascendant Slipstream Core", value = "data/scripts/systems/ascendantslipstream.lua"},
@@ -43,6 +48,102 @@ local weaponChoices = {
     {name = "Ascendant Neural Implant", value = "data/scripts/systems/ascendantneuralimplant.lua"},
     {name = "Ascendant World-Breaker (Titan Coaxial)", value = "titan_worldbreaker"},
 }
+
+for recipeId, recipe in ipairs(weaponChoices) do recipe.id = recipeId end
+
+local function now() return Server().unpausedRuntime end
+
+local function repairCoordinator(functionName, ...)
+    local resultCode, first, second = Galaxy():invokeFunction(COORDINATOR, functionName, ...)
+    if resultCode ~= 0 then return nil, "coordinator_unavailable" end
+    return first, second
+end
+
+local function reportOrderRepair()
+    if not order then return end
+    if order.state == "repair_required" then
+        local x, y = Sector():getCoordinates()
+        repairCoordinator("requestEntityRepair", OWNER, "upsert", {
+            entityId = Entity().id.string,
+            kind = "forge",
+            ownerFactionIndex = Entity().factionIndex,
+            x = x,
+            y = y,
+            recordRevision = order.revision,
+            reason = order.repairRequired or order.lastError
+        })
+    else
+        repairCoordinator("requestEntityRepair", OWNER, "resolve", {
+            entityId = Entity().id.string,
+            recordRevision = order.revision
+        })
+    end
+end
+
+local function newOrderRecord()
+    return {
+        schemaVersion = 1, revision = 0, state = "idle", updatedAt = now(),
+        orderId = nil, recipeId = nil, ownerFactionIndex = nil,
+        requestingPlayerIndex = nil, weaponType = nil, seed = nil,
+        costs = nil, sacrifices = nil, successRoll = nil, successRate = nil,
+        intendedOutput = nil, createdAt = nil, completionAt = nil,
+        receipt = nil, migration = {source = "new"}, repairRequired = nil, lastError = nil
+    }
+end
+
+local function saveOrder(nextOrder)
+    local persisted = CAState.DeepCopy(nextOrder)
+    persisted.revision = (persisted.revision or 0) + 1
+    persisted.updatedAt = now()
+    local saved, err = CosmicVaultData.SetRecord(Entity(), ORDER_KEY, persisted)
+    if not saved then return nil, err end
+    order = persisted
+    reportOrderRepair()
+    return true, nil
+end
+
+local function persistAfterSideEffect(nextOrder, reason)
+    local saved, err = saveOrder(nextOrder)
+    if saved then return true, nil end
+
+    order = CAState.DeepCopy(nextOrder)
+    order.state = "repair_required"
+    order.repairRequired = reason
+    order.lastError = "record_write_failed_after_side_effect:" .. tostring(err)
+    order.updatedAt = now()
+    reportOrderRepair()
+    return nil, err
+end
+
+local function loadOrder()
+    local loaded, err = CosmicVaultData.GetRecord(Entity(), ORDER_KEY, 1)
+    if loaded then
+        order = loaded
+        if order.state == "debit_prepared" or order.state == "claim_prepared" then
+            local working = CAState.DeepCopy(order)
+            working.state = "repair_required"
+            working.repairRequired = order.state .. "_restart_ambiguity"
+            working.lastError = "side_effect_completion_cannot_be_proven"
+            saveOrder(working)
+        end
+        return
+    end
+    if err ~= "missing" then
+        order = newOrderRecord()
+        order.state = "repair_required"
+        order.repairRequired = "forge_record_" .. tostring(err)
+        order.lastError = tostring(err)
+        return
+    end
+    saveOrder(newOrderRecord())
+end
+
+function AscendancyForge.initialize()
+    if onServer() then
+        loadOrder()
+        reportOrderRepair()
+    end
+end
 
 function AscendancyForge.interactionPossible(playerIndex, option)
     if not Player(playerIndex):getValue("ca_forge_unlocked") then return false end
@@ -114,12 +215,11 @@ end
 
 function AscendancyForge.onComboChanged(comboBox, selectedIndex)
     if not onClient() then return end
-    selectedType = weaponChoices[selectedIndex + 1].value
-    invokeServerFunction("updateSelectedType", selectedType)
+    selectedRecipeId = selectedIndex + 1
 end
 
 function AscendancyForge.updateSelectedType(typ)
-    selectedType = typ
+    -- Compatibility no-op. The server resolves recipeId from its fixed catalog at startForging().
 end
 
 function AscendancyForge.onShowWindow()
@@ -281,15 +381,25 @@ function AscendancyForge.onForgePressed()
             itemIndices[item.index] = amount
         end
     end
-    invokeServerFunction("startForging", itemIndices)
+    invokeServerFunction("startForging", itemIndices, selectedRecipeId)
 end
 
-function AscendancyForge.startForging(itemIndices)
+function AscendancyForge.startForging(itemIndices, recipeId)
     if not onServer() then return end
-    if isForging or hasCompletedItem then return end
+    if not order then loadOrder() end
+    if order.state == "running" or order.state == "ready_to_claim"
+            or order.state == "debit_prepared" or order.state == "claim_prepared"
+            or order.state == "repair_required" then return end
+    if type(recipeId) ~= "number" or recipeId ~= math.floor(recipeId)
+            or not weaponChoices[recipeId] then return end
 
     local owner, craft, player = getInteractingFaction(callingPlayer, AlliancePrivilege.ManageStations, AlliancePrivilege.SpendResources)
     if not owner then return end
+    if not player or player.index ~= callingPlayer then return end
+    if Entity().factionIndex ~= owner.index then
+        player:sendChatMessage("Stellar Forge"%_t, 1, "Your faction does not own this Forge."%_t)
+        return
+    end
     if not craft then
         local p = Player(callingPlayer)
         if p then p:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to ignite the forge."%_t) end
@@ -315,8 +425,14 @@ function AscendancyForge.startForging(itemIndices)
 
     -- Verify Sacrificed Items
     local successRate = 0
+    local sacrifices = {}
+    local sacrificeCount = 0
     if itemIndices then
         for index, amount in pairs(itemIndices) do
+            if type(index) ~= "number" or type(amount) ~= "number" or amount < 1
+                    or amount ~= math.floor(amount) then return end
+            sacrificeCount = sacrificeCount + amount
+            if sacrificeCount > 5 then return end
             local item = owner:getInventory():find(index)
             local has = owner:getInventory():amount(index)
             if not item or has < amount then
@@ -328,6 +444,8 @@ function AscendancyForge.startForging(itemIndices)
             elseif item.rarity.value == RarityType.Exotic then
                 successRate = successRate + (10 * amount)
             end
+            table.insert(sacrifices, {index = index, amount = amount,
+                rarity = item.rarity.value, beforeAmount = has})
         end
     end
 
@@ -337,7 +455,39 @@ function AscendancyForge.startForging(itemIndices)
 
     successRate = successRate + (scrapToConsume * 2)
 
+    local recipe = weaponChoices[recipeId]
+    local x, y = Sector():getCoordinates()
+    local distBonus = 1.0 + (math.max(0, 500 - length(vec2(x, y))) / 250)
+    local hostility = CosmicVaultEconomy.getGalacticHostilityIndex()
+    local warBonus = math.min(10.0, 1.0 + math.max(0, hostility or 0) * 0.01)
+    local successRoll = random():getInt(1, 100)
+    local seed = random():getInt(1, 2147483646)
+    local working = newOrderRecord()
+    working.orderId = "forge:" .. Entity().id.string .. ":" .. tostring(math.floor(now()))
+        .. ":" .. tostring(seed)
+    working.recipeId = recipeId
+    working.ownerFactionIndex = owner.index
+    working.requestingPlayerIndex = callingPlayer
+    working.weaponType = recipe.value
+    working.seed = seed
+    working.costs = {credits = creditCost, matterName = matName, matter = matCost,
+        ores = ores, scrap = scrapToConsume}
+    working.sacrifices = sacrifices
+    working.successRoll = successRoll
+    working.successRate = math.min(100, successRate)
+    working.intendedOutput = {recipeName = recipe.name, value = recipe.value,
+        distBonus = distBonus, warBonus = warBonus,
+        failureScrap = random():getInt(10, 50)}
+    working.createdAt = now()
+    working.completionAt = working.createdAt + FORGE_TIME
+    working.state = "debit_prepared"
+    working.receipt = {operationId = working.orderId .. ":debit", state = "prepared"}
+    local prepared, prepareError = saveOrder(working)
+    if not prepared then return end
+
     -- Consume Costs
+    local beforeMoney = owner.money
+    local beforeResources = {owner:getResources()}
     owner:pay(creditCost, ores[1], ores[2], ores[3], ores[4], ores[5], ores[6], ores[7])
     craft:removeCargo(goods[matName], matCost)
 
@@ -353,21 +503,46 @@ function AscendancyForge.startForging(itemIndices)
         end
     end
 
+    local debitVerified = owner.money <= beforeMoney - creditCost
+        and (craft:getCargoAmount(matName) or 0) <= cargoAmount - matCost
+        and (craft:getCargoAmount("Ascendant Scrap") or 0) <= scrapAmount - scrapToConsume
+    local afterResources = {owner:getResources()}
+    for index = 1, 7 do
+        if (afterResources[index] or 0) > (beforeResources[index] or 0) - ores[index] then
+            debitVerified = false
+        end
+    end
+    for _, sacrifice in ipairs(sacrifices) do
+        if owner:getInventory():amount(sacrifice.index) > sacrifice.beforeAmount - sacrifice.amount then
+            debitVerified = false
+        end
+    end
+    if not debitVerified then
+        working = CAState.DeepCopy(order)
+        working.state = "repair_required"
+        working.repairRequired = "forge_debit_unverified"
+        working.lastError = "one_or_more_costs_could_not_be_verified"
+        persistAfterSideEffect(working, "forge_debit_verification_persistence_failed")
+        return
+    end
+
     -- Roll RNG
-    if random():getInt(1, 100) <= successRate then
-        willSucceed = true
-        isForging = true
-        -- during server downtime. Use unpausedRuntime so the 24h only ticks during active gameplay.
-        forgeFinishTime = Server().unpausedRuntime + FORGE_TIME
+    working = CAState.DeepCopy(order)
+    working.receipt.state = "succeeded"
+    working.receipt.completedAt = now()
+    if successRoll <= successRate then
+        working.state = "running"
+        if not persistAfterSideEffect(working, "forge_debit_completion_persistence_failed") then return end
         owner:sendChatMessage("Stellar Forge"%_t, 0, "The Stellar Forge has ignited! Your weapon will be ready in 24 hours."%_t)
     else
-        willSucceed = false
+        working.state = "failed_permanent"
         owner:sendChatMessage("Stellar Forge"%_t, 1, "The Forge failed to stabilize the Ascendant Matter! Your materials were consumed."%_t)
         -- Give Ascendant Scrap
         if cv_goods.registerGood then
-            craft:addCargo(goods["Ascendant Scrap"], random():getInt(10, 50))
+            craft:addCargo(goods["Ascendant Scrap"], working.intendedOutput.failureScrap)
             owner:sendChatMessage("Stellar Forge"%_t, 2, "You salvaged some Ascendant Scrap from the failure.")
         end
+        if not persistAfterSideEffect(working, "forge_failure_result_persistence_failed") then return end
     end
 
     AscendancyForge.sync()
@@ -379,75 +554,83 @@ end
 
 function AscendancyForge.claimWeapon()
     if not onServer() then return end
-    if not hasCompletedItem then return end
+    if not order then loadOrder() end
+    if order.state ~= "ready_to_claim" then return end
     local owner, craft, player = getInteractingFaction(callingPlayer, AlliancePrivilege.ManageStations)
     if not owner then return end
+    if not player or player.index ~= callingPlayer then return end
+    if Entity().factionIndex ~= owner.index or owner.index ~= order.ownerFactionIndex then return end
+    local destinationInventory = owner:getInventory()
+    if destinationInventory.occupiedSlots >= destinationInventory.maxSlots then
+        player:sendChatMessage("Stellar Forge"%_t, 1,
+            "The owning faction inventory has no room for the forged item."%_t)
+        return
+    end
+
+    local working = CAState.DeepCopy(order)
+    working.state = "claim_prepared"
+    working.receipt = {operationId = order.orderId .. ":claim", state = "prepared"}
+    if not saveOrder(working) then return end
 
     -- Core-proximity / War Heat scaling, computed once and shared by both the Titan World-Breaker
     -- and the standard weapon path below -- the Titan branch used to skip this entirely and always
     -- hand out a flat 250,000 damage, which a standard roll could already exceed 5x over at high
     -- war heat near the core, undercutting its framing as the Forge's top-tier reward.
-    local distBonus = 1.0
-    local warBonus = 1.0
-    do
-        local x, y = Sector():getCoordinates()
-        distBonus = 1.0 + (math.max(0, 500 - length(vec2(x, y))) / 250)
-        local server = Server()
-        if server then
-            local snapshotStr = server:getValue("cw_war_heat_snapshot")
-            if type(snapshotStr) == "string" and snapshotStr ~= "" then
-                for pair in string.gmatch(snapshotStr, "([^,]+)") do
-                    local idxStr, heatStr = string.match(pair, "(%d+):([%d%.]+)")
-                    if idxStr and tonumber(idxStr) == owner.index and heatStr then
-                        local heat = tonumber(heatStr) or 0
-                        if heat > 0 then warBonus = 1.0 + (heat * 1.5) end
-                        break
-                    end
-                end
-            end
-        end
-        -- Hard cap warBonus to prevent infinite integer scaling
-        warBonus = math.min(10.0, warBonus)
-    end
+    local distBonus = order.intendedOutput.distBonus
+    local warBonus = order.intendedOutput.warBonus
+    local selectedType = order.weaponType
+    local output
 
     if type(selectedType) == "string" then
         if selectedType == "titan_worldbreaker" then
             local CosmicVaultArsenal = include("cosmicvaultarsenal")
-            -- Scaled by the same distBonus*warBonus the standard path uses, off a base high enough
-            -- to stay strictly ahead of a standard roll's own ceiling at every comparable point
-            -- (standard: 15000 * 3.0 * distBonus * warBonus; Titan: 250000 * distBonus * warBonus --
-            -- roughly 5.5x the standard path's own maximum, everywhere, not just at the extremes),
-            -- while never dropping below the original flat 250,000 at minimum conditions.
             local titanDamage = 250000 * math.max(1.0, distBonus * warBonus)
             local config = {
                 rarity = Rarity(RarityType.Legendary),
                 material = Material(MaterialType.Avorion),
                 weaponType = WeaponType.Laser,
-                damage = titanDamage,
-                fireRate = 1.0,
-                range = 15000,
-                accuracy = 1.0,
-                coaxial = true,
-                color = ColorRGB(1, 0, 0),
+                seed = Seed(order.seed),
+                dps = titanDamage,
+                tech = 52,
+                coaxialAllowed = true,
+                title = "Ascendant World-Breaker",
+                icon = "data/textures/icons/laser-gun.png",
                 size = 10.0,
                 slots = 6
             }
-            local turret = CosmicVaultArsenal.GenerateTurret(config)
-            if turret then
-                turret.icon = "data/textures/icons/weapon/AscendantWorldBreaker.png"
-                owner:getInventory():add(turret)
-                owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed Ascendant World-Breaker!")
+            local turret, generationError = CosmicVaultArsenal.GenerateTypedTurret(config)
+            if not turret or WeaponTypes.getTypeOfItem(turret) ~= WeaponType.Laser then
+                owner:sendChatMessage("Stellar Forge"%_t, 1,
+                    "The World-Breaker could not be materialized safely: " .. tostring(generationError or "weapon_type_mismatch"))
+                working = CAState.DeepCopy(order)
+                working.state = "repair_required"
+                working.repairRequired = "forge_typed_output_unverified"
+                working.lastError = tostring(generationError or "weapon_type_mismatch")
+                persistAfterSideEffect(working, "forge_generation_failure_persistence_failed")
+                return
             end
+
+            turret.coaxial = true
+            output = turret
+            owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed Ascendant World-Breaker!")
         else
-            local system = SystemUpgradeTemplate(selectedType, Rarity(5), random():createSeed())
-            owner:getInventory():add(system)
+            local system = SystemUpgradeTemplate(selectedType, Rarity(5), Seed(order.seed))
+            output = system
             owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. system.name .. "!")
         end
     else
         local rarity = Rarity(5)
         local material = Material(6)
         local dps = 15000
-        local turret = TurretGenerator.generateSeeded(random():createSeed(), selectedType, dps, 52, rarity, material, true)
+        local turret = TurretGenerator.generateSeeded(Seed(order.seed), selectedType, dps, 52, rarity, material, true)
+        if not turret then
+            working = CAState.DeepCopy(order)
+            working.state = "repair_required"
+            working.repairRequired = "forge_output_generation_failed"
+            working.lastError = "seeded_turret_generator_returned_nil"
+            persistAfterSideEffect(working, "forge_generation_failure_persistence_failed")
+            return
+        end
 
         local finalMult = 3.0 * distBonus * warBonus
         local weapons = {turret:getWeapons()}
@@ -461,24 +644,74 @@ function AscendancyForge.claimWeapon()
         turret.coaxial = false
         turret.slots = 1
 
-        owner:getInventory():add(turret)
+        output = turret
         owner:sendChatMessage("Stellar Forge"%_t, 3, "Claimed " .. turret.title .. "!")
     end
 
-    hasCompletedItem = false
-    isForging = false
-    willSucceed = false
+    local inserted = output and destinationInventory:add(output)
+    if type(inserted) ~= "number" or destinationInventory:amount(inserted) < 1 then
+        working = CAState.DeepCopy(order)
+        working.state = "repair_required"
+        working.repairRequired = "forge_claim_unverified"
+        working.lastError = "inventory_insertion_not_verified"
+        persistAfterSideEffect(working, "forge_claim_verification_persistence_failed")
+        return
+    end
+    working = CAState.DeepCopy(order)
+    working.state = "claimed"
+    working.receipt.state = "succeeded"
+    working.receipt.completedAt = now()
+    working.receipt.inventoryIndex = inserted
+    if not persistAfterSideEffect(working, "forge_claim_completion_persistence_failed") then return end
     AscendancyForge.sync()
+end
+
+local function processRepairAction()
+    if not order or order.state ~= "repair_required" then return end
+    local action = repairCoordinator("getEntityRepairAction", OWNER,
+        Entity().id.string, order.revision)
+    if not action then return end
+    local working = CAState.DeepCopy(order)
+    if action == "abandon" then
+        working.state = "abandoned"
+    elseif action == "mark-complete" then
+        working.state = "claimed"
+        working.receipt = working.receipt or {operationId = working.orderId .. ":claim"}
+        working.receipt.state = "succeeded"
+        working.receipt.completedAt = now()
+        working.receipt.evidence = "administrator_mark_complete"
+    elseif action == "reissue" then
+        working.state = "ready_to_claim"
+        working.receipt = nil
+    elseif action == "resume" then
+        working.receipt = working.receipt or {operationId = working.orderId .. ":debit"}
+        working.receipt.state = "succeeded"
+        working.receipt.completedAt = now()
+        working.receipt.evidence = "administrator_resume"
+        if working.completionAt and working.completionAt <= now() then
+            working.state = "ready_to_claim"
+        else
+            working.state = "running"
+        end
+    else
+        return
+    end
+    working.repairRequired = nil
+    working.lastError = nil
+    saveOrder(working)
 end
 
 function AscendancyForge.getUpdateInterval() return 60 end
 
 function AscendancyForge.updateServer(timeStep)
-    if isForging then
-        local pt = Server().unpausedRuntime
-        if pt >= forgeFinishTime then
-            isForging = false
-            hasCompletedItem = true
+    if order and order.state == "repair_required" then processRepairAction() end
+    if order and order.state == "running" then
+        local pt = now()
+        if pt >= order.completionAt then
+            local working = CAState.DeepCopy(order)
+            working.state = "ready_to_claim"
+            local saved = saveOrder(working)
+            if not saved then return end
             local owner = Faction(Entity().factionIndex)
             if owner then
                 owner:sendChatMessage("Stellar Forge"%_t, 0, "Your Ascendant Weapon is ready to be claimed!"%_t)
@@ -488,22 +721,54 @@ function AscendancyForge.updateServer(timeStep)
 end
 
 function AscendancyForge.secure()
-    return {
-        isForging = isForging,
-        forgeFinishTime = forgeFinishTime,
-        hasCompletedItem = hasCompletedItem,
-        willSucceed = willSucceed,
-        selectedType = selectedType
-    }
+    return {order = order}
 end
 
 function AscendancyForge.restore(data)
     data = data or {}
-    isForging = data.isForging or false
-    forgeFinishTime = data.forgeFinishTime or 0
-    hasCompletedItem = data.hasCompletedItem or false
-    willSucceed = data.willSucceed or false
-    selectedType = data.selectedType or 1
+    if data.order and data.order.schemaVersion == 1 then
+        if not order or order.orderId ~= data.order.orderId
+                or (data.order.revision or 0) > (order.revision or 0) then
+            saveOrder(CAState.DeepCopy(data.order))
+        end
+    elseif data.isForging or data.hasCompletedItem then
+        local recipeId = 1
+        for index, recipe in ipairs(weaponChoices) do
+            if recipe.value == data.selectedType then recipeId = index; break end
+        end
+        order = newOrderRecord()
+        order.orderId = "forge:" .. Entity().id.string .. ":legacy"
+        order.recipeId = recipeId
+        order.ownerFactionIndex = Entity().factionIndex
+        order.requestingPlayerIndex = nil
+        order.weaponType = weaponChoices[recipeId].value
+        order.seed = random():getInt(1, 2147483646)
+        order.createdAt = now()
+        order.completionAt = data.forgeFinishTime or now()
+        order.successRoll = data.willSucceed and 1 or 100
+        order.successRate = data.willSucceed and 100 or 0
+        order.intendedOutput = {recipeName = weaponChoices[recipeId].name,
+            value = weaponChoices[recipeId].value, distBonus = 1, warBonus = 1}
+        if data.isForging and data.hasCompletedItem then
+            order.state = "repair_required"
+            order.repairRequired = "contradictory_legacy_forge_state"
+        elseif data.hasCompletedItem then
+            order.state = "ready_to_claim"
+        else
+            order.state = "running"
+        end
+        order.migration = {source = "legacy_secure"}
+        saveOrder(order)
+    elseif not order then
+        saveOrder(newOrderRecord())
+    end
+    if order and (order.state == "debit_prepared" or order.state == "claim_prepared") then
+        local working = CAState.DeepCopy(order)
+        working.state = "repair_required"
+        working.repairRequired = order.state .. "_restart_ambiguity"
+        working.lastError = "side_effect_completion_cannot_be_proven"
+        saveOrder(working)
+    end
 end
 
 function AscendancyForge.onDecryptPressed()
@@ -514,6 +779,7 @@ function AscendancyForge.decryptDatacore()
     if not onServer() then return end
     local owner, craft, player = getInteractingFaction(callingPlayer, AlliancePrivilege.ManageStations, AlliancePrivilege.SpendResources)
     if not owner then return end
+    if not player or player.index ~= callingPlayer or owner.index ~= Entity().factionIndex then return end
     if not craft then
         local p = Player(callingPlayer)
         if p then p:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to decrypt datacores."%_t) end
@@ -528,18 +794,11 @@ function AscendancyForge.decryptDatacore()
 
     craft:removeCargo(goods["Eclipse Datacore"], 1)
 
-    if cv_buffs.setGlobalTier then
-        local currentTier = cv_buffs.getGlobalTier(owner.index)
-        cv_buffs.setGlobalTier(owner.index, currentTier + 1)
-        owner:sendChatMessage("Stellar Forge"%_t, 0, "Datacore Decrypted! Global Ascendancy Tier increased to " .. (currentTier + 1) .. "!")
-
-        -- but never used it. Completed: mark the calling player's forge as unlocked and
-        -- grant a personal notification. This enables the interactionPossible gate at L43-L44.
-        local p = Player(callingPlayer)
-        if p then
-            p:setValue("ca_forge_unlocked", true)
-            p:sendChatMessage("Stellar Forge"%_t, 0, "Forge access permanently unlocked for your account.")
-        end
+    local p = Player(callingPlayer)
+    if p then
+        p:setValue("ca_forge_unlocked", true)
+        p:sendChatMessage("Stellar Forge"%_t, 0,
+            "Datacore decrypted. Forge access is permanently unlocked for your account.")
     end
     AscendancyForge.sync()
 end
@@ -552,6 +811,7 @@ function AscendancyForge.craftWard()
     if not onServer() then return end
     local owner, craft, player = getInteractingFaction(callingPlayer, AlliancePrivilege.ManageStations, AlliancePrivilege.SpendResources)
     if not owner then return end
+    if not player or player.index ~= callingPlayer or owner.index ~= Entity().factionIndex then return end
     if not craft then
         local p = Player(callingPlayer)
         if p then p:sendChatMessage("Stellar Forge"%_t, 1, "You must be inside a ship to craft a Ward."%_t) end
@@ -577,34 +837,42 @@ callable(AscendancyForge, "craftWard")
 function AscendancyForge.sync(data)
     if onServer() then
         local pt = Server().unpausedRuntime
-        local remaining = math.max(0, forgeFinishTime - pt)
+        local remaining = order and math.max(0, (order.completionAt or pt) - pt) or 0
         local tier = 0
         if cv_buffs.getGlobalTier then
             tier = cv_buffs.getGlobalTier(Entity().factionIndex)
         end
         invokeClientFunction(Player(callingPlayer), "sync", {
-            isForging = isForging,
-            hasCompletedItem = hasCompletedItem,
+            isForging = order and order.state == "running" or false,
+            hasCompletedItem = order and order.state == "ready_to_claim" or false,
+            repairRequired = order and order.state == "repair_required" or false,
             remaining = remaining,
             tier = tier
         })
     else
         if data then
-            isForging = data.isForging
-            hasCompletedItem = data.hasCompletedItem
+            clientIsForging = data.isForging
+            clientHasCompletedItem = data.hasCompletedItem
 
-            if isForging then
+            if clientIsForging then
                 AscendancyForge.statusLabel.caption = "FORGING... Remaining: " .. math.floor(data.remaining / 3600) .. "h " .. math.floor((data.remaining % 3600) / 60) .. "m"
                 AscendancyForge.statusLabel.color = ColorRGB(1, 1, 0)
                 AscendancyForge.forgeBtn.active = false
                 AscendancyForge.claimBtn.active = false
                 AscendancyForge.combo.active = false
                 AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
-            elseif hasCompletedItem then
+            elseif clientHasCompletedItem then
                 AscendancyForge.statusLabel.caption = "WEAPON READY FOR CLAIM!"
                 AscendancyForge.statusLabel.color = ColorRGB(0, 1, 0)
                 AscendancyForge.forgeBtn.active = false
                 AscendancyForge.claimBtn.active = true
+                AscendancyForge.combo.active = false
+                AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
+            elseif data.repairRequired then
+                AscendancyForge.statusLabel.caption = "FORGE REQUIRES ADMINISTRATOR REPAIR"
+                AscendancyForge.statusLabel.color = ColorRGB(1, 0.25, 0.25)
+                AscendancyForge.forgeBtn.active = false
+                AscendancyForge.claimBtn.active = false
                 AscendancyForge.combo.active = false
                 AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
             else

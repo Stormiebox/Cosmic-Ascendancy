@@ -2,6 +2,10 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 include("structuredmission")
+local CampaignBridge = include("ca_campaign_bridge")
+local MissionEncounter = include("ca_mission_encounter")
+local EncounterBridge = include("ca_encounter_bridge")
+local OWNER = "data/scripts/player/missions/ca_story3_vanguard.lua"
 
 function getUpdateInterval()
     return 1.0
@@ -21,16 +25,34 @@ mission.data.title = "The Vanguard Assault"
 
 mission.phases[1] = {}
 mission.phases[1].onBeginServer = function()
-    local x, y = Sector():getCoordinates()
+    local x, y = CampaignBridge.GetTarget(3)
+    if not x or not y then return end
     mission.data.custom.targetX = x
     mission.data.custom.targetY = y
+    local prepared = MissionEncounter.Prepare(OWNER, 3, "campaign_vanguard", x, y)
+    if not prepared then return end
+    mission.data.custom.encounterId = prepared.encounterId
+    if prepared.state == "succeeded" then
+        mission.data.custom.bossDestroyedVerified = true
+        mission.data.custom.bossSpawned = true
+        return
+    elseif prepared.state == "active" then
+        mission.data.custom.bossId = prepared.entityId
+        local boss = prepared.entityId and Entity(Uuid(prepared.entityId))
+        if valid(boss) and boss:getValue("ca_encounter_id") == prepared.encounterId then
+            boss:registerCallback("onDestroyed", "onCampaignBossDestroyed")
+        end
+        mission.data.custom.bossSpawned = true
+        return
+    end
     
     mission.data.description = "A massive Eclipse Vanguard Juggernaut is warping in! Defend the sector at all costs."
     
     local EclipseGenerator = include("eclipsegenerator")
 
-    local existingBoss = {Sector():getEntitiesByScriptValue("ca_eclipse_boss")}
+    local existingBoss = MissionEncounter.FindTagged("ca_eclipse_boss", prepared.encounterId)
     if #existingBoss == 0 then
+        if not MissionEncounter.BeginMaterialization(OWNER, prepared.encounterId) then return end
         -- Spawn Boss
         local dir = normalize(vec3(random():getFloat(-1, 1), random():getFloat(-1, 1), random():getFloat(-1, 1)))
         local pos = dir * 1500
@@ -40,9 +62,17 @@ mission.phases[1].onBeginServer = function()
         -- return nil; indexing it unguarded would throw here and skip the mission.data.custom.bossSpawned
         -- = true line below, permanently soft-locking this phase's updateServer guard. Mirrors the
         -- existing if-ship-then pattern already used for the Aegis rendezvous spawn later in this file.
-        if boss then
-            boss:setValue("ca_eclipse_boss", true)
+        if not boss then
+            MissionEncounter.RecordMaterializationFailure(
+                OWNER, prepared.encounterId, "campaign_vanguard_spawn_failed")
+            return
         end
+        boss:setValue("ca_eclipse_boss", true)
+        boss:setValue("ca_encounter_id", prepared.encounterId)
+        boss:registerCallback("onDestroyed", "onCampaignBossDestroyed")
+        local activated = MissionEncounter.Activate(OWNER, prepared.encounterId, {boss})
+        if not activated then return end
+        mission.data.custom.bossId = boss.id.string
 
         -- Add 4 Interceptors as escorts
         for i = 1, 4 do
@@ -50,30 +80,49 @@ mission.phases[1].onBeginServer = function()
             local escort = EclipseGenerator.createInterceptor(escortPos)
             if escort then
                 escort:setValue("ca_eclipse_ambush", true)
+                escort:setValue("ca_encounter_id", prepared.encounterId)
             end
         end
 
         Player():sendChatMessage("The Eclipse"%_T, 2, "Your primitive, chaotic constructs are an insult to absolute order. The Ascendants' Forge belongs to us. Relinquish it, and your sanitation will be swift."%_T)
+    elseif #existingBoss == 1 then
+        local boss = existingBoss[1]
+        boss:registerCallback("onDestroyed", "onCampaignBossDestroyed")
+        local activated = MissionEncounter.Activate(OWNER, prepared.encounterId, {boss})
+        if activated then mission.data.custom.bossId = boss.id.string end
+    else
+        EncounterBridge.Transition(OWNER, prepared.encounterId, "repair_required", {
+            lastError = "multiple_campaign_vanguards_for_encounter"
+        })
+        return
     end
-    mission.data.custom.bossSpawned = true
+    mission.data.custom.bossSpawned = mission.data.custom.bossId ~= nil
+end
+
+function onCampaignBossDestroyed()
+    if not mission.data.custom.encounterId or not mission.data.custom.bossId then return end
+    local resolved = MissionEncounter.Resolve(OWNER, mission.data.custom.encounterId,
+        mission.data.custom.bossId)
+    if resolved then mission.data.custom.bossDestroyedVerified = true end
 end
 
 mission.phases[1].updateServer = function()
     local x, y = Sector():getCoordinates()
     if x ~= mission.data.custom.targetX or y ~= mission.data.custom.targetY then return end
-    if not mission.data.custom.bossSpawned then return end
-    
-    local boss = {Sector():getEntitiesByScriptValue("ca_eclipse_boss")}
-    if #boss == 0 then
+    if not mission.data.custom.bossSpawned then
+        mission.phases[1].onBeginServer()
+        return
+    end
+    local boss = Entity(Uuid(mission.data.custom.bossId))
+    local encounter = EncounterBridge.Get(mission.data.custom.encounterId)
+    if encounter and encounter.state == "succeeded" then
+        mission.data.custom.bossDestroyedVerified = true
+    end
+    if mission.data.custom.bossDestroyedVerified then
         Player():sendChatMessage("Ship Computer"%_T, 0, "The Juggernaut is destroyed! Its core is destabilizing... wait, it's beaming a data packet to the rest of their fleet!"%_T)
         Player():sendChatMessage("The Eclipse"%_T, 2, "Vanguard lost. Biological chaotic resistance exceeds parameters... Threat level updated. Full galactic sanitation authorized."%_T)
         
-        Player():setValue("ca_campaign_completed", nil) -- We no longer end the campaign here
-        
         -- Give Reward
-        local system = SystemUpgradeTemplate("data/scripts/systems/ascendanteclipsebane.lua", Rarity(5), Seed(123))
-        Player():getInventory():add(system)
-        Player():sendChatMessage("Reward"%_T, 2, "Recovered 'The Eclipse Bane' artifact from the wreckage!"%_T)
 
         Player():sendChatMessage("Aegis"%_T, 0, "The Vanguard is destroyed, but their transmission went through. We must prepare for what comes next. Meet me at these coordinates."%_T)
         
@@ -81,6 +130,10 @@ mission.phases[1].updateServer = function()
         mission.data.custom.aegisX = rx
         mission.data.custom.aegisY = ry
         nextPhase()
+    elseif not valid(boss) and not mission.data.custom.missingReported then
+        mission.data.custom.missingReported = true
+        MissionEncounter.MarkMissing(OWNER, mission.data.custom.encounterId,
+            "campaign_vanguard_missing_without_destroy_callback")
     end
 end
 
@@ -127,8 +180,8 @@ mission.phases[2].onSectorEntered = function(x, y)
         -- ca_story0_meet_aegis.lua for the full rationale) -- otherwise a failed createShip() would
         -- tell the player to approach a ship that doesn't exist, with no way to recover.
         if aegisExists then
-            Player():setValue("ca_ready_for_debrief_3", true)
-            mission.data.custom.debriefReady = true
+            local revision = CampaignBridge.RequestDebrief(3, mission.data.custom.aegisX, mission.data.custom.aegisY)
+            mission.data.custom.debriefReady = revision ~= nil
         end
     end
 end
@@ -140,7 +193,7 @@ mission.phases[2].updateServer = function()
         if x == mission.data.custom.aegisX and y == mission.data.custom.aegisY then
             -- Gated on debriefReady (only set once Aegis was actually confirmed present) so a
             -- pending/failed spawn retry doesn't get misread as a completed debrief.
-            if mission.data.custom.debriefReady and player:getValue("ca_ready_for_debrief_3") == nil then
+            if mission.data.custom.debriefReady and CampaignBridge.IsDebriefComplete(3) then
                 finish()
             end
         end
@@ -170,4 +223,11 @@ function getTargetSector(x, y)
     end
 
     return targetX, targetY
+end
+
+function getCampaignMigrationTarget()
+    if mission.data.custom.debriefReady then
+        return mission.data.custom.aegisX, mission.data.custom.aegisY
+    end
+    return mission.data.custom.targetX, mission.data.custom.targetY
 end

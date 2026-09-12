@@ -2,6 +2,10 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 include("structuredmission")
+local CampaignBridge = include("ca_campaign_bridge")
+local MissionEncounter = include("ca_mission_encounter")
+local EncounterBridge = include("ca_encounter_bridge")
+local OWNER = "data/scripts/player/missions/ca_story1_awakening.lua"
 
 function getUpdateInterval()
     return 1.0
@@ -22,8 +26,8 @@ mission.data.title = "The Eclipse Awakening"
 mission.phases[1] = {}
 mission.phases[1].showUpdateOnEnd = true
 mission.phases[1].onBeginServer = function()
-    local x, y = Sector():getCoordinates()
-    local targetX, targetY = getTargetSector(x, y)
+    local targetX, targetY = CampaignBridge.GetTarget(1)
+    if not targetX or not targetY then return end
     mission.data.custom.targetX = targetX
     mission.data.custom.targetY = targetY
     mission.data.description = "Jump to the anomaly coordinates Aegis provided: (" .. targetX .. ":" .. targetY .. ")\n\nAegis warned that The Eclipse does not conquer—it sanitizes. Be prepared for anything."
@@ -84,11 +88,33 @@ mission.phases[3].onBeginServer = function()
     mission.data.description = "An Eclipse Vanguard ambush! Survive the attack."
     -- Spawn Eclipse enemies
     local EclipseGenerator = include("eclipsegenerator")
+    local prepared = MissionEncounter.Prepare(OWNER, 1, "campaign_scout_ambush",
+        mission.data.custom.targetX, mission.data.custom.targetY)
+    if not prepared then return end
+    mission.data.custom.encounterId = prepared.encounterId
 
-    local existing = {Sector():getEntitiesByScriptValue("ca_eclipse_ambush")}
+    if prepared.state == "succeeded" then
+        mission.data.custom.bossDestroyedVerified = true
+        mission.data.custom.bossSpawned = true
+        return
+    elseif prepared.state == "active" then
+        mission.data.custom.bossIds = prepared.entityIds or {}
+        for _, id in ipairs(mission.data.custom.bossIds) do
+            local ship = Entity(Uuid(id))
+            if valid(ship) and ship:getValue("ca_encounter_id") == prepared.encounterId then
+                ship:registerCallback("onDestroyed", "onCampaignScoutDestroyed")
+            end
+        end
+        mission.data.custom.bossSpawned = true
+        return
+    end
+
+    local existing = MissionEncounter.FindTagged("ca_eclipse_ambush", prepared.encounterId)
     if #existing == 0 then
+        if not MissionEncounter.BeginMaterialization(OWNER, prepared.encounterId) then return end
         Player():sendChatMessage("Unknown Transmission"%_T, 2, "Chaotic biological variables detected. Sanitation protocol initiated. We are The Eclipse."%_T)
 
+        local spawned = {}
         for i = 1, 3 do
             local ship = EclipseGenerator.createInterceptor(Matrix())
             -- Sector():createShip() (which EclipseGenerator.createInterceptor wraps) can return nil;
@@ -98,24 +124,75 @@ mission.phases[3].onBeginServer = function()
             if ship then
                 ship.title = "Eclipse Vanguard Scout"
                 ship:setValue("ca_eclipse_ambush", true)
+                ship:setValue("ca_encounter_id", prepared.encounterId)
+                ship:registerCallback("onDestroyed", "onCampaignScoutDestroyed")
+                table.insert(spawned, ship)
+            end
+        end
+        if #spawned ~= 3 then
+            for _, ship in ipairs(spawned) do Sector():deleteEntity(ship) end
+            MissionEncounter.RecordMaterializationFailure(
+                OWNER, prepared.encounterId, "campaign_scout_spawn_failed")
+            return
+        end
+        local activated = MissionEncounter.Activate(OWNER, prepared.encounterId, spawned)
+        if not activated then return end
+        mission.data.custom.bossIds = {}
+        for _, ship in ipairs(spawned) do table.insert(mission.data.custom.bossIds, ship.id.string) end
+    else
+        if #existing ~= 3 then
+            EncounterBridge.Transition(OWNER, prepared.encounterId, "repair_required",
+                {lastError = "partial_campaign_scout_spawn"})
+            return
+        end
+        local activated = MissionEncounter.Activate(OWNER, prepared.encounterId, existing)
+        if activated then
+            mission.data.custom.bossIds = {}
+            for _, ship in ipairs(existing) do
+                ship:registerCallback("onDestroyed", "onCampaignScoutDestroyed")
+                table.insert(mission.data.custom.bossIds, ship.id.string)
             end
         end
     end
-    mission.data.custom.bossSpawned = true
+    mission.data.custom.bossSpawned = mission.data.custom.bossIds ~= nil
+end
+
+function onCampaignScoutDestroyed()
+    if not mission.data.custom.bossIds then return end
+    for _, id in ipairs(mission.data.custom.bossIds) do
+        if valid(Entity(Uuid(id))) then return end
+    end
+    local resolved = MissionEncounter.Resolve(OWNER, mission.data.custom.encounterId)
+    if resolved then mission.data.custom.bossDestroyedVerified = true end
 end
 
 mission.phases[3].updateServer = function(timeStep)
     local x, y = Sector():getCoordinates()
     if x ~= mission.data.custom.targetX or y ~= mission.data.custom.targetY then return end
-    if not mission.data.custom.bossSpawned then return end
-
-    local enemies = {Sector():getEntitiesByScriptValue("ca_eclipse_ambush")}
-    if #enemies == 0 then
+    if not mission.data.custom.bossSpawned then
+        mission.phases[3].onBeginServer()
+        return
+    end
+    local encounter = EncounterBridge.Get(mission.data.custom.encounterId)
+    if encounter and encounter.state == "succeeded" then
+        mission.data.custom.bossDestroyedVerified = true
+    end
+    if mission.data.custom.bossDestroyedVerified then
         Player():sendChatMessage("Aegis"%_T, 0, "Hostiles eliminated. More will come. We must meet. I am transmitting secure rendezvous coordinates."%_T)
         local rx, ry = getTargetSector(x, y)
         mission.data.custom.aegisX = rx
         mission.data.custom.aegisY = ry
         nextPhase()
+    else
+        local anyValid = false
+        for _, id in ipairs(mission.data.custom.bossIds or {}) do
+            if valid(Entity(Uuid(id))) then anyValid = true; break end
+        end
+        if not anyValid and not mission.data.custom.missingReported then
+            mission.data.custom.missingReported = true
+            MissionEncounter.MarkMissing(OWNER, mission.data.custom.encounterId,
+                "campaign_scouts_missing_without_destroy_callback")
+        end
     end
 end
 
@@ -162,8 +239,8 @@ mission.phases[4].onSectorEntered = function(x, y)
         -- ca_story0_meet_aegis.lua for the full rationale) -- otherwise a failed createShip() would
         -- tell the player to approach a ship that doesn't exist, with no way to recover.
         if aegisExists then
-            Player():setValue("ca_ready_for_debrief_1", true)
-            mission.data.custom.debriefReady = true
+            local revision = CampaignBridge.RequestDebrief(1, mission.data.custom.aegisX, mission.data.custom.aegisY)
+            mission.data.custom.debriefReady = revision ~= nil
         end
     end
 end
@@ -175,7 +252,7 @@ mission.phases[4].updateServer = function()
         if x == mission.data.custom.aegisX and y == mission.data.custom.aegisY then
             -- Gated on debriefReady (only set once Aegis was actually confirmed present) so a
             -- pending/failed spawn retry doesn't get misread as a completed debrief.
-            if mission.data.custom.debriefReady and player:getValue("ca_ready_for_debrief_1") == nil then
+            if mission.data.custom.debriefReady and CampaignBridge.IsDebriefComplete(1) then
                 finish()
             end
         end
@@ -205,4 +282,11 @@ function getTargetSector(x, y)
     end
 
     return targetX, targetY
+end
+
+function getCampaignMigrationTarget()
+    if mission.data.custom.debriefReady then
+        return mission.data.custom.aegisX, mission.data.custom.aegisY
+    end
+    return mission.data.custom.targetX, mission.data.custom.targetY
 end

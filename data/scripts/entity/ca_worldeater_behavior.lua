@@ -6,6 +6,8 @@ include("utility")
 include("goods")
 local EclipseGenerator = include("eclipsegenerator")
 local SectorTurretGenerator = include("sectorturretgenerator")
+local EncounterBridge = include("ca_encounter_bridge")
+local OWNER = "data/scripts/entity/ca_worldeater_behavior.lua"
 
 -- namespace CAWorldEater
 include("stringutility")
@@ -511,32 +513,55 @@ function CAWorldEater.onDestroyed()
     local entity = Entity()
     local sector = Sector()
     local pos = entity.translationf
+    local encounterId = entity:getValue("ca_encounter_id")
+    local encounter = encounterId and EncounterBridge.Get(encounterId)
+    if not encounter or encounter.entityId ~= entity.id.string then return end
+    local participantReceipts = {}
+    for _, player in pairs({sector:getPlayers()}) do
+        local operationId = encounterId .. ":player:" .. player.index .. ":shared-loot"
+        if not EncounterBridge.PrepareReceipt(OWNER, {
+                operationId = operationId, kind = "world_eater_shared_loot",
+                encounterId = encounterId, recipient = {playerIndex = player.index},
+                reissue = {mode = "none"}}) then return end
+        table.insert(participantReceipts, operationId)
+    end
 
     -- Drop massive amounts of Ascendant Matter (100 - 250)
     local cx, cy = Sector():getCoordinates()
-    sector:dropCargo(pos, nil, nil, goods["Ascendant Matter"], 0, random():getInt(100, 250))
+    local matterAmount = random():getInt(100, 250)
+    sector:dropCargo(pos, nil, nil, goods["Ascendant Matter"], 0, matterAmount)
 
     -- Boss drops legendary weapons, upgrades, and high tier turrets
 
     -- Drop 5-10 max tech legendary weapons
     -- SectorTurretGenerator requires sector coordinates to determine material tier
     local turretGen = SectorTurretGenerator(Sector().seed)
+    local turretDrops = 0
     for i = 1, random():getInt(5, 10) do
         local turret = turretGen:generateArmed(cx, cy, 0, Rarity(RarityType.Legendary))
         if turret then
             -- tech level scales natively with cx, cy
             sector:dropTurret(pos, nil, nil, turret)
+            turretDrops = turretDrops + 1
         end
     end
 
     -- Drop 5-10 legendary system upgrades
     local UpgradeGenerator = include("upgradegenerator")
     local generator = UpgradeGenerator()
+    local upgradeDrops = 0
     for i = 1, random():getInt(5, 10) do
         local upgrade = generator:generateSectorSystem(cx, cy, Rarity(RarityType.Legendary))
         if upgrade then
             sector:dropUpgrade(pos, nil, nil, upgrade)
+            upgradeDrops = upgradeDrops + 1
         end
+    end
+
+    for _, operationId in ipairs(participantReceipts) do
+        if not EncounterBridge.CompleteReceipt(OWNER, operationId, {
+                sharedSectorLoot = true, matter = matterAmount,
+                turretDrops = turretDrops, upgradeDrops = upgradeDrops}) then return end
     end
 
     sector:broadcastChatMessage("System"%_T, 0, "The World Eater has been completely eradicated. The Void is calm once more."%_T)

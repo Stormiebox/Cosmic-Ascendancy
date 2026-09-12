@@ -7,6 +7,91 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## Never remove, overwrite or write above this
 
+## [v2.0.0] - Structural Overhaul
+
+This release rebuilds Cosmic Ascendancy's progression, encounter, territory, Forge, and Beacon
+persistence around versioned records and explicit transitions. The gameplay and content remain the
+same; the change is in how the mod proves, resumes, and repairs work across script interruption,
+sector unloading, reconnects, and server restarts.
+
+### 🏗️ Persistent State Architecture
+
+- [Refactor] **Canonical Versioned Records (`ca_state.lua`, `ca_state_coordinator.lua`,
+  `ca_campaign_controller.lua`):** Galaxy progression, encounter registrations, reward receipts,
+  repair audits, and each player's campaign now have one declared server-side writer. Every record
+  carries a schema version, revision, state, timestamps, provenance, and repair information instead
+  of relying on unrelated flags spread between scripts.
+- [Refactor] **Prepared, Verified, Receipted Transitions:** Durable side effects now record intent
+  before they run and confirm their result afterward. A restart can resume work that provably never
+  started; an interruption after an unverifiable debit, item delivery, spawn, or reward enters a
+  visible repair state instead of repeating the action.
+- [Feature] **Administrator Repair Command (`commands/ascendancyrepair.lua`):** Added
+  `/ascendancyrepair scan`, `status`, `apply`, and `history`. Scans are dry runs, actions require
+  administrator privileges and matching record revisions, and every applied decision is written to
+  an audit record. Potentially delivered rewards are never reissued automatically.
+- [Migration] **Evidence-Based Save Migration (`ca_migration.lua`):** Confirmed later progress can
+  establish earlier campaign or Eclipse state, but it cannot manufacture evidence for a missing
+  reward. Verifiable legacy encounters and Forge jobs migrate; ambiguous debit, delivery, spawn, or
+  correlation windows become repair findings. Legacy values remain in place for rollback and
+  diagnosis after the v2 migration marker takes ownership.
+
+### 🌌 Campaign & Encounters
+
+- [Refactor] **Guardian → Aegis → Campaign → Eclipse Progression:** The coordinator permanently
+  records verified Wormhole Guardian evidence without adding a Wormhole Guardian script override.
+  Aegis contact, chapter targets, stable mail IDs, mission attachment, debriefs, rewards, and final
+  Eclipse activation now transition through each player's own campaign controller.
+- [Multiplayer] **Campaign Progress Remains Per Player:** Alliance members may share a fight, but
+  chapter advancement and deterministic reward receipts remain attached to the eligible player.
+  Repeated callbacks, reconnects, and later joins converge on that player's recorded state.
+- [Refactor] **Encounter Identity and Correlation:** World-Eaters, Citadels, campaign bosses,
+  summoned raids, Nemesis hunts, Silent Choir activity, sieges, and annihilations receive immutable
+  encounter IDs. Spawns are tagged and verified before engagement, and completion callbacks must
+  match the registered encounter. An unloaded sector or failed/missing spawn no longer counts as a
+  victory.
+- [Reliability] **Bounded Materialization and Reward Recovery:** Encounter creation retries at most
+  five times before requiring repair. Participant snapshots and per-player receipts prevent repeat
+  payouts. Natural World-Eater abandonment keeps its existing two-hour empty-sector and grace-period
+  behavior, while Doomsday annihilation now uses its own correlated encounter.
+
+### 🗺️ Territory & Deferred Work
+
+- [Refactor] **Vault-Owned Materialization Queue:** Expansion, siege, annihilation, and station work
+  now use Cosmic Vault's exact-coordinate queue and retain work until the sector-side result is
+  verified. Negative coordinates remain distinct, expired leases are recovered, and generation
+  tokens prevent an old station or receipt from satisfying a later request at the same coordinate.
+- [Reliability] **No Inspection-Only Sector Loads:** Territory reconciliation uses
+  `Galaxy:getControllingFaction`; deferred entity work materializes when a player enters or when the
+  sector is already loaded. Failed queue insertion and ambiguous expired materialization are exposed
+  for repair instead of silently dropped or repeated.
+
+### ⚒️ Ascendancy Forge & Beacon
+
+- [Refactor] **Forge Orders Are Immutable Transactions (`ascendancyforge.lua`):** The server resolves
+  recipes and interacting authority, verifies all costs, persists debit intent before charging, and
+  records claim intent before creating an item. Orders preserve their recipe, seed, owner, requester,
+  costs, roll, output, timing, and receipt. Interrupted debit or claim windows require repair.
+- [Fix] **Titan Worldbreaker Uses Verified Typed Generation:** The Forge delegates to Cosmic Vault's
+  typed-turret API with the verified vanilla laser type and checks the generated turret before it can
+  become the order output.
+- [Refactor] **Beacon Registry and Leases (`ascendancybeacon.lua`, `ascendancykeepalive.lua`):** The
+  coordinator derives the three-Beacon faction limit, maximum active tier, non-stacking sanctuary
+  union, independent upkeep, and renewable sector keepalive leases. Restart reconciliation runs in
+  bounded batches and removes stale claims. Owner changes, upkeep, treasury delivery, activation,
+  upgrades, and deactivation now validate authority and preserve repair evidence around payments.
+
+### 🔗 Compatibility & Verification
+
+- [Compatibility] **No New Vanilla-Path Override:** The four existing thin Ascendancy bootstrap
+  extensions remain; this release adds no Wormhole Guardian override. Existing Cosmic Vault APIs
+  remain available, Cosmic Starfall remains optional, and documented compatibility boundaries are
+  unchanged.
+- [Verification] **Offline Gate Completed:** All changed Lua scripts compile with the workspace's
+  Lua 5.3 compiler, pass the Avorion linter, and pass the record, migration, queue, market, campaign,
+  encounter, coordinator, Forge/Beacon, and typed-turret fixtures. State-owner and Linux path-case
+  scans also pass. Consolidated in-game and dedicated-server testing is intentionally scheduled as
+  the next phase after this implementation closeout.
+
 ## [v1.8.0] - The Eclipse Hierarchy Rework
 
 A full-mod audit (all 69 scripts) found a long list of bugs surviving the v1.7.0/v1.7.1 passes,

@@ -1,93 +1,137 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
 local cv_news = include("cosmicvaultnews")
+local CosmicVaultData = include("cosmicvaultdata")
+local EncounterBridge = include("ca_encounter_bridge")
 include("goods")
 
+local OWNER = "data/scripts/entity/ca_citadel_loot.lua"
+local COORDINATOR = "data/scripts/galaxy/ca_state_coordinator.lua"
+
 function initialize()
-    if onServer() then
-        Entity():registerCallback("onDestroyed", "onDestroyed")
-    end
+    if not onServer() then return end
+    Entity():registerCallback("onDestroyed", "onDestroyed")
+    deferredCallback(0.1, "ensureEncounter")
+end
+
+function ensureEncounter()
+    local entity = Entity()
+    if not valid(entity) then return nil end
+    local encounterId = entity:getValue("ca_encounter_id")
+    if encounterId and EncounterBridge.Get(encounterId) then return encounterId end
+    local x, y = Sector():getCoordinates()
+    encounterId = "citadel:" .. x .. ":" .. y .. ":" .. entity.id.string
+    local prepared = EncounterBridge.Create(OWNER, {
+        encounterId = encounterId, kind = "citadel",
+        concurrencyKey = encounterId, scope = "sector",
+        x = x, y = y, state = "prepared"
+    })
+    if not prepared then return nil end
+    local active = EncounterBridge.TagAndActivate(OWNER, encounterId, entity)
+    return active and encounterId or nil
+end
+
+local function requireRepair(encounterId, errorText)
+    return EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+        lastError = errorText, repairRequired = errorText
+    })
 end
 
 function onDestroyed()
     if not onServer() then return end
-
     local sector = Sector()
     local entity = Entity()
+    local encounterId = entity:getValue("ca_encounter_id") or ensureEncounter()
+    local encounter = encounterId and EncounterBridge.Get(encounterId)
+    if not encounter or encounter.entityId ~= entity.id.string then return end
+
+    local participants = {}
+    for _, player in pairs({sector:getPlayers()}) do table.insert(participants, player.index) end
+    table.sort(participants)
+    if encounter.state == "active" then
+        if not EncounterBridge.Transition(OWNER, encounterId, "resolving", {
+                participants = participants,
+                resolution = {reason = "verified_destroyed", entityId = entity.id.string}}) then return end
+    elseif encounter.state ~= "resolving" and encounter.state ~= "succeeded" then
+        return
+    end
+
+    local receipts = {}
+    for _, playerIndex in ipairs(participants) do
+        local operationId = encounterId .. ":player:" .. playerIndex .. ":shared-loot"
+        local receipt = EncounterBridge.PrepareReceipt(OWNER, {
+            operationId = operationId, kind = "citadel_shared_loot",
+            encounterId = encounterId, recipient = {playerIndex = playerIndex},
+            reissue = {mode = "none"}
+        })
+        if not receipt then
+            requireRepair(encounterId, "shared_loot_receipt_prepare_failed:" .. operationId)
+            return
+        end
+        table.insert(receipts, operationId)
+    end
+
     local pos = entity.translationf
     local citadelX, citadelY = sector:getCoordinates()
-
-    -- Suppression Field: Halt all invasions globally for 6 hours
-    Server():setValue("eclipse_citadel_destroyed_time", Server().unpausedRuntime)
-    Sector():broadcastChatMessage("Eclipse Citadel", 2, "The Citadel's destruction has generated a massive suppression field. Eclipse invasions halted.")
-
-    -- Eclipse Remnant Escalation: this script is unconditionally attached to every Citadel by
-    -- EclipseGenerator.createStation(), so this fires on every real Citadel kill regardless of
-    -- source (invasions, story missions, Dark Sectors).
-    Server():setValue("eclipse_citadels_killed", (Server():getValue("eclipse_citadels_killed") or 0) + 1)
-    local EclipseGenerator = include("eclipsegenerator")
-    EclipseGenerator.checkRemnantEscalation()
-
-    -- Push-back: destroying a Citadel is the mod's flagship "fight back" moment, so beyond pausing
-    -- the invasion timer above, it should also visibly roll the Eclipse's frontier back. Liberate the
-    -- Citadel's own sector plus any held territory within a 15-sector radius of it (matching the
-    -- WIKI's documented Citadel suppression radius) and reduce the conquered-sector counter to match.
-    local LIBERATION_RADIUS = 15
-    local territoryString = Server():getValue("eclipse_held_territory") or ""
-    local liberated = 0
-    local kept = ""
-    for entryX, entryY in string.gmatch(territoryString, "(%-?%d+)_(%-?%d+),") do
-        local ex, ey = tonumber(entryX), tonumber(entryY)
-        local dx, dy = ex - citadelX, ey - citadelY
-        if math.sqrt(dx * dx + dy * dy) <= LIBERATION_RADIUS then
-            liberated = liberated + 1
-        else
-            kept = kept .. ex .. "_" .. ey .. ","
-        end
-    end
-
-    if liberated > 0 then
-        Server():setValue("eclipse_held_territory", kept)
-        local conqueredCount = Server():getValue("eclipse_conquered_sectors") or 0
-        Server():setValue("eclipse_conquered_sectors", math.max(0, conqueredCount - liberated))
-        Sector():broadcastChatMessage("Galactic News", 0, "The Citadel's fall has liberated " .. liberated .. " nearby sector(s) from Eclipse control!")
-        if cv_news.publishArticle then
-            cv_news.publishArticle({
-                title = "Sectors Liberated From The Eclipse!",
-                content = "In the wake of an Eclipse Citadel's destruction, " .. liberated .. " nearby sector(s) have been reclaimed from Eclipse control. The frontier has been pushed back, for now.",
-                category = "Heroic Victories"
-            })
-        end
-    end
-
-    -- Ascendant Matter massive drop
-    local matterAmount = random():getInt(100, 250)
-    sector:dropCargo(pos, nil, nil, goods["Ascendant Matter"], 0, matterAmount)
-    
-    -- Eclipse Datacore drop
-    local coreAmount = random():getInt(3, 5)
-    for i = 1, coreAmount do
+    sector:dropCargo(pos, nil, nil, goods["Ascendant Matter"], 0, random():getInt(100, 250))
+    for _ = 1, random():getInt(3, 5) do
         sector:dropCargo(pos, nil, nil, goods["Eclipse Datacore"], 0, 1)
     end
-    
-    -- Legendary Weapons and Upgrades
+
     local SectorTurretGenerator = include("sectorturretgenerator")
     local UpgradeGenerator = include("upgradegenerator")
     local ugen = UpgradeGenerator()
     local tgen = SectorTurretGenerator(sector.seed)
-
-    for i = 1, random():getInt(8, 12) do
+    local turretDrops, upgradeDrops = 0, 0
+    for _ = 1, random():getInt(8, 12) do
         local turret = tgen:generateArmed(citadelX, citadelY, 0, Rarity(RarityType.Legendary))
-        if turret then
-            -- tech level scales natively with citadelX, citadelY
-            sector:dropTurret(pos, nil, nil, turret)
+        if turret then sector:dropTurret(pos, nil, nil, turret); turretDrops = turretDrops + 1 end
+    end
+    for _ = 1, random():getInt(8, 12) do
+        local upgrade = ugen:generateSectorSystem(citadelX, citadelY, Rarity(RarityType.Legendary))
+        if upgrade then sector:dropUpgrade(pos, nil, nil, upgrade); upgradeDrops = upgradeDrops + 1 end
+    end
+
+    for _, operationId in ipairs(receipts) do
+        if not EncounterBridge.CompleteReceipt(OWNER, operationId, {
+                sharedSectorLoot = true, turretDrops = turretDrops, upgradeDrops = upgradeDrops}) then
+            requireRepair(encounterId, "shared_loot_receipt_completion_ambiguous:" .. operationId)
+            return
         end
     end
 
-    for i = 1, random():getInt(8, 12) do
-        local upgrade = ugen:generateSectorSystem(citadelX, citadelY, Rarity(RarityType.Legendary))
-        if upgrade then
-            sector:dropUpgrade(pos, nil, nil, upgrade)
+    local state = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2)
+    if not state then
+        requireRepair(encounterId, "citadel_outcome_state_unavailable")
+        return
+    end
+    local outcomeCode, outcomeResult = Galaxy():invokeFunction(
+        COORDINATOR, "requestEncounterOutcome", OWNER, state.revision,
+            encounterId, "citadel_succeeded", {
+                suppressionUntil = Server().unpausedRuntime
+                    + (6 + math.floor((state.territory.conqueredCount or 0) / 10) * 2) * 3600,
+                x = citadelX, y = citadelY, releaseRadius = 15
+            })
+    if outcomeCode ~= 0 or not outcomeResult then
+        requireRepair(encounterId, "citadel_outcome_persistence_failed")
+        return
+    end
+    encounter = EncounterBridge.Get(encounterId)
+    if encounter and encounter.state == "resolving" then
+        if not EncounterBridge.Transition(OWNER, encounterId, "succeeded", {
+                participants = participants,
+                resolution = {reason = "verified_destroyed", entityId = entity.id.string}}) then
+            requireRepair(encounterId, "citadel_terminal_transition_failed")
+            return
         end
+    end
+    sector:broadcastChatMessage("Eclipse Citadel", 2,
+        "The Citadel's destruction has generated a massive suppression field. Eclipse invasions halted.")
+    if cv_news.publishArticle then
+        cv_news.publishArticle({
+            title = "Sectors Liberated From The Eclipse!",
+            content = "The fall of an Eclipse Citadel has pushed the frontier back within fifteen sectors.",
+            category = "Heroic Victories"
+        })
     end
 end

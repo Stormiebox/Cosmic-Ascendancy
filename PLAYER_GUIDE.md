@@ -1,6 +1,6 @@
 # 🚀 Cosmic Ascendancy: A Player's Guide to the Eclipse Crisis
 
-![Version](https://img.shields.io/badge/version-1.8.0-6f42c1?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.0.0-6f42c1?style=flat-square)
 ![Avorion](https://img.shields.io/badge/Avorion-2.5.13-2f81f7?style=flat-square)
 
 Welcome to the **Cosmic Ascendancy** player guide. This document walks through the major endgame features in this expansion: the Eclipse Crisis, the Ascendancy Forge, and the Ascendancy Beacon megastructure.
@@ -38,7 +38,8 @@ Defeating the Wormhole Guardian and unleashing The Eclipse doesn't leave you to 
 - **Safe Rendezvous Sectors:** You fly to these sectors to meet her projection. Aegis and every major story boss always spawn in isolated, "empty" sectors, 5 to 30 jumps away, rather than contested faction territory.
 - **A 5-Mission Campaign, Plus an Intro:** After an initial contact stage, Aegis guides you through a fully-scripted 5-mission campaign covering the origins of The Eclipse, the location of the Ascendancy Forge, the Citadel threat, and the incoming World-Eater.
 - **Serious Rewards:** Every completed campaign objective, debriefed back with Aegis, pays out credits (scaling up to 25 million) and high-tier subsystem or turret drops (up to Legendary rarity) straight into your cargo hold.
-- **Multiplayer Support:** Playing with an alliance? Aegis stays at the rendezvous point until every player in the sector has had a chance to speak with her and claim their own personal reward.
+- **Independent Multiplayer Progress:** Playing with an alliance does not merge campaign state. Every player receives their own coordinates, mission progress, completion state, and reward receipts. You can still fight together, but another player's dialogue or reward cannot advance yours.
+- **Safe Recovery:** Stable mail and encounter identifiers prevent repeated messages and duplicate rewards. If a restart lands in an operation that cannot be proven complete, the affected player is held for administrator review instead of being guessed forward.
 </details>
 
 ---
@@ -193,7 +194,7 @@ A galaxy that keeps clearing World-Eaters and Citadels doesn't stay at the same 
 
 The **Ascendancy Forge** is a massive endgame progression system, discovered at the climax of the main storyline. Once operational, it lets you spend raw resources (Avorion, Ogonite, Credits) and Eclipse Datacores to synthesize legendary Ascendant-tier gear.
 
-- **Unlocking the Forge:** Decrypt your first Eclipse Datacore there. The same action that raises your Global Ascendancy Tier also permanently unlocks Forge access for your account.
+- **Unlocking the Forge:** Decrypt your first Eclipse Datacore there. Decryption unlocks Forge access; your faction's effective fleet bonus comes from its highest active Ascendancy Beacon tier.
 - **Titan Coaxial Superweapons:** Forge the **Ascendant World-Breaker**, a devastating coaxial laser capable of 250,000 continuous damage.
 - **Ascendant Neural Implants:** Craft and equip the legendary Neural Implant subsystem, wiring your captain into the ship's core to scale jump reach, fighters, and turrets while injecting extreme velocity.
 
@@ -210,13 +211,14 @@ The **Ascendancy Forge** is a massive endgame progression system, discovered at 
 ### ⚙️ Mechanics
 - 💰 **Base Crafting Cost:** Scales up to `300,000,000` Credits, `3,000,000` Avorion, and 25-50 Ascendant Matter.
 - ⏱️ **Crafting Time:** 24 real-time hours per item, running asynchronously so it continues while you're offline.
-- 📈 **Global Ascendancy Matrix:** Submit **Eclipse Datacores** (dropped by Eclipse Juggernauts) to the Forge. Each decrypted datacore permanently raises your Global Ascendancy Tier, stacking `+15%` Shields, `+20%` Shield Recharge, and `+10%` Hyperspace Cooldown fleet-wide.
+- 🧾 **Recoverable Orders:** The server freezes each recipe, owner, requester, costs, sacrifices, seed, success roll, and intended output before work begins. One order may run per Forge. Any authorized member of the owning faction may claim its result into that faction's inventory.
 - 🙏 **The Sacrifice System:** Initiating a craft means sacrificing existing Legendary or Exotic subsystems as catalysts.
   - `1x Legendary` = **20%** success rate.
   - `1x Exotic` = **10%** success rate.
   - **Ascendant Scrap:** Short of 100% success rate, the Forge automatically consumes Ascendant Scrap from your cargo hold. Each unit adds **+2%**.
 - 💔 **Failure:** A failed craft destroys the sacrificed subsystems and materials, but yields **Ascendant Scrap**, which you can feed into a future attempt.
-- 💥 **War Heat Bonuses:** If *Cosmic War* is installed, your faction's War Heat multiplies the weapon's damage on claiming it, capped at **10.0x**.
+- 💥 **Wartime Scaling:** Forge output uses Cosmic Vault's galaxy-wide hostility index rather than one player or faction's local heat snapshot. The multiplier remains capped at **10.0x**.
+- 🛟 **Interrupted Debit or Claim:** A restart during an unverifiable charge or delivery never repeats the operation automatically. The Forge enters a visible repair state for an administrator to resolve.
 - 🛠️ **New Subsystems:** The Forge can also synthesize the **Ascendant Swarm Nexus** (Production Capacity and fighter squadrons) and the **Ascendant Void-Drill** (Transporter Range, Loot Range, Generator Energy). The Void-Drill's power draw vents harmless plasma bursts every 60-120 seconds as VFX.
 
 ### 🏭 Resource Procurement & Factory Overdrive
@@ -247,12 +249,13 @@ These sectors are permanently suffocated in Dark Matter Fog and heavily guarded,
 Players can construct the ultimate megastructure to anchor their empire: the **Ascendancy Beacon**.
 
 ### ⚙️ Mechanics
-- 🌍 **Permanent Sector Simulation:** A sector containing an active Ascendancy Beacon is simulated 24/7, even with no players online.
-- ✨ **Global Buffs:** The Beacon applies a permanent stat multiplier to every ship in your fleet, galaxy-wide.
+- 🌍 **Renewable Sector Lease:** An active Beacon renews a 90-second keepalive lease. After a restart, leases are restored in small batches and only after the actual Beacon is verified; stale claims expire instead of loading a sector forever.
+- ✨ **Fleet Bonuses:** A faction may have up to three active Beacons, but their bonuses do not stack. The faction's highest active Beacon tier determines its effective fleet bonus.
 - 🔺 **Upgrades & Upkeep:** The Beacon upgrades through 5 tiers, each raising the global buffs, but higher tiers demand continuous upkeep in Credits, Avorion, and Ogonite.
-- 🛡️ **Sanctuary Field (Tier 3+):** Upgrade to Tier 3 or higher and your Beacon starts actively repelling Eclipse conquest and annihilation attempts within a radius of it: 5 sectors at Tier 3, 8 at Tier 4, up to 12 at Tier 5. It stays active for as long as the Beacon does, even while its sector is unloaded.
+- 🛡️ **Sanctuary Field (Tier 3+):** Upgrade to Tier 3 or higher and your Beacon repels Eclipse conquest and annihilation attempts within a radius of it: 5 sectors at Tier 3, 8 at Tier 4, up to 12 at Tier 5. Multiple fields form a union; overlapping coverage does not stack.
 - 💸 **Passive Real-Estate Income:** Beacons automatically tax passing AI-controlled freighters. The toll scales with the passing faction's War Heat; factions actively at war pay a `+50%` premium for safe passage through your capital.
-- 🏦 **Treasury Payouts:** To avoid notification spam, the Beacon stores all collected tolls internally and pays out a single lump sum to your faction every 45 minutes, synced with the upkeep cycle.
+- 🏦 **Independent Accounts:** Every Beacon tracks its own upkeep and toll treasury. To avoid notification spam, collected tolls are paid to the owning faction as one lump sum every 45 minutes, alongside that Beacon's upkeep cycle.
+- 🛟 **Verified Recovery:** Activations, upgrades, payments, and registry changes are server-authorized and recorded. An interrupted debit enters repair instead of charging twice.
 - 🏗️ **Construction:** Follows Avorion's standard station-building mode. Select `Ascendancy Beacon` if you have it unlocked and the required resources.
 </details>
 
@@ -293,6 +296,24 @@ Typing this into chat queries the server and privately prints a full Eclipse Thr
 - **Remnant Escalation:** The current Remnant Tier and confirmed World-Eater/Citadel kill counts.
 - **Citadel Suppression Field:** Remaining time on the invasion suppression caused by destroying an Eclipse Citadel.
 - **World-Eater Grace Period:** Remaining time on the Doomsday pause after a World-Eater event.
+
+The dashboard reads one canonical server snapshot; it does not infer progress from old flags.
+
+### `/ascendancyrepair` *(server administrators only)*
+This command inspects and resolves ambiguous migration, reward, encounter, queue, Beacon, and Forge
+operations. `scan` is always a dry run and returns a repair ID with evidence and permitted actions.
+`apply` succeeds only when the administrator has privileges and the affected record revisions still
+match the scan.
+
+```text
+/ascendancyrepair scan [all|galaxy|player <index>|encounters|queues|beacons|forges]
+/ascendancyrepair status [repairId]
+/ascendancyrepair apply <repairId> <resume|retry|mark-complete|reissue|abandon>
+/ascendancyrepair history [repairId]
+```
+
+Potentially delivered rewards are never reissued automatically. The selected action and evidence are
+stored in the repair audit.
 </details>
 
 ---

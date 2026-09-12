@@ -8,34 +8,36 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 -- /eclipsestatus reported) -- one function, read from both places, closes that class of bug here
 -- before it can happen.
 local EclipseStatus = {}
+local CosmicVaultData = include("cosmicvaultdata")
+local CAState = include("ca_state")
 
 -- Fields that don't depend on a specific player (galaxy-wide state only).
 function EclipseStatus.getGalaxySnapshot()
     local server = Server()
+    local state = CosmicVaultData.GetRecord(server, "ca_state_v2", 2)
+        or CAState.NewGalaxyState(server.unpausedRuntime)
+    local encounters = CosmicVaultData.GetRecord(server, "ca_encounters_v1", 1)
     local snap = {}
 
-    snap.unleashed = server:getValue("the_eclipse_unleashed") or false
-    snap.fullyAwake = server:getValue("eclipse_fully_awake") or false
-    snap.warning1 = server:getValue("eclipse_warning_1") or false
-    snap.warning2 = server:getValue("eclipse_warning_2") or false
+    snap.unleashed = state.eclipse.state ~= "dormant"
+    snap.fullyAwake = state.eclipse.state == "fully_awake"
+    snap.warning1 = state.eclipse.warning1At ~= nil
+    snap.warning2 = state.eclipse.warning2At ~= nil
+    snap.repairRequired = state.repairRequired
 
-    local conqueredCount = server:getValue("eclipse_conquered_sectors") or 0
+    local conqueredCount = state.territory.conqueredCount or 0
     snap.conqueredSectors = conqueredCount
 
-    -- eclipse_citadel_destroyed_time only ever gets set by ca_citadel_loot.lua, on an actual
-    -- Citadel kill -- must stay nil (not default to 0) so a galaxy that's never had a Citadel
-    -- die doesn't get misread as "a Citadel died the instant the galaxy was created."
-    local citadelDestroyed = server:getValue("eclipse_citadel_destroyed_time")
-    local suppressionDuration = (6 + math.floor(conqueredCount / 10) * 2) * 3600
-    if citadelDestroyed and (server.unpausedRuntime - citadelDestroyed) < suppressionDuration then
+    local suppressionUntil = state.timers.citadelSuppressionUntil
+    if suppressionUntil and server.unpausedRuntime < suppressionUntil then
         snap.citadelSuppressed = true
-        snap.citadelSuppressionRemaining = suppressionDuration - (server.unpausedRuntime - citadelDestroyed)
+        snap.citadelSuppressionRemaining = suppressionUntil - server.unpausedRuntime
     else
         snap.citadelSuppressed = false
         snap.citadelSuppressionRemaining = nil
     end
 
-    local graceEnd = server:getValue("eclipse_world_eater_grace_end") or 0
+    local graceEnd = state.timers.worldEaterGraceUntil or 0
     if server.unpausedRuntime < graceEnd then
         snap.worldEaterGraceActive = true
         snap.worldEaterGraceRemaining = graceEnd - server.unpausedRuntime
@@ -44,17 +46,17 @@ function EclipseStatus.getGalaxySnapshot()
         snap.worldEaterGraceRemaining = nil
     end
 
-    local threat = server:getValue("eclipse_threat") or 0
+    local threat = state.territory.threat or 0
     snap.threatPercent = math.floor(math.min(100, (threat / 10000) * 100))
 
-    snap.fallenEmpire = server:getValue("eclipse_fallen_empire") or false
-    local lastCrusade = server:getValue("eclipse_last_crusade_target")
+    snap.fallenEmpire = state.territory.fallenEmpire or false
+    local lastCrusade = state.history.lastCrusade
     if lastCrusade then
         snap.lastCrusade = {
             x = lastCrusade.x,
             y = lastCrusade.y,
             kind = lastCrusade.kind,
-            secondsAgo = server.unpausedRuntime - lastCrusade.time
+            secondsAgo = math.max(0, server.unpausedRuntime - (lastCrusade.time or state.timers.lastCrusadeAt or server.unpausedRuntime))
         }
     else
         snap.lastCrusade = nil
@@ -64,22 +66,26 @@ function EclipseStatus.getGalaxySnapshot()
     -- below. A single galaxy-wide record here would silently reassign to whichever Harbinger
     -- retreated most recently, showing every player someone else's lead instead of their own.
 
-    local EclipseGenerator = include("eclipsegenerator")
-    snap.remnantTier = EclipseGenerator.getRemnantTier()
-    snap.worldEatersKilled = server:getValue("eclipse_world_eaters_killed") or 0
-    snap.citadelsKilled = server:getValue("eclipse_citadels_killed") or 0
+    snap.remnantTier = state.territory.remnantTier or 0
+    snap.worldEatersKilled = state.territory.worldEatersKilled or 0
+    snap.citadelsKilled = state.territory.citadelsKilled or 0
 
     -- Silent Choir: galaxy-wide singleton tracker, not per-player.
-    local choir = server:getValue("eclipse_silent_choir")
-    if choir then
-        snap.silentChoir = {
-            targetPlayerIndex = choir.targetPlayerIndex,
-            lastX = choir.lastX,
-            lastY = choir.lastY,
-            encounters = choir.encounters or 0
-        }
-    else
-        snap.silentChoir = nil
+    snap.silentChoir = nil
+    if encounters then
+        for _, encounter in pairs(encounters.encounters) do
+            if encounter.kind == "silent_choir" and encounter.state ~= "succeeded"
+                    and encounter.state ~= "abandoned" and encounter.state ~= "expired"
+                    and encounter.state ~= "failed_permanent" then
+                snap.silentChoir = {
+                    targetPlayerIndex = encounter.targetPlayerIndex,
+                    lastX = encounter.x or encounter.lastX,
+                    lastY = encounter.y or encounter.lastY,
+                    encounters = encounter.encounterCount or encounter.encounters or 0
+                }
+                break
+            end
+        end
     end
 
     return snap
@@ -88,7 +94,7 @@ end
 -- Fields specific to one player (Eclipse Remembers kill score, active Ward). Pass the Player
 -- object; returns nil fields gracefully if player is nil so callers don't need to branch.
 function EclipseStatus.getPersonalSnapshot(player)
-    local snap = {killScore = 0, wardActive = false, wardRemaining = nil, nemesisHunt = nil}
+    local snap = {killScore = 0, wardActive = false, wardRemaining = nil, nemesisHunt = nil, campaign = nil}
     if not player then return snap end
 
     snap.killScore = player:getValue("eclipse_kill_score") or 0
@@ -102,10 +108,17 @@ function EclipseStatus.getPersonalSnapshot(player)
     -- Set for every player physically present when a Dread-Lord retreated (ca_nemesis_system.lua),
     -- so a later, unrelated retreat overwriting the shared spawn-gating record doesn't erase what
     -- this player specifically already knows.
-    local hunt = player:getValue("eclipse_nemesis_hunt")
-    if hunt then
-        snap.nemesisHunt = {x = hunt.x, y = hunt.y}
+    local registry = CosmicVaultData.GetRecord(Server(), "ca_encounters_v1", 1)
+    for _, hunt in pairs(registry and registry.encounters or {}) do
+        if hunt.kind == "nemesis" and (hunt.state == "prepared" or hunt.state == "retryable"
+                or hunt.state == "materializing" or hunt.state == "active") then
+            for _, participant in ipairs(hunt.participants or {}) do
+                if participant == player.index then snap.nemesisHunt = {x = hunt.x, y = hunt.y} end
+            end
+        end
     end
+
+    snap.campaign = CosmicVaultData.GetRecord(player, "ca_campaign_v2", 2)
 
     return snap
 end

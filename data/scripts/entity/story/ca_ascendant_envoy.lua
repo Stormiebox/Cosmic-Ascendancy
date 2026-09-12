@@ -6,8 +6,7 @@ CAAegisEnvoy = {}
 CAAegisEnvoy = include("npcapi/singleinteraction")
 include("stringutility")
 include("callable")
-local SectorTurretGenerator = include("sectorturretgenerator")
-local UpgradeGenerator = include("upgradegenerator")
+local CosmicVaultData = include("cosmicvaultdata")
 
 local data = CAAegisEnvoy.data
 
@@ -16,20 +15,40 @@ data.hail = false
 data.closeableDialog = false
 data.globalInteractionKey = "ca_aegis_envoy"
 
--- addScriptOnce swallows a failure inside the target script's own initialize() -- the engine logs
--- "Error while adding file X: <error>" and moves on rather than propagating the error back into
--- the caller (confirmed against a real crash log elsewhere in this project). Without verifying the
--- next mission actually attached, every onAcceptX handler below would clear its debrief flag (and,
--- for the story handlers, grant rewards) even if the mission grant silently failed, leaving the
--- player stuck on the generic fallback dialog forever with no mission and no way to recover. See
--- the Modding Codex's "🔄 Self-Healing Systems" section for the general pattern.
-local function missionScriptAttached(player, scriptName)
-    for _, path in pairs({player:getScripts()}) do
-        if type(path) == "string" and string.find(path, scriptName, 1, true) then
-            return true
-        end
+local CONTROLLER = "data/scripts/player/background/ca_campaign_controller.lua"
+
+local function campaignSnapshot(player)
+    local snapshot = CosmicVaultData.GetRecord(player, "ca_campaign_v2", 2)
+    return snapshot
+end
+
+local function acceptDebrief(chapter, key)
+    if onClient() then
+        invokeServerFunction(key)
+        return
     end
-    return false
+
+    local guardKey = key .. tostring(callingPlayer)
+    if data.given[guardKey] then return end
+    data.given[guardKey] = true
+
+    local player = Player(callingPlayer)
+    if not player then
+        data.given[guardKey] = nil
+        return
+    end
+
+    local snapshot = campaignSnapshot(player)
+    if not snapshot or snapshot.chapter ~= chapter or snapshot.phase ~= "debrief_pending" then
+        data.given[guardKey] = nil
+        return
+    end
+
+    local resultCode, completed = player:invokeFunction(
+        CONTROLLER, "acceptDebrief", chapter, snapshot.revision, callingPlayer)
+    if resultCode ~= 0 or not completed then
+        data.given[guardKey] = nil
+    end
 end
 
 function CAAegisEnvoy.getDialog()
@@ -54,24 +73,18 @@ function CAAegisEnvoy.onGreet()
 end
 
 function CAAegisEnvoy.makeDialog()
-    local player = Player()
-    
-    if player:getValue("ca_ready_for_debrief_5") then
-        return CAAegisEnvoy.makeDialogStory5()
-    elseif player:getValue("ca_ready_for_debrief_4") then
-        return CAAegisEnvoy.makeDialogStory4()
-    elseif player:getValue("ca_ready_for_debrief_3") then
-        return CAAegisEnvoy.makeDialogStory3()
-    elseif player:getValue("ca_ready_for_debrief_2") then
-        return CAAegisEnvoy.makeDialogStory2()
-    elseif player:getValue("ca_ready_for_debrief_1") then
-        return CAAegisEnvoy.makeDialogStory1()
-    elseif player:getValue("ca_ready_for_debrief_intro") then
-        return CAAegisEnvoy.makeDialogIntro()
-    else
-        -- Fallback if they already talked to her or have no pending debriefs
+    local snapshot = campaignSnapshot(Player())
+    if not snapshot or snapshot.phase ~= "debrief_pending" then
         return CAAegisEnvoy.makeDialogFallback()
     end
+
+    if snapshot.chapter == 5 then return CAAegisEnvoy.makeDialogStory5() end
+    if snapshot.chapter == 4 then return CAAegisEnvoy.makeDialogStory4() end
+    if snapshot.chapter == 3 then return CAAegisEnvoy.makeDialogStory3() end
+    if snapshot.chapter == 2 then return CAAegisEnvoy.makeDialogStory2() end
+    if snapshot.chapter == 1 then return CAAegisEnvoy.makeDialogStory1() end
+    if snapshot.chapter == 0 then return CAAegisEnvoy.makeDialogIntro() end
+    return CAAegisEnvoy.makeDialogFallback()
 end
 
 function CAAegisEnvoy.makeDialogFallback()
@@ -114,27 +127,7 @@ function CAAegisEnvoy.makeDialogIntro()
 end
 
 function CAAegisEnvoy.onAcceptIntro()
-    -- ScriptUI():interactShowDialog() only exists client-side, so dialog onEnd handlers
-    -- always fire on the client first and must be forwarded to the server (vanilla does
-    -- this in every onEnd handler, e.g. Adventurer1.givePlayerGoodie in adventurer1.lua).
-    if onClient() then
-        invokeServerFunction("onAcceptIntro")
-        return
-    end
-
-    if data.given["intro" .. callingPlayer] then return end
-    data.given["intro" .. callingPlayer] = true
-
-    local player = Player(callingPlayer)
-    player:addScriptOnce("data/scripts/player/missions/ca_story1_awakening.lua")
-
-    if not missionScriptAttached(player, "ca_story1_awakening.lua") then
-        data.given["intro" .. callingPlayer] = nil -- allow retry via the manual "Talk" option
-        return
-    end
-
-    player:setValue("ca_ready_for_debrief_intro", nil)
-    -- Removed warpAway() to allow other players in the sector to interact.
+    acceptDebrief(0, "onAcceptIntro")
 end
 
 -- ==========================================
@@ -151,33 +144,7 @@ function CAAegisEnvoy.makeDialogStory1()
 end
 
 function CAAegisEnvoy.onAcceptStory1()
-    if onClient() then
-        invokeServerFunction("onAcceptStory1")
-        return
-    end
-
-    if data.given["story1" .. callingPlayer] then return end
-    data.given["story1" .. callingPlayer] = true
-
-    local player = Player(callingPlayer)
-    player:addScriptOnce("data/scripts/player/missions/ca_story2_forge.lua")
-
-    if not missionScriptAttached(player, "ca_story2_forge.lua") then
-        data.given["story1" .. callingPlayer] = nil
-        return
-    end
-
-    player:setValue("ca_ready_for_debrief_1", nil)
-
-    -- Rewards (2.5M, 2 Turrets, 1 System)
-    player:receive("Ascendant Support Funding", 2500000)
-    local x, y = Sector():getCoordinates()
-    local generator = SectorTurretGenerator(Sector().seed)
-    for i=1, 2 do
-        local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Rare))
-        player:getInventory():add(InventoryTurret(turret))
-    end
-    player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Rare)))
+    acceptDebrief(1, "onAcceptStory1")
 end
 
 -- ==========================================
@@ -194,33 +161,7 @@ function CAAegisEnvoy.makeDialogStory2()
 end
 
 function CAAegisEnvoy.onAcceptStory2()
-    if onClient() then
-        invokeServerFunction("onAcceptStory2")
-        return
-    end
-
-    if data.given["story2" .. callingPlayer] then return end
-    data.given["story2" .. callingPlayer] = true
-
-    local player = Player(callingPlayer)
-    player:addScriptOnce("data/scripts/player/missions/ca_story3_vanguard.lua")
-
-    if not missionScriptAttached(player, "ca_story3_vanguard.lua") then
-        data.given["story2" .. callingPlayer] = nil
-        return
-    end
-
-    player:setValue("ca_ready_for_debrief_2", nil)
-
-    -- Rewards (5M, 2 Turrets, 2 Systems)
-    player:receive("Ascendant Support Funding", 5000000)
-    local x, y = Sector():getCoordinates()
-    local generator = SectorTurretGenerator(Sector().seed)
-    for i=1, 2 do
-        local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exceptional))
-        player:getInventory():add(InventoryTurret(turret))
-    end
-    for i=1, 2 do player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exceptional))) end
+    acceptDebrief(2, "onAcceptStory2")
 end
 
 -- ==========================================
@@ -237,33 +178,7 @@ function CAAegisEnvoy.makeDialogStory3()
 end
 
 function CAAegisEnvoy.onAcceptStory3()
-    if onClient() then
-        invokeServerFunction("onAcceptStory3")
-        return
-    end
-
-    if data.given["story3" .. callingPlayer] then return end
-    data.given["story3" .. callingPlayer] = true
-
-    local player = Player(callingPlayer)
-    player:addScriptOnce("data/scripts/player/missions/ca_story4_citadel.lua")
-
-    if not missionScriptAttached(player, "ca_story4_citadel.lua") then
-        data.given["story3" .. callingPlayer] = nil
-        return
-    end
-
-    player:setValue("ca_ready_for_debrief_3", nil)
-
-    -- Rewards (7.5M, 2 Turrets, 1 System)
-    player:receive("Ascendant Support Funding", 7500000)
-    local x, y = Sector():getCoordinates()
-    local generator = SectorTurretGenerator(Sector().seed)
-    for i=1, 2 do
-        local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exotic))
-        player:getInventory():add(InventoryTurret(turret))
-    end
-    player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exotic)))
+    acceptDebrief(3, "onAcceptStory3")
 end
 
 -- ==========================================
@@ -280,33 +195,7 @@ function CAAegisEnvoy.makeDialogStory4()
 end
 
 function CAAegisEnvoy.onAcceptStory4()
-    if onClient() then
-        invokeServerFunction("onAcceptStory4")
-        return
-    end
-
-    if data.given["story4" .. callingPlayer] then return end
-    data.given["story4" .. callingPlayer] = true
-
-    local player = Player(callingPlayer)
-    player:addScriptOnce("data/scripts/player/missions/ca_story5_worldeater.lua")
-
-    if not missionScriptAttached(player, "ca_story5_worldeater.lua") then
-        data.given["story4" .. callingPlayer] = nil
-        return
-    end
-
-    player:setValue("ca_ready_for_debrief_4", nil)
-
-    -- Rewards (10M, 3 Turrets, 2 Systems)
-    player:receive("Ascendant Support Funding", 10000000)
-    local x, y = Sector():getCoordinates()
-    local generator = SectorTurretGenerator(Sector().seed)
-    for i=1, 3 do
-        local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Exotic))
-        player:getInventory():add(InventoryTurret(turret))
-    end
-    for i=1, 2 do player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Exotic))) end
+    acceptDebrief(4, "onAcceptStory4")
 end
 
 -- ==========================================
@@ -323,26 +212,7 @@ function CAAegisEnvoy.makeDialogStory5()
 end
 
 function CAAegisEnvoy.onAcceptStory5()
-    if onClient() then
-        invokeServerFunction("onAcceptStory5")
-        return
-    end
-
-    if data.given["story5" .. callingPlayer] then return end
-    data.given["story5" .. callingPlayer] = true
-
-    local player = Player(callingPlayer)
-    player:setValue("ca_ready_for_debrief_5", nil)
-
-    -- Rewards (25M, 5 Legendary Turrets, 3 Legendary Systems)
-    player:receive("Ascendant Heritage", 25000000)
-    local x, y = Sector():getCoordinates()
-    local generator = SectorTurretGenerator(Sector().seed)
-    for i=1, 5 do
-        local turret = generator:generateArmed(x, y, 0, Rarity(RarityType.Legendary))
-        player:getInventory():add(InventoryTurret(turret))
-    end
-    for i=1, 3 do player:getInventory():add(UpgradeGenerator():generateSectorSystem(x, y, Rarity(RarityType.Legendary))) end
+    acceptDebrief(5, "onAcceptStory5")
 end
 
 -- Ensure it's globally callable in the namespace

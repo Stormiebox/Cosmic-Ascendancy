@@ -19,6 +19,68 @@ local attackers = {}
 local attackerFaction = 0
 local typeName = "Pirates"
 local active = false
+local EncounterBridge = include("ca_encounter_bridge")
+local OWNER = "data/scripts/events/ascendancysiege.lua"
+local encounterId
+local attackersDestroyedVerified = false
+local spawnAttempts = 0
+local nextSpawnAttempt
+
+local function attemptMaterialization()
+    if not encounterId then return end
+    local encounter = EncounterBridge.Get(encounterId)
+    if encounter and encounter.state == "retryable" then
+        if not EncounterBridge.Transition(OWNER, encounterId, "prepared") then return end
+    end
+    if not EncounterBridge.Transition(OWNER, encounterId, "materializing", {
+            attempts = spawnAttempts}) then return end
+    spawnAttempts = spawnAttempts + 1
+    local spawnedShips = AscendancySiege.spawnFleet()
+    local expected = 3 + (tier * 2) + math.max(0, tier - 2)
+    if #spawnedShips == 0 then
+        if spawnAttempts < 5 then
+            nextSpawnAttempt = Server().unpausedRuntime + (spawnAttempts * 10)
+            EncounterBridge.Transition(OWNER, encounterId, "retryable", {
+                attempts = spawnAttempts, nextAttemptAt = nextSpawnAttempt,
+                lastError = "beacon_siege_spawn_failed"
+            })
+        else
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                attempts = spawnAttempts,
+                lastError = "beacon_siege_spawn_failed_after_five_attempts"
+            })
+        end
+        return
+    end
+    local ids = {}
+    for _, ship in ipairs(spawnedShips) do
+        ship:setValue("ca_encounter_id", encounterId)
+        table.insert(ids, ship.id.string)
+    end
+    if #spawnedShips ~= expected then
+        EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            entityIds = ids, attempts = spawnAttempts,
+            lastError = "beacon_siege_partial_spawn"
+        })
+        return
+    end
+    for _, ship in ipairs(spawnedShips) do
+        ship:registerCallback("onDestroyed", "onAttackerDestroyed")
+    end
+    local activated = EncounterBridge.Transition(OWNER, encounterId, "active", {
+        entityIds = ids, attempts = spawnAttempts, engagedAt = Server().unpausedRuntime
+    })
+    if not activated then
+        EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            entityIds = ids, attempts = spawnAttempts,
+            lastError = "beacon_siege_registration_failed"
+        })
+        return
+    end
+    nextSpawnAttempt = nil
+    active = true
+    AscendancySiege.broadcastWarning()
+end
 
 function AscendancySiege.initialize(t, ownerIndex)
     if not onServer() then return end
@@ -30,7 +92,15 @@ function AscendancySiege.initialize(t, ownerIndex)
     if active then return end
     tier = t or 1
     targetFactionIndex = ownerIndex or 0
-    active = true
+    local x, y = Sector():getCoordinates()
+    encounterId = EncounterBridge.MakeId("beacon_siege", "sector", x, y,
+        math.floor(Server().unpausedRuntime))
+    local prepared = EncounterBridge.Create(OWNER, {
+        encounterId = encounterId, kind = "beacon_siege",
+        concurrencyKey = "beacon_siege:" .. x .. ":" .. y,
+        scope = "sector", x = x, y = y, state = "prepared"
+    })
+    if not prepared then return end
 
     -- Choose attacker type
     local r = random():getFloat()
@@ -56,8 +126,7 @@ function AscendancySiege.initialize(t, ownerIndex)
         if r < 0.5 then typeName = "Xsotan" else typeName = "Pirates" end
     end
 
-    AscendancySiege.spawnFleet()
-    AscendancySiege.broadcastWarning()
+    attemptMaterialization()
 end
 
 function AscendancySiege.spawnFleet()
@@ -133,6 +202,14 @@ function AscendancySiege.spawnFleet()
     end
 
     Placer.resolveIntersections(spawnedShips)
+    return spawnedShips
+end
+
+function AscendancySiege.onAttackerDestroyed()
+    for _, id in ipairs(attackers) do
+        if valid(Entity(Uuid(id))) then return end
+    end
+    attackersDestroyedVerified = true
 end
 
 function AscendancySiege.broadcastWarning()
@@ -155,7 +232,12 @@ function AscendancySiege.getUpdateInterval()
 end
 
 function AscendancySiege.updateServer(timeStep)
-    if not active then return end
+    if not active then
+        if nextSpawnAttempt and Server().unpausedRuntime >= nextSpawnAttempt then
+            attemptMaterialization()
+        end
+        return
+    end
 
     -- Check if beacon is still alive
     local beaconAlive = false
@@ -186,14 +268,41 @@ function AscendancySiege.updateServer(timeStep)
     attackers = newAttackers
 
     if not attackersAlive then
-        AscendancySiege.onVictory()
+        if attackersDestroyedVerified then
+            AscendancySiege.onVictory()
+        else
+            active = false
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "siege_attackers_missing_without_destroy_callback"
+            })
+        end
     end
 end
 
 function AscendancySiege.onVictory()
     active = false
+    local resolving = EncounterBridge.Transition(OWNER, encounterId, "resolving", {
+        resolution = {reason = "attackers_destroyed"}
+    })
+    if not resolving then return end
     local x, y = Sector():getCoordinates()
     Sector():broadcastChatMessage("System"%_t, 3, "Siege Defeated! The Ascendant Capital stands strong."%_t)
+    local owner = Faction(targetFactionIndex)
+    local operationId
+    if owner then
+        operationId = encounterId .. ":faction:" .. targetFactionIndex .. ":reward"
+        local receipt = EncounterBridge.PrepareReceipt(OWNER, {
+            operationId = operationId, kind = "beacon_siege_reward",
+            encounterId = encounterId, recipient = {factionIndex = targetFactionIndex},
+            reissue = {mode = "coordinator_credit", credits = tier * 2500000,
+                reason = "Capital Siege Defense Reward"}
+        })
+        if not receipt then
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "reward_receipt_prepare_failed:" .. operationId})
+            return
+        end
+    end
 
     -- Spawn massive loot explosion at sector center
     -- generateSectorSystem(x, y, rarity) is used deliberately over generateSystem(rarity) so the
@@ -209,10 +318,30 @@ function AscendancySiege.onVictory()
         Sector():dropUpgrade(lootPos, nil, nil, upgradeGen:generateSectorSystem(x, y, lootRarity))
     end
 
-    local owner = Faction(targetFactionIndex)
     if owner then
         -- Reward the defending faction for surviving the siege
+        local before = owner.money or 0
         owner:receive("Capital Siege Defense Reward"%_t, tier * 2500000)
+        if (owner.money or 0) < before + tier * 2500000 then
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "reward_delivery_unverified:" .. operationId})
+            return
+        end
+        if not EncounterBridge.CompleteReceipt(OWNER, operationId, {
+                credits = tier * 2500000, before = before, after = owner.money}) then
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "reward_receipt_completion_ambiguous:" .. operationId})
+            return
+        end
+    end
+
+    local succeeded = EncounterBridge.Transition(OWNER, encounterId, "succeeded", {
+        resolution = {reason = "attackers_destroyed"}
+    })
+    if not succeeded then
+        EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            lastError = "siege_terminal_transition_failed"
+        })
     end
 
     terminate()
@@ -220,6 +349,9 @@ end
 
 function AscendancySiege.onDefeat()
     active = false
+    EncounterBridge.Transition(OWNER, encounterId, "abandoned", {
+        resolution = {reason = "beacon_destroyed"}
+    })
     local x, y = Sector():getCoordinates()
     Sector():broadcastChatMessage("System"%_t, 1, "The Ascendant Capital has fallen..."%_t)
 
@@ -235,7 +367,7 @@ function AscendancySiege.onDefeat()
     for _, id in pairs(attackers) do
         local ship = Entity(Uuid(id))
         if valid(ship) then
-            ship:addScriptOnce("entity/utility/delayedjump.lua")
+            ship:addScriptOnce("data/scripts/entity/deletejumped.lua")
         end
     end
 
@@ -250,7 +382,11 @@ function AscendancySiege.secure()
         attackers = attackers,
         attackerFaction = attackerFaction,
         typeName = typeName,
-        active = active
+        active = active,
+        encounterId = encounterId,
+        attackersDestroyedVerified = attackersDestroyedVerified,
+        spawnAttempts = spawnAttempts,
+        nextSpawnAttempt = nextSpawnAttempt
     }
 end
 
@@ -262,6 +398,28 @@ function AscendancySiege.restore(data_in)
     attackerFaction = data_in.attackerFaction or 0
     typeName = data_in.typeName or "Pirates"
     active = data_in.active or false
+    encounterId = data_in.encounterId
+    attackersDestroyedVerified = data_in.attackersDestroyedVerified == true
+    spawnAttempts = data_in.spawnAttempts or 0
+    nextSpawnAttempt = data_in.nextSpawnAttempt
+    if active and encounterId then
+        for _, id in ipairs(attackers) do
+            local ship = Entity(Uuid(id))
+            if valid(ship) and ship:getValue("ca_encounter_id") == encounterId then
+                ship:registerCallback("onDestroyed", "onAttackerDestroyed")
+            end
+        end
+    elseif encounterId then
+        local encounter = EncounterBridge.Get(encounterId)
+        if encounter and encounter.state == "retryable" then
+            nextSpawnAttempt = Server().unpausedRuntime + 5
+        elseif encounter and encounter.state == "materializing" then
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "restart_during_beacon_siege_materialization"
+            })
+            nextSpawnAttempt = nil
+        end
+    end
 end
 
 

@@ -2,6 +2,7 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
 include("structuredmission")
+local CampaignBridge = include("ca_campaign_bridge")
 
 function getUpdateInterval()
     return 1.0
@@ -22,8 +23,8 @@ mission.data.title = "Forging the Defense"
 mission.phases[1] = {}
 mission.phases[1].showUpdateOnEnd = true
 mission.phases[1].onBeginServer = function()
-    local x, y = Sector():getCoordinates()
-    local targetX, targetY = getTargetSector(x, y)
+    local targetX, targetY = CampaignBridge.GetTarget(2)
+    if not targetX or not targetY then return end
     mission.data.custom.targetX = targetX
     mission.data.custom.targetY = targetY
     mission.data.description = "Aegis uploaded a set of ancient encrypted coordinates. Jump to (" .. targetX .. ":" .. targetY .. ") to investigate."
@@ -60,7 +61,8 @@ end
 
 mission.phases[3].updateServer = function()
     local player = Player()
-    local iron, tit, nao, tri, xan, ogo, avo = player:getResources()
+    local resources = {player:getResources()}
+    local avo = resources[7]
     if avo >= 50000 then
         player:pay(0, 0, 0, 0, 0, 0, 0, 50000)
         Player():sendChatMessage("Aegis"%_T, 0, "Catalyst accepted. The Ascendancy Forge blueprints are fully unlocked. Commander, a new threat has emerged while you were gathering materials. Meet me at these coordinates immediately."%_T)
@@ -117,8 +119,8 @@ mission.phases[4].onSectorEntered = function(x, y)
         -- ca_story0_meet_aegis.lua for the full rationale) -- otherwise a failed createShip() would
         -- tell the player to approach a ship that doesn't exist, with no way to recover.
         if aegisExists then
-            Player():setValue("ca_ready_for_debrief_2", true)
-            mission.data.custom.debriefReady = true
+            local revision = CampaignBridge.RequestDebrief(2, mission.data.custom.aegisX, mission.data.custom.aegisY)
+            mission.data.custom.debriefReady = revision ~= nil
         end
     end
 end
@@ -130,7 +132,7 @@ mission.phases[4].updateServer = function()
         if x == mission.data.custom.aegisX and y == mission.data.custom.aegisY then
             -- Gated on debriefReady (only set once Aegis was actually confirmed present) so a
             -- pending/failed spawn retry doesn't get misread as a completed debrief.
-            if mission.data.custom.debriefReady and player:getValue("ca_ready_for_debrief_2") == nil then
+            if mission.data.custom.debriefReady and CampaignBridge.IsDebriefComplete(2) then
                 finish()
             end
         end
@@ -160,4 +162,11 @@ function getTargetSector(x, y)
     end
 
     return targetX, targetY
+end
+
+function getCampaignMigrationTarget()
+    if mission.data.custom.debriefReady then
+        return mission.data.custom.aegisX, mission.data.custom.aegisY
+    end
+    return mission.data.custom.targetX, mission.data.custom.targetY
 end

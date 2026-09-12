@@ -12,12 +12,19 @@ include("randomext")
 SilentChoirUnit = {}
 SilentChoirUnit.willEngage = false
 SilentChoirUnit.hasActed = false
+SilentChoirUnit.encounterId = nil
+SilentChoirUnit.entityId = nil
 
 -- willEngage: passed true on the sighting that's meant to commit to a real fight instead of
 -- vanishing (see ca_silent_choir_manager.lua, the only caller). Defaults false for any other/
 -- legacy attachment.
-function SilentChoirUnit.initialize(willEngage)
+function SilentChoirUnit.initialize(willEngage, encounterId, entityId)
     SilentChoirUnit.willEngage = willEngage or false
+    SilentChoirUnit.encounterId = encounterId
+    SilentChoirUnit.entityId = entityId
+    if onServer() and SilentChoirUnit.willEngage then
+        Entity():registerCallback("onDestroyed", "onDestroyed")
+    end
 end
 
 function SilentChoirUnit.getUpdateInterval()
@@ -56,6 +63,29 @@ function SilentChoirUnit.vanish()
     local sector = Sector()
     if sector then
         sector:broadcastChatMessage("???"%_T, 2, "...gone."%_T)
+        Galaxy():invokeFunction("data/scripts/galaxy/ca_silent_choir_manager.lua",
+            "resolveSighting", SilentChoirUnit.encounterId, SilentChoirUnit.entityId, false)
         sector:deleteEntity(entity)
+    end
+end
+
+function SilentChoirUnit.onDestroyed()
+    Galaxy():invokeFunction("data/scripts/galaxy/ca_silent_choir_manager.lua",
+        "resolveSighting", SilentChoirUnit.encounterId, SilentChoirUnit.entityId, true)
+end
+
+function SilentChoirUnit.secure()
+    return {willEngage = SilentChoirUnit.willEngage, hasActed = SilentChoirUnit.hasActed,
+        encounterId = SilentChoirUnit.encounterId, entityId = SilentChoirUnit.entityId}
+end
+
+function SilentChoirUnit.restore(data)
+    if not data then return end
+    SilentChoirUnit.willEngage = data.willEngage == true
+    SilentChoirUnit.hasActed = data.hasActed == true
+    SilentChoirUnit.encounterId = data.encounterId
+    SilentChoirUnit.entityId = data.entityId
+    if onServer() and SilentChoirUnit.willEngage then
+        Entity():registerCallback("onDestroyed", "onDestroyed")
     end
 end

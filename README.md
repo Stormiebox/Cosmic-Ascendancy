@@ -2,7 +2,7 @@
 
 *The endgame campaign and crisis simulation for the Cosmic Series.*
 
-![Version](https://img.shields.io/badge/version-1.8.0-6f42c1?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.0.0-6f42c1?style=flat-square)
 ![Avorion](https://img.shields.io/badge/Avorion-2.5.13-2f81f7?style=flat-square)
 ![License](https://img.shields.io/badge/license-GPLv3-informational?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey?style=flat-square)
@@ -25,9 +25,9 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 - **Galactic Dread News Network:** Live server-wide reporting of sector annihilations and heroic victories.
 - **Adaptive Scaling:** The Eclipse grows in size and power to match the highest-tier player on the server.
 - **Dynamic Faction Expansion:** AI factions and Pirates naturally expand their borders into uncharted sectors over time, driven by a background simulation with no loading-screen stutter.
-- **The Ascendancy Beacon:** A permanent, 24/7 simulated capital megastructure that buffs your entire fleet, with a Sanctuary Field that pushes back Eclipse expansion at Tier 3+.
-- **Story Campaign:** A scripted, multi-stage questline guided by Priority Mail dispatches and safe, isolated rendezvous sectors.
-- **The Ascendancy Forge:** Craft Ascendant-tier technologies by decrypting Eclipse Datacores and sacrificing rare subsystems.
+- **The Ascendancy Beacon:** A recoverable capital megastructure with renewable sector leases, independent upkeep, fleet-wide bonuses, and a Sanctuary Field at Tier 3+.
+- **Story Campaign:** A scripted, multi-stage questline whose missions, coordinates, progress, and rewards are tracked independently for every player.
+- **The Ascendancy Forge:** Craft Ascendant-tier technologies through server-verified, restart-safe orders using Eclipse materials and rare subsystem sacrifices.
 - **Dynamic Strongholds:** Eclipse Citadels naturally spawn and conquer sectors.
 - **Eclipse Rift Spillage:** Eclipse invasions have a 10% chance to tear open a subspace rift that drains sector shields. Destroy the Eclipse Rift Stabilizer to close it.
 </details>
@@ -53,6 +53,9 @@ Following the destruction of the Wormhole Guardian, a darker, ancient adversary 
 | [`WIKI.md`](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Features-and-Enhancements) | Anyone who wants the exact numbers | The Nemesis System, the Eclipse Threat Dashboard (`/eclipsestatus`), Ascendant Gateways, and full technical detail. |
 | [`Ascendancy_Lore.md`](https://github.com/Stormiebox/Cosmic-Ascendancy/wiki/Cosmic-Ascendancy-Lorebook) | Players who want the story | The Eclipse's origin and narrative campaign lore. |
 | **Cosmic Codex** *(in-game)* | Players | All of the above, readable without leaving the game. |
+
+Server administrators can inspect ambiguous migrated or interrupted operations with the dry-run
+`/ascendancyrepair` command. See `WIKI.md` for its syntax and safety model.
 
 ---
 

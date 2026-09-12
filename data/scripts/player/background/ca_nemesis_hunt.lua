@@ -1,5 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include("randomext")
+local EncounterBridge = include("ca_encounter_bridge")
+local OWNER = "data/scripts/player/background/ca_nemesis_hunt.lua"
 
 -- Nemesis Hunt Tracker
 -- When an Eclipse Dread-Lord retreats near death (see ca_nemesis_system.lua), it relocates to a
@@ -16,18 +18,25 @@ end
 function onSectorEntered(playerIndex, x, y, sectorChangeType)
     if onClient() then return end
 
-    local hunt = Server():getValue("eclipse_nemesis_hunt")
+    local hunt
+    for _, candidate in ipairs(EncounterBridge.List("nemesis") or {}) do
+        if candidate.x == x and candidate.y == y
+                and (candidate.state == "prepared" or candidate.state == "retryable") then
+            hunt = candidate
+            break
+        end
+    end
     if not hunt then return end
-    if hunt.x ~= x or hunt.y ~= y then return end
-    if hunt.spawned then return end
 
     local sector = Sector()
     if not sector then return end
 
-    -- Mark spawned immediately, before doing anything else, so a second player entering the same
-    -- sector in the same tick can't also pass this check before the flag is persisted.
-    hunt.spawned = true
-    Server():setValue("eclipse_nemesis_hunt", hunt)
+    if hunt.state == "retryable" then
+        hunt = EncounterBridge.Transition(OWNER, hunt.encounterId, "prepared")
+        if not hunt then return end
+    end
+    local materializing = EncounterBridge.Transition(OWNER, hunt.encounterId, "materializing")
+    if not materializing then return end
 
     local EclipseGenerator = include("eclipsegenerator")
     local dir = normalize(vec3(getFloat(-1, 1), getFloat(-1, 1), getFloat(-1, 1)))
@@ -37,10 +46,23 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     -- plan type and attaches ca_nemesis_resist.lua/ca_nemesis_system.lua on its own, so this Dread-Lord
     -- picks up the same adaptive resistance it fled with without any extra work here.
     local nemesis = EclipseGenerator.createShip(pos, "ca_harbinger")
-    if not nemesis then return end
+    if not nemesis then
+        local latest = EncounterBridge.Get(hunt.encounterId)
+        EncounterBridge.Transition(OWNER, hunt.encounterId,
+            latest and (latest.attempt or 0) >= 4 and "repair_required" or "retryable",
+            {lastError = "nemesis_spawn_failed"})
+        return
+    end
 
     nemesis.title = "Eclipse Dread-Lord (Wounded)"%_T
     nemesis:setValue("ca_nemesis_hunted", true)
+    if hunt.resistanceType ~= nil then
+        nemesis:addScriptOnce("data/scripts/entity/ca_nemesis_resist.lua", hunt.resistanceType)
+    end
+    local activated = EncounterBridge.TagAndActivate(OWNER, hunt.encounterId, nemesis, {
+        targetPlayerIndex = playerIndex
+    })
+    if not activated then return end
 
     -- It fled at 5% HP; heal it partway so finding it is a real fight, not a single-hit kill,
     -- matching the WIKI's "it will return" framing rather than "it returns still dying."

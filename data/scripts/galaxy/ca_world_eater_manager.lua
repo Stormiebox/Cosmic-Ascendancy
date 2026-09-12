@@ -2,6 +2,9 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 include("stringutility")
 include("callable")
 local cv_news = include("cosmicvaultnews")
+local CosmicVaultData = include("cosmicvaultdata")
+local EncounterBridge = include("ca_encounter_bridge")
+local OWNER = "data/scripts/galaxy/ca_world_eater_manager.lua"
 
 -- namespace WorldEaterManager
 WorldEaterManager = {}
@@ -14,13 +17,53 @@ function WorldEaterManager.initialize()
 end
 
 function WorldEaterManager.updateServer(timeStep)
-    if not Server():getValue("eclipse_fully_awake") then return end
+    local canonical = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2)
+    if not canonical or canonical.eclipse.state ~= "fully_awake" then return end
+
+    if WorldEaterManager.activeEvent and not WorldEaterManager.activeEvent.encounterId then
+        local legacy = WorldEaterManager.activeEvent
+        local legacyId = EncounterBridge.MakeId("natural_world_eater", "galaxy",
+            legacy.x, legacy.y, "legacy")
+        local migrated = EncounterBridge.Create(OWNER, {
+            encounterId = legacyId,
+            kind = "natural_world_eater",
+            concurrencyKey = "natural_world_eater:galaxy",
+            scope = "galaxy",
+            x = legacy.x,
+            y = legacy.y,
+            state = "repair_required",
+            repairRequired = "legacy_world_eater_correlation_unverified"
+        })
+        if migrated then
+            legacy.encounterId = legacyId
+            legacy.repairRequired = "legacy_world_eater_correlation_unverified"
+        end
+        return
+    end
 
     -- Pause the Doomsday clock if no players are online (protects dedicated servers)
     local players = {Server():getOnlinePlayers()}
     if #players == 0 then return end
 
     if WorldEaterManager.activeEvent then
+        local registered = EncounterBridge.Get(WorldEaterManager.activeEvent.encounterId)
+        if registered and registered.state == "resolving" then
+            WorldEaterManager.resolveEvent(WorldEaterManager.activeEvent.encounterId,
+                WorldEaterManager.activeEvent.entityId)
+            return
+        elseif registered and registered.state == "succeeded" then
+            local recorded = WorldEaterManager.recordOutcome(
+                WorldEaterManager.activeEvent.encounterId, "world_eater_succeeded")
+            if recorded then WorldEaterManager.activeEvent = nil end
+            return
+        elseif registered and registered.state == "abandoned" then
+            local recorded = WorldEaterManager.recordOutcome(
+                WorldEaterManager.activeEvent.encounterId, "world_eater_abandoned")
+            if recorded then WorldEaterManager.activeEvent = nil end
+            return
+        elseif registered and registered.state == "repair_required" then
+            return
+        end
         -- Once a player has actually reached the target sector and the fight is confirmed
         -- injected, the 20-minute countdown has done its job (the deadline was to REACH the
         -- World-Eater in time, not to kill it in time) -- so it must stop being able to fire
@@ -70,8 +113,8 @@ function WorldEaterManager.updateServer(timeStep)
                 local px, py = player:getSectorCoordinates()
                 if px == WorldEaterManager.activeEvent.x and py == WorldEaterManager.activeEvent.y then
                     anyoneInSector = true
-                    if not WorldEaterManager.activeEvent.engaged then
-                        WorldEaterManager.activeEvent.engaged = true
+                    if not WorldEaterManager.activeEvent.engaged
+                            and not WorldEaterManager.activeEvent.materializing then
                         WorldEaterManager.injectSectorScript(px, py)
                     end
                 end
@@ -92,14 +135,25 @@ function WorldEaterManager.updateServer(timeStep)
                     WorldEaterManager.activeEvent.emptySince = WorldEaterManager.activeEvent.emptySince or Server().unpausedRuntime
                     if Server().unpausedRuntime - WorldEaterManager.activeEvent.emptySince > 7200 then
                         Server():broadcastChatMessage("The Eclipse"%_T, 0, "The abandoned World-Eater engagement has been stood down."%_T)
-                        WorldEaterManager.activeEvent = nil
-                        Server():setValue("eclipse_world_eater_grace_end", Server().unpausedRuntime + 36000)
+                        local abandoned = WorldEaterManager.activeEvent
+                        local transitioned = EncounterBridge.Transition(OWNER, abandoned.encounterId, "abandoned", {
+                            resolution = {reason = "empty_sector_timeout", at = Server().unpausedRuntime}
+                        })
+                        local recorded = transitioned and WorldEaterManager.recordOutcome(
+                            abandoned.encounterId, "world_eater_abandoned")
+                        if recorded then WorldEaterManager.activeEvent = nil end
                     end
                 end
             end
+
+            if WorldEaterManager.activeEvent and WorldEaterManager.activeEvent.materializing
+                    and Server().unpausedRuntime - WorldEaterManager.activeEvent.materializingAt > 60 then
+                WorldEaterManager.reportMaterializationFailure(
+                    WorldEaterManager.activeEvent.encounterId, "materialization_confirmation_timeout")
+            end
         end
     else
-        local graceEnd = Server():getValue("eclipse_world_eater_grace_end") or 0
+        local graceEnd = canonical.timers.worldEaterGraceUntil or 0
         if Server().unpausedRuntime > graceEnd then
             if not WorldEaterManager.threshold then
                 -- Eclipse Remnant Escalation: shrink the 3-5hr window by up to 15 minutes per
@@ -147,7 +201,27 @@ function WorldEaterManager.triggerEvent()
     
     local tx, ty = targetSector:getCoordinates()
 
-    WorldEaterManager.activeEvent = {x = tx, y = ty, timeLeft = 1200}
+    local encounterId = EncounterBridge.MakeId(
+        "natural_world_eater", "galaxy", tx, ty, math.floor(Server().unpausedRuntime))
+    local encounter, encounterError = EncounterBridge.Create(OWNER, {
+        encounterId = encounterId,
+        kind = "natural_world_eater",
+        concurrencyKey = "natural_world_eater:galaxy",
+        scope = "galaxy",
+        x = tx,
+        y = ty,
+        deadlineAt = Server().unpausedRuntime + 1200,
+        state = "prepared"
+    })
+    if not encounter then
+        print("[Cosmic Ascendancy] Unable to prepare natural World-Eater: " .. tostring(encounterError))
+        return
+    end
+
+    WorldEaterManager.activeEvent = {
+        encounterId = encounterId, x = tx, y = ty, timeLeft = 1200,
+        spawnAttempts = 0, materializing = false
+    }
 
     Server():broadcastChatMessage("Galactic News"%_T, 0, "CRITICAL ALERT: An Eclipse World-Eater has warped to coordinates [" .. tx .. ":" .. ty .. "]! 20 minutes to total annihilation!")
     if cv_news.publishArticle then
@@ -165,25 +239,123 @@ function WorldEaterManager.triggerEvent()
 end
 
 function WorldEaterManager.injectSectorScript(x, y)
+    if not WorldEaterManager.activeEvent then return end
+    local event = WorldEaterManager.activeEvent
+    local encounter = EncounterBridge.Get(event.encounterId)
+    if encounter and encounter.state == "retryable" then
+        local prepared = EncounterBridge.Transition(OWNER, event.encounterId, "prepared")
+        if not prepared then return end
+    end
+    event.spawnAttempts = (event.spawnAttempts or 0) + 1
+    event.materializing = true
+    event.materializingAt = Server().unpausedRuntime
     local timeLeft = WorldEaterManager.activeEvent and WorldEaterManager.activeEvent.timeLeft or 1200
     local code = [[
-        function run(timeLeft)
+        function run(timeLeft, encounterId)
             if not Sector():hasScript("events/ca_world_eater_event.lua") then
-                Sector():addScriptOnce("data/scripts/events/ca_world_eater_event.lua", timeLeft)
+                Sector():addScriptOnce("data/scripts/events/ca_world_eater_event.lua", timeLeft, encounterId)
             end
         end
     ]]
-    runSectorCode(x, y, true, code, "run", timeLeft)
+    runSectorCode(x, y, true, code, "run", timeLeft, event.encounterId)
+end
+
+function WorldEaterManager.confirmEngaged(encounterId, bossId)
+    local event = WorldEaterManager.activeEvent
+    if not event or event.encounterId ~= encounterId or type(bossId) ~= "string" then
+        return nil, "encounter_mismatch"
+    end
+    local existing = EncounterBridge.Get(encounterId)
+    local activated, err
+    if existing and existing.state == "active" and existing.entityId == bossId then
+        activated = existing
+    else
+        activated, err = EncounterBridge.Transition(OWNER, encounterId, "active", {
+            entityId = bossId,
+            engagedAt = Server().unpausedRuntime
+        })
+    end
+    if not activated then return nil, err end
+    event.entityId = bossId
+    event.engaged = true
+    event.materializing = false
+    event.engagedAt = Server().unpausedRuntime
+    return true, nil
+end
+
+function WorldEaterManager.reportMaterializationFailure(encounterId, errorText)
+    local event = WorldEaterManager.activeEvent
+    if not event or event.encounterId ~= encounterId or event.engaged then
+        return nil, "encounter_mismatch"
+    end
+    event.materializing = false
+    if (event.spawnAttempts or 0) >= 5 then
+        event.repairRequired = "world_eater_materialization_failed"
+        return EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            lastError = errorText or "spawn_failed"
+        })
+    end
+    return EncounterBridge.Transition(OWNER, encounterId, "retryable", {
+        lastError = errorText or "spawn_failed"
+    })
+end
+
+function WorldEaterManager.reportMissingBoss(encounterId, bossId)
+    local event = WorldEaterManager.activeEvent
+    if not event or event.encounterId ~= encounterId or event.entityId ~= bossId then
+        return nil, "encounter_mismatch"
+    end
+    event.repairRequired = "engaged_world_eater_missing"
+    return EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+        lastError = "loaded_sector_missing_registered_boss"
+    })
 end
 
 function WorldEaterManager.executeDoomsday()
+    if not WorldEaterManager.activeEvent then return nil, "missing_active_event" end
     local tx = WorldEaterManager.activeEvent.x
     local ty = WorldEaterManager.activeEvent.y
-    WorldEaterManager.activeEvent = nil
-    Server():setValue("eclipse_world_eater_grace_end", Server().unpausedRuntime + 36000)
+    local encounterId = WorldEaterManager.activeEvent.encounterId
+    local operationId = encounterId .. ":doomsday"
+    local receiptRegistry = CosmicVaultData.GetRecord(Server(), "ca_receipts_v1", 1)
+    local existingReceipt = receiptRegistry and receiptRegistry.receipts[operationId]
 
-    local EclipseGenerator = include("eclipsegenerator")
-    local eclipseFaction = EclipseGenerator.getFaction()
+    if existingReceipt and existingReceipt.state == "prepared" then
+        EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            lastError = "doomsday_side_effects_ambiguous_after_restart"
+        })
+        return nil, "doomsday_side_effects_ambiguous_after_restart"
+    end
+
+    if existingReceipt and existingReceipt.state == "succeeded" then
+        local encounter = EncounterBridge.Get(encounterId)
+        if encounter and encounter.state ~= "abandoned" then
+            local abandoned, abandonError = EncounterBridge.Transition(OWNER, encounterId, "abandoned", {
+                resolution = {reason = "deadline_elapsed", x = tx, y = ty}
+            })
+            if not abandoned then return nil, abandonError end
+        end
+        local recorded, recordError = WorldEaterManager.recordOutcome(
+            encounterId, "world_eater_abandoned")
+        if not recorded then return nil, recordError end
+        WorldEaterManager.activeEvent = nil
+        return true, nil
+    end
+
+    if existingReceipt then return nil, "invalid_doomsday_receipt_state" end
+    local prepared, prepareError = EncounterBridge.PrepareReceipt(OWNER, {
+        operationId = operationId,
+        kind = "world_eater_doomsday",
+        encounterId = encounterId,
+        recipient = {scope = "sector", x = tx, y = ty},
+        reissue = {mode = "none"}
+    })
+    if not prepared then
+        EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            lastError = "doomsday_receipt_prepare_failed:" .. tostring(prepareError)
+        })
+        return nil, prepareError
+    end
 
     Server():broadcastChatMessage("The Eclipse"%_T, 2, "Doomsday Sequence Complete. Sector [" .. tx .. ":" .. ty .. "] has been purged.")
 
@@ -201,52 +373,162 @@ function WorldEaterManager.executeDoomsday()
         if nearestFaction and nearestFaction.isAIFaction then
             CosmicVaultEconomy.addFamineScore(nearestFaction.index, 250)
         end
-        CosmicVaultEconomy.TriggerMarketEvent("All", 0, -50, 10, "crash")
+        CosmicVaultEconomy.TriggerMarketEvent("All", tx, ty, 10, "crash")
     end
 
-    -- Safely execute sector annihilation via local sector thread
-    local code = [[
-        function run()
-            Sector():setValue("eclipse_wiped_graveyard", true)
-            if not Sector():hasScript("sector/ca_delayed_annihilation.lua") then
-                Sector():addScriptOnce("data/scripts/sector/ca_delayed_annihilation.lua")
-            end
+    local CosmicVaultTerritory = include("cosmicvaultterritory")
+    local annihilationId = EncounterBridge.MakeId("annihilation", "sector", tx, ty,
+        encounterId)
+    local annihilation = EncounterBridge.Create(OWNER, {
+        encounterId = annihilationId, kind = "annihilation",
+        concurrencyKey = "annihilation:" .. tx .. ":" .. ty,
+        scope = "sector", x = tx, y = ty, state = "prepared",
+        sourceEncounterId = encounterId
+    })
+    if annihilation then
+        local queued, queueError = CosmicVaultTerritory.QueueMaterialization("annihilation", tx, ty, {
+            source = "natural_world_eater", encounterId = annihilationId,
+            sourceEncounterId = encounterId, criticalPlayerShips = true
+        })
+        if not queued then
+            EncounterBridge.Transition(OWNER, annihilationId, "repair_required", {
+                lastError = "annihilation_queue_failed:" .. tostring(queueError)})
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "doomsday_annihilation_queue_failed:" .. tostring(queueError)})
+            return nil, queueError
         end
-    ]]
-    runSectorCode(tx, ty, true, code, "run")
+    else
+        EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            lastError = "doomsday_annihilation_encounter_prepare_failed"
+        })
+        return nil, "annihilation_encounter_prepare_failed"
+    end
 
-    -- ca_delayed_annihilation.lua deliberately spares player/alliance-owned ships and stations --
-    -- correct for the general Eclipse conquest/annihilation case it's shared with (matching the
-    -- WIKI's own "player- and alliance-owned entities are never deleted by an Annihilation roll").
-    -- But the World-Eater's own Doomsday failure is supposed to carry a real, personal stake for
-    -- whoever failed to stop it in time ("player ships reduced to 1 HP"), so that consequence is
-    -- applied here, separately and specifically to this path, rather than changing the shared
-    -- script's asset-sparing behavior for every other Eclipse annihilation in the mod.
-    local criticalCode = [[
-        function run()
-            local sector = Sector()
-            if not sector then return end
-            for _, entity in pairs({sector:getEntities()}) do
-                if valid(entity) and entity.type == EntityType.Ship and (entity.playerOwned or entity.allianceOwned) then
-                    entity.shieldDurability = 0
-                    entity.durability = 1
-                end
-            end
-        end
-    ]]
-    runSectorCode(tx, ty, true, criticalCode, "run")
+    local completed, completionError = EncounterBridge.CompleteReceipt(OWNER, operationId, {
+        famineScore = 250, marketCrash = true, annihilationEncounterId = annihilationId,
+        criticalPlayerShips = true
+    })
+    if not completed then
+        EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            lastError = "doomsday_receipt_completion_ambiguous"
+        })
+        return nil, completionError
+    end
+    local abandoned, abandonError = EncounterBridge.Transition(OWNER, encounterId, "abandoned", {
+        resolution = {reason = "deadline_elapsed", x = tx, y = ty}
+    })
+    if not abandoned then return nil, abandonError end
+    local recorded, recordError = WorldEaterManager.recordOutcome(encounterId, "world_eater_abandoned")
+    if not recorded then return nil, recordError end
+    WorldEaterManager.activeEvent = nil
+    return true, nil
 end
 
-function WorldEaterManager.cancelEvent()
-    if not WorldEaterManager.activeEvent then return end
-    local tx, ty = WorldEaterManager.activeEvent.x, WorldEaterManager.activeEvent.y
-    WorldEaterManager.activeEvent = nil
-    Server():setValue("eclipse_world_eater_grace_end", Server().unpausedRuntime + 36000)
-    Server():broadcastChatMessage("Galactic News"%_T, 0, "The World-Eater has been destroyed! The galaxy enters a 10-hour Grace Period."%_T)
+function WorldEaterManager.recordOutcome(encounterId, outcome)
+    local resultCode, stateRevisions = Galaxy():invokeFunction(
+        "data/scripts/galaxy/ca_state_coordinator.lua", "getRegistryRevisions")
+    if resultCode ~= 0 or not stateRevisions then return nil, "coordinator_unavailable" end
+    local code, revision, err = Galaxy():invokeFunction(
+        "data/scripts/galaxy/ca_state_coordinator.lua", "requestEncounterOutcome",
+        OWNER, stateRevisions.state, encounterId, outcome,
+        {graceUntil = Server().unpausedRuntime + 36000})
+    if code ~= 0 then return nil, "coordinator_unavailable" end
+    return revision, err
+end
 
-    -- Eclipse Remnant Escalation: cancelEvent() only ever fires from WorldEaterEvent.onWorldEaterDestroyed
-    -- (confirmed the only caller), so this is a genuine kill, not an admin/debug cancel.
-    Server():setValue("eclipse_world_eaters_killed", (Server():getValue("eclipse_world_eaters_killed") or 0) + 1)
+function WorldEaterManager.resolveEvent(encounterId, bossId)
+    if not WorldEaterManager.activeEvent then return nil, "missing_active_event" end
+    if WorldEaterManager.activeEvent.encounterId ~= encounterId
+            or WorldEaterManager.activeEvent.entityId ~= bossId
+            or not WorldEaterManager.activeEvent.engaged then return nil, "encounter_mismatch" end
+    local tx, ty = WorldEaterManager.activeEvent.x, WorldEaterManager.activeEvent.y
+    local registered = EncounterBridge.Get(encounterId)
+    local participants = {}
+    if registered and registered.state == "resolving" then
+        for _, playerIndex in ipairs(registered.participants or {}) do
+            table.insert(participants, playerIndex)
+        end
+    else
+        for _, player in pairs({Server():getOnlinePlayers()}) do
+            local px, py = player:getSectorCoordinates()
+            if px == tx and py == ty then table.insert(participants, player.index) end
+        end
+        table.sort(participants)
+        local resolving, resolvingError = EncounterBridge.Transition(OWNER, encounterId, "resolving", {
+            participants = participants,
+            resolution = {reason = "boss_destroyed", entityId = bossId}
+        })
+        if not resolving then return nil, resolvingError end
+    end
+
+    local reward = 50000000
+    for _, playerIndex in ipairs(participants) do
+        local player = Player(playerIndex)
+        local operationId = encounterId .. ":player:" .. tostring(playerIndex) .. ":reward"
+        local receiptRegistry = CosmicVaultData.GetRecord(Server(), "ca_receipts_v1", 1)
+        local existingReceipt = receiptRegistry and receiptRegistry.receipts[operationId]
+        if not existingReceipt then
+            local receipt, receiptRevision = EncounterBridge.PrepareReceipt(OWNER, {
+                operationId = operationId,
+                kind = "natural_world_eater_reward",
+                recipient = {playerIndex = playerIndex},
+                encounterId = encounterId,
+                reissue = {mode = "coordinator_credit", credits = reward,
+                    reason = "World-Eater Reward"}
+            })
+            if not receipt then return nil, receiptRevision end
+            local before = player.money or 0
+            player:receive("Received %1% Credits for destroying the World-Eater!"%_T, reward)
+            if (player.money or 0) < before + reward then
+                EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                    lastError = "reward_delivery_unverified:" .. operationId
+                })
+                return nil, "reward_delivery_unverified"
+            end
+            local completed, completionError = EncounterBridge.CompleteReceipt(OWNER, operationId, {
+                credits = reward, before = before, after = player.money
+            })
+            if not completed then
+                EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                    lastError = "reward_receipt_completion_ambiguous:" .. operationId
+                })
+                return nil, completionError
+            end
+            player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerStopBossMusic")
+        elseif existingReceipt.state == "prepared" and existingReceipt.reissueAuthorized == true then
+            local before = player.money or 0
+            player:receive("Received %1% Credits for destroying the World-Eater!"%_T, reward)
+            if (player.money or 0) < before + reward then return nil, "reward_delivery_unverified" end
+            local completed, completionError = EncounterBridge.CompleteReceipt(OWNER, operationId, {
+                credits = reward, before = before, after = player.money,
+                administratorReissue = true
+            })
+            if not completed then return nil, completionError end
+        elseif existingReceipt.state == "abandoned" then
+            -- An administrator explicitly chose to finish the encounter without this reward.
+        elseif existingReceipt.state ~= "succeeded" then
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "prepared_reward_delivery_ambiguous:" .. operationId
+            })
+            return nil, "prepared_reward_delivery_ambiguous"
+        end
+    end
+
+    local recorded, recordError = WorldEaterManager.recordOutcome(
+        encounterId, "world_eater_succeeded")
+    if not recorded then
+        EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            lastError = "world_eater_outcome_persistence_failed:" .. tostring(recordError)
+        })
+        return nil, recordError
+    end
+    local succeeded, succeededError = EncounterBridge.Transition(OWNER, encounterId, "succeeded", {
+        participants = participants,
+        resolution = {reason = "boss_destroyed", entityId = bossId, rewardCount = #participants}
+    })
+    if not succeeded then return nil, succeededError end
+    WorldEaterManager.activeEvent = nil
+    Server():broadcastChatMessage("Galactic News"%_T, 0, "The World-Eater has been destroyed! The galaxy enters a 10-hour Grace Period."%_T)
     local EclipseGenerator = include("eclipsegenerator")
     EclipseGenerator.checkRemnantEscalation()
 
@@ -258,14 +540,11 @@ function WorldEaterManager.cancelEvent()
         })
     end
 
-    local reward = 50000000
-    for _, player in pairs({Server():getOnlinePlayers()}) do
-        local px, py = player:getSectorCoordinates()
-        if px == tx and py == ty then
-            player:receive("Received %1% Credits for destroying the World-Eater!"%_T, reward)
-            player:invokeFunction("data/scripts/player/ca_boss_audio_hook.lua", "triggerStopBossMusic")
-        end
-    end
+    return true, nil
+end
+
+function WorldEaterManager.cancelEvent(encounterId, bossId)
+    return WorldEaterManager.resolveEvent(encounterId, bossId)
 end
 
 function WorldEaterManager.secure()
@@ -292,4 +571,8 @@ function WorldEaterManager.restore(data)
 end
 
 callable(WorldEaterManager, "cancelEvent")
+callable(WorldEaterManager, "confirmEngaged")
+callable(WorldEaterManager, "reportMaterializationFailure")
+callable(WorldEaterManager, "reportMissingBoss")
+callable(WorldEaterManager, "resolveEvent")
 

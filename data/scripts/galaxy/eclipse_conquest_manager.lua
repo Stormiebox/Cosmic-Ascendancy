@@ -12,6 +12,10 @@ local cv_goods = include("cosmicvaultgoods")
 local cv_news = include("cosmicvaultnews")
 local FactionEradicationUtility = include("factioneradicationutility")
 CosmicVaultTerritory = include("cosmicvaultterritory")
+local CosmicVaultData = include("cosmicvaultdata")
+local OWNER = "data/scripts/galaxy/eclipse_conquest_manager.lua"
+local COORDINATOR = "data/scripts/galaxy/ca_state_coordinator.lua"
+local EncounterBridge = include("ca_encounter_bridge")
 
 -- namespace EclipseConquestManager
 EclipseConquestManager = {}
@@ -19,8 +23,17 @@ EclipseConquestManager = {}
 -- These coordinate lists only delimit entries with a trailing comma (e.g. "25_10,5_10,"), so a
 -- plain substring search for "5_10," would false-positive inside "25_10,". Anchor both sides by
 -- also requiring the leading comma so entries can't match as a substring of a longer coordinate.
-local function listHasCoord(list, entry)
-    return string.find("," .. list, "," .. entry, 1, true) ~= nil
+local function canonicalState()
+    return CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2)
+end
+
+local function mutateState(action, payload)
+    local state = canonicalState()
+    if not state then return nil, "state_unavailable" end
+    local resultCode, revision, err = Galaxy():invokeFunction(
+        COORDINATOR, "requestTerritoryState", OWNER, state.revision, action, payload)
+    if resultCode ~= 0 then return nil, "coordinator_unavailable" end
+    return revision, err
 end
 
 -- Sanctuary Field: a Tier 3+ Ascendancy Beacon (see ascendancybeacon.lua's updateSanctuaryRegistry)
@@ -28,11 +41,15 @@ end
 -- rather than the beacon entity itself, since the beacon's own sector may not be loaded when the
 -- Eclipse tries to expand nearby.
 local function isInsideSanctuaryField(tx, ty)
-    local registry = Server():getValue("ascendancy_beacon_sanctuary_registry") or {}
-    for _, field in pairs(registry) do
-        local dx, dy = tx - field.x, ty - field.y
-        if math.sqrt(dx * dx + dy * dy) <= field.radius then
-            return true
+    local state = canonicalState()
+    for _, claim in pairs(state and state.beacons.claims or {}) do
+        if claim.state == "active" and (claim.tier or 0) >= 3 then
+            local radius = claim.sanctuaryRadius
+                or ({[3] = 5, [4] = 8, [5] = 12})[claim.tier] or 0
+            local dx, dy = tx - claim.x, ty - claim.y
+            if math.sqrt(dx * dx + dy * dy) <= radius then
+                return true
+            end
         end
     end
     return false
@@ -43,7 +60,7 @@ end
 -- own persistent state), so this simply timestamps the most recent one rather than tracking a
 -- currently-in-progress target.
 local function recordCrusadeTarget(tx, ty, targetKind)
-    Server():setValue("eclipse_last_crusade_target", {x = tx, y = ty, kind = targetKind, time = Server().unpausedRuntime})
+    mutateState("record_crusade", {x = tx, y = ty, kind = targetKind})
 end
 
 function EclipseConquestManager.getUpdateInterval()
@@ -83,23 +100,25 @@ function EclipseConquestManager.initialize()
     end
 end
 function EclipseConquestManager.updateServer(timeStep)
-    if not Server():getValue("eclipse_fully_awake") then return end
+    local state = canonicalState()
+    if not state or state.eclipse.state ~= "fully_awake" then return end
 
     -- Pause expansion if no players are online (protects 24/7 dedicated servers from offline wipes)
     local players = {Server():getOnlinePlayers()}
     if #players == 0 then return end
 
-    local conqueredCount = Server():getValue("eclipse_conquered_sectors") or 0
-    local threat = Server():getValue("eclipse_threat") or 0
+    local conqueredCount = state.territory.conqueredCount or 0
+    local threat = state.territory.threat or 0
     
     -- Threat generation: Base 300 per minute + (20 per held sector per minute)
     local threatPerSecond = (300 + (conqueredCount * 20)) / 60.0
-    threat = threat + (threatPerSecond * timeStep)
-    Server():setValue("eclipse_threat", threat)
+    local generated = threatPerSecond * timeStep
+    mutateState("add_threat", {amount = generated})
+    threat = math.min(10000, threat + generated)
 
     if threat >= 10000 then
-        Server():setValue("eclipse_threat", threat - 10000)
-        EclipseConquestManager.expandEmpire()
+        local consumed = mutateState("consume_threat", {})
+        if consumed then EclipseConquestManager.expandEmpire() end
     end
 end
 
@@ -107,8 +126,10 @@ function EclipseConquestManager.expandEmpire()
     local EclipseGenerator = include("eclipsegenerator")
     local eclipseFaction = EclipseGenerator.getFaction()
 
-    local conqueredCount = Server():getValue("eclipse_conquered_sectors") or 0
-    local isFallenEmpire = Server():getValue("eclipse_fallen_empire")
+    local state = canonicalState()
+    if not state then return end
+    local conqueredCount = state.territory.conqueredCount or 0
+    local isFallenEmpire = state.territory.fallenEmpire
 
     -- Suppression Field Logic: Halt invasions dynamically (6 hours base + 2 hours per 10 sectors
     -- owned) after a Citadel dies (set in ca_citadel_loot.lua, only on an actual Citadel kill).
@@ -116,16 +137,11 @@ function EclipseConquestManager.expandEmpire()
     -- Server().unpausedRuntime starts at (or near) 0 for a freshly created galaxy too, "no Citadel
     -- has ever died" and "a Citadel died at the exact moment the galaxy was created" were
     -- indistinguishable, silently suppressing ALL Eclipse expansion for the first 6+ hours of any
-    -- galaxy's played time -- even before the Guardian is killed. eclipse_threat still accumulated
-    -- and got reset every time it crossed 10000 (expandEmpire() bails out AFTER that reset already
-    -- happened in updateServer()), so nothing about this was visible or loggable; it just looked
-    -- like the Eclipse's territorial expansion silently never did anything.
-    local citadelDestroyed = Server():getValue("eclipse_citadel_destroyed_time")
-    if citadelDestroyed then
-        local suppressionDuration = (6 + math.floor(conqueredCount / 10) * 2) * 3600
-        if Server().unpausedRuntime - citadelDestroyed < suppressionDuration then
-            return -- Suppressed
-        end
+    -- galaxy's played time -- even before the Guardian is killed. Threat still accumulated and
+    -- got consumed at the threshold, so nothing about this was visible; expansion simply stalled.
+    local suppressionUntil = state.timers.citadelSuppressionUntil
+    if suppressionUntil and Server().unpausedRuntime < suppressionUntil then
+        return
     end
 
     -- Personal Ambush Logic (Migrated from legacy timer)
@@ -151,7 +167,7 @@ function EclipseConquestManager.expandEmpire()
 
     -- Check if we should awaken
     if conqueredCount >= 75 and not isFallenEmpire then
-        Server():setValue("eclipse_fallen_empire", true)
+        mutateState("set_fallen", {value = true})
         isFallenEmpire = true
         include("ca_eclipse_choir").registerChoirLines("fallen_empire")
         if cv_news.publishArticle then
@@ -175,9 +191,9 @@ function EclipseConquestManager.expandEmpire()
         -- and become an unfair, nonstop grind. Also excludes whoever was targeted last time so
         -- consecutive crusades don't repeatedly single out the same player or alliance.
         local PLAYER_CRUSADE_COOLDOWN = 2400 -- 40 minutes between player-targeted crusades
-        local lastPlayerCrusadeTime = Server():getValue("eclipse_last_player_crusade_time") or -PLAYER_CRUSADE_COOLDOWN
+        local lastPlayerCrusadeTime = state.history.lastPlayerCrusadeAt or -PLAYER_CRUSADE_COOLDOWN
         if Server().unpausedRuntime - lastPlayerCrusadeTime >= PLAYER_CRUSADE_COOLDOWN then
-            local lastTargetIndex = Server():getValue("eclipse_last_player_crusade_target")
+            local lastTargetIndex = state.history.lastPlayerCrusadeTarget
             local candidateFactions = {}
             local seenFactionIndex = {}
             for _, p in pairs(players) do
@@ -223,18 +239,17 @@ function EclipseConquestManager.expandEmpire()
                 if #stationSectors > 0 then
                     local view = stationSectors[random():getInt(1, #stationSectors)]
                     tx, ty = view:getCoordinates()
-                    Server():setValue("eclipse_last_player_crusade_time", Server().unpausedRuntime)
-                    Server():setValue("eclipse_last_player_crusade_target", targetFaction.index)
-                    recordCrusadeTarget(tx, ty, "player")
+                    mutateState("record_crusade", {
+                        x = tx, y = ty, kind = "player", targetFactionIndex = targetFaction.index
+                    })
                     Server():broadcastChatMessage("The Eclipse"%_T, 2, "Crusade designated. Coordinates (" .. tx .. ":" .. ty .. ") flagged for priority assimilation.")
                     crusadeTargetFound = true
 
                     -- Distress Beacon: alert every online member of the
                     -- targeted faction/alliance so others can converge before the consequence
                     -- actually lands. The real travel window this buys depends on which roll
-                    -- happens below: an Annihilation/Siege roll only executes once someone visits
-                    -- the sector (the existing eclipse_pending_annihilations/eclipse_pending_sieges
-                    -- progressive-materialization queue, already in this file), so a defender who
+                    -- happens below: an Annihilation/Siege record only materializes once someone visits
+                    -- the sector through the shared durable queue, so a defender who
                     -- gets there first effectively delays it themselves; a Conquest roll starts
                     -- CosmicVaultTerritory's own 120-second contest window immediately, a much
                     -- tighter margin this mail can't extend (that timer belongs to Cosmic Vault,
@@ -265,6 +280,7 @@ function EclipseConquestManager.expandEmpire()
             local sx = random():getInt(-490, 490)
             local sy = random():getInt(-490, 490)
             local faction = Galaxy():getControllingFaction(sx, sy)
+            if type(faction) == "number" then faction = Faction(faction) end
 
             if faction and faction.isAIFaction and not faction:getValue("is_eclipse") and faction.name ~= "The Eclipse" then
                 local isEradicated = false
@@ -298,10 +314,11 @@ function EclipseConquestManager.expandEmpire()
 
     if not crusadeTargetFound then
         -- Normal Logic: Geographic Infection Spread
-        local territoryString = Server():getValue("eclipse_held_territory") or ""
+        local held = state.territory.held or {}
         local coords = {}
-        for match in string.gmatch(territoryString, "(%-?%d+_%-?%d+),") do
-            table.insert(coords, match)
+        for key in pairs(held) do
+            local hx, hy = string.match(key, "^(%-?%d+):(%-?%d+)$")
+            if hx then table.insert(coords, {x = tonumber(hx), y = tonumber(hy)}) end
         end
 
         if #coords == 0 then
@@ -319,8 +336,7 @@ function EclipseConquestManager.expandEmpire()
             local foundNewTarget = false
             for attempt = 1, maxAttempts do
                 local target = coords[random():getInt(1, #coords)]
-                local ox, oy = string.match(target, "(%-?%d+)_(%-?%d+)")
-                ox, oy = tonumber(ox), tonumber(oy)
+                local ox, oy = target.x, target.y
 
                 -- Bias the spread outward from the core (same lore premise) most of the time: step
                 -- away from (0,0) relative to this held sector, with perpendicular jitter so the
@@ -339,8 +355,7 @@ function EclipseConquestManager.expandEmpire()
                     ty = oy + random():getInt(-3, 3)
                 end
 
-                local checkString = tx .. "_" .. ty .. ","
-                if not listHasCoord(territoryString, checkString) then
+                if not held[tostring(tx) .. ":" .. tostring(ty)] then
                     foundNewTarget = true
                     break -- Valid target
                 end
@@ -376,14 +391,14 @@ function EclipseConquestManager.expandEmpire()
 
     -- Same one-check-covers-all-three-paths approach: a Crusade retarget (player home/AI capital)
     -- or the known-sector fallback can each independently land on a coordinate Eclipse already
-    -- holds -- neither path is filtered against eclipse_held_territory the way the geographic-spread
-    -- loop above is. Without this, "re-conquering" already-held ground would unconditionally
-    -- increment eclipse_conquered_sectors past the real number of distinct sectors held, throwing
+    -- holds -- neither path is filtered against the canonical held-coordinate set the way the
+    -- geographic-spread loop above is. Without this, "re-conquering" already-held ground would
+    -- increment the canonical count past the real number of distinct sectors held, throwing
     -- off both the Fallen Empire threshold (conqueredCount >= 75) and /eclipsestatus's report.
     -- Simplest correct behavior: skip this tick entirely and let the next 60-second poll re-roll.
     do
-        local held = Server():getValue("eclipse_held_territory") or ""
-        if listHasCoord(held, tx .. "_" .. ty .. ",") then
+        local latest = canonicalState()
+        if latest and latest.territory.held[tostring(tx) .. ":" .. tostring(ty)] then
             return
         end
     end
@@ -394,7 +409,8 @@ function EclipseConquestManager.expandEmpire()
         -- CONQUEST
         if CosmicVaultTerritory and CosmicVaultTerritory.setContestedZone then
             local defFactionObj = Galaxy():getControllingFaction(tx, ty)
-            local defFactionIndex = defFactionObj and defFactionObj.index or 0
+            local defFactionIndex = type(defFactionObj) == "number" and defFactionObj
+                or (defFactionObj and defFactionObj.index or 0)
             -- setContestedZone's duration is in MINUTES (Cosmic Vault's cosmicvaultterritory.lua).
             -- The 120-second contest window this file's own Distress Beacon text promises is 2
             -- minutes, not 120 minutes -- passing the literal 120 here opened a 2-hour window instead.
@@ -402,19 +418,22 @@ function EclipseConquestManager.expandEmpire()
             Server():broadcastChatMessage("The Eclipse"%_T, 2, "Commencing assimilation of coordinates (" .. tx .. ":" .. ty .. "). Resistance is biologically inefficient.")
 
             -- PROGRESSIVE MATERIALIZATION (Lag Fix)
-            local pendingSieges = Server():getValue("eclipse_pending_sieges") or ""
-            local entry = tx .. "_" .. ty .. ","
-            if not listHasCoord(pendingSieges, entry) then
-                Server():setValue("eclipse_pending_sieges", pendingSieges .. entry)
-            end
-
-            -- Increment counter since it's a conquest attempt that will turn the sector
-            Server():setValue("eclipse_conquered_sectors", conqueredCount + 1)
-
-            -- Track for geographic expansion
-            local held = Server():getValue("eclipse_held_territory") or ""
-            if not listHasCoord(held, entry) then
-                Server():setValue("eclipse_held_territory", held .. entry)
+            local encounterId = EncounterBridge.MakeId("siege", "sector", tx, ty,
+                math.floor(Server().unpausedRuntime))
+            local prepared = EncounterBridge.Create(OWNER, {
+                encounterId = encounterId, kind = "siege",
+                concurrencyKey = "siege:" .. tx .. ":" .. ty,
+                scope = "sector", x = tx, y = ty, state = "prepared"
+            })
+            if prepared then
+                local queued, queueError = CosmicVaultTerritory.QueueMaterialization("siege", tx, ty, {
+                    source = "eclipse_conquest", eclipseFactionIndex = eclipseFaction.index,
+                    encounterId = encounterId
+                })
+                if not queued then
+                    EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                        lastError = "siege_queue_failed:" .. tostring(queueError)})
+                end
             end
         else
             -- Cosmic War not installed or hooked, fallback to Annihilation
@@ -437,27 +456,25 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
         })
     end
 
-    -- Increment global conquest tracker
-    Server():setValue("eclipse_conquered_sectors", (conqueredCount or Server():getValue("eclipse_conquered_sectors") or 0) + 1)
-
-    -- PROGRESSIVE MATERIALIZATION (Lag Fix)
-    -- Instead of forcefully loading the sector and causing CPU spikes, we append it to the pending list.
-    local pending = Server():getValue("eclipse_pending_annihilations") or ""
-    local entry = x .. "_" .. y .. ","
-    if not listHasCoord(pending, entry) then
-        Server():setValue("eclipse_pending_annihilations", pending .. entry)
-    end
-
-    -- Also track for geographic expansion
-    local held = Server():getValue("eclipse_held_territory") or ""
-    if not listHasCoord(held, entry) then
-        Server():setValue("eclipse_held_territory", held .. entry)
+    local encounterId = EncounterBridge.MakeId("annihilation", "sector", x, y,
+        math.floor(Server().unpausedRuntime))
+    local prepared = EncounterBridge.Create(OWNER, {
+        encounterId = encounterId, kind = "annihilation",
+        concurrencyKey = "annihilation:" .. x .. ":" .. y,
+        scope = "sector", x = x, y = y, state = "prepared"
+    })
+    if prepared then
+        local queued, queueError = CosmicVaultTerritory.QueueMaterialization("annihilation", x, y, {
+            source = "eclipse_conquest", eclipseFactionIndex = eclipseFaction.index,
+            encounterId = encounterId
+        })
+        if not queued then
+            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                lastError = "annihilation_queue_failed:" .. tostring(queueError)})
+        end
     end
 end
 
--- No secure()/restore() needed: this script carries no in-memory state of its own -- everything
--- that matters (eclipse_threat, eclipse_conquered_sectors, eclipse_held_territory, etc.) is already
--- persisted via Server():setValue(), which survives a reload independently of this script's
--- lifecycle hooks. (A dead EclipseConquestManager.timer field that round-tripped through these two
--- functions with nothing ever reading or writing it otherwise has been removed.)
+-- No secure()/restore() is needed: this manager carries no authoritative in-memory state.
+-- Threat, territory, counters, and timers are owned by ca_state_coordinator.lua in ca_state_v2.
 

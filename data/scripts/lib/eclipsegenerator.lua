@@ -9,12 +9,12 @@ local SectorTurretGenerator = include ("sectorturretgenerator")
 local ShipUtility = include ("shiputility")
 local PlanGenerator = include ("plangenerator")
 local cv_goods = include ("cosmicvaultgoods")
+local CosmicVaultData = include("cosmicvaultdata")
 
 local EclipseGenerator = {}
 
 -- ASCENDANT GOODS REGISTRATION (early, not just in eclipse_conquest_manager.lua):
--- eclipse_conquest_manager.lua only ever attaches 10 minutes after the Guardian dies (it's
--- addScriptOnce'd behind Server():getValue("eclipse_fully_awake") in eclipse_awakes.lua), and its
+-- eclipse_conquest_manager.lua only becomes active after the canonical Eclipse awakening, and its
 -- own initialize() is the only other place these three goods get registered. But this module
 -- (eclipsegenerator.lua) loads the instant the very first Eclipse ship is spawned -- e.g.
 -- ca_story1_awakening.lua's Phase 3 ambush, seconds/minutes after the Guardian kill -- and every
@@ -79,24 +79,25 @@ end
 -- ca_world_eater_manager.lua's cancelEvent and ca_citadel_loot.lua's onDestroyed) adds to a score,
 -- and every 10 points raises the Remnant Tier by one, capped at 5. World-Eater kills count for more
 -- since they're the rarer, harder milestone.
-local REMNANT_SCORE_PER_TIER = 10
-local REMNANT_MAX_TIER = 5
 
 function EclipseGenerator.getRemnantTier()
-    local worldEatersKilled = Server():getValue("eclipse_world_eaters_killed") or 0
-    local citadelsKilled = Server():getValue("eclipse_citadels_killed") or 0
-    local score = worldEatersKilled * 3 + citadelsKilled
-    return math.min(REMNANT_MAX_TIER, math.floor(score / REMNANT_SCORE_PER_TIER))
+    local state = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2)
+    if state and state.territory then return state.territory.remnantTier or 0 end
+    return 0
 end
 
 -- Called after eclipse_world_eaters_killed/eclipse_citadels_killed is incremented, to broadcast a
 -- one-time announcement whenever the tier actually goes up (not on every kill).
 function EclipseGenerator.checkRemnantEscalation()
-    local tier = EclipseGenerator.getRemnantTier()
-    local announcedTier = Server():getValue("eclipse_remnant_tier_announced") or 0
+    local state = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2)
+    if not state then return end
+    local tier = state.territory.remnantTier or 0
+    local announcedTier = state.history.remnantTierAnnounced or 0
     if tier <= announcedTier then return end
-
-    Server():setValue("eclipse_remnant_tier_announced", tier)
+    local resultCode, changed = Galaxy():invokeFunction(
+        "data/scripts/galaxy/ca_state_coordinator.lua", "requestRemnantAnnouncement",
+        "data/scripts/lib/eclipsegenerator.lua", state.revision, tier)
+    if resultCode ~= 0 or not changed then return end
     Server():broadcastChatMessage("The Eclipse", 2, "Remnant Escalation Protocol Tier " .. tier .. " engaged. Surviving forces have adapted.")
 
     local cv_news = include("cosmicvaultnews")
@@ -342,10 +343,6 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
         ship:addBaseMultiplier(StatsBonuses.FireRate, 1.0) -- +100% Fire Rate
 
         -- NEMESIS SYSTEM
-        local nemesisResist = Server():getValue("eclipse_nemesis_resist")
-        if nemesisResist then
-            ship:addScriptOnce("data/scripts/entity/ca_nemesis_resist.lua", nemesisResist)
-        end
         ship:addScriptOnce("data/scripts/entity/ca_nemesis_system.lua")
     end
 
@@ -428,7 +425,6 @@ function EclipseGenerator.createCarrier(position)
     local ship = EclipseGenerator.createShip(position, "ca_voidweaver")
     ship:setTitle("Eclipse Void-Weaver"%_T, {})
 
-    ship:addScriptOnce("ai/carrier.lua")
     -- ShipUtility.addCarrierEquipment handles the hangar check internally.
     -- Calling it directly is the correct vanilla pattern.
     ShipUtility.addCarrierEquipment(ship, 30)
