@@ -665,12 +665,15 @@ function AscendancyBeacon.sync(data)
         end
         return
     end
-    if data then
-        active = data.active == true
-        currentTier = data.currentTier or 1
-        AscendancyBeacon.clientState = data.state
-        AscendancyBeacon.clientRepair = data.repairRequired
+    if not data then
+        invokeServerFunction("sync")
+        return
     end
+
+    active = data.active == true
+    currentTier = data.currentTier or 1
+    AscendancyBeacon.clientState = data.state
+    AscendancyBeacon.clientRepair = data.repairRequired
     if not AscendancyBeacon.statusLabel then return end
     AscendancyBeacon.tierLabel.caption = "Current Tier: " .. currentTier
     if AscendancyBeacon.clientState == "repair_required" then

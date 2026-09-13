@@ -850,42 +850,45 @@ function AscendancyForge.sync(data)
             tier = tier
         })
     else
-        if data then
-            clientIsForging = data.isForging
-            clientHasCompletedItem = data.hasCompletedItem
+        if not data then
+            invokeServerFunction("sync")
+            return
+        end
 
-            if clientIsForging then
-                AscendancyForge.statusLabel.caption = "FORGING... Remaining: " .. math.floor(data.remaining / 3600) .. "h " .. math.floor((data.remaining % 3600) / 60) .. "m"
-                AscendancyForge.statusLabel.color = ColorRGB(1, 1, 0)
-                AscendancyForge.forgeBtn.active = false
-                AscendancyForge.claimBtn.active = false
-                AscendancyForge.combo.active = false
-                AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
-            elseif clientHasCompletedItem then
-                AscendancyForge.statusLabel.caption = "WEAPON READY FOR CLAIM!"
-                AscendancyForge.statusLabel.color = ColorRGB(0, 1, 0)
-                AscendancyForge.forgeBtn.active = false
-                AscendancyForge.claimBtn.active = true
-                AscendancyForge.combo.active = false
-                AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
-            elseif data.repairRequired then
-                AscendancyForge.statusLabel.caption = "FORGE REQUIRES ADMINISTRATOR REPAIR"
-                AscendancyForge.statusLabel.color = ColorRGB(1, 0.25, 0.25)
-                AscendancyForge.forgeBtn.active = false
-                AscendancyForge.claimBtn.active = false
-                AscendancyForge.combo.active = false
-                AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
-            else
-                AscendancyForge.statusLabel.caption = "FORGE IDLE"
-                AscendancyForge.statusLabel.color = ColorRGB(0.5, 0.5, 0.5)
-                AscendancyForge.forgeBtn.active = true
-                AscendancyForge.claimBtn.active = false
-                AscendancyForge.combo.active = true
-                AscendancyForge.sacrificeSelection.dropIntoEnabled = 1
-            end
-            if data.tier then
-                AscendancyForge.tierLabel.caption = "Global Ascendancy Tier: " .. tostring(data.tier)
-            end
+        clientIsForging = data.isForging
+        clientHasCompletedItem = data.hasCompletedItem
+
+        if clientIsForging then
+            AscendancyForge.statusLabel.caption = "FORGING... Remaining: " .. math.floor(data.remaining / 3600) .. "h " .. math.floor((data.remaining % 3600) / 60) .. "m"
+            AscendancyForge.statusLabel.color = ColorRGB(1, 1, 0)
+            AscendancyForge.forgeBtn.active = false
+            AscendancyForge.claimBtn.active = false
+            AscendancyForge.combo.active = false
+            AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
+        elseif clientHasCompletedItem then
+            AscendancyForge.statusLabel.caption = "WEAPON READY FOR CLAIM!"
+            AscendancyForge.statusLabel.color = ColorRGB(0, 1, 0)
+            AscendancyForge.forgeBtn.active = false
+            AscendancyForge.claimBtn.active = true
+            AscendancyForge.combo.active = false
+            AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
+        elseif data.repairRequired then
+            AscendancyForge.statusLabel.caption = "FORGE REQUIRES ADMINISTRATOR REPAIR"
+            AscendancyForge.statusLabel.color = ColorRGB(1, 0.25, 0.25)
+            AscendancyForge.forgeBtn.active = false
+            AscendancyForge.claimBtn.active = false
+            AscendancyForge.combo.active = false
+            AscendancyForge.sacrificeSelection.dropIntoEnabled = 0
+        else
+            AscendancyForge.statusLabel.caption = "FORGE IDLE"
+            AscendancyForge.statusLabel.color = ColorRGB(0.5, 0.5, 0.5)
+            AscendancyForge.forgeBtn.active = true
+            AscendancyForge.claimBtn.active = false
+            AscendancyForge.combo.active = true
+            AscendancyForge.sacrificeSelection.dropIntoEnabled = 1
+        end
+        if data.tier then
+            AscendancyForge.tierLabel.caption = "Global Ascendancy Tier: " .. tostring(data.tier)
         end
         invokeServerFunction("syncCosts")
     end

@@ -320,6 +320,15 @@ end
 callable(CAWorldEater, "createTargetLaserGlow")
 
 
+function CAWorldEater.playHyperspaceJumpAnimation(entityId, direction, intensity)
+    if not onClient() or type(entityId) ~= "string" then return end
+    local entity = Sector():getEntity(Uuid(entityId))
+    if not entity then return end
+    Sector():createHyperspaceJumpAnimation(entity, direction, ColorRGB(0.5, 0.0, 1.0), intensity or 0.5)
+end
+callable(CAWorldEater, "playHyperspaceJumpAnimation")
+
+
 function CAWorldEater.syncLasers(tetherIds)
     if onServer() then
         broadcastInvokeClientFunction("syncLasers", data.dreadnoughtIds)
@@ -392,7 +401,7 @@ function CAWorldEater.checkPhases()
             local m = MatrixLookUpPosition(dir, vec3(0,1,0), pos)
             local esc = EclipseGenerator.createDefiler(m)
             if esc then
-                sector:createHyperspaceJumpAnimation(esc, esc.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
+                broadcastInvokeClientFunction("playHyperspaceJumpAnimation", esc.id.string, esc.look, 0.5)
             end
         end
     end
@@ -425,7 +434,7 @@ function CAWorldEater.checkPhases()
             local m = MatrixLookUpPosition(dir, vec3(0,1,0), pos)
             local esc = EclipseGenerator.createAssassin(m)
             if esc then
-                sector:createHyperspaceJumpAnimation(esc, esc.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
+                broadcastInvokeClientFunction("playHyperspaceJumpAnimation", esc.id.string, esc.look, 0.5)
             end
         end
     end
@@ -492,12 +501,11 @@ end
 
 function CAWorldEater.triggerBlink()
     local entity = Entity()
-    local sector = Sector()
-    sector:createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
+    broadcastInvokeClientFunction("playHyperspaceJumpAnimation", entity.id.string, entity.look, 0.5)
     local dir = normalize(vec3(random():getFloat() - 0.5, random():getFloat() - 0.5, random():getFloat() - 0.5))
     local dist = random():getInt(5000, 10000)
     entity.position = MatrixLookUpPosition(entity.look, entity.up, entity.translationf + dir * dist)
-    sector:createHyperspaceJumpAnimation(entity, entity.look, ColorRGB(0.5, 0.0, 1.0), 0.5)
+    broadcastInvokeClientFunction("playHyperspaceJumpAnimation", entity.id.string, entity.look, 0.5)
 end
 
 function CAWorldEater.createGlobalEmpGlow(pos)

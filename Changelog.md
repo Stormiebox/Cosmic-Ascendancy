@@ -98,6 +98,12 @@ sector unloading, reconnects, and server restarts.
   union, independent upkeep, and renewable sector keepalive leases. Restart reconciliation runs in
   bounded batches and removes stale claims. Owner changes, upkeep, treasury delivery, activation,
   upgrades, and deactivation now validate authority and preserve repair evidence around payments.
+- [Fix] **Forge and Beacon UI State Synchronization:** Opening either management window now requests
+  its canonical server snapshot before rendering controls. Active orders, ready items, Beacon tiers,
+  activation state, and repair-required states no longer appear as client defaults or stale values.
+- [Fix] **World-Eater Phase Visual Context (`ca_worldeater_behavior.lua`):** Escort-arrival and blink
+  animations now run through a client RPC. Reaching the 80%, 60%, 50%, or 35% phase no longer asks
+  the server to execute the client-only hyperspace animation API.
 
 ### 🔗 Compatibility & Verification
 
