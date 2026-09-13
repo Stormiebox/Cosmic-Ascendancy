@@ -65,6 +65,25 @@ sector unloading, reconnects, and server restarts.
   sector is already loaded. Failed queue insertion and ambiguous expired materialization are exposed
   for repair instead of silently dropped or repeated.
 
+### 🌩️ Dark Sector & Rift Environment
+
+- [Refactor] **Dark Sectors And Annihilated Sectors Use Vault Conditions
+  (`player/background/ca_darksector_generator.lua`, `sector/ca_delayed_annihilation.lua`):** Dark
+  Matter Fog and Rift Instability are registered with stable source IDs through Vault's versioned
+  weather API. Delayed annihilation verifies both records before completing its materialization
+  path. The local Rift script receives the accepted condition ID instead of inventing a second UI
+  and lifecycle owner.
+- [Fix] **Ascendancy Rift Damage Is Mechanics-Only (`sector/ca_rift_hazard.lua`):** The hazard keeps
+  Ascendancy's Eclipse immunity and shield drain, but Vault now owns sector warnings, icons,
+  particles, thunder, and condition lifetime. Legacy direct attachments migrate once, manager
+  outages retry rather than count as an ended hazard, and a missing canonical condition stops the
+  local damage instead of leaving an invisible effect behind.
+- [Reliability] **Rift Spillage Follows Its Stabilizer (`player/events/eclipseinvasion.lua`,
+  `entity/ca_rift_stabilizer.lua`):** Each successful spillage roll registers a condition keyed to
+  the spawned stabilizer UUID. The station and mechanics script retain that condition ID across a
+  reload, and destruction ends only that owned condition. If cleanup is interrupted, the
+  target-bound sector script retries after it observes that the owner is gone.
+
 ### ⚒️ Ascendancy Forge & Beacon
 
 - [Refactor] **Forge Orders Are Immutable Transactions (`ascendancyforge.lua`):** The server resolves

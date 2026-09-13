@@ -12,6 +12,8 @@ package.path = package.path .. ";data/scripts/?.lua"
 include("stringutility")
 local CosmicVaultTerritory = include("cosmicvaultterritory")
 local CosmicVaultData = include("cosmicvaultdata")
+local CosmicVaultWeather = include("cosmicvaultweather")
+local CosmicVaultRift = include("cosmicvaultrift")
 local EncounterBridge = include("ca_encounter_bridge")
 local OWNER = "data/scripts/sector/ca_delayed_annihilation.lua"
 
@@ -98,26 +100,35 @@ function initialize(kind, queueX, queueY, claimant, queueId, queueCreatedAt, enc
             return
         end
 
-        -- Forcefully clear any existing weather that might block Dark Matter Fog
-        if sector:hasScript("sector/cv_weather_controller.lua") then
-            sector:removeScript("sector/cv_weather_controller.lua")
-        end
-        sector:addScriptOnce("data/scripts/sector/cv_weather_controller.lua", "DarkMatterFog", -1)
-
-        -- Eclipse Wastes: the fog + permanent Obliterator guardian below
-        -- already made this a visually hostile zone, but nothing made it mechanically dangerous
-        -- to linger in -- ca_rift_hazard.lua (the same shield-drain hazard used for Dark Sectors
-        -- near the core) closes that gap with no new code needed, just attaching it here too.
-        sector:addScriptOnce("data/scripts/sector/ca_rift_hazard.lua")
-        if not sector:hasScript("data/scripts/sector/cv_weather_controller.lua")
-                or not sector:hasScript("data/scripts/sector/ca_rift_hazard.lua") then
+        local environmentX, environmentY = sector:getCoordinates()
+        local sourceId = "ca-annihilation:" .. tostring(environmentX) .. ":" .. tostring(environmentY)
+        local fog = CosmicVaultWeather.StartWeather({
+            sourceId = sourceId,
+            weatherType = "DarkMatterFog",
+            x = environmentX,
+            y = environmentY,
+            duration = -1,
+            conflictPolicy = "replace"
+        })
+        local rift = CosmicVaultRift.StartRiftHazard({
+            sourceId = sourceId,
+            x = environmentX,
+            y = environmentY,
+            duration = -1,
+            conflictPolicy = "replace"
+        })
+        local verifiedFog = fog and CosmicVaultWeather.GetWeather(fog.conditionId)
+        local verifiedRift = rift and CosmicVaultWeather.GetWeather(rift.conditionId)
+        if not verifiedFog or not verifiedRift then
             if queueId then CosmicVaultTerritory.RetryMaterialization(
-                kind, queueX, queueY, claimant, "annihilation_script_attachment_failed", 60) end
+                kind, queueX, queueY, claimant, "annihilation_environment_registration_failed", 60) end
             if encounterId then EncounterBridge.Transition(OWNER, encounterId, "retryable", {
-                lastError = "annihilation_script_attachment_failed"}) end
+                lastError = "annihilation_environment_registration_failed"}) end
             terminate()
             return
         end
+
+        sector:addScriptOnce("data/scripts/sector/ca_rift_hazard.lua", rift.conditionId)
 
         -- Reclaimed ships: capture each deleted entity's faction/position
         -- before it's gone, then have a small chance to spawn a normal Eclipse ship near where

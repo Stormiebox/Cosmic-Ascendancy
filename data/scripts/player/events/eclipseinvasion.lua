@@ -8,6 +8,7 @@ local EclipseGenerator = include("eclipsegenerator")
 local Placer = include ("placer")
 
 local cv_fleet = include("cosmicvaultfleet")
+local CosmicVaultRift = include("cosmicvaultrift")
 
 local minute = 0
 -- Eclipse Remembers: how many extra heavy-class ships this specific ambush gets, driven by the
@@ -108,13 +109,26 @@ function createEnemies()
         if stabilizer then
             stabilizer.title = "Eclipse Rift Stabilizer"
             stabilizer:removeScript("data/scripts/entity/ca_citadel_blocker.lua")
-            stabilizer:addScriptOnce("data/scripts/entity/ca_rift_stabilizer.lua")
+            local x, y = sector:getCoordinates()
+            local sourceId = "ca-rift-spillage:" .. stabilizer.id.string
+            local condition, errorCode = CosmicVaultRift.StartRiftHazard({
+                sourceId = sourceId,
+                x = x,
+                y = y,
+                duration = -1,
+                conflictPolicy = "replace"
+            })
+            if condition then
+                stabilizer:addScriptOnce("data/scripts/entity/ca_rift_stabilizer.lua",
+                    condition.conditionId)
+                sector:addScriptOnce("data/scripts/sector/ca_rift_hazard.lua",
+                    condition.conditionId, stabilizer.id.string)
+            else
+                print("[Cosmic Ascendancy] Rift spillage registration failed: "
+                    .. tostring(errorCode))
+            end
             table.insert(spawned, stabilizer)
         end
-
-        -- Start the environmental hazard
-        sector:addScriptOnce("data/scripts/sector/ca_rift_hazard.lua")
-        sector:broadcastChatMessage("System", 3, "WARNING: The Eclipse have weaponized a subspace tear! Local shields are draining!"%_t)
     end
 
     if cv_fleet.orderAttackEnemies then

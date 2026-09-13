@@ -2,6 +2,8 @@ package.path = package.path .. ";data/scripts/lib/?.lua"
 include("utility")
 local SectorGenerator = include("SectorGenerator")
 local CosmicVaultData = include("cosmicvaultdata")
+local CosmicVaultWeather = include("cosmicvaultweather")
+local CosmicVaultRift = include("cosmicvaultrift")
 
 -- Dark Sector Generator
 -- This script runs in the background for players. 
@@ -48,8 +50,29 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     
     local generator = SectorGenerator(x, y)
     
-    -- Add Dark Matter Fog (environmental hazard)
-    sector:addScriptOnce("data/scripts/sector/cv_weather_controller.lua", "DarkMatterFog", -1)
+    local sourceId = "ca-dark-sector:" .. tostring(x) .. ":" .. tostring(y)
+    local fog = CosmicVaultWeather.StartWeather({
+        sourceId = sourceId,
+        weatherType = "DarkMatterFog",
+        x = x,
+        y = y,
+        duration = -1,
+        conflictPolicy = "replace"
+    })
+    local rift = CosmicVaultRift.StartRiftHazard({
+        sourceId = sourceId,
+        x = x,
+        y = y,
+        duration = -1,
+        conflictPolicy = "replace"
+    })
+    if rift then
+        sector:addScriptOnce("data/scripts/sector/ca_rift_hazard.lua", rift.conditionId)
+    end
+    if not fog or not rift then
+        print("[Cosmic Ascendancy] Dark Sector environment registration needs repair at "
+            .. tostring(x) .. ":" .. tostring(y))
+    end
     
     -- Spawn Eclipse Citadels (1-3)
     local EclipseGenerator = include("eclipsegenerator")
@@ -100,5 +123,4 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     -- Spawn dense resource asteroids (Ascendant Matter / Ogonite)
     generator:createAsteroidField(0.1)
     
-    Player(playerIndex):sendChatMessage("WARNING", 1, "WARNING! You have entered an Eclipse Dark Sector. Extreme Dark Matter Fog detected."%_t)
 end
