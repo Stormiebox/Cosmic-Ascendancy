@@ -212,7 +212,7 @@ function initialize(kind, queueX, queueY, claimant, queueId, queueCreatedAt, enc
             local reclaimed = EclipseGenerator.createInterceptor(mat)
             if reclaimed then
                 reclaimed:setTitle(Format("Reclaimed %1% Vessel"%_T, candidate.factionName), {})
-                reclaimed:addScriptOnce("ai/patrol.lua")
+                reclaimed:addScriptOnce("data/scripts/entity/ai/patrol.lua")
             end
         end
 

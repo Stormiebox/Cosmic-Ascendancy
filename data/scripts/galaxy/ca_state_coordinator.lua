@@ -1028,11 +1028,20 @@ function CAStateCoordinator.scanRepair(scope, playerIndex)
                 or (scope == "forges" and entityRepair.kind == "forge")
             if wanted then
                 local actions
-                if entityRepair.kind == "forge" and string.find(
-                        tostring(entityRepair.reason), "claim", 1, true) then
-                    actions = {"mark-complete", "reissue", "abandon"}
-                elseif entityRepair.kind == "forge" then
-                    actions = {"resume", "reissue", "abandon"}
+                if entityRepair.kind == "forge" then
+                    local reason = tostring(entityRepair.reason)
+                    -- These two reasons mean it's unknown, or confirmed, that the crafted item
+                    -- already reached the player's inventory before the interruption. Offering
+                    -- "reissue" here would let claimWeapon() generate and insert a second copy.
+                    local deliveryAmbiguousOrConfirmed = reason == "claim_prepared_restart_ambiguity"
+                        or reason == "forge_claim_completion_persistence_failed"
+                    if deliveryAmbiguousOrConfirmed then
+                        actions = {"mark-complete", "abandon"}
+                    elseif string.find(reason, "claim", 1, true) then
+                        actions = {"mark-complete", "reissue", "abandon"}
+                    else
+                        actions = {"resume", "reissue", "abandon"}
+                    end
                 else
                     actions = {"resume", "mark-complete", "abandon"}
                 end

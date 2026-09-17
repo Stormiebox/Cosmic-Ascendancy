@@ -22,7 +22,9 @@ function SilentChoirUnit.initialize(willEngage, encounterId, entityId)
     SilentChoirUnit.willEngage = willEngage or false
     SilentChoirUnit.encounterId = encounterId
     SilentChoirUnit.entityId = entityId
-    if onServer() and SilentChoirUnit.willEngage then
+    -- Registered regardless of willEngage: a player who kills this ship during a non-engaging
+    -- sighting (instead of letting it whisper and vanish) still needs the encounter resolved.
+    if onServer() then
         Entity():registerCallback("onDestroyed", "onDestroyed")
     end
 end
@@ -50,7 +52,7 @@ function SilentChoirUnit.updateServer(timeStep)
     if SilentChoirUnit.willEngage then
         -- Commits to a real fight this time -- no vanish, just this ship, hunting.
         local entity = Entity()
-        if entity then entity:addScriptOnce("ai/patrol.lua") end
+        if entity then entity:addScriptOnce("data/scripts/entity/ai/patrol.lua") end
         return
     end
 
@@ -85,7 +87,7 @@ function SilentChoirUnit.restore(data)
     SilentChoirUnit.hasActed = data.hasActed == true
     SilentChoirUnit.encounterId = data.encounterId
     SilentChoirUnit.entityId = data.entityId
-    if onServer() and SilentChoirUnit.willEngage then
+    if onServer() then
         Entity():registerCallback("onDestroyed", "onDestroyed")
     end
 end

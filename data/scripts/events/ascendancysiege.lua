@@ -168,7 +168,7 @@ function AscendancySiege.spawnFleet()
         end
         -- or if an internal error occurs. Always nil-check before accessing any property.
         if ship then
-            ship:addScriptOnce("ai/patrol.lua")
+            ship:addScriptOnce("data/scripts/entity/ai/patrol.lua")
             ship:setValue("is_ascendancy_siege", true)
             table.insert(attackers, ship.id.string)
             table.insert(spawnedShips, ship)
@@ -191,7 +191,7 @@ function AscendancySiege.spawnFleet()
             ship = ShipGenerator.createMilitaryShip(faction, shipPos, volume)
         end
         if ship then
-            ship:addScriptOnce("ai/patrol.lua")
+            ship:addScriptOnce("data/scripts/entity/ai/patrol.lua")
             ship:setValue("is_ascendancy_siege", true)
             table.insert(attackers, ship.id.string)
             table.insert(spawnedShips, ship)

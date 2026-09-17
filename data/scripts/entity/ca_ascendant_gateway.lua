@@ -56,7 +56,7 @@ function updateServer(timeStep)
                 local defender = sector:createShip(playerFaction, "", plan, m, EntityArrivalType.Jump)
                 defender.title = "Ascendant Guardian"
                 defender.crew = defender.idealCrew
-                defender:addScriptOnce("ai/patrol.lua")
+                defender:addScriptOnce("data/scripts/entity/ai/patrol.lua")
                 -- Apply a permanent multiplicative bonus to fire rate to act as a 3x DPS multiplier
                 -- since modifying the damageMultiplier property directly is discarded by the engine.
                 defender:addBaseMultiplier(StatsBonuses.FireRate, 2.0)

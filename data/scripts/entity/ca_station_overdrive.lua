@@ -126,9 +126,18 @@ function StationOverdrive.updateServer(timeStep)
             -- This is the correct workaround because StatsBonuses.ProductionCapacity is ignored
             -- by vanilla factory.lua's own production logic (it only reads from its parallel slots count).
             local entity = Entity()
-            if entity:hasScript("factory.lua") then
-                entity:invokeFunction("factory", "updateParallelSelf", timeStep)
-                entity:invokeFunction("factory", "updateParallelSelf", timeStep)
+            -- "factory" (bare, no folder/extension) is invokeFunction's own script identifier --
+            -- confirmed against vanilla's minefounder.lua, which calls
+            -- station:invokeFunction("factory", "setProduction", ...) against the same
+            -- data/scripts/entity/merchants/factory.lua script. hasScript() matches by path suffix
+            -- instead, so it needs the folder to stay unambiguous.
+            if entity:hasScript("merchants/factory.lua") then
+                local result1 = entity:invokeFunction("factory", "updateParallelSelf", timeStep)
+                local result2 = entity:invokeFunction("factory", "updateParallelSelf", timeStep)
+                if result1 ~= 0 or result2 ~= 0 then
+                    print("[Cosmic Ascendancy] Overdrive failed to invoke factory.updateParallelSelf (codes "
+                        .. tostring(result1) .. ", " .. tostring(result2) .. ")")
+                end
             end
         end
     end

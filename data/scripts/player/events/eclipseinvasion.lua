@@ -56,6 +56,13 @@ function createEnemies()
 
     -- Spawn 1 Harbinger (Boss)
     local harbinger = EclipseGenerator.createShip(MatrixLookUpPosition(-dir, up, pos), "ca_harbinger")
+    if harbinger then
+        -- createShip() unconditionally attaches ca_nemesis_system.lua to every "ca_harbinger" plan,
+        -- but that script's own damage tracking is only meaningful for a genuine Nemesis Hunt
+        -- target. This Harbinger is an ordinary personal-ambush boss, not a Nemesis Hunt, so strip
+        -- it here the same way the Rift Stabilizer below strips its Lockdown Matrix.
+        harbinger:removeScript("data/scripts/entity/ca_nemesis_system.lua")
+    end
     table.insert(spawned, harbinger)
     pos = pos + right * 200
 

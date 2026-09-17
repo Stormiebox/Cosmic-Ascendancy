@@ -17,6 +17,7 @@ AscendancyBeacon = {}
 local COORDINATOR = "data/scripts/galaxy/ca_state_coordinator.lua"
 local OWNER = "data/scripts/entity/ascendancybeacon.lua"
 local RECORD_KEY = "ca_beacon_v1"
+local TREASURY_RECEIPT_KEY = "ca_beacon_treasury_receipt_v1"
 local UPKEEP_INTERVAL = 45 * 60
 local SANCTUARY_RADIUS_BY_TIER = {[3] = 5, [4] = 8, [5] = 12}
 
@@ -95,6 +96,26 @@ local function coordinator(functionName, ...)
     local resultCode, first, second = Galaxy():invokeFunction(COORDINATOR, functionName, ...)
     if resultCode ~= 0 then return nil, "coordinator_unavailable" end
     return first, second
+end
+
+-- Treasury payout receipt, kept separate from the beacon's own record (RECORD_KEY) so it survives
+-- independently as proof of whether owner:receive() actually ran. Faction money balance can't be
+-- used for this: upkeep debits, siege payouts, market events and ordinary spending all move it
+-- between when a payout is prepared and when a repair might check on it.
+local function getTreasuryReceipt(operationId)
+    local receipt = CosmicVaultData.GetRecord(Entity(), TREASURY_RECEIPT_KEY, 1)
+    if receipt and receipt.operationId == operationId then return receipt end
+    return nil
+end
+
+local function saveTreasuryReceipt(operationId, state, amount)
+    return CosmicVaultData.SetRecord(Entity(), TREASURY_RECEIPT_KEY, {
+        schemaVersion = 1,
+        operationId = operationId,
+        state = state,
+        amount = amount,
+        updatedAt = now()
+    })
 end
 
 local function claimPayload(tier)
@@ -214,7 +235,26 @@ local function processRepairAction()
             if string.find(tostring(operation.operationId), ":upkeep:", 1, true) then
                 working.lastUpkeepTime = now()
             elseif string.find(tostring(operation.operationId), ":treasury:", 1, true) then
-                working.treasury = 0
+                local treasuryOwner = Faction(record.ownerFactionIndex)
+                local payout = tonumber(operation.amount) or record.treasury or 0
+                local receipt = getTreasuryReceipt(operation.operationId)
+                if not treasuryOwner or payout <= 0 then
+                    -- Nothing left to pay out or no faction to pay it to.
+                    working.treasury = 0
+                elseif receipt and receipt.state == "succeeded" then
+                    -- Receipt confirms owner:receive() already ran for this operation.
+                    working.treasury = 0
+                elseif receipt and receipt.state == "prepared" then
+                    -- Prepared but never confirmed: re-attempt the payout, then mark it complete.
+                    treasuryOwner:receive("Grand Toll Treasury Payout", payout)
+                    if not saveTreasuryReceipt(operation.operationId, "succeeded", payout) then return end
+                    working.treasury = 0
+                else
+                    -- No receipt recorded at all (legacy pending operation from before this
+                    -- receipt existed) -- genuinely ambiguous whether it was paid. Leave the
+                    -- treasury amount in place rather than risk silently discarding it.
+                    return
+                end
             end
         end
     else
@@ -667,15 +707,18 @@ function AscendancyBeacon.updateServer(timeStep)
             local payout = record.treasury
             working = CAState.DeepCopy(record)
             working.state = "treasury_prepared"
-            working.pendingOperation = {
-                operationId = record.beaconId .. ":treasury:" .. tostring(record.revision + 1),
-                amount = payout
-            }
+            local operationId = record.beaconId .. ":treasury:" .. tostring(record.revision + 1)
+            working.pendingOperation = {operationId = operationId, amount = payout}
             if not saveRecord(working) then return end
-            local beforeMoney = owner.money or 0
+            -- Receipt written before the side effect: durable proof the payout was attempted,
+            -- checked by the repair path below instead of the faction's money balance.
+            if not saveTreasuryReceipt(operationId, "prepared", payout) then
+                enterRepair("treasury_receipt_prepare_failed")
+                return
+            end
             owner:receive("Grand Toll Treasury Payout", payout)
-            if (owner.money or 0) < beforeMoney + payout then
-                enterRepair("treasury_payout_unverified")
+            if not saveTreasuryReceipt(operationId, "succeeded", payout) then
+                enterRepair("treasury_receipt_confirm_failed")
                 return
             end
             working = CAState.DeepCopy(record)

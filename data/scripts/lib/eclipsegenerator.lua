@@ -344,8 +344,8 @@ function EclipseGenerator.createShip(position, planType, volumeScale, turretCoun
     ship.shieldDurability = ship.shieldMaxDurability
 
     AddDefaultShipScripts(ship)
-    ship:addScriptOnce("ai/patrol.lua")
-    ship:addScriptOnce("utility/aiundockable.lua")
+    ship:addScriptOnce("data/scripts/entity/ai/patrol.lua")
+    ship:addScriptOnce("data/scripts/entity/utility/aiundockable.lua")
 
     -- If it's a Harbinger, inject Ascendant Multipliers
     if planType == "ca_harbinger" then
@@ -561,7 +561,7 @@ function EclipseGenerator.createStation(position)
     station.shieldDurability = station.shieldMaxDurability
 
     AddDefaultStationScripts(station)
-    station:addScriptOnce("utility/aiundockable.lua")
+    station:addScriptOnce("data/scripts/entity/utility/aiundockable.lua")
 
     -- Retuned from 50.0 (51x -- exceeded even the World-Eater's own baseline on its own, before
     -- eclipse_boss_scaling.lua's now-removed double-stack made it worse) down to 16.0 (17x), just

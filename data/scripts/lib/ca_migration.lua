@@ -234,65 +234,6 @@ function CAMigration.AnalyzeCampaign(evidence, guardianConfirmed, now)
     return state, findings
 end
 
-function CAMigration.AnalyzeLegacyEncounter(evidence, now)
-    if type(evidence) ~= "table" then return nil, "missing_evidence" end
-    local record = {
-        schemaVersion = 1,
-        revision = 0,
-        kind = evidence.kind,
-        scope = evidence.scope,
-        ownerPlayerIndex = evidence.ownerPlayerIndex,
-        coordinate = CAState.DeepCopy(evidence.coordinate),
-        state = evidence.verifiedActive and "active" or "repair_required",
-        attempt = 0,
-        entityTag = evidence.encounterId,
-        participants = {},
-        resolution = nil,
-        migratedAt = now,
-        lastError = evidence.verifiedActive and nil or "legacy_encounter_unverified",
-        repairRequired = evidence.verifiedActive and nil or "legacy_encounter_unverified"
-    }
-    return record, nil
-end
-
-function CAMigration.AnalyzeLegacyForge(evidence, now)
-    evidence = evidence or {}
-    if not evidence.isForging and not evidence.hasCompletedItem then return nil, nil end
-    if evidence.selectedType == nil or type(evidence.finishTime) ~= "number" then
-        return {state = "repair_required", repairRequired = "legacy_forge_incomplete", migratedAt = now}, nil
-    end
-    return {
-        schemaVersion = 1,
-        revision = 0,
-        state = evidence.hasCompletedItem and "ready_to_claim" or "running",
-        recipeId = evidence.selectedType,
-        requesterPlayerIndex = nil,
-        completionTime = evidence.finishTime,
-        intendedSuccess = evidence.willSucceed == true,
-        migrationProvenance = "legacy_secure",
-        migratedAt = now
-    }, nil
-end
-
-function CAMigration.AnalyzeLegacyBeacon(evidence, now)
-    evidence = evidence or {}
-    if evidence.active ~= true then return nil, nil end
-    if type(evidence.ownerFactionIndex) ~= "number"
-            or type(evidence.x) ~= "number" or type(evidence.y) ~= "number" then
-        return {state = "repair_required", repairRequired = "legacy_beacon_incomplete", migratedAt = now}, nil
-    end
-    return {
-        schemaVersion = 1,
-        revision = 0,
-        state = "active",
-        ownerFactionIndex = evidence.ownerFactionIndex,
-        coordinate = {x = evidence.x, y = evidence.y},
-        tier = math.max(1, math.min(5, tonumber(evidence.tier) or 1)),
-        migrationProvenance = "legacy_secure",
-        migratedAt = now
-    }, nil
-end
-
 CAMigration.MissionByChapter = missionByChapter
 CAMigration.DebriefByChapter = debriefByChapter
 

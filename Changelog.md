@@ -14,6 +14,60 @@ persistence around versioned records and explicit transitions. The gameplay and 
 same; the change is in how the mod proves, resumes, and repairs work across script interruption,
 sector unloading, reconnects, and server restarts.
 
+### 🩹 Post-Release Corrections
+
+- [Fix] **World-Eater Loot Now Requires An Active Encounter (`entity/ca_worldeater_behavior.lua`):**
+  `onDestroyed` checks `encounter.state` before paying out Ascendant Matter, turrets, and upgrades,
+  transitioning `active` to `resolving` the same way `ca_citadel_loot.lua` already does. A World-Eater
+  that already timed out into `abandoned` no longer pays a late kill.
+- [Fix] **Forge Repair No Longer Offers `reissue` For Ambiguous Or Confirmed Claims
+  (`galaxy/ca_state_coordinator.lua`):** `claim_prepared_restart_ambiguity` and
+  `forge_claim_completion_persistence_failed` now only offer `mark-complete`/`abandon`, since both
+  mean the crafted item may already be in the player's inventory. Reasons that verifiably mean
+  nothing was delivered still offer `reissue`.
+- [Fix] **Ambush Harbingers No Longer Carry The Nemesis System (`player/events/eclipseinvasion.lua`):**
+  The personal-ambush Harbinger strips `ca_nemesis_system.lua` immediately after spawning, so fighting
+  it down no longer triggers a spurious Nemesis Hunt. The real Nemesis Hunt spawn
+  (`player/background/ca_nemesis_hunt.lua`) is untouched and still gets the script automatically from
+  `EclipseGenerator.createShip`; its own comment about how that attachment works has been corrected.
+- [Fix] **Beacon Treasury Repair Uses A Receipt Instead Of The Faction's Money Balance
+  (`entity/ascendancybeacon.lua`):** The treasury payout now writes a dedicated
+  `ca_beacon_treasury_receipt_v1` record (`"prepared"` before `owner:receive()`, `"succeeded"`
+  right after) instead of comparing the faction's money before and after. An admin
+  `resume`/`mark-complete` repair on a `:treasury:` pending operation reads that receipt directly:
+  `"succeeded"` clears the treasury, `"prepared"` re-attempts the payout and marks it complete, and no
+  receipt at all (a legacy pending operation from before this record existed) is left in
+  `repair_required` instead of being silently discarded. The previous approach compared the faction's
+  aggregate money balance against a captured baseline, which upkeep debits, siege payouts, market
+  events, and ordinary spending in the arbitrarily-long window before a repair runs could shift either
+  direction, risking a silent underpayment or a duplicate payment.
+- [Fix] **Eclipse/Ascendant AI Scripts Attached With The Correct Full Path
+  (`lib/eclipsegenerator.lua`, `events/ascendancysiege.lua`, `sector/ca_delayed_annihilation.lua`,
+  `entity/ca_ascendant_gateway.lua`, `entity/ca_silent_choir_unit.lua`,
+  `entity/ca_worldeater_behavior.lua`):** `addScriptOnce("ai/patrol.lua")` and
+  `addScriptOnce("utility/aiundockable.lua")` are relative to `data/scripts/`, not
+  `data/scripts/entity/`, so the short forms never actually attached the vanilla
+  `data/scripts/entity/ai/patrol.lua` / `data/scripts/entity/utility/aiundockable.lua` scripts. Every
+  dynamically-attached Eclipse ship/station and ambush/siege spawn now uses the full path, matching the
+  convention already used everywhere else in this mod (e.g. `ascendancyplayer.lua`'s own
+  `"data/scripts/entity/ai/patrol.lua"`).
+- [Fix] **Silent Choir Sightings No Longer Softlock (`entity/ca_silent_choir_unit.lua`):** `onDestroyed`
+  is now registered on every sighting, not only the engaging one, so killing the ship during a
+  non-engaging "whisper and vanish" sighting still resolves the encounter.
+- [Fix] **Ascendant Overdrive's Production Boost Actually Runs (`entity/ca_station_overdrive.lua`):**
+  `hasScript` now checks the correctly-cased `merchants/factory.lua`, and both
+  `updateParallelSelf` invocations log their result code instead of discarding it, so a future
+  invocation failure is discoverable instead of silent.
+- [Fix] **Dark Sector Hazard Registration Retries Instead Of Staying Broken
+  (`player/background/ca_darksector_generator.lua`):** A failed `DarkMatterFog`/rift registration no
+  longer leaves the sector permanently without its signature hazard. The environment registration is
+  now retried on a later visit without re-rolling the sector or re-spawning its Citadels/fleets.
+- [Cleanup] **Removed Dead Code:** `player/ca_spawn_envoy.lua` (unreferenced anywhere; its
+  `AscendancyCampaign.beginEligibleCampaign()` call target was likewise never invoked -- the actual
+  later-eligibility check lives in `ca_campaign_controller.lua`'s own poll loop) and the unused
+  `CAMigration.AnalyzeLegacyEncounter`/`AnalyzeLegacyForge`/`AnalyzeLegacyBeacon` functions in
+  `lib/ca_migration.lua` have been deleted.
+
 ### 🏗️ Persistent State Architecture
 
 - [Refactor] **Canonical Versioned Records (`ca_state.lua`, `ca_state_coordinator.lua`,

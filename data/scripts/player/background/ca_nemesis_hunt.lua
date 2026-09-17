@@ -42,9 +42,9 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     local dir = normalize(vec3(getFloat(-1, 1), getFloat(-1, 1), getFloat(-1, 1)))
     local pos = MatrixLookUpPosition(-dir, vec3(0, 1, 0), dir * 1500)
 
-    -- createShip() reads Server():getValue("eclipse_nemesis_resist") internally for the "ca_harbinger"
-    -- plan type and attaches ca_nemesis_resist.lua/ca_nemesis_system.lua on its own, so this Dread-Lord
-    -- picks up the same adaptive resistance it fled with without any extra work here.
+    -- createShip() unconditionally attaches ca_nemesis_system.lua for the "ca_harbinger" plan type,
+    -- so this Dread-Lord picks it up automatically without any extra work here. (The former resist
+    -- type read happens elsewhere, in ca_state_coordinator.lua's legacy migration path -- not here.)
     local nemesis = EclipseGenerator.createShip(pos, "ca_harbinger")
     if not nemesis then
         local latest = EncounterBridge.Get(hunt.encounterId)

@@ -87,7 +87,7 @@ function CAWorldEater.spawnTethers(count)
             dreadnought.title = "Eclipse Anchor Pylon"%_T
 
             -- Prevent them from warping away
-            dreadnought:addScriptOnce("utility/aiundockable.lua")
+            dreadnought:addScriptOnce("data/scripts/entity/utility/aiundockable.lua")
 
             table.insert(data.dreadnoughtIds, dreadnought.id.string)
         end
@@ -524,6 +524,18 @@ function CAWorldEater.onDestroyed()
     local encounterId = entity:getValue("ca_encounter_id")
     local encounter = encounterId and EncounterBridge.Get(encounterId)
     if not encounter or encounter.entityId ~= entity.id.string then return end
+    local participants = {}
+    for _, player in pairs({sector:getPlayers()}) do table.insert(participants, player.index) end
+    table.sort(participants)
+    -- Only an active encounter pays out. An abandoned/timed-out World Eater (2-hour empty-sector
+    -- rule in ca_world_eater_manager.lua) is already terminal and gets no loot on a late kill.
+    if encounter.state == "active" then
+        if not EncounterBridge.Transition(OWNER, encounterId, "resolving", {
+                participants = participants,
+                resolution = {reason = "verified_destroyed", entityId = entity.id.string}}) then return end
+    elseif encounter.state ~= "resolving" and encounter.state ~= "succeeded" then
+        return
+    end
     local participantReceipts = {}
     for _, player in pairs({sector:getPlayers()}) do
         local operationId = encounterId .. ":player:" .. player.index .. ":shared-loot"

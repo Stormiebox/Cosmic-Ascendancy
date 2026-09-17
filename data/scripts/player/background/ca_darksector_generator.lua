@@ -16,9 +16,34 @@ function initialize()
     end
 end
 
+-- Attempts (or retries) just the weather/rift hazard for an already-decided Dark Sector, without
+-- touching the one-shot Citadel/fleet spawn below. Sets ca_darksector_env_pending so a later
+-- sector entry can retry this specific step if it fails again, instead of leaving the sector
+-- permanently without its signature hazard.
+local function ensureDarkSectorEnvironment(sector, x, y)
+    local sourceId = "ca-dark-sector:" .. tostring(x) .. ":" .. tostring(y)
+    local fog = CosmicVaultWeather.StartWeather({
+        sourceId = sourceId, weatherType = "DarkMatterFog",
+        x = x, y = y, duration = -1, conflictPolicy = "replace"
+    })
+    local rift = CosmicVaultRift.StartRiftHazard({
+        sourceId = sourceId, x = x, y = y, duration = -1, conflictPolicy = "replace"
+    })
+    if rift then
+        sector:addScriptOnce("data/scripts/sector/ca_rift_hazard.lua", rift.conditionId)
+    end
+    if not fog or not rift then
+        sector:setValue("ca_darksector_env_pending", true)
+        print("[Cosmic Ascendancy] Dark Sector environment registration needs repair at "
+            .. tostring(x) .. ":" .. tostring(y) .. " (will retry on next visit)")
+    else
+        sector:setValue("ca_darksector_env_pending", nil)
+    end
+end
+
 function onSectorEntered(playerIndex, x, y, sectorChangeType)
     if onClient() then return end
-    
+
     local sector = Sector()
     if not sector then return end
 
@@ -31,8 +56,15 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     local state = CosmicVaultData.GetRecord(Server(), "ca_state_v2", 2)
     if not state or state.eclipse.state == "dormant" then return end
 
-    -- Ensure this check only happens once per sector
-    if sector:getValue("ca_darksector_checked") then return end
+    -- Ensure the Dark-Sector-or-not roll and the Citadel/fleet spawn only ever happen once per
+    -- sector. A failed weather/rift registration doesn't reopen this -- it's retried separately
+    -- below without re-spawning Citadels or fleets.
+    if sector:getValue("ca_darksector_checked") then
+        if sector:getValue("ca_darksector_env_pending") then
+            ensureDarkSectorEnvironment(sector, x, y)
+        end
+        return
+    end
     sector:setValue("ca_darksector_checked", true)
 
     -- Do not generate over faction territory, asteroid bases, or populated sectors
@@ -49,31 +81,9 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
     print("Generating Eclipse Dark Sector at " .. tostring(x) .. ":" .. tostring(y))
     
     local generator = SectorGenerator(x, y)
-    
-    local sourceId = "ca-dark-sector:" .. tostring(x) .. ":" .. tostring(y)
-    local fog = CosmicVaultWeather.StartWeather({
-        sourceId = sourceId,
-        weatherType = "DarkMatterFog",
-        x = x,
-        y = y,
-        duration = -1,
-        conflictPolicy = "replace"
-    })
-    local rift = CosmicVaultRift.StartRiftHazard({
-        sourceId = sourceId,
-        x = x,
-        y = y,
-        duration = -1,
-        conflictPolicy = "replace"
-    })
-    if rift then
-        sector:addScriptOnce("data/scripts/sector/ca_rift_hazard.lua", rift.conditionId)
-    end
-    if not fog or not rift then
-        print("[Cosmic Ascendancy] Dark Sector environment registration needs repair at "
-            .. tostring(x) .. ":" .. tostring(y))
-    end
-    
+
+    ensureDarkSectorEnvironment(sector, x, y)
+
     -- Spawn Eclipse Citadels (1-3)
     local EclipseGenerator = include("eclipsegenerator")
     local Placer = include("placer")
