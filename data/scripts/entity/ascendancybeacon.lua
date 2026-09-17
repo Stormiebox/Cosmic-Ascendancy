@@ -6,7 +6,7 @@ include("stringutility")
 include("faction")
 
 local CosmicVaultData = include("cosmicvaultdata")
-local cv_news = include("cosmicvaultnews")
+local CosmicAscendancyNews = include("ca_news")
 local cw_bridge = include("cosmicwarbridge")
 local cv_buffs = include("cosmicvaultbuffs")
 local CAState = include("ca_state")
@@ -40,6 +40,7 @@ local function newRecord()
         lastSiegeTime = now(),
         nextSiegeInterval = random():getInt(3, 6) * 3600,
         treasury = 0,
+        activeNewsEventId = nil,
         pendingOperation = nil,
         migration = {source = "new", migratedAt = now()},
         lastError = nil,
@@ -254,6 +255,7 @@ local function deactivateInternal(reason)
         reason = reason or "manual"
     }
     if not saveRecord(working) then return nil, "prepare_persistence_failed" end
+    local activeNewsEventId = record.activeNewsEventId
     local revision, summary = requestClaim("remove")
     if not revision then
         enterRepair("beacon_claim_removal_unconfirmed:" .. tostring(summary))
@@ -262,6 +264,7 @@ local function deactivateInternal(reason)
     local owner = Faction(record.ownerFactionIndex)
     working = CAState.DeepCopy(record)
     working.state = "inactive"
+    working.activeNewsEventId = nil
     working.pendingOperation = nil
     working.lastError = nil
     working.repairRequired = nil
@@ -269,6 +272,37 @@ local function deactivateInternal(reason)
     syncFactionTier(owner, summary)
     local x, y = Sector():getCoordinates()
     Galaxy():sendCallback("onAscendancyBeaconDeactivated", record.beaconId, x, y)
+    if activeNewsEventId then
+        CosmicAscendancyNews.Resolve("beacon", activeNewsEventId,
+            "Ascendancy Beacon deactivated: " .. tostring(reason or "manual"))
+    end
+    CosmicAscendancyNews.Publish({
+        kind = "beacon",
+        eventId = record.beaconId .. ":inactive:" .. tostring(record.revision),
+        threadId = record.beaconId,
+        eventType = "ascendancy.beacon.deactivated",
+        topic = "politics",
+        severity = reason == "destroyed" and "critical" or "advisory",
+        location = {x = x, y = y, radius = 0},
+        recordType = RECORD_KEY,
+        recordId = record.beaconId,
+        sourceRevision = record.revision,
+        sourceState = "inactive",
+        provenance = {
+            recordType = RECORD_KEY,
+            recordId = tostring(record.beaconId),
+            reason = tostring(reason or "manual"),
+            sourceRevision = record.revision,
+            sourceState = "inactive",
+        },
+        article = {
+            title = reason == "destroyed" and "Ascendancy Beacon Destroyed"
+                or "Ascendancy Beacon Deactivated",
+            content = "The Ascendancy Beacon in sector [" .. x .. ":" .. y
+                .. "] is no longer projecting its capital field.",
+            category = "Galactic Expansion",
+        },
+    })
     return true
 end
 
@@ -464,6 +498,8 @@ function AscendancyBeacon.toggleBeacon()
     end
     working = CAState.DeepCopy(record)
     working.state = "active"
+    working.activeNewsEventId = record.beaconId .. ":activation:"
+        .. tostring(record.revision + 1)
     working.lastUpkeepTime = now()
     working.pendingOperation = nil
     working.lastError = nil
@@ -476,14 +512,25 @@ function AscendancyBeacon.toggleBeacon()
     Entity():addScriptOnce("data/scripts/entity/ascendancyforge.lua")
     player:sendChatMessage("Beacon"%_t, 0,
         "Beacon Activated. Sector simulation lease is online."%_t)
-    if cv_news and cv_news.publishArticle then
-        cv_news.publishArticle({
+    CosmicAscendancyNews.Publish({
+        kind = "beacon",
+        eventId = record.activeNewsEventId,
+        threadId = record.beaconId,
+        eventType = "ascendancy.beacon.activated",
+        topic = "politics",
+        severity = "info",
+        location = {x = x, y = y, radius = 0},
+        recordType = RECORD_KEY,
+        recordId = record.beaconId,
+        sourceRevision = record.revision,
+        sourceState = record.state,
+        article = {
             title = "Galactic Milestone: New Ascendant Capital",
             content = "The " .. owner.name .. " Empire has constructed a massive Ascendancy Beacon in sector ["
                 .. x .. ":" .. y .. "]! This region of space has been claimed as an Ascendant Capital.",
             category = "Galactic Expansion"
-        })
-    end
+        },
+    })
     if cw_bridge and cw_bridge.addWarHeat then
         for _, index in pairs({Sector():getPresentFactions()}) do
             local faction = Faction(index)
@@ -540,14 +587,26 @@ function AscendancyBeacon.upgradeTier()
         player:sendChatMessage("Beacon"%_t, 0,
             "Sanctuary Field online! Nearby Eclipse conquest attempts will now be repelled."%_t)
     end
-    if cv_news and cv_news.publishArticle then
-        cv_news.publishArticle({
+    local x, y = Sector():getCoordinates()
+    CosmicAscendancyNews.Publish({
+        kind = "beacon",
+        eventId = record.beaconId .. ":tier:" .. tostring(targetTier),
+        threadId = record.beaconId,
+        eventType = "ascendancy.beacon.upgraded",
+        topic = "politics",
+        severity = "info",
+        location = {x = x, y = y, radius = 0},
+        recordType = RECORD_KEY,
+        recordId = record.beaconId,
+        sourceRevision = record.revision,
+        sourceState = "tier_" .. tostring(targetTier),
+        article = {
             title = "Empire Ascends to Tier " .. targetTier,
             content = "The " .. owner.name .. " Empire has upgraded an Ascendancy Beacon to Tier "
                 .. targetTier .. ". Their fleet's global power has increased significantly.",
             category = "Galactic Expansion"
-        })
-    end
+        },
+    })
     AscendancyBeacon.sync()
 end
 callable(AscendancyBeacon, "upgradeTier")

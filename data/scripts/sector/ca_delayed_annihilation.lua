@@ -15,6 +15,7 @@ local CosmicVaultData = include("cosmicvaultdata")
 local CosmicVaultWeather = include("cosmicvaultweather")
 local CosmicVaultRift = include("cosmicvaultrift")
 local EncounterBridge = include("ca_encounter_bridge")
+local CosmicAscendancyNews = include("ca_news")
 local OWNER = "data/scripts/sector/ca_delayed_annihilation.lua"
 
 local function completeEncounter(encounterId, resolution)
@@ -40,8 +41,49 @@ local function completeEncounter(encounterId, resolution)
     return true
 end
 
+local function publishCompletedAnnihilation(encounterId, sourceEncounterId, queueId, x, y)
+    if not encounterId then return end
+    local encounter = EncounterBridge.Get(encounterId)
+    if not encounter or encounter.state ~= "succeeded" then return end
+
+    CosmicAscendancyNews.Resolve("territory", encounterId,
+        "The queued annihilation was materialized and its sector receipt was verified.")
+    if sourceEncounterId then
+        CosmicAscendancyNews.Resolve("encounter", sourceEncounterId .. ":doomsday",
+            "The dispatched annihilation operation reached a verified sector state.")
+    end
+    CosmicAscendancyNews.Publish({
+        kind = "territory",
+        eventId = encounterId .. ":completed",
+        threadId = sourceEncounterId or encounterId,
+        eventType = "ascendancy.territory.annihilation_completed",
+        topic = "threat",
+        severity = "critical",
+        breaking = true,
+        location = {x = x, y = y, radius = 0},
+        recordType = "ca_encounters_v1",
+        recordId = encounterId,
+        sourceRevision = encounter.revision or 1,
+        sourceState = "succeeded",
+        provenance = {
+            recordType = "ca_encounters_v1",
+            recordId = tostring(encounterId),
+            queueId = tostring(queueId or "legacy"),
+            sourceEncounterId = tostring(sourceEncounterId or "none"),
+            sourceRevision = encounter.revision or 1,
+            sourceState = "succeeded",
+        },
+        article = {
+            title = "Sector Annihilation Confirmed: [" .. x .. ":" .. y .. "]",
+            content = "The Eclipse annihilation operation at [" .. x .. ":" .. y
+                .. "] has reached a verified terminal state. The hostile environment and Obliterator guardian were both materialized.",
+            category = "Galactic Dread",
+        },
+    })
+end
+
 function initialize(kind, queueX, queueY, claimant, queueId, queueCreatedAt, encounterId,
-        criticalPlayerShips)
+        criticalPlayerShips, sourceEncounterId)
     if onServer() then
         local sector = Sector()
         local receiptKey = "ca_annihilation_receipt"
@@ -83,9 +125,13 @@ function initialize(kind, queueX, queueY, claimant, queueId, queueCreatedAt, enc
                 sectorReceipt = queueId, verified = true
             })
             if queueCompleted then
-                completeEncounter(encounterId, {
+                local encounterCompleted = completeEncounter(encounterId, {
                     reason = "recovered_sector_receipt", queueId = queueId
                 })
+                if encounterCompleted then
+                    publishCompletedAnnihilation(
+                        encounterId, sourceEncounterId, queueId, queueX, queueY)
+                end
             end
             terminate()
             return
@@ -178,6 +224,8 @@ function initialize(kind, queueX, queueY, claimant, queueId, queueCreatedAt, enc
         local ship = EclipseGenerator.createShip(guardianPos, "ca_obliterator")
         if ship then
             ship:setTitle("Eclipse Obliterator", {})
+            if encounterId then ship:setValue("ca_encounter_id", encounterId) end
+            ship:setValue("ca_news_thread_id", sourceEncounterId or encounterId)
             ship:addScriptOnce("data/scripts/entity/ca_heroic_defense.lua")
         else
             if queueId then CosmicVaultTerritory.RequireMaterializationRepair(
@@ -204,14 +252,19 @@ function initialize(kind, queueX, queueY, claimant, queueId, queueCreatedAt, enc
                     .. tostring(queueId))
             end
         end
+        local encounterCompleted = not encounterId
         if encounterId and (not queueId or completed) then
-            local encounterCompleted = completeEncounter(encounterId, {
+            encounterCompleted = completeEncounter(encounterId, {
                 reason = "sector_receipt_verified", queueId = queueId
             })
             if not encounterCompleted then
                 print("[Cosmic Ascendancy] Annihilation queue completed but encounter needs repair: "
                     .. tostring(encounterId))
             end
+        end
+        if encounterId and (not queueId or completed) and encounterCompleted then
+            publishCompletedAnnihilation(
+                encounterId, sourceEncounterId, queueId, environmentX, environmentY)
         end
         local sx, sy = sector:getCoordinates()
         local controlling = Galaxy():getControllingFaction(sx, sy)

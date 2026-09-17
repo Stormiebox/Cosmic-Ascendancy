@@ -6,7 +6,7 @@ local Xsotan = include("story/xsotan")
 local ShipGenerator = include("shipgenerator")
 local Placer = include("placer")
 
-local cv_news = include("cosmicvaultnews")
+local CosmicAscendancyNews = include("ca_news")
 local cw_bridge = include("cosmicwarbridge")
 local cv_fleet = include("cosmicvaultfleet")
 
@@ -216,13 +216,28 @@ function AscendancySiege.broadcastWarning()
     local x, y = Sector():getCoordinates()
     Sector():broadcastChatMessage("System"%_t, 1, "WARNING! Massive %1% siege fleet detected entering the sector!"%_t, typeName)
 
-    if cv_news.publishArticle then
+    local encounter = EncounterBridge.Get(encounterId)
+    if encounter and encounter.state == "active" then
         local owner = Faction(targetFactionIndex)
         local ownerName = owner and owner.name or "Unknown"
-        cv_news.publishArticle({
+        CosmicAscendancyNews.Upsert({
+            kind = "encounter",
+            eventId = encounterId,
+            threadId = encounterId,
+            eventType = "ascendancy.beacon_siege.active",
+            topic = "conflict",
+            severity = "critical",
+            breaking = true,
+            location = {x = x, y = y, radius = 0},
+            recordType = "ca_encounters_v1",
+            recordId = encounterId,
+            sourceRevision = encounter.revision or 1,
+            sourceState = encounter.state,
+            article = {
             title = "Capital Siege: " .. typeName .. " Invade " .. ownerName .. " Empire",
             content = "A gargantuan fleet belonging to the " .. typeName .. " has initiated a massive siege against the Ascendant Capital in sector [" .. x .. ":" .. y .. "]. Defense fleets are scrambling.",
             category = "Galactic War"
+            },
         })
     end
 end
@@ -342,26 +357,69 @@ function AscendancySiege.onVictory()
         EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
             lastError = "siege_terminal_transition_failed"
         })
+        return
     end
+
+    CosmicAscendancyNews.Resolve("encounter", encounterId,
+        "The siege fleet was destroyed and the Ascendant Capital survived.")
+    CosmicAscendancyNews.Publish({
+        kind = "encounter",
+        eventId = encounterId .. ":victory",
+        threadId = encounterId,
+        eventType = "ascendancy.beacon_siege.defended",
+        topic = "conflict",
+        severity = "info",
+        location = {x = x, y = y, radius = 0},
+        recordType = "ca_encounters_v1",
+        recordId = encounterId,
+        sourceRevision = succeeded.revision or 1,
+        sourceState = "succeeded",
+        article = {
+            title = "Ascendant Capital Defended!",
+            content = "Defenders have destroyed the siege fleet in sector [" .. x .. ":" .. y
+                .. "]. The Ascendancy Beacon remains operational.",
+            category = "Heroic Victories",
+        },
+    })
 
     terminate()
 end
 
 function AscendancySiege.onDefeat()
     active = false
-    EncounterBridge.Transition(OWNER, encounterId, "abandoned", {
+    local abandoned = EncounterBridge.Transition(OWNER, encounterId, "abandoned", {
         resolution = {reason = "beacon_destroyed"}
     })
+    if not abandoned then
+        EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+            lastError = "siege_defeat_transition_failed"
+        })
+        return
+    end
     local x, y = Sector():getCoordinates()
     Sector():broadcastChatMessage("System"%_t, 1, "The Ascendant Capital has fallen..."%_t)
 
-    if cv_news.publishArticle then
-        cv_news.publishArticle({
+    CosmicAscendancyNews.Resolve("encounter", encounterId,
+        "The Ascendancy Beacon was destroyed during the siege.")
+    CosmicAscendancyNews.Publish({
+        kind = "encounter",
+        eventId = encounterId .. ":defeat",
+        threadId = encounterId,
+        eventType = "ascendancy.beacon_siege.capital_fallen",
+        topic = "conflict",
+        severity = "critical",
+        breaking = true,
+        location = {x = x, y = y, radius = 0},
+        recordType = "ca_encounters_v1",
+        recordId = encounterId,
+        sourceRevision = abandoned.revision or 1,
+        sourceState = "abandoned",
+        article = {
             title = "Capital Falls to " .. typeName,
             content = "The Ascendancy Beacon in sector [" .. x .. ":" .. y .. "] has been completely destroyed. The surrounding empire's global power has collapsed.",
             category = "Galactic War"
-        })
-    end
+        },
+    })
 
     -- Jump the attackers away since they won
     for _, id in pairs(attackers) do

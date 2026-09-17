@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-local cv_news = include("cosmicvaultnews")
+local CosmicAscendancyNews = include("ca_news")
 local CosmicVaultData = include("cosmicvaultdata")
 local EncounterBridge = include("ca_encounter_bridge")
 include("goods")
@@ -118,20 +118,33 @@ function onDestroyed()
     end
     encounter = EncounterBridge.Get(encounterId)
     if encounter and encounter.state == "resolving" then
-        if not EncounterBridge.Transition(OWNER, encounterId, "succeeded", {
+        local succeeded = EncounterBridge.Transition(OWNER, encounterId, "succeeded", {
                 participants = participants,
-                resolution = {reason = "verified_destroyed", entityId = entity.id.string}}) then
+                resolution = {reason = "verified_destroyed", entityId = entity.id.string}})
+        if not succeeded then
             requireRepair(encounterId, "citadel_terminal_transition_failed")
             return
         end
+        encounter = succeeded
     end
     sector:broadcastChatMessage("Eclipse Citadel", 2,
         "The Citadel's destruction has generated a massive suppression field. Eclipse invasions halted.")
-    if cv_news.publishArticle then
-        cv_news.publishArticle({
+    CosmicAscendancyNews.Publish({
+        kind = "encounter",
+        eventId = encounterId .. ":resolution",
+        threadId = encounterId,
+        eventType = "ascendancy.citadel.destroyed",
+        topic = "conflict",
+        severity = "info",
+        location = {x = citadelX, y = citadelY, radius = 15},
+        recordType = "ca_encounters_v1",
+        recordId = encounterId,
+        sourceRevision = encounter and encounter.revision or 1,
+        sourceState = "succeeded",
+        article = {
             title = "Sectors Liberated From The Eclipse!",
             content = "The fall of an Eclipse Citadel has pushed the frontier back within fifteen sectors.",
             category = "Heroic Victories"
-        })
-    end
+        },
+    })
 end

@@ -107,6 +107,14 @@ sector unloading, reconnects, and server restarts.
 
 ### 🔗 Compatibility & Verification
 
+- [Integration] **Ascendancy Reports Use Vault News v2 (`lib/ca_news.lua`):** World-Eater,
+  Citadel, siege, expansion, Beacon, heroic-defense, conquest, and lore publishers use stable
+  encounter or operation identities through one adapter. Articles are emitted after canonical
+  Ascendancy transitions, so duplicate callbacks coalesce and unavailable entities or unloaded
+  sectors cannot create false victory reports.
+- [Compatibility] **State Ownership Remains In Ascendancy:** Vault stores the report and Chronicles
+  presents it; neither writes Ascendancy progression, encounter, territory, Beacon, campaign, or
+  reward state. Cosmic Starfall remains outside the integration.
 - [Compatibility] **No New Vanilla-Path Override:** The four existing thin Ascendancy bootstrap
   extensions remain; this release adds no Wormhole Guardian override. Existing Cosmic Vault APIs
   remain available, Cosmic Starfall remains optional, and documented compatibility boundaries are

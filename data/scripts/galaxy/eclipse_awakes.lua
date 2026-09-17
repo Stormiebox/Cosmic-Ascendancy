@@ -50,18 +50,7 @@ function EclipseAwakes.getAwakeningElapsed()
 end
 
 function EclipseAwakes.initialize()
-    local cv_dialogue = include("cosmicvaultdialogue")
-    if cv_dialogue then
-        cv_dialogue.registerLine({category = "rumor",
-            text = "I heard a massive jet-black monolith wiped out an entire sector near the core... but the Galactic News is covering it up.",
-            conditions = {}})
-        cv_dialogue.registerLine({category = "rumor",
-            text = "The Ascendants built a Forge that runs on war and bloodshed. With the Eclipse awake, who knows what they're building in there?",
-            conditions = {}})
-        cv_dialogue.registerLine({category = "rumor",
-            text = "Keep your voice down. The Eclipse has eyes everywhere, and they don't leave survivors.",
-            conditions = {}})
-    end
+    EclipseChoir.registerChoirLines("awakening")
 end
 
 function EclipseAwakes.updateServer(timeStep)

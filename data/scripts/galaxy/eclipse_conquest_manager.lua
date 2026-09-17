@@ -9,7 +9,7 @@ include("stringutility")
 
 local CosmicVaultTerritory = nil
 local cv_goods = include("cosmicvaultgoods")
-local cv_news = include("cosmicvaultnews")
+local CosmicAscendancyNews = include("ca_news")
 local FactionEradicationUtility = include("factioneradicationutility")
 CosmicVaultTerritory = include("cosmicvaultterritory")
 local CosmicVaultData = include("cosmicvaultdata")
@@ -167,16 +167,28 @@ function EclipseConquestManager.expandEmpire()
 
     -- Check if we should awaken
     if conqueredCount >= 75 and not isFallenEmpire then
-        mutateState("set_fallen", {value = true})
+        local fallenRevision = mutateState("set_fallen", {value = true})
+        if not fallenRevision then return end
         isFallenEmpire = true
         include("ca_eclipse_choir").registerChoirLines("fallen_empire")
-        if cv_news.publishArticle then
-            cv_news.publishArticle({
+        CosmicAscendancyNews.Publish({
+            kind = "escalation",
+            eventId = "eclipse-fallen-empire",
+            threadId = "eclipse-state",
+            eventType = "ascendancy.eclipse.fallen_empire",
+            topic = "threat",
+            severity = "critical",
+            breaking = true,
+            recordType = "ca_state_v2",
+            recordId = "eclipse-state",
+            sourceRevision = fallenRevision,
+            sourceState = "fallen_empire",
+            article = {
                 title = "GALACTIC THREAT: The Eclipse Awakens",
                 content = "The algorithmic nightmare known as The Eclipse has consolidated enough territory to form a unified, highly organized empire. They have ceased random raids and are now actively launching Crusades to systematically eradicate all major AI faction capitals. We must unite, or we will perish.",
                 category = "Galactic Dread"
-            })
-        end
+            },
+        })
     end
 
     local tx, ty
@@ -448,14 +460,6 @@ end
 function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conqueredCount)
     Server():broadcastChatMessage("The Eclipse"%_T, 2, "Coordinates (" .. x .. ":" .. y .. ") have been judged unworthy of Ascendancy. Initiating total atomic annihilation.")
 
-    if cv_news.publishArticle then
-        cv_news.publishArticle({
-            title = "Sector Annihilated: [" .. x .. ":" .. y .. "]",
-            content = "The Eclipse has completely wiped coordinates [" .. x .. ":" .. y .. "] from the map. Billions are feared dead as all stations and ships were atomically disintegrated.",
-            category = "Galactic Dread"
-        })
-    end
-
     local encounterId = EncounterBridge.MakeId("annihilation", "sector", x, y,
         math.floor(Server().unpausedRuntime))
     local prepared = EncounterBridge.Create(OWNER, {
@@ -468,11 +472,39 @@ function EclipseConquestManager.annihilateSector(x, y, eclipseFaction, conquered
             source = "eclipse_conquest", eclipseFactionIndex = eclipseFaction.index,
             encounterId = encounterId
         })
-        if not queued then
-            EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
-                lastError = "annihilation_queue_failed:" .. tostring(queueError)})
+            if not queued then
+                EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+                    lastError = "annihilation_queue_failed:" .. tostring(queueError)})
+            else
+                CosmicAscendancyNews.Publish({
+                    kind = "territory",
+                    eventId = encounterId,
+                    threadId = encounterId,
+                    eventType = "ascendancy.territory.annihilation_queued",
+                    topic = "threat",
+                    severity = "critical",
+                    breaking = true,
+                    location = {x = x, y = y, radius = 0},
+                    recordType = "ca_encounters_v1",
+                    recordId = encounterId,
+                    sourceRevision = prepared.revision or 1,
+                    sourceState = "prepared",
+                    provenance = {
+                        recordType = "ca_encounters_v1",
+                        recordId = tostring(encounterId),
+                        materializationId = tostring(queued.id or "unknown"),
+                        sourceRevision = prepared.revision or 1,
+                        sourceState = "prepared",
+                    },
+                    article = {
+                        title = "Eclipse Annihilation Directive: [" .. x .. ":" .. y .. "]",
+                        content = "The Eclipse has queued a total-annihilation operation against sector ["
+                            .. x .. ":" .. y .. "]. The sector has not yet been reported destroyed.",
+                        category = "Galactic Dread",
+                    },
+                })
+            end
         end
-    end
 end
 
 -- No secure()/restore() is needed: this manager carries no authoritative in-memory state.

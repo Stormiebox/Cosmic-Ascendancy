@@ -10,6 +10,7 @@ local ShipUtility = include ("shiputility")
 local PlanGenerator = include ("plangenerator")
 local cv_goods = include ("cosmicvaultgoods")
 local CosmicVaultData = include("cosmicvaultdata")
+local CosmicAscendancyNews = include("ca_news")
 
 local EclipseGenerator = {}
 
@@ -94,20 +95,30 @@ function EclipseGenerator.checkRemnantEscalation()
     local tier = state.territory.remnantTier or 0
     local announcedTier = state.history.remnantTierAnnounced or 0
     if tier <= announcedTier then return end
-    local resultCode, changed = Galaxy():invokeFunction(
+    local resultCode, nextRevision = Galaxy():invokeFunction(
         "data/scripts/galaxy/ca_state_coordinator.lua", "requestRemnantAnnouncement",
         "data/scripts/lib/eclipsegenerator.lua", state.revision, tier)
-    if resultCode ~= 0 or not changed then return end
+    if resultCode ~= 0 or not nextRevision then return end
     Server():broadcastChatMessage("The Eclipse", 2, "Remnant Escalation Protocol Tier " .. tier .. " engaged. Surviving forces have adapted.")
 
-    local cv_news = include("cosmicvaultnews")
-    if cv_news.publishArticle then
-        cv_news.publishArticle({
+    CosmicAscendancyNews.Publish({
+        kind = "escalation",
+        eventId = "remnant-tier:" .. tostring(tier),
+        threadId = "eclipse-remnant-escalation",
+        eventType = "ascendancy.eclipse.remnant_escalation",
+        topic = "threat",
+        severity = "critical",
+        breaking = true,
+        recordType = "ca_state_v2",
+        recordId = "remnant-tier",
+        sourceRevision = nextRevision,
+        sourceState = "tier_" .. tostring(tier),
+        article = {
             title = "GALACTIC THREAT: Eclipse Remnants Adapt",
             content = "Every World-Eater and Citadel destroyed has forced the Eclipse's surviving remnants to compensate. Surviving Eclipse superweapons are now measurably stronger and more frequent than before (Remnant Tier " .. tier .. ").",
             category = "Galactic Dread"
-        })
-    end
+        },
+    })
 end
 
 -- Applied on top of an entity's existing multipliers (World-Eaters, Citadels), a modest additional

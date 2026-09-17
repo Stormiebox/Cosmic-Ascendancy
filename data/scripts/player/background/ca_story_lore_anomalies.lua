@@ -3,6 +3,7 @@ package.path = package.path .. ";data/scripts/?.lua"
 
 local SectorGenerator = include ("SectorGenerator")
 local CosmicVaultData = include("cosmicvaultdata")
+local CosmicAscendancyNews = include("ca_news")
 
 local LoreAnomalies = {}
 
@@ -58,7 +59,7 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
 
     -- Spawn a generic wreckage (Corrupted Databank / Lost Ship)
     local faction = Galaxy():getNearestFaction(x, y)
-    generator:createWreckage(faction, nil, 10, pos)
+    local wreckage = generator:createWreckage(faction, nil, 10, pos)
 
     -- Spawn a stash container with loot scaled by distance to core
     local stashPos = pos.pos + vec3(random():getFloat(50, 100), random():getFloat(50, 100), random():getFloat(50, 100))
@@ -89,19 +90,43 @@ function LoreAnomalies.spawnAnomaly(playerIndex, x, y)
         stash:addScriptOnce("data/scripts/entity/ca_anomaly_stash.lua")
     end
 
+    local materializedEntity
+    if stash and valid(stash) then
+        materializedEntity = stash
+    elseif wreckage and valid(wreckage) then
+        materializedEntity = wreckage
+    end
+    if not materializedEntity then return end
+
     -- Send the lore directly to the player's chat
     Player(playerIndex):sendChatMessage("Ship Sensors", 3, loreText)
 
-    -- Synergy: Report Lore Anomaly to Cosmic Vault News
-    local cvn = include("cosmicvaultnews")
-    if cvn and cvn.publishArticle then
-        local article = {
+    -- Report only after at least one anomaly entity is observable in the sector.
+    CosmicAscendancyNews.Publish({
+        kind = "anomaly",
+        eventId = "lore:" .. tostring(materializedEntity.id.string),
+        threadId = "lore:" .. tostring(materializedEntity.id.string),
+        eventType = "ascendancy.lore_anomaly.discovered",
+        topic = "discovery",
+        severity = "info",
+        location = {x = x, y = y, radius = 0},
+        recordType = "entity_materialization",
+        recordId = materializedEntity.id.string,
+        sourceRevision = 1,
+        sourceState = "materialized",
+        provenance = {
+            recordType = "entity_materialization",
+            recordId = tostring(materializedEntity.id.string),
+            playerIndex = playerIndex,
+            sourceRevision = 1,
+            sourceState = "materialized",
+        },
+        article = {
             title = "Deep Space Discovery",
             category = "Lore Anomaly",
             content = "An independent explorer has uncovered a disturbing ancient databank in sector (" .. x .. ":" .. y .. "). The decrypted fragments read: '" .. loreText .. "'"
-        }
-        cvn.publishArticle(article)
-    end
+        },
+    })
 end
 
 

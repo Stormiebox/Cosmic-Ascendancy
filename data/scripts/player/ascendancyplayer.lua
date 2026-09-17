@@ -110,7 +110,8 @@ function AscendancyPlayer.onSectorEntered(playerIndex, x, y)
                     "annihilation", x, y, claimant, claimed.id,
                     claimed.createdAt,
                     claimed.payload and claimed.payload.encounterId,
-                    claimed.payload and claimed.payload.criticalPlayerShips == true)
+                    claimed.payload and claimed.payload.criticalPlayerShips == true,
+                    claimed.payload and claimed.payload.sourceEncounterId)
                 if not sector:hasScript("sector/ca_delayed_annihilation.lua") then
                     CosmicVaultTerritory.RetryMaterialization(
                         "annihilation", x, y, claimant, "script_attachment_failed", 60)

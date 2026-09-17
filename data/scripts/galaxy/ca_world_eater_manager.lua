@@ -1,7 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include("stringutility")
 include("callable")
-local cv_news = include("cosmicvaultnews")
+local CosmicAscendancyNews = include("ca_news")
 local CosmicVaultData = include("cosmicvaultdata")
 local EncounterBridge = include("ca_encounter_bridge")
 local OWNER = "data/scripts/galaxy/ca_world_eater_manager.lua"
@@ -10,6 +10,93 @@ local OWNER = "data/scripts/galaxy/ca_world_eater_manager.lua"
 WorldEaterManager = {}
 WorldEaterManager.timer = 0
 WorldEaterManager.activeEvent = nil -- {x=x, y=y, timeLeft=900}
+
+local function publishWorldEaterStatus(event, encounter, engaged)
+    if not event or not encounter then return end
+    local title = engaged and "CRITICAL: World-Eater Materialized!"
+        or "CRITICAL: World-Eater Signature Detected!"
+    local content
+    if engaged then
+        content = "The Eclipse World-Eater has materialized and been verified at ["
+            .. event.x .. ":" .. event.y .. "]. The doomsday countdown stopped when defenders engaged it."
+    else
+        content = "A massive Eclipse signature has been detected at [" .. event.x .. ":"
+            .. event.y .. "]. The source is preparing a sector-annihilation weapon; forces have 20 minutes to reach it."
+    end
+    CosmicAscendancyNews.Upsert({
+        kind = "encounter",
+        eventId = event.encounterId,
+        threadId = event.encounterId,
+        eventType = "ascendancy.world_eater.active",
+        topic = "threat",
+        severity = "critical",
+        breaking = true,
+        location = {x = event.x, y = event.y, radius = 0},
+        expiresAt = engaged and nil or encounter.deadlineAt,
+        recordType = "ca_encounters_v1",
+        recordId = event.encounterId,
+        sourceRevision = encounter.revision or 1,
+        sourceState = encounter.state,
+        article = {title = title, content = content, category = "Galactic Dread"},
+    })
+end
+
+local function publishDoomsdayQueued(encounterId, annihilationId, x, y, sourceRevision)
+    CosmicAscendancyNews.Resolve("encounter", encounterId,
+        "The World-Eater's deadline elapsed and its annihilation sequence was dispatched.")
+    CosmicAscendancyNews.Publish({
+        kind = "encounter",
+        eventId = encounterId .. ":doomsday",
+        threadId = encounterId,
+        eventType = "ascendancy.world_eater.doomsday_dispatched",
+        topic = "threat",
+        severity = "critical",
+        breaking = true,
+        location = {x = x, y = y, radius = 0},
+        recordType = "ca_receipts_v1",
+        recordId = encounterId .. ":doomsday",
+        sourceRevision = sourceRevision or 1,
+        sourceState = "succeeded",
+        provenance = {
+            recordType = "ca_receipts_v1",
+            recordId = tostring(encounterId .. ":doomsday"),
+            encounterId = tostring(encounterId),
+            annihilationEncounterId = tostring(annihilationId or "unknown"),
+            sourceRevision = sourceRevision or 1,
+            sourceState = "succeeded",
+        },
+        article = {
+            title = "DOOMSDAY: Annihilation Sequence Dispatched",
+            content = "The World-Eater has fired at sector [" .. x .. ":" .. y
+                .. "]. An annihilation operation is now queued for materialization; final sector-state confirmation is pending.",
+            category = "Galactic Dread",
+        },
+    })
+end
+
+local function publishWorldEaterVictory(event, encounter)
+    if not event or not encounter then return end
+    CosmicAscendancyNews.Resolve("encounter", event.encounterId,
+        "The verified World-Eater was destroyed by participating defenders.")
+    CosmicAscendancyNews.Publish({
+        kind = "encounter",
+        eventId = event.encounterId .. ":victory",
+        threadId = event.encounterId,
+        eventType = "ascendancy.world_eater.destroyed",
+        topic = "conflict",
+        severity = "info",
+        location = {x = event.x, y = event.y, radius = 0},
+        recordType = "ca_encounters_v1",
+        recordId = event.encounterId,
+        sourceRevision = encounter.revision or 1,
+        sourceState = "succeeded",
+        article = {
+            title = "World-Eater Destroyed!",
+            content = "Heroic forces have obliterated the Eclipse World-Eater, preventing the destruction of the sector. The Eclipse has retreated, granting the galaxy a 10-hour Grace Period.",
+            category = "Heroic Victories",
+        },
+    })
+end
 
 function WorldEaterManager.getUpdateInterval() return 30.0 end -- Check every 30s
 
@@ -54,12 +141,31 @@ function WorldEaterManager.updateServer(timeStep)
         elseif registered and registered.state == "succeeded" then
             local recorded = WorldEaterManager.recordOutcome(
                 WorldEaterManager.activeEvent.encounterId, "world_eater_succeeded")
-            if recorded then WorldEaterManager.activeEvent = nil end
+            if recorded then
+                publishWorldEaterVictory(WorldEaterManager.activeEvent, registered)
+                WorldEaterManager.activeEvent = nil
+            end
             return
         elseif registered and registered.state == "abandoned" then
             local recorded = WorldEaterManager.recordOutcome(
                 WorldEaterManager.activeEvent.encounterId, "world_eater_abandoned")
-            if recorded then WorldEaterManager.activeEvent = nil end
+            if recorded then
+                local receiptRegistry = CosmicVaultData.GetRecord(Server(), "ca_receipts_v1", 1)
+                local operationId = WorldEaterManager.activeEvent.encounterId .. ":doomsday"
+        local receipt = receiptRegistry and receiptRegistry.receipts
+            and receiptRegistry.receipts[operationId]
+                if receipt and receipt.state == "succeeded" then
+                    publishDoomsdayQueued(WorldEaterManager.activeEvent.encounterId,
+                        receipt.evidence and receipt.evidence.annihilationEncounterId,
+                        WorldEaterManager.activeEvent.x, WorldEaterManager.activeEvent.y,
+                        receipt.revision or 1)
+                else
+                    CosmicAscendancyNews.Resolve("encounter",
+                        WorldEaterManager.activeEvent.encounterId,
+                        "The World-Eater encounter was abandoned without a verified victory.")
+                end
+                WorldEaterManager.activeEvent = nil
+            end
             return
         elseif registered and registered.state == "repair_required" then
             return
@@ -141,7 +247,11 @@ function WorldEaterManager.updateServer(timeStep)
                         })
                         local recorded = transitioned and WorldEaterManager.recordOutcome(
                             abandoned.encounterId, "world_eater_abandoned")
-                        if recorded then WorldEaterManager.activeEvent = nil end
+                        if recorded then
+                            CosmicAscendancyNews.Resolve("encounter", abandoned.encounterId,
+                                "The engaged World-Eater was abandoned after the target sector remained empty for two hours.")
+                            WorldEaterManager.activeEvent = nil
+                        end
                     end
                 end
             end
@@ -224,13 +334,7 @@ function WorldEaterManager.triggerEvent()
     }
 
     Server():broadcastChatMessage("Galactic News"%_T, 0, "CRITICAL ALERT: An Eclipse World-Eater has warped to coordinates [" .. tx .. ":" .. ty .. "]! 20 minutes to total annihilation!")
-    if cv_news.publishArticle then
-        cv_news.publishArticle({
-            title = "CRITICAL: World-Eater Detected!",
-            content = "A massive Eclipse super-structure has materialized at [" .. tx .. ":" .. ty .. "]. Energy signatures indicate it is charging a weapon capable of obliterating the entire sector. Forces have 20 minutes to intercept.",
-            category = "Galactic Dread"
-        })
-    end
+    publishWorldEaterStatus(WorldEaterManager.activeEvent, encounter, false)
 
     -- If loaded, inject sector script
     if Galaxy():sectorLoaded(tx, ty) then
@@ -280,6 +384,7 @@ function WorldEaterManager.confirmEngaged(encounterId, bossId)
     event.engaged = true
     event.materializing = false
     event.engagedAt = Server().unpausedRuntime
+    publishWorldEaterStatus(event, activated, true)
     return true, nil
 end
 
@@ -291,9 +396,31 @@ function WorldEaterManager.reportMaterializationFailure(encounterId, errorText)
     event.materializing = false
     if (event.spawnAttempts or 0) >= 5 then
         event.repairRequired = "world_eater_materialization_failed"
-        return EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+        local repaired, repairError = EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
             lastError = errorText or "spawn_failed"
         })
+        if repaired then
+            CosmicAscendancyNews.Upsert({
+                kind = "encounter",
+                eventId = encounterId,
+                threadId = encounterId,
+                eventType = "ascendancy.world_eater.active",
+                topic = "threat",
+                severity = "warning",
+                location = {x = event.x, y = event.y, radius = 0},
+                recordType = "ca_encounters_v1",
+                recordId = encounterId,
+                sourceRevision = repaired.revision or 1,
+                sourceState = "repair_required",
+                article = {
+                    title = "World-Eater Signal Requires Investigation",
+                    content = "The Eclipse signature at [" .. event.x .. ":" .. event.y
+                        .. "] could not be materialized after five attempts. No victory or destruction has been inferred; administrator review is required.",
+                    category = "Galactic Dread",
+                },
+            })
+        end
+        return repaired, repairError
     end
     return EncounterBridge.Transition(OWNER, encounterId, "retryable", {
         lastError = errorText or "spawn_failed"
@@ -306,9 +433,31 @@ function WorldEaterManager.reportMissingBoss(encounterId, bossId)
         return nil, "encounter_mismatch"
     end
     event.repairRequired = "engaged_world_eater_missing"
-    return EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
+    local repaired, repairError = EncounterBridge.Transition(OWNER, encounterId, "repair_required", {
         lastError = "loaded_sector_missing_registered_boss"
     })
+    if repaired then
+        CosmicAscendancyNews.Upsert({
+            kind = "encounter",
+            eventId = encounterId,
+            threadId = encounterId,
+            eventType = "ascendancy.world_eater.active",
+            topic = "threat",
+            severity = "warning",
+            location = {x = event.x, y = event.y, radius = 0},
+            recordType = "ca_encounters_v1",
+            recordId = encounterId,
+            sourceRevision = repaired.revision or 1,
+            sourceState = "repair_required",
+            article = {
+                title = "World-Eater Correlation Lost",
+                content = "The registered World-Eater at [" .. event.x .. ":" .. event.y
+                    .. "] is missing from its loaded sector. No victory has been inferred; administrator review is required.",
+                category = "Galactic Dread",
+            },
+        })
+    end
+    return repaired, repairError
 end
 
 function WorldEaterManager.executeDoomsday()
@@ -338,6 +487,10 @@ function WorldEaterManager.executeDoomsday()
         local recorded, recordError = WorldEaterManager.recordOutcome(
             encounterId, "world_eater_abandoned")
         if not recorded then return nil, recordError end
+        local annihilationId = existingReceipt.evidence
+            and existingReceipt.evidence.annihilationEncounterId or nil
+        publishDoomsdayQueued(encounterId, annihilationId, tx, ty,
+            existingReceipt.revision or 1)
         WorldEaterManager.activeEvent = nil
         return true, nil
     end
@@ -357,15 +510,9 @@ function WorldEaterManager.executeDoomsday()
         return nil, prepareError
     end
 
-    Server():broadcastChatMessage("The Eclipse"%_T, 2, "Doomsday Sequence Complete. Sector [" .. tx .. ":" .. ty .. "] has been purged.")
-
-    if cv_news.publishArticle then
-        cv_news.publishArticle({
-            title = "DOOMSDAY: Sector [" .. tx .. ":" .. ty .. "] Erased",
-            content = "The World-Eater has fired. Trillions are dead. There is nothing left but dust and dark matter.",
-            category = "Galactic Dread"
-        })
-    end
+    Server():broadcastChatMessage("The Eclipse"%_T, 2,
+        "Doomsday Sequence Complete. Annihilation has been dispatched toward sector ["
+            .. tx .. ":" .. ty .. "].")
 
     local CosmicVaultEconomy = include("cosmicvaulteconomy")
     if CosmicVaultEconomy then
@@ -420,6 +567,8 @@ function WorldEaterManager.executeDoomsday()
     if not abandoned then return nil, abandonError end
     local recorded, recordError = WorldEaterManager.recordOutcome(encounterId, "world_eater_abandoned")
     if not recorded then return nil, recordError end
+    publishDoomsdayQueued(encounterId, annihilationId, tx, ty,
+        completed.revision or abandoned.revision or 1)
     WorldEaterManager.activeEvent = nil
     return true, nil
 end
@@ -532,13 +681,7 @@ function WorldEaterManager.resolveEvent(encounterId, bossId)
     local EclipseGenerator = include("eclipsegenerator")
     EclipseGenerator.checkRemnantEscalation()
 
-    if cv_news.publishArticle then
-        cv_news.publishArticle({
-            title = "World-Eater Destroyed!",
-            content = "Heroic forces have obliterated the Eclipse World-Eater, preventing the destruction of the sector. The Eclipse has retreated, granting the galaxy a 10-hour Grace Period.",
-            category = "Heroic Victories"
-        })
-    end
+    publishWorldEaterVictory({encounterId = encounterId, x = tx, y = ty}, succeeded)
 
     return true, nil
 end
