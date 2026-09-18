@@ -89,7 +89,14 @@ mission.phases[1].onSectorEntered = function(x, y)
         -- approach a projection that doesn't exist with no way to recover. Leaving the flag unset
         -- means the next onSectorEntered (re-entering this sector) retries the spawn, since
         -- aegisExists correctly still reads false.
-        if aegisExists then
+        -- Only request the debrief while it hasn't already been confirmed once. onSectorEntered
+        -- re-fires every time the player crosses back into this sector (e.g. leaving to repair and
+        -- returning before talking to Aegis) -- without this guard, that second entry would call
+        -- RequestDebrief again while the controller is already "debrief_pending" (not "active"), get
+        -- rejected with a nil revision, and stomp a true debriefReady back to false. That leaves this
+        -- mission permanently unable to finish() even after the player actually talks to Aegis and the
+        -- controller advances the chapter, since finish() below is gated on debriefReady too.
+        if aegisExists and not mission.data.custom.debriefReady then
             local revision = CampaignBridge.RequestDebrief(0, x, y)
             mission.data.custom.debriefReady = revision ~= nil
         end

@@ -196,7 +196,10 @@ mission.phases[3].onSectorEntered = function(x, y)
         -- Only mark the player "ready for debrief" once Aegis is actually confirmed present (see
         -- ca_story0_meet_aegis.lua for the full rationale) -- otherwise a failed createShip() would
         -- tell the player to approach a ship that doesn't exist, with no way to recover.
-        if aegisExists then
+        -- Only request the debrief while it hasn't already been confirmed once -- see
+        -- ca_story0_meet_aegis.lua for why re-requesting on a redundant re-entry into this sector
+        -- would stomp a true debriefReady back to false and permanently block finish() below.
+        if aegisExists and not mission.data.custom.debriefReady then
             local revision = CampaignBridge.RequestDebrief(4, mission.data.custom.aegisX, mission.data.custom.aegisY)
             mission.data.custom.debriefReady = revision ~= nil
         end

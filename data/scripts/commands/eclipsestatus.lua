@@ -7,7 +7,6 @@ include("stringutility")
 local EclipseStatus = include("ca_eclipse_status")
 
 function execute(sender, commandName, ...)
-    local server = Server()
     local player = Player(sender)
     if not player then return 0, "", "" end
 

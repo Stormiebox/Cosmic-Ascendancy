@@ -5,7 +5,7 @@ CAAegisEnvoy = {}
 
 CAAegisEnvoy = include("npcapi/singleinteraction")
 include("stringutility")
-include("callable")
+include("data/scripts/lib/callable")
 local CosmicVaultData = include("cosmicvaultdata")
 
 local data = CAAegisEnvoy.data

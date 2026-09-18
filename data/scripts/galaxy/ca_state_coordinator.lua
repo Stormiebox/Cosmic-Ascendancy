@@ -1035,6 +1035,7 @@ function CAStateCoordinator.scanRepair(scope, playerIndex)
                     -- "reissue" here would let claimWeapon() generate and insert a second copy.
                     local deliveryAmbiguousOrConfirmed = reason == "claim_prepared_restart_ambiguity"
                         or reason == "forge_claim_completion_persistence_failed"
+                        or reason == "contradictory_legacy_forge_state"
                     if deliveryAmbiguousOrConfirmed then
                         actions = {"mark-complete", "abandon"}
                     elseif string.find(reason, "claim", 1, true) then

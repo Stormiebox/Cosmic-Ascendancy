@@ -163,33 +163,54 @@ end
 function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
     local entity = Entity()
     if not entity then return end
-    
+
+    -- Type-specific resistance (see ca_nemesis_resist.lua) is applied first, reducing the effective
+    -- hit before the shared cap ever looks at it -- so a big hit of the resisted type only gets
+    -- refunded once, on whatever's left after the reduction, instead of twice.
+    local resistType = entity:getValue("ca_nemesis_resist_type")
+    if resistType ~= nil and damageType == resistType then
+        local resisted = amount * 0.90
+        entity.durability = math.min(entity.maxDurability, entity.durability + resisted)
+        amount = amount - resisted
+    end
+
     -- 8% Damage Gate Logic
     local maxTotalHealth = entity.maxDurability + (entity.shieldMaxDurability or 0)
     local damageLimit = maxTotalHealth * 0.08
-    
+
     if amount > damageLimit then
         local excess = amount - damageLimit
         entity.durability = math.min(entity.maxDurability, entity.durability + excess)
         amount = damageLimit
     end
-    
+
     trackAndCheckRetreat(entity, amount, damageType)
 end
 
 function onShieldDamaged(objectIndex, amount, damageType, inflictor)
     local entity = Entity()
     if not entity then return end
-    
+
+    -- Type-specific resistance first, same as onDamaged above.
+    local resistType = entity:getValue("ca_nemesis_resist_type")
+    if resistType ~= nil and damageType == resistType then
+        local maxShield = entity.shieldMaxDurability
+        if maxShield and maxShield > 0 then
+            local resisted = amount * 0.90
+            entity.shieldDurability = math.min(maxShield, entity.shieldDurability + resisted)
+            amount = amount - resisted
+        end
+    end
+
     -- 8% Damage Gate Logic
     local maxTotalHealth = entity.maxDurability + (entity.shieldMaxDurability or 0)
     local damageLimit = maxTotalHealth * 0.08
-    
+
     if amount > damageLimit then
         local excess = amount - damageLimit
         entity.shieldDurability = math.min(entity.shieldMaxDurability, entity.shieldDurability + excess)
         amount = damageLimit
     end
-    
+
     trackAndCheckRetreat(entity, amount, damageType)
 end

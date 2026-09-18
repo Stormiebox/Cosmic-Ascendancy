@@ -1,7 +1,7 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include("stringutility")
 include("randomext")
-include("callable")
+include("data/scripts/lib/callable")
 
 local CosmicVaultData = include("cosmicvaultdata")
 local EncounterBridge = include("ca_encounter_bridge")

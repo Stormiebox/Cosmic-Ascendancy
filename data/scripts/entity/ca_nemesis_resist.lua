@@ -1,53 +1,21 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 package.path = package.path .. ";data/scripts/?.lua"
 
-local resistType = nil
-
+-- Pure attachment point: ca_nemesis_hunt.lua conditionally addScriptOnce's this onto the wounded,
+-- relocated Dread-Lord, passing the damage type it fled from as the argument. The actual damage
+-- math -- both the 90% type reduction and the shared 8% cap -- lives entirely in
+-- ca_nemesis_system.lua, which is always attached to every Harbinger and reads the resisted type
+-- back off the entity. Two independent onDamaged/onShieldDamaged callbacks on the same entity each
+-- see the engine's raw, unmodified hit amount; if this script refunded its own 90% on top of
+-- ca_nemesis_system.lua's separate 8% refund, a big resisted hit could get refunded twice over,
+-- healing the ship instead of hurting it. Keeping the reduction and the cap in one callback, applied
+-- in sequence, is what avoids that.
 function initialize(damageType)
-    resistType = damageType or DamageType.Physical
-
     if onServer() then
         local entity = Entity()
-
-        -- We apply a 90% damage reduction for the specific element inside the onDamaged callbacks
-
-        entity:registerCallback("onDamaged", "onDamaged")
-        entity:registerCallback("onShieldDamaged", "onShieldDamaged")
+        entity:setValue("ca_nemesis_resist_type", damageType or DamageType.Physical)
 
         -- Alert players that it has adapted
         Sector():broadcastChatMessage(entity.title, 2, "ADAPTATION COMPLETE. NEMESIS PROTOCOLS ENGAGED.")
     end
-end
-
-function secure()
-    return { type = resistType }
-end
-
-function restore(data)
-    if data then
-        resistType = data.type
-    end
-end
-
--- The 8%-of-max-health damage gate lives solely in ca_nemesis_system.lua now, which is attached to
--- every Harbinger alongside this script and receives the exact same onDamaged/onShieldDamaged
--- callbacks independently. Both scripts used to apply their own separate 8% cap-and-refund pass on
--- top of each other -- on a hit above the cap, the excess got refunded twice, and on the ship's own
--- resisted damage type the 90% reduction below plus the second 8% refund could exceed the damage
--- actually dealt, healing the ship instead of hurting it. This script's job is only the type-specific
--- 90% reduction; ca_nemesis_system.lua enforces the shared cap on whatever damage remains.
-function onDamaged(objectIndex, amount, inflictor, damageSource, damageType)
-    if damageType ~= resistType then return end
-    local entity = Entity()
-    local resisted = amount * 0.90
-    entity.durability = math.min(entity.durability + resisted, entity.maxDurability)
-end
-
-function onShieldDamaged(objectIndex, amount, damageType, inflictor)
-    if damageType ~= resistType then return end
-    local entity = Entity()
-    local maxShield = entity.shieldMaxDurability
-    if not maxShield or maxShield <= 0 then return end
-    local resisted = amount * 0.90
-    entity.shieldDurability = math.min(entity.shieldDurability + resisted, maxShield)
 end

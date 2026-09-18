@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 include("stringutility")
-include("callable")
+include("data/scripts/lib/callable")
 
 -- The Eclipse: Command Interface -- a standalone Player UI window opened by interacting
 -- with your own ship, following the exact same pattern already proven in Cosmic Overhaul's

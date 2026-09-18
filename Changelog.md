@@ -16,6 +16,17 @@ sector unloading, reconnects, and server restarts.
 
 ### 🩹 Post-Release Corrections
 
+- [Fix] **Nemesis Type Resistance And The 8% Damage Cap Could Still Double-Refund
+  (`entity/ca_nemesis_resist.lua`, `entity/ca_nemesis_system.lua`):** A prior fix moved the 8% cap
+  solely into `ca_nemesis_system.lua`, but `ca_nemesis_resist.lua` still independently registered its
+  own `onDamaged`/`onShieldDamaged` and refunded 90% of the *engine's raw, unmodified* hit amount for
+  its resisted damage type -- the two scripts are separate instances on the same entity with no
+  shared state, so neither refund ever saw the other's. On a large hit of the resisted type that also
+  exceeded the cap, both refunds still applied to the same raw amount and could sum past the damage
+  actually dealt, healing the Dread-Lord instead of hurting it. `ca_nemesis_resist.lua` is now a pure
+  attachment point that stores the resisted damage type on the entity; `ca_nemesis_system.lua` reads
+  it back and applies the 90% type reduction first, then checks the shared 8% cap against what's left
+  of that same hit, so the two mitigations compose instead of stacking independently.
 - [Fix] **World-Eater Loot Now Requires An Active Encounter (`entity/ca_worldeater_behavior.lua`):**
   `onDestroyed` checks `encounter.state` before paying out Ascendant Matter, turrets, and upgrades,
   transitioning `active` to `resolving` the same way `ca_citadel_loot.lua` already does. A World-Eater

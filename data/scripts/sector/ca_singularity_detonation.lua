@@ -1,6 +1,6 @@
 package.path = package.path .. ";data/scripts/lib/?.lua"
 
-include("callable")
+include("data/scripts/lib/callable")
 
 -- namespace Detonation
 Detonation = {}
@@ -68,7 +68,9 @@ function Detonation.updateServer(timeStep)
                     local damage = target.maxDurability * 0.15
                     -- index arg (0 = whole-entity) was missing, which shifted translationf into the
                     -- integer index slot instead of the location slot.
-                    target:inflictDamage(damage, 1.0, DamageType.Energy, 0, target.translationf)
+                    -- damageSource was a bare "1.0", which is DamageSource.Collision, not the
+                    -- singularity-blast damage this actually is -- use the named enum instead.
+                    target:inflictDamage(damage, DamageSource.Arbitrary, DamageType.Energy, 0, target.translationf)
                 end
             end
         end

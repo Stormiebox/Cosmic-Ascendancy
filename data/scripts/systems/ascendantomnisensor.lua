@@ -79,9 +79,13 @@ function onSectorEntered(playerIndex, x, y, sectorChangeType)
         local stashesFound = 0
         local asteroidsFound = 0
 
+        -- Detects both lore-anomaly stash titles (ca_story_lore_anomalies.lua's primary
+        -- "Corrupted Databank Stash" and ca_anomaly_stash.lua's 10%-chance "Resonated Databank
+        -- Stash" bonus spawn). The previous "Hidden Stash" literal matched no title ever actually
+        -- set anywhere in the mod and silently missed the resonated bonus stash entirely.
         local wreckages = {sector:getEntitiesByType(EntityType.Wreckage)}
         for _, w in pairs(wreckages) do
-            if w.title == "Hidden Stash" or w.title == "Corrupted Databank Stash"%_t then
+            if w.title == "Corrupted Databank Stash"%_t or w.title == "Resonated Databank Stash"%_t then
                 stashesFound = stashesFound + 1
             end
         end
